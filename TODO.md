@@ -247,6 +247,59 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       rather than padding it out; later findings in this pass were
       noticeably less compelling than the earlier ones (diminishing
       returns), a good signal for when to stop mining one angle.
+- [x] ~~Sort controls on the grid-based tabs.~~ Done — user-requested (not
+      a data-insight find, unlike most of this list). Composers, Players,
+      Files, and Gaps each got a sort dropdown (`TABS[i].sorts`,
+      `currentSort` state, `applySort()`) alongside the existing text
+      filter. Deliberately not added to the bar-chart tabs (Countries,
+      Player Families, Scene Groups, Insights) — those are already
+      sorted by their one meaningful dimension, so a re-sort control
+      wouldn't add anything there. Switching tabs resets to that tab's
+      own default; typing a filter or picking a sort both just re-render
+      the current tab and must not stomp the other's state.
+- [x] ~~Players/Editors is missing tools that show up in the actual file
+      data.~~ Done — user-reported. Individual SID files reference 605
+      distinct `player` tags, but DeepSID's own curated `?players`
+      database only has 129 of them — 496 tags (17,538 files, ~32% of
+      the collection) had no matching entry at all: a bare "DMC"
+      (DeepSID only lists versioned DMC v4/v5/v6.x), each
+      "JCH_NewPlayer_V9" through "V20" individually, composers' own
+      hand-coded in-game routines ("Rob_Hubbard", "David_Whittaker").
+      New `deriveSyntheticPlayers()` creates a player-shaped entry for
+      each (`inferred: true`, no spec data to show), merged into the
+      same players array everything else reads. Two real finds: "JCH
+      NewPlayer V20" (1,616 files) and "Hermit/SidWizard V1.x" (988
+      files) both rank in the top 15 most-used tools overall despite
+      never having a curated entry.
+      - **Real matching bug found and fixed along the way**:
+        `matchPlayer()` bailed to "no match" whenever a raw tag had
+        multiple strict candidates, even when one was clearly more
+        specific — "SidFactory_II/Laxity" matches both "SID Factory"
+        and "SID Factory II" as substrings, and should obviously prefer
+        the longer, more specific one. Fixed to prefer the longest
+        candidate only when it clearly beats the runner-up (so a bare
+        "DMC" against v4/v5/v6.x — genuinely, equally ambiguous — still
+        correctly returns null rather than guessing).
+      - Deliberately not filtered by a minimum file count — even a
+        single-file tag is real data DeepSID's curated list is missing;
+        the Players tab's own sort/filter surfaces the common ones first.
+      - `computePlayerFamilies()` (Player Families tab) excludes inferred
+        entries — there's no known developer to group them by.
+- [x] ~~"Inferred only" filter/sort, to help research the 496 unidentified
+      players.~~ Done — user-requested follow-up. New sort-dropdown
+      option on the Players tab, `inferred-only` (doubles as a filter,
+      not just a sort — isolates just the 496 tags, sorted most-used
+      first). Also added a research aid to each inferred player's detail
+      page: how concentrated its usage is among composers. ≤3 composers
+      total, or one composer at ≥60% of files, gets called out as
+      "likely a personal/hand-coded routine, not a shared tool" (e.g.
+      "David_Whittaker" — 89% by David Whittaker himself); spread across
+      many composers gets called out as "more likely a real, shared tool
+      that just never got written up" (e.g. "Rob_Hubbard" — spread
+      across 51 different composers, only 28% by Rob Hubbard himself,
+      suggesting his own player routine was reused/adapted by others; or
+      "Basic_Program" — spread across 47 composers, since it's not a
+      player at all, just files hand-written directly in BASIC).
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

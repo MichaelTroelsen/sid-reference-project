@@ -73,6 +73,33 @@ picture; this file is quick orientation for a fresh session.
   actual charset and silently corrupts every accented character.
   `fetch-hvsc-docs.js`'s `downloadText()` decodes via `Buffer.from(...).toString('latin1')`
   instead — don't swap that back to `res.text()`.
+- **Players/Editors isn't just DeepSID's curated 129 anymore.**
+  `deriveSyntheticPlayers()` (template) scans every file's raw `player`
+  tag, and for the 496 distinct tags that don't resolve to any of the
+  129 curated entries (17,538 files, ~32% of the whole collection — a
+  bare "DMC" since DeepSID only has versioned DMC v4/v5/v6.x, each
+  "JCH_NewPlayer_V9" through "V20" individually, composers' own hand-
+  coded in-game routines like "Rob_Hubbard"), synthesizes a player-shaped
+  object (`inferred: true`, no spec data — there isn't any) and merges it
+  into `window.SID_DATA.players` once at load, before anything else
+  reads that array. Every existing consumer (Files tab matching, usage
+  counts, the Players tab itself) picks these up for free. Two real
+  finds while building this: "JCH NewPlayer V20" (1,616 files) and
+  "Hermit/SidWizard V1.x" (988 files) both rank in the top 15 most-used
+  tools overall despite never having a curated entry. `matchPlayer()`
+  also gained a "prefer the more specific of multiple strict matches"
+  rule (e.g. "SidFactory_II/Laxity" now correctly resolves to "SID
+  Factory II" instead of bailing out as ambiguous against "SID Factory").
+  `computePlayerFamilies()` excludes inferred entries (no known developer
+  to group by). The Players tab's sort dropdown has an "Inferred only"
+  option (doubles as a filter) for working through the 496 one at a time;
+  each inferred player's detail page shows a composer-concentration hint
+  (≤3 composers, or one at ≥60% of files, is called out as "likely a
+  personal routine"; spread across many composers as "more likely a real
+  tool that never got written up") — genuinely useful signal, not a
+  guess: "Rob_Hubbard" turned out to be spread across 51 different
+  composers (only 28% by Rob Hubbard himself), suggesting his player
+  routine was reused/adapted by others.
 - The generated page has six data-driven tabs beyond Composers/Gaps:
   Players/Editors, SID Files (every file across every composer, linked
   to its player where identifiable), Countries, Player Families
@@ -106,6 +133,17 @@ picture; this file is quick orientation for a fresh session.
   `valueFn(n, name)` for percentage-style displays) with the Countries
   tab, which was refactored to use it too. Excludes one known composer-
   identity edge case, `unreleased` — see TODO.md.
+- **Filter and sort**: every tab has always had a text filter
+  (`currentFilter`, the search bar). Composers/Players/Files/Gaps also
+  have a sort dropdown (`currentSort`, `TABS[i].sorts` array — each tab's
+  first entry is its default). Deliberately not added to the bar-chart
+  tabs (Countries, Player Families, Scene Groups, Insights) — those are
+  already sorted by their one meaningful dimension (magnitude), so an
+  arbitrary re-sort control there wouldn't add anything. Switching tabs
+  resets to that tab's own default sort; typing in the filter box or
+  picking a different sort option both just re-render the same tab and
+  must not reset the other one's state (`render()`'s `tabChanged` check
+  handles this).
 - **Number formatting**: `Number.prototype.toLocaleString()` with no
   locale argument uses the *visitor's browser locale* — this dev
   environment defaults to `en-DK`, which renders "14.043" (period as the

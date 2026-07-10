@@ -34,6 +34,8 @@ h1 em{color:var(--cyan);font-style:normal;}
 #search-input{flex:1;min-width:200px;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.55rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;}
 #search-input:focus{border-color:var(--tab);}
 #search-input::placeholder{color:var(--dim);}
+#sort-select{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.55rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;cursor:pointer;}
+#sort-select:focus{border-color:var(--tab);}
 #search-count{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--dim);white-space:nowrap;}
 .rand-btn{font-family:'Share Tech Mono',monospace;font-size:.68rem;background:var(--card-bg);border:1px solid var(--border);color:var(--text);padding:.5rem .9rem;border-radius:4px;cursor:pointer;white-space:nowrap;transition:border-color .15s;}
 .rand-btn:hover{border-color:var(--amber);}
@@ -138,6 +140,7 @@ footer a:hover{text-decoration:underline;}
 <div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
 <div class="search-bar" id="search-bar">
   <input type="text" id="search-input" placeholder="Filter this tab…" oninput="applyFilter(this.value)">
+  <select id="sort-select" onchange="applySort(this.value)" style="display:none"></select>
   <span id="search-count"></span>
   <button class="rand-btn" onclick="randomComposer()">🎲 Random composer</button>
 </div>
@@ -207,19 +210,43 @@ function imgFallback(el, flag){
 }
 
 // ── TABS ─────────────────────────────────────────────────────────────────
+// `sorts` is optional — only the tabs that are genuinely long, similarly-
+// shaped lists (as opposed to the bar-chart tabs, which are already sorted
+// by their one meaningful dimension: magnitude) get a sort control. The
+// first entry in each tab's `sorts` array is that tab's default whenever
+// you switch onto it.
 const TABS = [
-  {id:'composers', label:'Composers',          desc:'Every composer fetched from DeepSID so far — profile bio, country, and HVSC file count.'},
-  {id:'players',   label:'Players / Editors',  desc:'The full players/editors database DeepSID knows about, in one request.'},
-  {id:'files',     label:'SID Files',          desc:'Every known SID file across all composers, linked to its player where identifiable.'},
+  {id:'composers', label:'Composers',          desc:'Every composer fetched from DeepSID so far — profile bio, country, and HVSC file count.', sorts:[
+    {value:'name-asc',    label:'Name (A–Z)'},
+    {value:'name-desc',   label:'Name (Z–A)'},
+    {value:'files-desc',  label:'Most SID files'},
+    {value:'active-desc', label:'Most recently active'},
+  ]},
+  {id:'players',   label:'Players / Editors',  desc:'DeepSID\'s own curated players/editors database, plus every other distinct player tag actually used on a SID file that DeepSID doesn\'t have an entry for.', sorts:[
+    {value:'usage-desc',    label:'Most used'},
+    {value:'name-asc',      label:'Name (A–Z)'},
+    {value:'year-desc',     label:'Newest first'},
+    {value:'year-asc',      label:'Oldest first'},
+    {value:'inferred-only', label:'Inferred only (most used first)'},
+  ]},
+  {id:'files',     label:'SID Files',          desc:'Every known SID file across all composers, linked to its player where identifiable.', sorts:[
+    {value:'composer-asc', label:'Composer (A–Z)'},
+    {value:'title-asc',    label:'Title (A–Z)'},
+    {value:'player-asc',   label:'Player (A–Z)'},
+  ]},
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
   {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
   {id:'groups',    label:'Scene Groups',       desc:'Composers grouped by demoscene/cracking group membership, from CSDb — who made music for whom.'},
   {id:'insights',  label:'Insights',           desc:'Aggregate charts across the whole dataset — activity over time, scene roles, most prolific composers.'},
-  {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.'}
+  {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.', sorts:[
+    {value:'type-asc',     label:'Type'},
+    {value:'composer-asc', label:'Composer (A–Z)'},
+  ]}
 ];
 
 let currentTab = 'composers';
 let currentFilter = '';
+let currentSort = '';
 
 function renderPills(){
   const d = window.SID_DATA;
@@ -248,8 +275,10 @@ function emptyState(msg, cmd){
 }
 
 function applyFilter(v){ currentFilter = v.toLowerCase(); render(currentTab); }
+function applySort(v){ currentSort = v; render(currentTab); }
 
 function render(tab){
+  const tabChanged = tab !== currentTab;
   currentTab = tab;
   renderTabs();
   // Undo whatever renderPlayerPage() hid — every normal tab render should
@@ -261,6 +290,20 @@ function render(tab){
   document.getElementById('cat-title').textContent = meta.label;
   document.getElementById('cat-desc').textContent = meta.desc;
   document.getElementById('search-input').placeholder = `Filter ${meta.label.toLowerCase()}…`;
+
+  // Reset to this tab's own default sort only on an actual tab switch —
+  // not on every re-render (typing in the filter box, or picking a sort
+  // option, both re-render the same tab and must not stomp on the choice
+  // the user just made).
+  if (tabChanged) currentSort = (meta.sorts && meta.sorts[0]) ? meta.sorts[0].value : '';
+  const sortSelect = document.getElementById('sort-select');
+  if (meta.sorts && meta.sorts.length) {
+    sortSelect.style.display = '';
+    sortSelect.innerHTML = meta.sorts.map((s) => `<option value="${s.value}"${s.value === currentSort ? ' selected' : ''}>${s.label}</option>`).join('');
+  } else {
+    sortSelect.style.display = 'none';
+    sortSelect.innerHTML = '';
+  }
 
   const grid = document.getElementById('grid');
   if (tab === 'composers') return renderComposers(grid);
@@ -316,6 +359,15 @@ function matchPlayer(filePlayer, players){
     if (strictMatches.length > 1) {
       const exact = strictMatches.find((p) => normalizePlayerNameStrict(p.title) === strict);
       if (exact) return exact; // true equality beats a substring guess between multiple candidates
+      // Prefer the most specific (longest normalized) candidate, but only
+      // when it clearly beats the runner-up — e.g. "SidFactory_II/Laxity"
+      // matches both "SID Factory" and "SID Factory II" as substrings, and
+      // the longer one is obviously the real, more specific match. When two
+      // candidates are equally specific (e.g. a bare "DMC" matching v4/v5/v6
+      // with nothing to prefer between them), that's genuine ambiguity —
+      // don't guess.
+      const byLength = [...strictMatches].sort((a, b) => normalizePlayerNameStrict(b.title).length - normalizePlayerNameStrict(a.title).length);
+      if (normalizePlayerNameStrict(byLength[0].title).length > normalizePlayerNameStrict(byLength[1].title).length) return byLength[0];
       return null; // genuinely ambiguous even at the strict level — don't guess
     }
   }
@@ -331,6 +383,45 @@ function matchPlayer(filePlayer, players){
     return pn && pn.length >= 3 && (pn.includes(norm) || norm.includes(pn));
   });
   return looseMatches.length === 1 ? looseMatches[0] : null;
+}
+
+// DeepSID's own `?players` database (129 entries) is curated — real specs,
+// developer credit, platform. But individual SID files' free-text `player`
+// field names 605 distinct raw strings, and 496 of those never made it into
+// the curated 129 at all (17,538 files, ~32% of the whole collection) — a
+// bare "DMC" (2,878 files, DeepSID's curated list only has versioned DMC
+// v4/v5/v6.x), "JCH_NewPlayer_V9" through "V20" as individual entries, or a
+// composer's own hand-coded in-game routine (e.g. "Rob_Hubbard",
+// "David_Whittaker" — a real, distinguishable player routine, just never
+// written up as a product with a spec sheet). These get synthesized into
+// player-shaped objects (`inferred: true`, no spec data — there isn't any
+// to show) and merged into the same players array everything else already
+// reads, so the Files tab's "no match found" tags, the Players tab, and
+// usage counts all pick them up for free instead of needing separate
+// wiring. Deliberately not filtered by a minimum file count — even a
+// single-file tag is still real data DeepSID's own curated list is
+// missing, and the Players tab's own sort/filter already surfaces the
+// common ones first.
+function cleanRawPlayerTag(tag){
+  return tag.replace(/_/g, ' ').trim();
+}
+function deriveSyntheticPlayers(files, knownPlayers){
+  const rawCounts = new Map();
+  files.forEach((f) => {
+    if (!f.player) return;
+    rawCounts.set(f.player, (rawCounts.get(f.player) || 0) + 1);
+  });
+  const synthetic = [];
+  rawCounts.forEach((count, tag) => {
+    if (matchPlayer(tag, knownPlayers)) return; // already covered by a real, curated entry
+    synthetic.push({
+      title: cleanRawPlayerTag(tag),
+      developer: null, platform: null, start_year: null, end_year: null,
+      description: null, screenshot: null, csdb_id: null,
+      inferred: true, rawTag: tag,
+    });
+  });
+  return synthetic;
 }
 
 // How many files across the whole collection were actually made with each
@@ -447,10 +538,28 @@ function buildComposerCard(c){
   </div>`;
 }
 
+// DeepSID's date/year fields use "0000..." for "unknown" — same convention
+// deathYear() already handles for date_death, reused here for active year.
+function activeYear(active){
+  if (!active || active.startsWith('0000')) return null;
+  const year = parseInt(active.slice(0, 4), 10);
+  return year || null;
+}
+
+function sortComposers(list, sort){
+  const sorted = [...list];
+  if (sort === 'name-desc') sorted.sort((a, b) => b.name.localeCompare(a.name));
+  else if (sort === 'files-desc') sorted.sort((a, b) => (b.files || []).length - (a.files || []).length);
+  else if (sort === 'active-desc') sorted.sort((a, b) => (activeYear(b.profile && b.profile.active) || 0) - (activeYear(a.profile && a.profile.active) || 0));
+  else sorted.sort((a, b) => a.name.localeCompare(b.name)); // name-asc, and the default
+  return sorted;
+}
+
 function renderComposers(grid){
   grid.style.gridTemplateColumns = '';
   let list = window.SID_DATA.composers || [];
   if (currentFilter) list = list.filter(c => c.name.toLowerCase().includes(currentFilter));
+  list = sortComposers(list, currentSort);
   document.getElementById('search-count').textContent = `${list.length} shown`;
   if (list.length === 0) {
     grid.innerHTML = emptyState('No composer data cached yet.', 'node scripts/fetch-composers.js');
@@ -463,6 +572,12 @@ function renderPlayers(grid){
   grid.style.gridTemplateColumns = '';
   let list = window.SID_DATA.players || [];
   if (currentFilter) list = list.filter(p => (p.title||'').toLowerCase().includes(currentFilter));
+  // "Inferred only" doubles as a filter, not just a sort — isolates the
+  // 496 tags DeepSID's own database doesn't have an entry for, so you can
+  // work through them one at a time (most-used first, since those are the
+  // ones most worth tracking down) instead of hunting for them mixed in
+  // among the 129 real, already-documented ones.
+  if (currentSort === 'inferred-only') list = list.filter((p) => p.inferred);
   if (list.length === 0) {
     document.getElementById('search-count').textContent = '0 shown';
     grid.innerHTML = emptyState('No player/editor data cached yet.', 'node scripts/fetch-players.js');
@@ -472,11 +587,25 @@ function renderPlayers(grid){
   const families = computePlayerFamilies(allPlayers);
   const usageCounts = computePlayerUsageCounts(allPlayers, allFiles());
 
-  // Sorted by real usage (files actually made with each tool), not
+  // Default sorts by real usage (files actually made with each tool), not
   // insertion order — puts the tools that mattered most to the scene
   // first, e.g. GoatTracker's ~8,400 files across its two major versions.
-  list = [...list].sort((a, b) => (usageCounts.get(b.title) || 0) - (usageCounts.get(a.title) || 0));
-  document.getElementById('search-count').textContent = `${list.length} shown, sorted by files made — click one for full specs`;
+  // Other sort options (name, start year) are user-selectable via the
+  // sort dropdown, same currentSort mechanism as the Composers tab.
+  // "Inferred only" also sorts by usage — same ordering rationale.
+  list = [...list].sort((a, b) => {
+    if (currentSort === 'name-asc') return (a.title || '').localeCompare(b.title || '');
+    if (currentSort === 'year-desc') return (parseInt(b.start_year, 10) || 0) - (parseInt(a.start_year, 10) || 0);
+    if (currentSort === 'year-asc') return (parseInt(a.start_year, 10) || 9999) - (parseInt(b.start_year, 10) || 9999);
+    return (usageCounts.get(b.title) || 0) - (usageCounts.get(a.title) || 0); // usage-desc / inferred-only, and the default
+  });
+  const knownCount = list.filter((p) => !p.inferred).length;
+  const inferredCount = list.length - knownCount;
+  document.getElementById('search-count').textContent = currentSort === 'inferred-only'
+    ? `${fmtNum(inferredCount)} inferred players shown, most-used first — click one to see which composers/files used it`
+    : inferredCount
+      ? `${list.length} shown (${fmtNum(knownCount)} in DeepSID's own database, ${fmtNum(inferredCount)} inferred from file data) — click one for full specs`
+      : `${list.length} shown — click one for full specs`;
 
   grid.innerHTML = list.map((p) => {
     const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
@@ -487,11 +616,12 @@ function renderPlayers(grid){
     const tags = [
       usage ? `<span class="tag ok">${fmtNum(usage)} file${usage === 1 ? '' : 's'}</span>` : '',
       sibCount > 0 ? `<span class="tag">+${sibCount} sibling tool${sibCount === 1 ? '' : 's'}</span>` : '',
+      p.inferred ? `<span class="tag" title="Not in DeepSID's own players database — this entry is derived from the raw player field on SID files that used it">inferred</span>` : '',
     ].filter(Boolean).join('');
     return `<div class="card player-card" onclick="renderPlayerPage(${idx})">
       <div class="card-top">
         <div class="flag">🎚</div>
-        <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.developer || 'Unknown developer'}</div></div>
+        <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.inferred ? 'Inferred from file data' : (p.developer || 'Unknown developer')}</div></div>
       </div>
       <div class="meta"><span>${p.platform || 'Unknown platform'}</span><span class="dot">·</span><span>${years}</span></div>
       ${tags ? `<div class="tags">${tags}</div>` : ''}
@@ -574,6 +704,30 @@ function renderPlayerPage(index){
   ).join('');
   const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
 
+  // Research aid for inferred players (there's no spec data to show, so
+  // this is the next best thing): how concentrated is usage among
+  // composers? A player used almost exclusively by one or two composers
+  // is very likely their own personal/hand-coded routine rather than a
+  // shared tool worth writing up separately — worth knowing before
+  // spending time trying to identify it as a "real" product.
+  let composerHint = '';
+  if (p.inferred && used.length) {
+    const byComposer = new Map();
+    used.forEach((f) => byComposer.set(f.composer, (byComposer.get(f.composer) || 0) + 1));
+    const ranked = [...byComposer.entries()].sort((a, b) => b[1] - a[1]);
+    const topShare = Math.round((100 * ranked[0][1]) / used.length);
+    if (ranked.length <= 3) {
+      composerHint = `Used by just ${ranked.length} composer${ranked.length === 1 ? '' : 's'}: ${ranked.map(([n, c]) => `${n} (${c})`).join(', ')} —
+        likely a personal/hand-coded routine, not a shared tool.`;
+    } else if (topShare >= 60) {
+      composerHint = `${topShare}% of files (${ranked[0][1]} of ${used.length}) are by <a href="#" onclick="jumpToComposer('${ranked[0][0].replace(/'/g, "\\'")}');return false;" style="color:inherit">${ranked[0][0]}</a> alone —
+        likely mostly their own routine, even though ${ranked.length} composers in total used it.`;
+    } else {
+      composerHint = `Spread across ${ranked.length} different composers (top: ${ranked[0][0]} with ${ranked[0][1]}) — more likely a real,
+        shared tool that just never got written up in DeepSID's own database.`;
+    }
+  }
+
   document.getElementById('search-bar').style.display = 'none';
   document.getElementById('cat-header').style.display = 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
@@ -586,12 +740,15 @@ function renderPlayerPage(index){
       <div class="pp-title">${p.title || '(untitled)'}</div>
       ${csdbUrl ? `<div>Download: <a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a></div>` : ''}
     </div>
-    <div class="pp-byline">${years} by ${p.developer || 'unknown'}</div>
+    <div class="pp-byline">${p.inferred ? 'Inferred from file data — not in DeepSID\'s own players database' : `${years} by ${p.developer || 'unknown'}`}</div>
     ${p.description ? `<div class="bio" style="margin-bottom:1.25rem">${p.description}</div>` : ''}
+    ${p.inferred ? `<div class="sn" style="margin-bottom:1.25rem">This player was seen on ${used.length} SID file${used.length === 1 ? '' : 's'} (raw tag:
+      <code>${p.rawTag}</code>) but DeepSID's own curated players/editors database doesn't have an entry for it, so there's no
+      developer, platform, or spec info to show — just the files that used it, below. ${composerHint}</div>` : `
     <div class="pp-cols">
       <div>${p.screenshot ? `<img class="pp-shot" src="${p.screenshot}" alt="${p.title} screenshot" loading="lazy" onerror="this.remove()">` : ''}</div>
       <div>${infoBox}</div>
-    </div>
+    </div>`}
     <div style="margin-top:1.5rem">
       ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags" style="margin-bottom:1.25rem">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
       <div class="sl">Composers/files using this player (${used.length})</div>
@@ -617,6 +774,13 @@ function renderFiles(grid){
       (f.player||'').toLowerCase().includes(currentFilter)
     );
   }
+  list = [...list].sort((a, b) => {
+    if (currentSort === 'title-asc') return (a.title || a.file || '').localeCompare(b.title || b.file || '');
+    // Unmatched-player files ('￿' sorts after every real string) fall
+    // to the end instead of clumping at the top under an empty string.
+    if (currentSort === 'player-asc') return (a.player || '￿').localeCompare(b.player || '￿');
+    return a.composer.localeCompare(b.composer) || (a.title || a.file || '').localeCompare(b.title || b.file || ''); // composer-asc, and the default
+  });
   document.getElementById('search-count').textContent = `${list.length} shown`;
   if (list.length === 0) {
     grid.innerHTML = emptyState('No file data cached yet.', 'node scripts/fetch-composers.js');
@@ -694,6 +858,7 @@ function stripTags(html){
 function computePlayerFamilies(players){
   const byDev = {};
   players.forEach(p => {
+    if (p.inferred) return; // no known developer to group by — see deriveSyntheticPlayers()
     const key = stripTags(p.developer) || '(unknown developer)';
     byDev[key] = byDev[key] || { developerHtml: p.developer || '(unknown developer)', titles: [] };
     byDev[key].titles.push(p.title || '(untitled)');
@@ -1108,6 +1273,10 @@ function renderGaps(grid){
   grid.style.gridTemplateColumns = '1fr';
   let list = window.SID_DATA.gaps || [];
   if (currentFilter) list = list.filter(g => JSON.stringify(g).toLowerCase().includes(currentFilter));
+  list = [...list].sort((a, b) => {
+    if (currentSort === 'composer-asc') return (a.composer || a.title || '').localeCompare(b.composer || b.title || '');
+    return a.type.localeCompare(b.type); // type-asc, and the default
+  });
   document.getElementById('search-count').textContent = `${list.length} shown`;
   if (list.length === 0) {
     grid.innerHTML = emptyState('No gaps report cached yet.', 'node scripts/find-gaps.js');
@@ -1150,6 +1319,15 @@ function randomComposer(){
   const pick = list[Math.floor(Math.random() * list.length)];
   jumpToComposer(pick.name);
 }
+
+// Extend the curated players list with synthetic entries derived from raw
+// file data (see deriveSyntheticPlayers()) — done once here, before
+// anything else reads window.SID_DATA.players, so every existing consumer
+// (Files tab matching, usage counts, the Players tab itself, Insights)
+// picks these up automatically instead of needing separate wiring.
+window.SID_DATA.players = (window.SID_DATA.players || []).concat(
+  deriveSyntheticPlayers(allFiles(), window.SID_DATA.players || [])
+);
 
 renderPills();
 render('composers');

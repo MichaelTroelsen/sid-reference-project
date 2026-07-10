@@ -1,5 +1,7 @@
 # SID Reference Project
 
+[![GitHub repo](https://img.shields.io/badge/GitHub-sid--reference--project-181717?logo=github)](https://github.com/MichaelTroelsen/sid-reference-project)
+
 Fetches composer, player, and editor data live from the [DeepSID](https://deepsid.chordian.net/)
 API into local JSON, builds a browsable HTML reference page from that JSON,
 and cross-references everything to find documentation gaps worth reporting

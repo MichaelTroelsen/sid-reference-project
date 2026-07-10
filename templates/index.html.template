@@ -92,6 +92,20 @@ h1 em{color:var(--cyan);font-style:normal;}
 .empty-state code{background:var(--card-bg);border:1px solid var(--border);padding:.2rem .5rem;border-radius:3px;}
 .card.hl{outline:2px solid var(--amber);animation:hlpulse 1.6s ease-out 1;}
 @keyframes hlpulse{0%{box-shadow:0 0 0 6px rgba(255,183,0,.35);}100%{box-shadow:0 0 0 0 rgba(255,183,0,0);}}
+.player-card{cursor:pointer;}
+.pp-back{font-family:'Share Tech Mono',monospace;font-size:.65rem;background:var(--card-bg);border:1px solid var(--border);color:var(--text);padding:.4rem .9rem;border-radius:3px;cursor:pointer;margin-bottom:1.25rem;}
+.pp-back:hover{border-color:var(--tab);}
+.pp-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.pp-title{font-family:'Share Tech Mono',monospace;font-size:1.4rem;color:var(--text);}
+.pp-byline{color:var(--dim);font-size:.8rem;margin:.3rem 0 1rem;}
+.pp-cols{display:grid;grid-template-columns:1fr 1.15fr;gap:1.5rem;align-items:start;}
+@media(max-width:800px){.pp-cols{grid-template-columns:1fr;}}
+.info-box{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--card-bg);}
+.info-box-section{background:rgba(34,204,221,.07);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tab);padding:.45rem .9rem;border-top:1px solid var(--border);}
+.info-box-section:first-child{border-top:none;}
+.info-row{display:flex;justify-content:space-between;gap:1rem;padding:.45rem .9rem;font-size:.78rem;border-top:1px solid rgba(37,37,80,.4);}
+.info-row .k{color:var(--dim);flex-shrink:0;}
+.info-row .v{color:var(--text);text-align:right;}
 footer{border-top:1px solid var(--border);text-align:center;padding:1.75rem 2rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);line-height:2;}
 footer a{color:var(--cyan);text-decoration:none;}
 footer a:hover{text-decoration:underline;}
@@ -221,6 +235,11 @@ function applyFilter(v){ currentFilter = v.toLowerCase(); render(currentTab); }
 function render(tab){
   currentTab = tab;
   renderTabs();
+  // Undo whatever renderPlayerPage() hid — every normal tab render should
+  // restore these regardless of how the user got here (Back button, or
+  // clicking a different tab directly while a player page is open).
+  document.getElementById('search-bar').style.display = '';
+  document.getElementById('cat-header').style.display = '';
   const meta = TABS.find(t => t.id === tab);
   document.getElementById('cat-title').textContent = meta.label;
   document.getElementById('cat-desc').textContent = meta.desc;
@@ -360,34 +379,106 @@ function renderComposers(grid){
 }
 
 function renderPlayers(grid){
-  grid.style.gridTemplateColumns = '1fr';
+  grid.style.gridTemplateColumns = '';
   let list = window.SID_DATA.players || [];
   if (currentFilter) list = list.filter(p => (p.title||'').toLowerCase().includes(currentFilter));
-  document.getElementById('search-count').textContent = `${list.length} shown — click a title for full specs, family, and linked files`;
+  document.getElementById('search-count').textContent = `${list.length} shown — click one for full specs`;
   if (list.length === 0) {
     grid.innerHTML = emptyState('No player/editor data cached yet.', 'node scripts/fetch-players.js');
     return;
   }
   const allPlayers = window.SID_DATA.players || [];
   const families = computePlayerFamilies(allPlayers);
-  const files = window.SID_DATA.files || [];
 
-  const rows = list.map((p, i) => {
+  grid.innerHTML = list.map((p) => {
     const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
-    const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
     const devKey = stripTags(p.developer) || '(unknown developer)';
     const sibCount = ((families[devKey] && families[devKey].titles.length) || 1) - 1;
-    return `<tr>
-      <td><button class="cnote-btn" id="pbtn-${i}" style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--text)" onclick="togglePlayerDetail(${i})">▸ ${p.title || '(untitled)'}</button></td>
-      <td>${p.developer || '—'}</td>
-      <td>${p.platform || '—'}</td>
-      <td>${years}</td>
-      <td>${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a>` : ''}</td>
-      <td>${sibCount > 0 ? `<span class="tag" style="cursor:pointer" onclick="togglePlayerDetail(${i})">+${sibCount} sibling${sibCount===1?'':'s'}</span>` : '<span class="cnote">—</span>'}</td>
-    </tr>
-    <tr class="pdetail-row" id="pdetail-${i}" style="display:none"><td colspan="6">${buildPlayerDetail(p, families, files)}</td></tr>`;
+    const idx = allPlayers.indexOf(p);
+    return `<div class="card player-card" onclick="renderPlayerPage(${idx})">
+      <div class="card-top">
+        <div class="flag">🎚</div>
+        <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.developer || 'Unknown developer'}</div></div>
+      </div>
+      <div class="meta"><span>${p.platform || 'Unknown platform'}</span><span class="dot">·</span><span>${years}</span></div>
+      ${sibCount > 0 ? `<div class="tags"><span class="tag">+${sibCount} sibling tool${sibCount===1?'':'s'}</span></div>` : ''}
+    </div>`;
   }).join('');
-  grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Title</th><th>Developer</th><th>Platform</th><th>Years</th><th>CSDb</th><th>Family</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/**
+ * A dedicated full "page" view (not an inline expand) — mirrors the
+ * layout of DeepSID's own player detail page (title, byline, download
+ * link, then Package/Features/Player/Editor spec sections) using this
+ * project's own visual theme, populated entirely from the already-cached
+ * players.json — no scraping involved (every field on DeepSID's actual
+ * page already exists in that JSON; verified field-by-field before
+ * building this). Screenshot images from that page aren't reproduced
+ * here — no reliable source for them (DeepSID's players page is a
+ * JS-rendered SPA with no predictable image URL) and they're screenshots
+ * of the editors' own UI, not something to embed without a real source.
+ */
+function renderPlayerPage(index){
+  const players = window.SID_DATA.players || [];
+  const p = players[index];
+  if (!p) return;
+  const families = computePlayerFamilies(players);
+  const files = window.SID_DATA.files || [];
+
+  const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
+  const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
+
+  function section(title, rows){
+    const filled = rows.filter(([,v]) => v && String(v).trim());
+    if (!filled.length) return '';
+    return `<div class="info-box-section">${title}</div>` + filled.map(([k,v]) =>
+      `<div class="info-row"><span class="k">${k}</span><span class="v">${v}</span></div>`
+    ).join('');
+  }
+  const infoBox = `<div class="info-box">
+    ${section('📦 Package', [['Platform', p.platform], ['Distribution', p.distribution]])}
+    ${section('✓ Features', [['Number of SID chips', p.sid_chip_count], ['Channels visible', p.channels_visible], ['Speeds', p.speeds], ['Digi / Samples', p.digi]])}
+    ${section('🎚 Player', [['Zero page usage', p.zero_pages], ['CPU time', p.cpu_time]])}
+    ${section('🗂 Editor', [['Track system', p.track_system], ['Undo', p.undoing], ['Track commands', p.track_cmds]])}
+    ${section('🔗 More', [['Imports from', p.import_from], ['Docs', p.docs], ['Source', p.source_code]])}
+  </div>`;
+
+  const devKey = stripTags(p.developer) || '(unknown developer)';
+  const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
+  const used = filesForPlayer(p.title, files);
+  const usedRows = used.slice(0, 40).map(f =>
+    `<div class="file-row"><a class="file-name" href="${f.url || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
+  ).join('');
+  const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
+
+  document.getElementById('search-bar').style.display = 'none';
+  document.getElementById('cat-header').style.display = 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+
+  const gridEl = document.getElementById('grid');
+  gridEl.style.gridTemplateColumns = '';
+  gridEl.innerHTML = `<div class="fw" style="padding-top:1.5rem">
+    <button class="pp-back" onclick="closePlayerPage()">← Back</button>
+    <div class="pp-head">
+      <div class="pp-title">${p.title || '(untitled)'}</div>
+      ${csdbUrl ? `<div>Download: <a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a></div>` : ''}
+    </div>
+    <div class="pp-byline">${years} by ${p.developer || 'unknown'}</div>
+    ${p.description ? `<div class="bio" style="margin-bottom:1.25rem">${p.description}</div>` : ''}
+    <div class="pp-cols">
+      <div>
+        ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags" style="margin-bottom:1.25rem">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+        <div class="sl">Composers/files using this player (${used.length})</div>
+        ${usedRows || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}
+        ${usedMore}
+      </div>
+      <div>${infoBox}</div>
+    </div>
+  </div>`;
+}
+
+function closePlayerPage(){
+  render('players');
 }
 
 const FILES_TAB_CAP = 500;
@@ -410,8 +501,11 @@ function renderFiles(grid){
   const players = window.SID_DATA.players || [];
   const rows = list.slice(0, FILES_TAB_CAP).map(f => {
     const match = f.player ? matchPlayer(f.player, players) : null;
+    const matchIdx = match ? players.indexOf(match) : -1;
     const playerCell = f.player
-      ? `<span class="tag${match?' ok':''}" title="${match ? 'Matched: ' + match.title : 'No match in players/editors database'}">${f.player}</span>`
+      ? (match
+          ? `<span class="tag ok" style="cursor:pointer" title="Matched: ${match.title} — click for full specs" onclick="renderPlayerPage(${matchIdx})">${f.player}</span>`
+          : `<span class="tag" title="No match in players/editors database">${f.player}</span>`)
       : `<span class="cnote">${f.source === 'stil' ? 'unknown — STIL has no player data' : 'not identified'}</span>`;
     return `<tr>
       <td><a href="#" onclick="jumpToComposer('${f.composer.replace(/'/g,"\\'")}');return false;" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--cyan);text-decoration:none">${f.composer}</a></td>
@@ -476,55 +570,6 @@ function filesForPlayer(playerTitle, files){
     const fn = normalizePlayerName(f.player);
     return fn.length >= 3 && (fn.includes(norm) || norm.includes(fn));
   });
-}
-
-function buildPlayerDetail(p, families, files){
-  // docs/source_code are free text that sometimes embeds its own <a> tag
-  // (e.g. "Available at <a href=...>GitHub</a>") and sometimes is just a
-  // description ("Included in archive") — unlike `site`, treating the
-  // whole field as a URL would produce broken links, so this renders it
-  // as trusted HTML content (same model as the `developer` field) rather
-  // than wrapping it in a synthetic <a href="${p.docs}">.
-  const specFields = [
-    ['Platform', p.platform], ['Distribution', p.distribution], ['SID chips', p.sid_chip_count],
-    ['Channels visible', p.channels_visible], ['Speeds', p.speeds], ['Digi/Samples', p.digi],
-    ['Zero page usage', p.zero_pages], ['CPU time', p.cpu_time], ['Track system', p.track_system],
-    ['Undo', p.undoing], ['Track commands', p.track_cmds], ['Imports from', p.import_from],
-    ['Docs', p.docs], ['Source', p.source_code],
-  ].filter(([,v]) => v && String(v).trim());
-  const specRows = specFields.map(([k,v]) =>
-    `<div class="file-row"><span class="file-name" style="flex:none;min-width:150px;color:var(--dim)">${k}</span><span style="font-size:.72rem;flex:1;white-space:normal">${v}</span></div>`
-  ).join('');
-
-  const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
-  const devKey = stripTags(p.developer) || '(unknown developer)';
-  const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
-  const used = filesForPlayer(p.title, files);
-  const usedRows = used.slice(0, 40).map(f =>
-    `<div class="file-row"><a class="file-name" href="${f.url || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
-  ).join('');
-  const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
-
-  return `<div style="padding:.75rem .5rem">
-    ${p.description ? `<div class="bio" style="margin-bottom:.6rem">${p.description}</div>` : ''}
-    ${specRows}
-    <div class="cfoot" style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.5rem">
-      ${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a>` : ''}
-      ${p.site ? `<a class="dslink" href="${p.site}" target="_blank">🌐 Site</a>` : ''}
-    </div>
-    ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
-    <div class="sl">Composers/files using this player (${used.length})</div>
-    ${usedRows || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}
-    ${usedMore}
-  </div>`;
-}
-
-function togglePlayerDetail(id){
-  const row = document.getElementById('pdetail-' + id);
-  const btn = document.getElementById('pbtn-' + id);
-  const open = row.style.display !== 'none';
-  row.style.display = open ? 'none' : 'table-row';
-  if (btn) btn.textContent = btn.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
 }
 
 function renderFamilies(grid){

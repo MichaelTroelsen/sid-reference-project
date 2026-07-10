@@ -35,11 +35,16 @@ picture; this file is quick orientation for a fresh session.
   `fetch-hvsc-docs.js`'s `downloadText()` decodes via `Buffer.from(...).toString('latin1')`
   instead — don't swap that back to `res.text()`.
 - The generated page has four data-driven tabs beyond Composers/Gaps:
-  Players/Editors (click a title for full specs + which composers/files
-  use it), SID Files (every file across every composer, linked to its
-  player where identifiable), Countries, and Player Families (developers
-  who built more than one tool, plus known `import_from` derivation
-  links).
+  Players/Editors, SID Files (every file across every composer, linked
+  to its player where identifiable), Countries, and Player Families
+  (developers who built more than one tool, plus known `import_from`
+  derivation links).
+- Clicking a player card (Players tab or a matched tag on the Files tab)
+  opens a dedicated full-page detail view (`renderPlayerPage()`) —
+  title/byline/download link, then Package/Features/Player/Editor spec
+  sections, styled after DeepSID's own player detail page but in this
+  project's visual theme. All from already-cached `players.json`; no
+  scraping (checked field-by-field against DeepSID's real page first).
 
 ## When extending this project
 

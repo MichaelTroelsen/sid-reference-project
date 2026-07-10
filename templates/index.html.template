@@ -282,14 +282,60 @@ function normalizePlayerName(s){
     .replace(/[^a-z]+/g, ' ')
     .trim();
 }
+// Version-preserving normalizer — tried first, so "GoatTracker_V1.x" and
+// "GoatTracker_V2.x" resolve to their own distinct player entries instead
+// of both collapsing onto whichever "goattracker"-rooted entry the
+// version-stripped normalizer happens to hit first (a real bug found while
+// building a usage-count feature: it was silently attributing every
+// GoatTracker v1.x file to the v2.x card, and same for DMC's 3 versions).
+function normalizePlayerNameStrict(s){
+  return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
 function matchPlayer(filePlayer, players){
+  const strict = normalizePlayerNameStrict(filePlayer);
+  if (strict.length >= 3) {
+    const strictMatches = players.filter(p => {
+      const ps = normalizePlayerNameStrict(p.title);
+      return ps && ps.length >= 3 && (ps === strict || strict.includes(ps) || ps.includes(strict));
+    });
+    if (strictMatches.length === 1) return strictMatches[0];
+    if (strictMatches.length > 1) {
+      const exact = strictMatches.find((p) => normalizePlayerNameStrict(p.title) === strict);
+      if (exact) return exact; // true equality beats a substring guess between multiple candidates
+      return null; // genuinely ambiguous even at the strict level — don't guess
+    }
+  }
+  // No version-intact match at all (e.g. a bare "DMC" with no version, or
+  // "GoatTracker instruments" naming no version) — fall back to the
+  // version-stripped match, but only when it's unambiguous. Returning the
+  // "first found" among several same-family candidates would misattribute
+  // a file to a specific version it can't actually be confirmed to be.
   const norm = normalizePlayerName(filePlayer);
-  if (norm.length < 3) return null; // too short to match without false positives
-  return players.find(p => {
+  if (norm.length < 3) return null;
+  const looseMatches = players.filter((p) => {
     const pn = normalizePlayerName(p.title);
     return pn && pn.length >= 3 && (pn.includes(norm) || norm.includes(pn));
-  }) || null;
+  });
+  return looseMatches.length === 1 ? looseMatches[0] : null;
 }
+
+// How many files across the whole collection were actually made with each
+// player/editor — real usage, not just "this tool exists in the database".
+// Cached at module level (same pattern as allFiles()) since it's an O(files
+// x players) scan and the Players tab re-renders on every search keystroke.
+let _playerUsageCache = null;
+function computePlayerUsageCounts(players, files){
+  if (_playerUsageCache) return _playerUsageCache;
+  const counts = new Map();
+  files.forEach(f => {
+    if (!f.player) return;
+    const match = matchPlayer(f.player, players);
+    if (match) counts.set(match.title, (counts.get(match.title) || 0) + 1);
+  });
+  _playerUsageCache = counts;
+  return counts;
+}
+
 const FILE_LIST_CAP = 50;
 
 function buildFileRow(f, players, composerPath){
@@ -315,6 +361,15 @@ function toggleFiles(btn){
   btn.textContent = btn.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
 }
 
+// DeepSID's date fields use "0000-00-00" for "unknown", not a blank
+// string, and a death date can be year-only-known ("2018-00-00") — this
+// treats any leading "0000" as absent and otherwise just takes the year.
+function deathYear(dateStr){
+  if (!dateStr || dateStr.startsWith('0000')) return null;
+  const year = dateStr.slice(0, 4);
+  return /^\d{4}$/.test(year) ? year : null;
+}
+
 function buildComposerCard(c){
   const p = c.profile || {};
   const files = fileList(c);
@@ -328,6 +383,10 @@ function buildComposerCard(c){
     .filter(t => t && t !== 'NONE')
     .map(t => `<span class="tag">${t}</span>`).join('') + csdbGroups;
   const bio = cleanNotable(p.notable);
+  const died = deathYear(p.date_death);
+  const memoriam = died
+    ? `<div class="meta" style="margin-top:.3rem" title="${p.death_cause ? `Cause: ${p.death_cause}` : 'No further detail recorded'}">🕯 In memoriam, ${died}</div>`
+    : '';
   const dsUrl = `https://deepsid.chordian.net/?file=${c.path}`;
   const csdbUrl = p.csdb_id ? `https://csdb.dk/scener/?id=${p.csdb_id}` : null;
 
@@ -355,6 +414,7 @@ function buildComposerCard(c){
     <div class="meta"><span>${flagFor(p.country)} ${p.country || 'Unknown'}</span><span class="dot">·</span><span>${p.active || '—'}</span></div>
     ${verifyBadge ? `<div class="tags">${verifyBadge}</div>` : ''}
     ${tags ? `<div class="tags">${tags}</div>` : ''}
+    ${memoriam}
     ${bio ? `<div class="bio">${bio}</div>` : ''}
     <div class="cfoot">
       <a class="dslink" href="${dsUrl}" target="_blank">▶ DeepSID</a>
@@ -380,26 +440,38 @@ function renderPlayers(grid){
   grid.style.gridTemplateColumns = '';
   let list = window.SID_DATA.players || [];
   if (currentFilter) list = list.filter(p => (p.title||'').toLowerCase().includes(currentFilter));
-  document.getElementById('search-count').textContent = `${list.length} shown — click one for full specs`;
   if (list.length === 0) {
+    document.getElementById('search-count').textContent = '0 shown';
     grid.innerHTML = emptyState('No player/editor data cached yet.', 'node scripts/fetch-players.js');
     return;
   }
   const allPlayers = window.SID_DATA.players || [];
   const families = computePlayerFamilies(allPlayers);
+  const usageCounts = computePlayerUsageCounts(allPlayers, allFiles());
+
+  // Sorted by real usage (files actually made with each tool), not
+  // insertion order — puts the tools that mattered most to the scene
+  // first, e.g. GoatTracker's ~8,400 files across its two major versions.
+  list = [...list].sort((a, b) => (usageCounts.get(b.title) || 0) - (usageCounts.get(a.title) || 0));
+  document.getElementById('search-count').textContent = `${list.length} shown, sorted by files made — click one for full specs`;
 
   grid.innerHTML = list.map((p) => {
     const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
     const devKey = stripTags(p.developer) || '(unknown developer)';
     const sibCount = ((families[devKey] && families[devKey].titles.length) || 1) - 1;
+    const usage = usageCounts.get(p.title) || 0;
     const idx = allPlayers.indexOf(p);
+    const tags = [
+      usage ? `<span class="tag ok">${usage.toLocaleString()} file${usage === 1 ? '' : 's'}</span>` : '',
+      sibCount > 0 ? `<span class="tag">+${sibCount} sibling tool${sibCount === 1 ? '' : 's'}</span>` : '',
+    ].filter(Boolean).join('');
     return `<div class="card player-card" onclick="renderPlayerPage(${idx})">
       <div class="card-top">
         <div class="flag">🎚</div>
         <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.developer || 'Unknown developer'}</div></div>
       </div>
       <div class="meta"><span>${p.platform || 'Unknown platform'}</span><span class="dot">·</span><span>${years}</span></div>
-      ${sibCount > 0 ? `<div class="tags"><span class="tag">+${sibCount} sibling tool${sibCount===1?'':'s'}</span></div>` : ''}
+      ${tags ? `<div class="tags">${tags}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -473,7 +545,7 @@ function renderPlayerPage(index){
 
   const devKey = stripTags(p.developer) || '(unknown developer)';
   const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
-  const used = filesForPlayer(p.title, files);
+  const used = filesForPlayer(p, files, players);
   const usedRows = used.slice(0, 40).map(f =>
     `<div class="file-row"><a class="file-name" href="${deepsidFileUrl(f) || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
   ).join('');
@@ -609,14 +681,12 @@ function deepsidFileUrl(f){
   return `https://deepsid.chordian.net/?file=${f.composerPath.replace(/^\//,'')}${f.file}`;
 }
 
-function filesForPlayer(playerTitle, files){
-  const norm = normalizePlayerName(playerTitle);
-  if (norm.length < 3) return [];
-  return files.filter(f => {
-    if (!f.player) return false;
-    const fn = normalizePlayerName(f.player);
-    return fn.length >= 3 && (fn.includes(norm) || norm.includes(fn));
-  });
+// Reuses matchPlayer() (rather than its own separate loose comparison,
+// the previous approach) so a version-forked player's "files using this"
+// list agrees with the Files tab's per-row match and the Players tab's
+// usage-count badge — all three now resolve through the same logic.
+function filesForPlayer(player, files, players){
+  return files.filter((f) => f.player && matchPlayer(f.player, players) === player);
 }
 
 function renderFamilies(grid){

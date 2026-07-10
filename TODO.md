@@ -87,6 +87,37 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       screenshot from CSDb's `type=release` endpoint (same csdb_id
       already used for the CSDb link), not from DeepSID's own page. 123
       of 124 players with a csdb_id got one.
+- [x] ~~Re-run CSDb enrichment against the full composer set.~~ Done —
+      `fetch-csdb.js` had only ever been run against the original curated
+      56 composers; after the DeepSID database export expanded coverage to
+      ~1,895, 1,611 of them already carry a `csdb_id` in their profile but
+      only 47 had actually been enriched. Re-ran it (cache-aware, safely
+      re-runnable, ~11 min at the existing 400ms rate limit) — 1,564
+      fetched, 0 failed. Composer cards with real CSDb bio/group/country
+      data went from 47 to 1,609 of 1,902 (85%).
+- [x] ~~Surface real player/tool usage (not just that a tool exists).~~
+      Done — the Players tab now sorts by real files-made-with-it (a new
+      `computePlayerUsageCounts()`) instead of insertion order, with a
+      "N files" badge per card. Found and fixed a real bug while building
+      this: `matchPlayer()` stripped version numbers *before* comparing,
+      so version-forked tools sharing a product name (GoatTracker v1.x
+      vs v2.x, DMC v4/v5/v6.x) all collapsed onto whichever entry the
+      lossy match hit first — GoatTracker v1.x was silently showing 0
+      files with all 8,420 v1+v2 files misattributed to v2.x. Fixed with
+      a two-pass match (version-intact first, version-stripped loose
+      fallback only when unambiguous — same "don't guess when ambiguous"
+      rule already used for HVSC matching). This also fixed the Files tab's
+      per-row matches and each player detail page's "files using this"
+      list, which shared the same bug. `filesForPlayer()` was refactored
+      to reuse `matchPlayer()` instead of its own separate loose logic, so
+      all three surfaces now agree.
+- [x] ~~Surface composer death dates.~~ Done — 49 of 1902 composers have a
+      recorded `date_death` (some with `death_cause`), fetched since the
+      DeepSID database export but never shown anywhere. Composer cards
+      now show a small "🕯 In memoriam, {year}" line when present (cause
+      in the tooltip, when recorded). `deathYear()` treats DeepSID's
+      "0000-00-00" convention as absent and handles year-only-known dates
+      like "2018-00-00".
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 253 gaps** now have a `suggestion` field (was 15 of 127 —

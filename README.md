@@ -261,11 +261,18 @@ regardless of which source supplied its title/artist/player, since
 DeepSID has no equivalent field at all. Shown as a collapsible "song
 info" toggle wherever present (~6,500 of ~55,000 files). Either way,
 a file's `player` string is matched against the players/editors
-database's `title` field with version numbers stripped (so
-`"GoatTracker 2.62"` matches a title like `"GoatTracker v2.x"`).
-Unmatched or unidentified players render without a link rather than a
-false match — the **Players** tab's detail view (click any player
-title) shows the reverse: every composer/file matched to *that* player.
+database's `title` field in two passes: first version-intact (so
+`"GoatTracker_V2.x"` only matches `"GoatTracker v2.x"`, not also
+`"GoatTracker v1.x"`), then — only if that finds nothing — a
+version-stripped loose match, and only when that's unambiguous (e.g.
+`"GoatTracker 2.62"` still matches `"GoatTracker v2.x"` even without an
+exact version string, but a bare `"DMC"` with no version at all won't
+guess between DMC's three cached versions). Unmatched or unidentified
+players render without a link rather than a false match — the
+**Players** tab now sorts by real usage (files actually made with each
+tool, computed client-side) rather than insertion order, and its detail
+view (click any player title) shows the reverse: every composer/file
+matched to *that specific version*.
 
 ### Three sources for file listings
 
@@ -336,7 +343,10 @@ are legitimately unknown (lost to history) rather than un-filled-in.
   exhaustive.
 - CSDb enrichment only covers composers whose DeepSID profile already has
   a non-zero `csdb_id` — composers DeepSID hasn't linked to CSDb yet get
-  no enrichment, not an error.
+  no enrichment, not an error. Currently 1,609 of 1,902 composers (85%)
+  are enriched; `npm run fetch:csdb` is cache-aware and safe to re-run
+  any time (only fetches newly-added composers unless `--refresh` is
+  passed).
 - `find-gaps.js`'s idea of "missing" is a fixed field list
   (`EXPECTED_PLAYER_FIELDS` in that script) — adjust it if DeepSID's
   schema has fields this project doesn't know to check yet.

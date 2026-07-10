@@ -25,8 +25,59 @@ const COMPOSERS_DIR = path.join(ROOT, 'data', 'composers');
 const CSDB_DIR = path.join(ROOT, 'data', 'csdb');
 const PLAYERS_PATH = path.join(ROOT, 'data', 'players.json');
 const GAPS_PATH = path.join(ROOT, 'data', 'gaps-report.json');
+const STIL_PATH = path.join(ROOT, 'data', 'hvsc', 'stil.json');
 const TEMPLATE_PATH = path.join(ROOT, 'templates', 'index.html.template');
 const OUTPUT_PATH = path.join(ROOT, 'output', 'index.html');
+
+function loadStilByFolder() {
+  return readJSON(STIL_PATH)?.byFolder ?? {};
+}
+
+function fileUrlFromCollectionPath(collectionPath) {
+  if (!collectionPath) return null;
+  const clean = collectionPath.replace(/^_High Voltage SID Collection\//, '');
+  return `https://deepsid.chordian.net/?file=${clean}`;
+}
+
+/**
+ * A composer's real per-file listing comes from DeepSID's ?file= endpoint
+ * (composer.folder) — but that endpoint has been unreliable (see
+ * docs/DEEPSID-API.md), leaving `folder` empty or `{_error: ...}` for
+ * everyone during an outage. When that happens, this falls back to
+ * HVSC's own STIL.txt (fetch-hvsc-docs.js), a second independent source
+ * for filename/title/artist — but STIL doesn't track which player/editor
+ * made a file, so `player` stays null for STIL-sourced entries; that's a
+ * real gap in what's knowable from that source, not a bug.
+ */
+function buildFileList(composer, stilByFolder) {
+  const real = Array.isArray(composer.folder)
+    ? composer.folder
+    : Object.values(composer.folder || {}).filter((v) => v && typeof v === 'object' && v.name);
+
+  if (real.length) {
+    return real.map((f) => {
+      const filename = (f.collection_path || '').split('/').pop() || f.name || '(untitled)';
+      return {
+        file: filename,
+        title: f.name || filename,
+        artist: f.author || null,
+        player: f.player || null,
+        url: fileUrlFromCollectionPath(f.collection_path),
+        source: 'deepsid',
+      };
+    });
+  }
+
+  const stilFiles = stilByFolder[composer.path] || [];
+  return stilFiles.map((f) => ({
+    file: f.file,
+    title: f.title || f.file,
+    artist: f.artist || null,
+    player: null,
+    url: `https://deepsid.chordian.net/?file=${composer.path}${f.file}`,
+    source: 'stil',
+  }));
+}
 
 /**
  * CSDb's scener response (depth=2) includes every release the person has
@@ -52,6 +103,7 @@ function summarizeCsdb(entry) {
 function loadAllComposers() {
   if (!fs.existsSync(COMPOSERS_DIR)) return [];
   const hvscMusicians = loadHvscMusicians();
+  const stilByFolder = loadStilByFolder();
 
   return fs
     .readdirSync(COMPOSERS_DIR)
@@ -72,6 +124,8 @@ function loadAllComposers() {
           }
         : null;
 
+      composer.files = buildFileList(composer, stilByFolder);
+
       return composer;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -84,12 +138,17 @@ async function main() {
   const players = readJSON(PLAYERS_PATH);
   const gaps = readJSON(GAPS_PATH);
 
+  const files = composers.flatMap((c) => c.files.map((f) => ({ ...f, composer: c.name, composerPath: c.path })));
+  const filesFromDeepsid = files.filter((f) => f.source === 'deepsid').length;
+  const filesFromStil = files.filter((f) => f.source === 'stil').length;
+
   console.log(`  composers: ${composers.length}`);
   console.log(`  players/editors: ${players?.count ?? 0}`);
   console.log(`  known gaps: ${gaps?.meta?.totalGaps ?? 0}`);
   console.log(`  composers with CSDb enrichment: ${composers.filter((c) => c.csdb).length}`);
   console.log(`  composers matched against HVSC Musicians.txt: ${composers.filter((c) => c.hvsc).length}`);
   console.log(`  country mismatches vs HVSC: ${composers.filter((c) => c.hvsc?.countryMismatch).length}`);
+  console.log(`  total files indexed: ${files.length} (${filesFromDeepsid} from DeepSID, ${filesFromStil} from HVSC STIL fallback)`);
 
   if (!fs.existsSync(TEMPLATE_PATH)) {
     console.error(`\nTemplate not found: ${TEMPLATE_PATH}`);
@@ -104,6 +163,7 @@ async function main() {
     composers,
     players: players?.players ?? [],
     gaps: gaps?.gaps ?? [],
+    files,
   };
 
   // The template contains a marker comment; we replace it with a real

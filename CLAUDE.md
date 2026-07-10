@@ -24,8 +24,22 @@ picture; this file is quick orientation for a fresh session.
   APIs.
 - As of this writing, DeepSID's `?file=`/`?folder=` endpoints are down
   (`"Could not connect to the DeepSID database"`) — `?players` and
-  `?profile=` still work. This blocks per-composer SID file lists and
-  the SID-file→player linking feature until DeepSID's DB recovers.
+  `?profile=` still work. `build-html.js` falls back to HVSC's own
+  STIL.txt for per-composer file listings while this is down (filenames/
+  titles only — STIL has no player field, so those files can't be linked
+  to a player until DeepSID's DB recovers). Re-run
+  `npm run fetch:composers -- --refresh` once it does.
+- Text fetched from HVSC (`www.hvsc.c64.org`) is ISO-8859-1, not UTF-8 —
+  `fetch()`'s `.text()` decodes as UTF-8 regardless of the response's
+  actual charset and silently corrupts every accented character.
+  `fetch-hvsc-docs.js`'s `downloadText()` decodes via `Buffer.from(...).toString('latin1')`
+  instead — don't swap that back to `res.text()`.
+- The generated page has four data-driven tabs beyond Composers/Gaps:
+  Players/Editors (click a title for full specs + which composers/files
+  use it), SID Files (every file across every composer, linked to its
+  player where identifiable), Countries, and Player Families (developers
+  who built more than one tool, plus known `import_from` derivation
+  links).
 
 ## When extending this project
 

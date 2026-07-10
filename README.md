@@ -69,9 +69,10 @@ data/
   gaps-report.json        — machine-readable gap analysis (gitignored)
   csdb/*.json              — one CSDb scener cache file per enriched composer (gitignored)
   hvsc/
-    Musicians.txt          — raw HVSC download (gitignored)
+    Musicians.txt          — raw HVSC download, ISO-8859-1 decoded correctly (gitignored)
     musicians.json          — parsed {handle, realName, group, country}[] (gitignored)
-    STIL.txt                — raw HVSC download, cached but not parsed (gitignored)
+    STIL.txt                — raw HVSC download (gitignored)
+    stil.json                — /MUSICIANS/ subset parsed to {folder: [{file, title, artist, subtunes}]} (gitignored)
 
 templates/
   index.html.template    — the actual UI (CSS/JS), reads window.SID_DATA
@@ -197,24 +198,37 @@ may need manual cleanup for handle-style names.
 
 ## SID files linked to players
 
-Each composer card can expand to show its individual HVSC SID files —
-this comes from the `folder` field DeepSID's `?file=<composer>/` endpoint
-returns per composer (see `docs/DEEPSID-API.md`). Each file carries a
-free-text `player` field identifying which player/editor routine created
-it; the template matches that against the players/editors database's
-`title` field (normalized, version numbers stripped, since e.g.
-`"GoatTracker 2.62"` needs to match a title like `"GoatTracker v2.x"`)
-to link the two. Unmatched or unidentified players (`"?"`, `""`) render
-without a link rather than a false match.
+Every composer card can expand to show its individual HVSC SID files,
+and the **Files** tab lists all of them in one place across every
+composer. `build-html.js` computes each composer's file list once,
+preferring DeepSID's own `folder` field (from `?file=<composer>/`,
+including each file's free-text `player` field) and falling back to
+HVSC's own `STIL.txt` (filename/title/artist only — see "Two sources
+for file listings" below) when DeepSID's isn't available. Either way,
+a file's `player` string is matched against the players/editors
+database's `title` field with version numbers stripped (so
+`"GoatTracker 2.62"` matches a title like `"GoatTracker v2.x"`).
+Unmatched or unidentified players render without a link rather than a
+false match — the **Players** tab's detail view (click any player
+title) shows the reverse: every composer/file matched to *that* player.
 
-**Current status:** DeepSID's `?file=`/`?folder=` endpoints have been
-returning `"Could not connect to the DeepSID database"` since this was
+### Two sources for file listings
+
+DeepSID's `?file=`/`?folder=` endpoints have been returning
+`"Could not connect to the DeepSID database"` since this project was
 built — a live outage on DeepSID's side (confirmed independent of this
-project: `?players` and `?profile=` still work fine). Every cached
-composer's `folder` field is currently just that error. The linking
-logic itself was verified against a hand-written fixture matching the
-real API shape (see `docs/DEEPSID-API.md`) — re-run `npm run fetch:composers --refresh`
-once the endpoint recovers to populate it with real data.
+project: `?players` and `?profile=` still work fine). While that's
+down, `build-html.js` falls back to HVSC's own `STIL.txt`
+(`fetch-hvsc-docs.js` parses its `/MUSICIANS/` subset into
+`data/hvsc/stil.json`) for filename/title/artist — but STIL doesn't
+track which player/editor made a file, so those entries can't be
+linked to a player; that shows honestly as "unknown — STIL has no
+player data" rather than a guess. As of this writing, **all** cached
+files (928 across the 56 curated composers) are STIL fallback. The
+DeepSID-based linking logic was verified against a hand-written fixture
+matching the real API shape (see `docs/DEEPSID-API.md`) — re-run
+`npm run fetch:composers -- --refresh` once the endpoint recovers to
+get real per-file player data back.
 
 ## Rate limiting
 
@@ -240,9 +254,16 @@ are legitimately unknown (lost to history) rather than un-filled-in.
   "Extending the seed list" above — but it isn't merged into
   `data/composer-list.json` automatically. (It also depends on the same
   `?folder=` endpoint currently affected by the outage noted below.)
-- Per-composer SID file lists (and the player linking built on top of
-  them) are currently empty for everyone, because of the ongoing DeepSID
-  `?file=`/`?folder=` outage — see "SID files linked to players" above.
+- Per-composer SID file lists currently come entirely from the HVSC
+  STIL.txt fallback (0 from DeepSID), because of the ongoing DeepSID
+  `?file=`/`?folder=` outage — filenames/titles are real, but none of
+  them can be linked to a player until that recovers. See "SID files
+  linked to players" above.
+- DeepSID's `developer`/`docs`/`source_code` player fields sometimes
+  contain pre-formatted HTML (an embedded `<a>` link) and sometimes
+  plain description text ("Included in archive") — the template renders
+  them as trusted HTML content rather than wrapping the whole field in
+  its own link, which would break for the plain-text cases.
 - HVSC name matching (`lib/hvsc.js`) is exact-string-on-handle only —
   accented characters, alternate spellings, or composers who go by a
   different handle in DeepSID vs. HVSC won't match. Of the 56 curated

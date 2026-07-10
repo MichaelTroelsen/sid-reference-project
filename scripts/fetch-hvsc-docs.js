@@ -14,13 +14,23 @@
  *   used to correct several composer nationality errors — now fetched
  *   live instead of copied in by hand.
  *
- *   STIL.txt — the Sid Tune Information List, per-subtune metadata
- *   (title, artist comments) for the whole collection. Cached raw only
- *   (data/hvsc/STIL.txt) — it's large and its per-entry format is a
- *   separate parsing project of its own; not parsed here.
+ *   STIL.txt — the Sid Tune Information List, per-file metadata (title,
+ *   artist, free-text comments) for the whole collection. Cached raw
+ *   (data/hvsc/STIL.txt, ~3.6MB) and the /MUSICIANS/ subset (16,435 of
+ *   its ~18,650 records) parsed into data/hvsc/stil.json — title/artist
+ *   only, comments deliberately dropped (long community-written prose,
+ *   not needed for a file listing). This exists because DeepSID's own
+ *   ?file=/?folder= endpoints (the normal source of per-composer file
+ *   lists) can go down — STIL.txt is a second, independent source for
+ *   the same filename/title/artist facts, so build-html.js can fall
+ *   back to it. It can't identify which player/editor made a file
+ *   (STIL doesn't track that), so it's a partial substitute, not a full
+ *   one — see docs/DEEPSID-API.md for what only DeepSID's API provides.
  *
  * Cache-aware: skips re-downloading a file that already exists unless
- * you pass --refresh.
+ * you pass --refresh. STIL.txt's parse step runs independently of its
+ * download step, so upgrading this script backfills stil.json from an
+ * already-cached STIL.txt without needing --refresh.
  *
  * Usage:
  *   node scripts/fetch-hvsc-docs.js              # fetch only missing
@@ -40,7 +50,13 @@ const STIL_URL = 'https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/STIL.txt'
 async function downloadText(url) {
   const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.text();
+  // HVSC serves these as ISO-8859-1 (confirmed via the response's own
+  // Content-Type header), but Node's fetch().text() always decodes as
+  // UTF-8 regardless of that — it silently corrupts every accented
+  // character (e.g. "Öörni" becomes "��rni"). Buffer's 'latin1' encoding
+  // is a direct byte-for-byte ISO-8859-1 decode, no ICU build required.
+  const buf = Buffer.from(await res.arrayBuffer());
+  return buf.toString('latin1');
 }
 
 /**
@@ -121,6 +137,74 @@ function parseMusiciansTxt(text) {
   return musicians;
 }
 
+/**
+ * Parses the /MUSICIANS/ subset of STIL.txt into { folderPath: [{file, title, artist, subtunes}] }.
+ *
+ * Record format (blank-line separated):
+ *   /MUSICIANS/C/Cadaver/Aces_High.sid
+ *     TITLE: Aces High [from Powerslave]
+ *    ARTIST: Iron Maiden
+ *
+ * A file can have multiple subtunes with their own title/artist, marked
+ * by a "(#N)" line. Fields before the first "(#2)"-or-higher marker are
+ * the default (this also covers the common case of a lone "(#1)" marker,
+ * which still describes the main/default tune, not an alternate one).
+ * COMMENT fields are intentionally not captured — free-text community
+ * commentary, not needed for a filename/title/artist listing, and often
+ * long enough that keeping it would bloat the cache for no display use.
+ */
+function parseStilTxt(text) {
+  const lines = text.split(/\r?\n/);
+  const byFolder = {};
+  let captured = null;
+  let folder = null;
+  let maxSubtune = 1;
+  let blocked = false;
+
+  function flush() {
+    if (captured && (captured.title || captured.artist)) {
+      byFolder[folder] = byFolder[folder] || [];
+      byFolder[folder].push(captured);
+    }
+    captured = null;
+  }
+
+  for (const line of lines) {
+    const pathMatch = line.match(/^(\/MUSICIANS\/.+\.sid)$/);
+    if (pathMatch) {
+      flush();
+      const fullPath = pathMatch[1];
+      const slashIdx = fullPath.lastIndexOf('/');
+      folder = fullPath.slice(0, slashIdx + 1);
+      captured = { file: fullPath.slice(slashIdx + 1), title: null, artist: null, subtunes: 1 };
+      maxSubtune = 1;
+      blocked = false;
+      continue;
+    }
+    if (!captured) continue; // not inside a /MUSICIANS/ record — skip until the next one
+
+    const trimmed = line.trim();
+    const markerMatch = trimmed.match(/^\(#(\d+)\)$/);
+    if (markerMatch) {
+      const n = parseInt(markerMatch[1], 10);
+      if (n > maxSubtune) maxSubtune = n;
+      captured.subtunes = maxSubtune;
+      if (n >= 2) blocked = true;
+      continue;
+    }
+    if (blocked) continue; // fields belong to an alternate subtune, not the default
+
+    const fieldMatch = trimmed.match(/^(TITLE|ARTIST):\s*(.*)$/);
+    if (fieldMatch) {
+      const [, field, value] = fieldMatch;
+      if (field === 'TITLE' && !captured.title) captured.title = value;
+      if (field === 'ARTIST' && !captured.artist) captured.artist = value;
+    }
+  }
+  flush();
+  return byFolder;
+}
+
 async function main() {
   const refresh = process.argv.slice(2).includes('--refresh');
   fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -128,6 +212,7 @@ async function main() {
   const musiciansTxtPath = path.join(OUT_DIR, 'Musicians.txt');
   const musiciansJsonPath = path.join(OUT_DIR, 'musicians.json');
   const stilPath = path.join(OUT_DIR, 'STIL.txt');
+  const stilJsonPath = path.join(OUT_DIR, 'stil.json');
 
   if (!refresh && fs.existsSync(musiciansTxtPath)) {
     console.log('Musicians.txt already cached. Skipping (pass --refresh to re-fetch).');
@@ -140,13 +225,25 @@ async function main() {
     console.log(`Parsed ${musicians.length} musician entries -> data/hvsc/musicians.json`);
   }
 
+  let stilText;
   if (!refresh && fs.existsSync(stilPath)) {
-    console.log('STIL.txt already cached. Skipping (pass --refresh to re-fetch).');
+    console.log('STIL.txt already cached. Skipping download (pass --refresh to re-fetch).');
+    stilText = fs.readFileSync(stilPath, 'utf8');
   } else {
     console.log(`Fetching ${STIL_URL} ...`);
-    const text = await downloadText(STIL_URL);
-    fs.writeFileSync(stilPath, text, 'utf8');
-    console.log(`Cached STIL.txt (${(Buffer.byteLength(text, 'utf8') / 1024 / 1024).toFixed(1)} MB, raw only — not parsed)`);
+    stilText = await downloadText(STIL_URL);
+    fs.writeFileSync(stilPath, stilText, 'utf8');
+    console.log(`Cached STIL.txt (${(Buffer.byteLength(stilText, 'utf8') / 1024 / 1024).toFixed(1)} MB)`);
+  }
+
+  if (!refresh && fs.existsSync(stilJsonPath)) {
+    console.log('stil.json already parsed. Skipping (pass --refresh to re-parse).');
+  } else {
+    const byFolder = parseStilTxt(stilText);
+    const folderCount = Object.keys(byFolder).length;
+    const fileCount = Object.values(byFolder).reduce((sum, files) => sum + files.length, 0);
+    fs.writeFileSync(stilJsonPath, JSON.stringify({ fetchedAt: new Date().toISOString(), source: STIL_URL, folderCount, fileCount, byFolder }, null, 2), 'utf8');
+    console.log(`Parsed ${fileCount} /MUSICIANS/ file entries across ${folderCount} composer folders -> data/hvsc/stil.json`);
   }
 }
 

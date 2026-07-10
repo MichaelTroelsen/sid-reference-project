@@ -181,6 +181,7 @@ function imgFallback(el, flag){
 const TABS = [
   {id:'composers', label:'Composers',          desc:'Every composer fetched from DeepSID so far — profile bio, country, and HVSC file count.'},
   {id:'players',   label:'Players / Editors',  desc:'The full players/editors database DeepSID knows about, in one request.'},
+  {id:'files',     label:'SID Files',          desc:'Every known SID file across all composers, linked to its player where identifiable.'},
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
   {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
   {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.'}
@@ -228,6 +229,7 @@ function render(tab){
   const grid = document.getElementById('grid');
   if (tab === 'composers') return renderComposers(grid);
   if (tab === 'players') return renderPlayers(grid);
+  if (tab === 'files') return renderFiles(grid);
   if (tab === 'countries') return renderCountries(grid);
   if (tab === 'families') return renderFamilies(grid);
   if (tab === 'gaps') return renderGaps(grid);
@@ -361,27 +363,68 @@ function renderPlayers(grid){
   grid.style.gridTemplateColumns = '1fr';
   let list = window.SID_DATA.players || [];
   if (currentFilter) list = list.filter(p => (p.title||'').toLowerCase().includes(currentFilter));
-  document.getElementById('search-count').textContent = `${list.length} shown`;
+  document.getElementById('search-count').textContent = `${list.length} shown — click a title for full specs, family, and linked files`;
   if (list.length === 0) {
     grid.innerHTML = emptyState('No player/editor data cached yet.', 'node scripts/fetch-players.js');
     return;
   }
-  const rows = list.map(p => {
+  const allPlayers = window.SID_DATA.players || [];
+  const families = computePlayerFamilies(allPlayers);
+  const files = window.SID_DATA.files || [];
+
+  const rows = list.map((p, i) => {
     const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
-    const links = [
-      p.site ? `<a href="${p.site}" target="_blank">Site</a>` : '',
-      p.docs ? `<a href="${p.docs}" target="_blank">Docs</a>` : '',
-      p.source_code ? `<a href="${p.source_code}" target="_blank">Source</a>` : ''
-    ].filter(Boolean).join('');
+    const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
+    const devKey = stripTags(p.developer) || '(unknown developer)';
+    const sibCount = ((families[devKey] && families[devKey].titles.length) || 1) - 1;
     return `<tr>
-      <td><div class="mp-title">${p.title || '(untitled)'}</div>${p.description ? `<div class="mp-desc">${p.description}</div>` : ''}</td>
+      <td><button class="cnote-btn" id="pbtn-${i}" style="font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--text)" onclick="togglePlayerDetail(${i})">▸ ${p.title || '(untitled)'}</button></td>
       <td>${p.developer || '—'}</td>
       <td>${p.platform || '—'}</td>
       <td>${years}</td>
-      <td class="mp-links">${links}</td>
+      <td>${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a>` : ''}</td>
+      <td>${sibCount > 0 ? `<span class="tag" style="cursor:pointer" onclick="togglePlayerDetail(${i})">+${sibCount} sibling${sibCount===1?'':'s'}</span>` : '<span class="cnote">—</span>'}</td>
+    </tr>
+    <tr class="pdetail-row" id="pdetail-${i}" style="display:none"><td colspan="6">${buildPlayerDetail(p, families, files)}</td></tr>`;
+  }).join('');
+  grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Title</th><th>Developer</th><th>Platform</th><th>Years</th><th>CSDb</th><th>Family</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+const FILES_TAB_CAP = 500;
+
+function renderFiles(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  let list = window.SID_DATA.files || [];
+  if (currentFilter) {
+    list = list.filter(f =>
+      f.composer.toLowerCase().includes(currentFilter) ||
+      (f.title||'').toLowerCase().includes(currentFilter) ||
+      (f.player||'').toLowerCase().includes(currentFilter)
+    );
+  }
+  document.getElementById('search-count').textContent = `${list.length} shown`;
+  if (list.length === 0) {
+    grid.innerHTML = emptyState('No file data cached yet.', 'node scripts/fetch-composers.js');
+    return;
+  }
+  const players = window.SID_DATA.players || [];
+  const rows = list.slice(0, FILES_TAB_CAP).map(f => {
+    const match = f.player ? matchPlayer(f.player, players) : null;
+    const playerCell = f.player
+      ? `<span class="tag${match?' ok':''}" title="${match ? 'Matched: ' + match.title : 'No match in players/editors database'}">${f.player}</span>`
+      : `<span class="cnote">${f.source === 'stil' ? 'unknown — STIL has no player data' : 'not identified'}</span>`;
+    return `<tr>
+      <td><a href="#" onclick="jumpToComposer('${f.composer.replace(/'/g,"\\'")}');return false;" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--cyan);text-decoration:none">${f.composer}</a></td>
+      <td style="font-size:.75rem">${f.title || f.file}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}</td>
+      <td>${playerCell}</td>
+      <td><span class="tag">${f.source}</span></td>
+      <td>${f.url ? `<a class="dslink" href="${f.url}" target="_blank">▶</a>` : ''}</td>
     </tr>`;
   }).join('');
-  grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Title</th><th>Developer</th><th>Platform</th><th>Years</th><th>Links</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const more = list.length > FILES_TAB_CAP
+    ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${list.length-FILES_TAB_CAP} more — refine your search to narrow this down.</p>`
+    : '';
+  grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Composer</th><th>File</th><th>Player</th><th>Source</th><th></th></tr></thead><tbody>${rows}</tbody></table>${more}</div>`;
 }
 
 function renderCountries(grid){
@@ -413,6 +456,77 @@ function stripTags(html){
   return (html || '').replace(/<[^>]*>/g, '').trim();
 }
 
+// Shared by the Players tab (inline family badge + detail panel) and the
+// Families tab (full list) — one grouping pass, not two.
+function computePlayerFamilies(players){
+  const byDev = {};
+  players.forEach(p => {
+    const key = stripTags(p.developer) || '(unknown developer)';
+    byDev[key] = byDev[key] || { developerHtml: p.developer || '(unknown developer)', titles: [] };
+    byDev[key].titles.push(p.title || '(untitled)');
+  });
+  return byDev;
+}
+
+function filesForPlayer(playerTitle, files){
+  const norm = normalizePlayerName(playerTitle);
+  if (norm.length < 3) return [];
+  return files.filter(f => {
+    if (!f.player) return false;
+    const fn = normalizePlayerName(f.player);
+    return fn.length >= 3 && (fn.includes(norm) || norm.includes(fn));
+  });
+}
+
+function buildPlayerDetail(p, families, files){
+  // docs/source_code are free text that sometimes embeds its own <a> tag
+  // (e.g. "Available at <a href=...>GitHub</a>") and sometimes is just a
+  // description ("Included in archive") — unlike `site`, treating the
+  // whole field as a URL would produce broken links, so this renders it
+  // as trusted HTML content (same model as the `developer` field) rather
+  // than wrapping it in a synthetic <a href="${p.docs}">.
+  const specFields = [
+    ['Platform', p.platform], ['Distribution', p.distribution], ['SID chips', p.sid_chip_count],
+    ['Channels visible', p.channels_visible], ['Speeds', p.speeds], ['Digi/Samples', p.digi],
+    ['Zero page usage', p.zero_pages], ['CPU time', p.cpu_time], ['Track system', p.track_system],
+    ['Undo', p.undoing], ['Track commands', p.track_cmds], ['Imports from', p.import_from],
+    ['Docs', p.docs], ['Source', p.source_code],
+  ].filter(([,v]) => v && String(v).trim());
+  const specRows = specFields.map(([k,v]) =>
+    `<div class="file-row"><span class="file-name" style="flex:none;min-width:150px;color:var(--dim)">${k}</span><span style="font-size:.72rem;flex:1;white-space:normal">${v}</span></div>`
+  ).join('');
+
+  const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
+  const devKey = stripTags(p.developer) || '(unknown developer)';
+  const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
+  const used = filesForPlayer(p.title, files);
+  const usedRows = used.slice(0, 40).map(f =>
+    `<div class="file-row"><a class="file-name" href="${f.url || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
+  ).join('');
+  const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
+
+  return `<div style="padding:.75rem .5rem">
+    ${p.description ? `<div class="bio" style="margin-bottom:.6rem">${p.description}</div>` : ''}
+    ${specRows}
+    <div class="cfoot" style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.5rem">
+      ${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a>` : ''}
+      ${p.site ? `<a class="dslink" href="${p.site}" target="_blank">🌐 Site</a>` : ''}
+    </div>
+    ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    <div class="sl">Composers/files using this player (${used.length})</div>
+    ${usedRows || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}
+    ${usedMore}
+  </div>`;
+}
+
+function togglePlayerDetail(id){
+  const row = document.getElementById('pdetail-' + id);
+  const btn = document.getElementById('pbtn-' + id);
+  const open = row.style.display !== 'none';
+  row.style.display = open ? 'none' : 'table-row';
+  if (btn) btn.textContent = btn.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+}
+
 function renderFamilies(grid){
   grid.style.gridTemplateColumns = '1fr';
   const players = window.SID_DATA.players || [];
@@ -425,13 +539,7 @@ function renderFamilies(grid){
   // Group by developer — DeepSID's `developer` field is itself HTML (often an
   // <a> link to the person's composer page), so the grouping key strips tags
   // but display keeps the original markup, same trust model as the Players tab.
-  const byDev = {};
-  players.forEach(p => {
-    const key = stripTags(p.developer) || '(unknown developer)';
-    byDev[key] = byDev[key] || { developerHtml: p.developer || '(unknown developer)', titles: [] };
-    byDev[key].titles.push(p.title || '(untitled)');
-  });
-  let families = Object.values(byDev).filter(f => f.titles.length > 1);
+  let families = Object.values(computePlayerFamilies(players)).filter(f => f.titles.length > 1);
   if (currentFilter) {
     families = families.filter(f =>
       stripTags(f.developerHtml).toLowerCase().includes(currentFilter) ||
@@ -511,22 +619,26 @@ function renderGaps(grid){
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${items}${more}</div>`;
 }
 
-function randomComposer(){
-  const list = window.SID_DATA.composers || [];
-  if (!list.length) return;
-  const pick = list[Math.floor(Math.random() * list.length)];
+function jumpToComposer(name){
   if (currentTab !== 'composers' || currentFilter) {
     document.getElementById('search-input').value = '';
     currentFilter = '';
     render('composers');
   }
   requestAnimationFrame(() => {
-    const el = document.querySelector(`.card[data-name="${CSS.escape(pick.name.toLowerCase())}"]`);
+    const el = document.querySelector(`.card[data-name="${CSS.escape(name.toLowerCase())}"]`);
     if (!el) return;
     el.scrollIntoView({behavior:'smooth', block:'center'});
     el.classList.add('hl');
     setTimeout(() => el.classList.remove('hl'), 1700);
   });
+}
+
+function randomComposer(){
+  const list = window.SID_DATA.composers || [];
+  if (!list.length) return;
+  const pick = list[Math.floor(Math.random() * list.length)];
+  jumpToComposer(pick.name);
 }
 
 renderPills();

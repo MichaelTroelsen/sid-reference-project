@@ -61,6 +61,14 @@ h1 em{color:var(--cyan);font-style:normal;}
 .dslink{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,204,221,.25);padding:.22rem .6rem;border-radius:2px;transition:background .15s;}
 .dslink:hover{background:rgba(34,204,221,.08);}
 .cnote{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--dim);}
+.cnote-btn{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--dim);background:none;border:none;cursor:pointer;padding:0;}
+.cnote-btn:hover{color:var(--tab);}
+.tag.ok{color:var(--green);border-color:rgba(85,221,136,.3);}
+.tag.warn{color:var(--red);border-color:rgba(255,85,102,.3);}
+.file-list{width:100%;margin-top:.5rem;max-height:220px;overflow-y:auto;border-top:1px solid var(--border);padding-top:.4rem;}
+.file-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.25rem 0;font-size:.7rem;}
+.file-name{font-family:'Share Tech Mono',monospace;color:var(--text);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.file-name:hover{color:var(--cyan);}
 .fw{max-width:1400px;margin:0 auto;padding:0 2rem 4rem;}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
 .bar-label{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--text);min-width:200px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
@@ -230,31 +238,104 @@ function cleanNotable(s){
   return (s || '').replace(/\[#\]/g, '');
 }
 
+// ── SID FILE ↔ PLAYER LINKING ───────────────────────────────────────────
+// Each SID file's `player` field is DeepSID's free-text identification of
+// which player/editor routine produced it (e.g. "GoatTracker 2.62"). The
+// players/editors database's `title` field is similarly free text but
+// rarely matches exactly (e.g. "GoatTracker v2.x") — there's no shared ID
+// between the two. Version numbers are stripped before comparing so
+// "GoatTracker 2.62" and "GoatTracker v2.x" both normalize to the same
+// "goattracker" and match on product name alone.
+function normalizePlayerName(s){
+  return (s || '')
+    .toLowerCase()
+    .replace(/v?\d+(\.\d+)*\.?[a-z]?/g, '')
+    .replace(/[^a-z]+/g, ' ')
+    .trim();
+}
+function matchPlayer(filePlayer, players){
+  const norm = normalizePlayerName(filePlayer);
+  if (norm.length < 3) return null; // too short to match without false positives
+  return players.find(p => {
+    const pn = normalizePlayerName(p.title);
+    return pn && pn.length >= 3 && (pn.includes(norm) || norm.includes(pn));
+  }) || null;
+}
+function fileUrl(f){
+  if (!f.collection_path) return null;
+  const clean = f.collection_path.replace(/^_High Voltage SID Collection\//, '');
+  return `https://deepsid.chordian.net/?file=${clean}`;
+}
+
+const FILE_LIST_CAP = 50;
+
+function buildFileRow(f, players){
+  const url = fileUrl(f);
+  const label = f.name || f.collection_path || '(untitled)';
+  const nameEl = url
+    ? `<a class="file-name" href="${url}" target="_blank">${label}</a>`
+    : `<span class="file-name">${label}</span>`;
+  const playerText = (f.player || '').trim();
+  if (!playerText) return `<div class="file-row">${nameEl}<span class="tag">unidentified player</span></div>`;
+  const match = matchPlayer(playerText, players);
+  const playerEl = match
+    ? `<span class="tag" title="Linked to players/editors: ${match.title}">${playerText}</span>`
+    : `<span class="tag" title="No match found in players/editors database">${playerText}</span>`;
+  return `<div class="file-row">${nameEl}${playerEl}</div>`;
+}
+
+function toggleFiles(btn){
+  const wrap = btn.nextElementSibling;
+  const open = wrap.style.display !== 'none';
+  wrap.style.display = open ? 'none' : 'block';
+  btn.textContent = btn.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+}
+
 function buildComposerCard(c){
   const p = c.profile || {};
   const files = fileList(c);
+  const players = window.SID_DATA.players || [];
   const badge = p.thumbnail
     ? `<img class="thumb" src="${p.thumbnail}" alt="${c.name}" loading="lazy" onerror="imgFallback(this,'${flagFor(p.country)}')">`
     : `<div class="flag">${flagFor(p.country)}</div>`;
   const fullName = p.full_name && p.full_name !== c.name ? `<div class="mh">${p.full_name}</div>` : '';
+  const csdbGroups = (c.csdb && c.csdb.groups || []).map(g => `<span class="tag">${g.name}</span>`).join('');
   const tags = [p.focus2, p.affiliation]
     .filter(t => t && t !== 'NONE')
-    .map(t => `<span class="tag">${t}</span>`).join('');
+    .map(t => `<span class="tag">${t}</span>`).join('') + csdbGroups;
   const bio = cleanNotable(p.notable);
   const dsUrl = `https://deepsid.chordian.net/?file=${c.path}`;
   const csdbUrl = p.csdb_id ? `https://csdb.dk/scener/?id=${p.csdb_id}` : null;
+
+  let verifyBadge = '';
+  if (c.hvsc && c.hvsc.countryMismatch) {
+    verifyBadge = `<span class="tag warn" title="DeepSID: ${p.country || '?'} · HVSC Musicians.txt: ${c.hvsc.country}">⚠ country mismatch</span>`;
+  } else if (c.hvsc) {
+    verifyBadge = `<span class="tag ok" title="Matches HVSC Musicians.txt: ${c.hvsc.country || 'no country listed'}">✓ HVSC verified</span>`;
+  }
+
+  const fileRows = files.slice(0, FILE_LIST_CAP).map(f => buildFileRow(f, players)).join('');
+  const fileMore = files.length > FILE_LIST_CAP
+    ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${files.length - FILE_LIST_CAP} more — see DeepSID</span></div>`
+    : '';
+  const filesSection = files.length
+    ? `<button class="cnote-btn" onclick="toggleFiles(this)">▸ ${files.length} SID${files.length===1?'':'s'}</button>
+       <div class="file-list" style="display:none">${fileRows}${fileMore}</div>`
+    : `<span class="cnote">0 SIDs</span>`;
+
   return `<div class="card" data-name="${c.name.toLowerCase()}">
     <div class="card-top">
       ${badge}
       <div class="nb"><div class="mn">${c.name}</div>${fullName}</div>
     </div>
     <div class="meta"><span>${flagFor(p.country)} ${p.country || 'Unknown'}</span><span class="dot">·</span><span>${p.active || '—'}</span></div>
+    ${verifyBadge ? `<div class="tags">${verifyBadge}</div>` : ''}
     ${tags ? `<div class="tags">${tags}</div>` : ''}
     ${bio ? `<div class="bio">${bio}</div>` : ''}
     <div class="cfoot">
       <a class="dslink" href="${dsUrl}" target="_blank">▶ DeepSID</a>
-      ${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a>` : ''}
-      <span class="cnote">${files.length} SID${files.length===1?'':'s'}</span>
+      ${csdbUrl ? `<a class="dslink" href="${csdbUrl}" target="_blank">CSDb${c.csdb ? ` (${c.csdb.creditCount})` : ''}</a>` : ''}
+      ${filesSection}
     </div>
   </div>`;
 }

@@ -6,7 +6,9 @@
 Fetches composer, player, and editor data live from the [DeepSID](https://deepsid.chordian.net/)
 API into local JSON, builds a browsable HTML reference page from that JSON,
 and cross-references everything to find documentation gaps worth reporting
-back to DeepSID upstream.
+back to DeepSID upstream. Two independent sources enrich and verify that
+data further: [CSDb](https://csdb.dk/) (scener bios, group history) and
+HVSC's own `Musicians.txt` (the community-verified handle/country list).
 
 This replaces an earlier version of this project that was a single
 hand-curated HTML file with all data hardcoded inline — preserved at
@@ -35,16 +37,28 @@ SID files with no identified player routine, composers with HVSC files
 but no profile written up yet. `find-gaps.js` finds those systematically
 instead of by accident, so they're reportable rather than just noticed.
 
+CSDb and HVSC's `Musicians.txt` are independent sources maintained by
+different people, so they're also useful as a cross-check on DeepSID
+itself — `find-gaps.js` flags it when DeepSID's profile country disagrees
+with HVSC's own verified list for the same composer
+(`COMPOSER_COUNTRY_MISMATCH`), the same kind of correction the old
+hand-curated guide used to make by hand (see `docs/legacy/sid_reference.html`'s
+"data corrections" section) — now automatic instead of manual.
+
 ## Architecture
 
 ```
 scripts/
   lib/
-    deepsid-client.js   — rate-limited API wrapper (fetch, retry, throttle)
+    deepsid-client.js   — rate-limited DeepSID API wrapper (fetch, retry, throttle)
+    csdb-client.js      — rate-limited CSDb webservice wrapper (XML, via fast-xml-parser)
+    hvsc.js             — shared HVSC Musicians.txt matching logic (build-html.js + find-gaps.js)
     cache.js            — JSON read/write helpers, name→slug for filenames
   build-seed-from-hvsc.js — generates a full composer seed from DeepSID's /MUSICIANS/ tree
   fetch-composers.js     — pulls profile + folder for each seed composer
   fetch-players.js       — pulls the entire players/editors database
+  fetch-csdb.js           — enriches cached composers with CSDb scener data
+  fetch-hvsc-docs.js      — pulls + parses HVSC's Musicians.txt, caches STIL.txt raw
   find-gaps.js           — cross-references everything, flags missing data
   build-html.js          — injects data/*.json into the HTML template
 
@@ -53,6 +67,11 @@ data/
   composers/*.json        — one cache file per composer (gitignored)
   players.json            — full players/editors cache (gitignored)
   gaps-report.json        — machine-readable gap analysis (gitignored)
+  csdb/*.json              — one CSDb scener cache file per enriched composer (gitignored)
+  hvsc/
+    Musicians.txt          — raw HVSC download (gitignored)
+    musicians.json          — parsed {handle, realName, group, country}[] (gitignored)
+    STIL.txt                — raw HVSC download, cached but not parsed (gitignored)
 
 templates/
   index.html.template    — the actual UI (CSS/JS), reads window.SID_DATA
@@ -80,8 +99,13 @@ the only bridge between them.
 Requires Node.js 18+ (uses the built-in `fetch`).
 
 ```bash
-npm install     # no dependencies currently, but keeps this future-proof
+npm install
 ```
+
+One runtime dependency: [`fast-xml-parser`](https://www.npmjs.com/package/fast-xml-parser),
+used only by `csdb-client.js` — CSDb's webservice returns XML with no JSON
+option, and Node has no built-in XML parser. Everything else (DeepSID,
+HVSC) is plain JSON/text over the built-in `fetch`.
 
 ## Usage
 
@@ -106,6 +130,15 @@ npm run fetch:composers    # fetches data/composer-list.json's seed
                             # composers — one request per composer,
                             # SKIPPED per-composer if already cached
                             # under data/composers/
+
+npm run fetch:csdb          # enriches already-cached composers that have
+                             # a csdb_id — one request per composer,
+                             # SKIPPED per-composer if already cached
+                             # under data/csdb/ (run fetch:composers first)
+
+npm run fetch:hvsc-docs     # downloads + parses HVSC's Musicians.txt,
+                             # caches STIL.txt raw — SKIPPED if already
+                             # cached under data/hvsc/
 
 npm run gaps                # local only — analyzes whatever's been
                              # fetched so far, writes docs/GAPS_REPORT.md
@@ -162,6 +195,27 @@ merge entries in by hand. Composer display names are heuristically
 derived from HVSC's `Lastname_Firstname` folder-naming convention and
 may need manual cleanup for handle-style names.
 
+## SID files linked to players
+
+Each composer card can expand to show its individual HVSC SID files —
+this comes from the `folder` field DeepSID's `?file=<composer>/` endpoint
+returns per composer (see `docs/DEEPSID-API.md`). Each file carries a
+free-text `player` field identifying which player/editor routine created
+it; the template matches that against the players/editors database's
+`title` field (normalized, version numbers stripped, since e.g.
+`"GoatTracker 2.62"` needs to match a title like `"GoatTracker v2.x"`)
+to link the two. Unmatched or unidentified players (`"?"`, `""`) render
+without a link rather than a false match.
+
+**Current status:** DeepSID's `?file=`/`?folder=` endpoints have been
+returning `"Could not connect to the DeepSID database"` since this was
+built — a live outage on DeepSID's side (confirmed independent of this
+project: `?players` and `?profile=` still work fine). Every cached
+composer's `folder` field is currently just that error. The linking
+logic itself was verified against a hand-written fixture matching the
+real API shape (see `docs/DEEPSID-API.md`) — re-run `npm run fetch:composers --refresh`
+once the endpoint recovers to populate it with real data.
+
 ## Rate limiting
 
 `deepsid-client.js` throttles to one request every 400ms by default. This
@@ -184,7 +238,19 @@ are legitimately unknown (lost to history) rather than un-filled-in.
 - The curated seed list is 56 composers, not all of HVSC's ~1,872+ named
   musicians. `npm run seed:full` generates the complete list — see
   "Extending the seed list" above — but it isn't merged into
-  `data/composer-list.json` automatically.
+  `data/composer-list.json` automatically. (It also depends on the same
+  `?folder=` endpoint currently affected by the outage noted below.)
+- Per-composer SID file lists (and the player linking built on top of
+  them) are currently empty for everyone, because of the ongoing DeepSID
+  `?file=`/`?folder=` outage — see "SID files linked to players" above.
+- HVSC name matching (`lib/hvsc.js`) is exact-string-on-handle only —
+  accented characters, alternate spellings, or composers who go by a
+  different handle in DeepSID vs. HVSC won't match. Of the 56 curated
+  composers, 16 currently match; the rest aren't flagged as wrong, just
+  unverified.
+- CSDb enrichment only covers composers whose DeepSID profile already has
+  a non-zero `csdb_id` — composers DeepSID hasn't linked to CSDb yet get
+  no enrichment, not an error.
 - `find-gaps.js`'s idea of "missing" is a fixed field list
   (`EXPECTED_PLAYER_FIELDS` in that script) — adjust it if DeepSID's
   schema has fields this project doesn't know to check yet.

@@ -8,5 +8,7 @@ data/composers/*.json
 data/players.json
 data/gaps-report.json
 data/composer-list-full.json
+data/csdb/*.json
+data/hvsc/
 
 output/*.html

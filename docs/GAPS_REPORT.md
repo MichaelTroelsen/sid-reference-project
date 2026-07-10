@@ -1,6 +1,6 @@
 # DeepSID Documentation Gaps Report
 
-Generated: 2026-07-10T06:22:52.327Z
+Generated: 2026-07-10T08:41:35.113Z
 Composers scanned: 56
 Player/editor entries scanned: 129
 Total gaps found: 127
@@ -139,6 +139,10 @@ _(+11 more, see data/gaps-report.json for the full list)_
 - **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile exists but country field is blank
 - **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile exists but country field is blank
 - **Randall** (`/MUSICIANS/R/Randall/`) — Profile exists but country field is blank
+
+## DeepSID country disagrees with HVSC Musicians.txt (0)
+
+_None found._
 
 ## SID files with no identified player routine (0)
 

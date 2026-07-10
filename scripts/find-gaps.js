@@ -24,6 +24,11 @@
  *   - COMPOSER_MISSING_COUNTRY : profile exists but no country field —
  *                             useful since this project cross-checks
  *                             nationality against HVSC Musicians.txt
+ *   - COMPOSER_COUNTRY_MISMATCH : DeepSID profile country disagrees with
+ *                             HVSC's own Musicians.txt for the same
+ *                             handle (requires data/hvsc/musicians.json —
+ *                             run fetch-hvsc-docs.js first, skipped
+ *                             entirely if that file isn't cached)
  *
  * Usage:
  *   node scripts/find-gaps.js
@@ -32,6 +37,7 @@
 const fs = require('fs');
 const path = require('path');
 const { readJSON, writeJSON } = require('./lib/cache');
+const { loadHvscMusicians, findHvscMatch, countriesRoughlyMatch } = require('./lib/hvsc');
 
 const ROOT = path.join(__dirname, '..');
 const COMPOSERS_DIR = path.join(ROOT, 'data', 'composers');
@@ -73,6 +79,7 @@ function findComposerGaps() {
   if (!fs.existsSync(COMPOSERS_DIR)) return gaps;
 
   const files = fs.readdirSync(COMPOSERS_DIR).filter((f) => f.endsWith('.json'));
+  const hvscMusicians = loadHvscMusicians();
 
   for (const file of files) {
     const data = readJSON(path.join(COMPOSERS_DIR, file));
@@ -101,6 +108,19 @@ function findComposerGaps() {
         path: composerPath,
         detail: 'Profile exists but country field is blank',
       });
+    }
+
+    // DeepSID's country disagrees with HVSC's own Musicians.txt
+    if (profile && !profile._error && profile.country) {
+      const hvscMatch = findHvscMatch(name, hvscMusicians);
+      if (hvscMatch && hvscMatch.country && !countriesRoughlyMatch(profile.country, hvscMatch.country)) {
+        gaps.push({
+          type: 'COMPOSER_COUNTRY_MISMATCH',
+          composer: name,
+          path: composerPath,
+          detail: `DeepSID says "${profile.country}", HVSC Musicians.txt says "${hvscMatch.country}"`,
+        });
+      }
     }
 
     // Scan individual SID files for unidentified player routine
@@ -145,6 +165,7 @@ function toMarkdown(gaps, meta) {
     ['PLAYER_MISSING_FIELDS', 'Player/editor entries with missing fields'],
     ['COMPOSER_NO_PROFILE', 'Composers with HVSC files but no DeepSID profile'],
     ['COMPOSER_MISSING_COUNTRY', 'Composer profiles missing a country'],
+    ['COMPOSER_COUNTRY_MISMATCH', 'DeepSID country disagrees with HVSC Musicians.txt'],
     ['FILE_UNIDENTIFIED_PLAYER', 'SID files with no identified player routine'],
   ];
 

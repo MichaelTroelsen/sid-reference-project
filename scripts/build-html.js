@@ -17,22 +17,63 @@
 
 const fs = require('fs');
 const path = require('path');
-const { readJSON } = require('./lib/cache');
+const { readJSON, slugify } = require('./lib/cache');
+const { loadHvscMusicians, findHvscMatch, countriesRoughlyMatch } = require('./lib/hvsc');
 
 const ROOT = path.join(__dirname, '..');
 const COMPOSERS_DIR = path.join(ROOT, 'data', 'composers');
+const CSDB_DIR = path.join(ROOT, 'data', 'csdb');
 const PLAYERS_PATH = path.join(ROOT, 'data', 'players.json');
 const GAPS_PATH = path.join(ROOT, 'data', 'gaps-report.json');
 const TEMPLATE_PATH = path.join(ROOT, 'templates', 'index.html.template');
 const OUTPUT_PATH = path.join(ROOT, 'output', 'index.html');
 
+/**
+ * CSDb's scener response (depth=2) includes every release the person has
+ * ever been credited on — for Cadaver that's hundreds of entries. Full
+ * credit history is useful to have cached on disk, but embedding all of
+ * it into the generated HTML would bloat the page for no display benefit.
+ * This keeps only what the composer card actually shows: country, group
+ * memberships, and a credit count (with a link out to CSDb for the rest).
+ */
+function summarizeCsdb(entry) {
+  const handle = entry && entry.scener && entry.scener.Handle;
+  if (!handle) return null;
+  const scener = handle.Scener || {};
+  const memberOf = Array.isArray(handle.MemberOf) ? handle.MemberOf : handle.MemberOf ? [handle.MemberOf] : [];
+  const groups = memberOf
+    .filter((m) => m.Group && m.Group.Name)
+    .map((m) => ({ name: m.Group.Name, id: m.Group.ID, status: m.Status || null }));
+  const credits = handle.Credits && handle.Credits.Credit;
+  const creditCount = Array.isArray(credits) ? credits.length : credits ? 1 : 0;
+  return { country: scener.Country || null, groups, creditCount };
+}
+
 function loadAllComposers() {
   if (!fs.existsSync(COMPOSERS_DIR)) return [];
+  const hvscMusicians = loadHvscMusicians();
+
   return fs
     .readdirSync(COMPOSERS_DIR)
     .filter((f) => f.endsWith('.json'))
     .map((f) => readJSON(path.join(COMPOSERS_DIR, f)))
     .filter(Boolean)
+    .map((composer) => {
+      const csdbRaw = readJSON(path.join(CSDB_DIR, `${slugify(composer.name)}.json`));
+      composer.csdb = summarizeCsdb(csdbRaw);
+
+      const hvscMatch = findHvscMatch(composer.name, hvscMusicians);
+      composer.hvsc = hvscMatch
+        ? {
+            realName: hvscMatch.realName,
+            group: hvscMatch.group,
+            country: hvscMatch.country,
+            countryMismatch: !countriesRoughlyMatch(composer.profile && composer.profile.country, hvscMatch.country),
+          }
+        : null;
+
+      return composer;
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -46,6 +87,9 @@ async function main() {
   console.log(`  composers: ${composers.length}`);
   console.log(`  players/editors: ${players?.count ?? 0}`);
   console.log(`  known gaps: ${gaps?.meta?.totalGaps ?? 0}`);
+  console.log(`  composers with CSDb enrichment: ${composers.filter((c) => c.csdb).length}`);
+  console.log(`  composers matched against HVSC Musicians.txt: ${composers.filter((c) => c.hvsc).length}`);
+  console.log(`  country mismatches vs HVSC: ${composers.filter((c) => c.hvsc?.countryMismatch).length}`);
 
   if (!fs.existsSync(TEMPLATE_PATH)) {
     console.error(`\nTemplate not found: ${TEMPLATE_PATH}`);

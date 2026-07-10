@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SID Reference — Musicians, Tools, Countries & Fun Fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0C1A;--card-bg:#13132A;--border:#252550;--text:#D8D8F0;--dim:#6060A0;--cyan:#22CCDD;--amber:#FFB700;--green:#55DD88;--purple:#AA66FF;--red:#FF5566;--orange:#FF8844;--blue:#55BBFF;--tab:var(--cyan);--raster-op:1;--shadow-op:.3;--header-bg:rgba(12,12,26,.95);--track-bg:rgba(255,255,255,.04);--rank-fg:#000;}
+:root[data-theme="light"]{--bg:#F5F5FA;--card-bg:#FFFFFF;--border:#D8D8EA;--text:#1A1A2E;--dim:#8888AA;--cyan:#0099AA;--amber:#B87700;--green:#1A9955;--purple:#7744CC;--red:#CC2244;--orange:#CC6622;--blue:#2277CC;--raster-op:.55;--shadow-op:.08;--header-bg:rgba(245,245,250,.92);--track-bg:rgba(0,0,0,.05);--rank-fg:#FFFFFF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;transition:background .2s,color .2s;}
+.raster{height:7px;opacity:var(--raster-op);background:linear-gradient(to right,#000 0%,#9F4E44 6.25%,#6ABFC6 12.5%,#A057A3 18.75%,#5CAB5E 25%,#50459B 31.25%,#C9D487 37.5%,#A1683C 43.75%,#6D5412 50%,#CB7E75 56.25%,#626262 62.5%,#898989 68.75%,#9FE78E 75%,#6FC2CC 81.25%,#ABABAB 87.5%,#FFF 100%);}
+.theme-toggle{position:fixed;top:14px;right:16px;z-index:200;background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:.4rem .9rem;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:border-color .15s;}
+.theme-toggle:hover{border-color:var(--tab);}
+header{padding:2rem 2rem 1.75rem;text-align:center;border-bottom:1px solid var(--border);}
+.chip-label{display:inline-flex;align-items:center;gap:.5rem;font-family:'IBM Plex Mono',monospace;font-size:.63rem;color:var(--dim);letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--border);padding:.25rem .9rem;border-radius:99px;margin-bottom:1rem;}
+.chip-label::before{content:'●';color:var(--cyan);animation:blink 1.1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+h1{font-family:'Share Tech Mono',monospace;font-size:clamp(1.8rem,4.5vw,3rem);letter-spacing:.1em;color:var(--text);text-shadow:0 0 40px rgba(34,204,221,var(--shadow-op));}
+h1 em{color:var(--cyan);font-style:normal;}
+.sub{color:var(--dim);font-size:.85rem;margin-top:.4rem;}
+.pills{display:flex;justify-content:center;gap:1rem;margin-top:1.25rem;flex-wrap:wrap;}
+.pill{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);border:1px solid var(--border);padding:.3rem .85rem;border-radius:2px;}
+.pill strong{color:var(--amber);}
+.tabs-wrap{position:sticky;top:0;z-index:100;background:var(--header-bg);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;max-width:1400px;margin:0 auto;padding:0 1rem;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:.85rem 1rem;background:none;border:none;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.04em;cursor:pointer;position:relative;white-space:nowrap;transition:color .15s;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--text);}
+.tab.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--tab);}
+.cat-header{max-width:1400px;margin:0 auto;padding:1.5rem 2rem .75rem;}
+.cat-title{font-family:'Share Tech Mono',monospace;font-size:1.05rem;letter-spacing:.06em;}
+.cat-desc{color:var(--dim);font-size:.82rem;margin-top:.3rem;}
+.grid{max-width:1400px;margin:0 auto;padding:1rem 2rem 4rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:580px){.grid{grid-template-columns:1fr;padding:1rem 1rem 3rem;}}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:3px;padding:1.1rem;display:flex;flex-direction:column;gap:.65rem;transition:border-color .2s;animation:fu .3s ease both;}
+.card:hover{border-color:var(--tab);}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.card-top{display:flex;align-items:flex-start;gap:.65rem;}
+.rank{font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;width:2rem;height:2rem;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--tab);color:#000;}
+.rank.g{background:#FFB700;}.rank.s{background:#A8A8C0;}.rank.b{background:#CD8032;}.rank.m{background:var(--border);color:var(--dim);}
+.nb{flex:1;min-width:0;}
+.mn{font-family:'Share Tech Mono',monospace;font-size:.92rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mh{font-size:.72rem;color:var(--tab);margin-top:.1rem;font-style:italic;}
+.meta{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--dim);flex-wrap:wrap;}
+.dot{color:var(--border);}
+.tags{display:flex;gap:.3rem;flex-wrap:wrap;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--border);color:var(--dim);padding:.1rem .45rem;border-radius:2px;}
+.works{display:flex;gap:.3rem;flex-wrap:wrap;}
+.work{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--amber);background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.18);padding:.18rem .45rem;border-radius:2px;}
+.bio{font-size:.78rem;color:#8080B8;line-height:1.6;flex:1;}
+.cfoot{display:flex;align-items:center;justify-content:space-between;padding-top:.55rem;border-top:1px solid var(--border);gap:.5rem;flex-wrap:wrap;}
+.dslink{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,204,221,.25);padding:.22rem .6rem;border-radius:2px;transition:background .15s;}
+.dslink:hover{background:rgba(34,204,221,.08);}
+.cnote{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--dim);}
+/* FULL-WIDTH TABS */
+.fw{max-width:1400px;margin:0 auto;padding:0 2rem 4rem;}
+.sl{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:1.5rem 0 .65rem;}
+.sn{font-size:.72rem;color:var(--dim);background:rgba(34,204,221,.04);border:1px solid rgba(34,204,221,.12);padding:.55rem .9rem;border-radius:3px;margin:.5rem 0 1.25rem;line-height:1.6;}
+/* BARS (shared by player stats + country chart) */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.bar-label{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--text);min-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-decoration:none;transition:color .15s;}
+.bar-label:hover{color:var(--cyan);}
+.bar-track{flex:1;height:14px;background:var(--track-bg);border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:2px;}
+.bar-num{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--amber);min-width:52px;text-align:right;}
+.bar-tag{font-family:'Share Tech Mono',monospace;font-size:.56rem;border:1px solid var(--border);padding:1px 5px;border-radius:2px;color:var(--dim);white-space:nowrap;}
+/* MUSICIAN TABLE (player usage) */
+.mp-tbl{width:100%;border-collapse:collapse;}
+.mp-tbl th{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:.4rem .8rem;border-bottom:1px solid var(--border);text-align:left;}
+.mp-tbl td{padding:.38rem .8rem;border-bottom:1px solid rgba(37,37,80,.4);font-size:.76rem;vertical-align:middle;}
+.mp-tbl tr:hover td{background:rgba(34,204,221,.03);}
+.mp-mlink{font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--cyan);text-decoration:none;}
+.mp-mlink:hover{color:var(--text);}
+.pl-badge{font-family:'Share Tech Mono',monospace;font-size:.6rem;padding:2px 7px;border-radius:2px;white-space:nowrap;}
+.pl-custom{background:rgba(255,183,0,.1);color:var(--amber);border:1px solid rgba(255,183,0,.25);}
+.pl-goat{background:rgba(34,204,221,.1);color:var(--cyan);border:1px solid rgba(34,204,221,.25);}
+.pl-jch{background:rgba(170,102,255,.1);color:var(--purple);border:1px solid rgba(170,102,255,.25);}
+.pl-cc{background:rgba(85,221,136,.1);color:var(--green);border:1px solid rgba(85,221,136,.25);}
+.pl-sdi{background:rgba(255,85,102,.1);color:#FF6677;border:1px solid rgba(255,85,102,.25);}
+.pl-sw{background:rgba(255,136,68,.1);color:var(--orange);border:1px solid rgba(255,136,68,.25);}
+.pl-sf2{background:rgba(85,187,255,.1);color:var(--blue);border:1px solid rgba(85,187,255,.25);}
+/* TIMELINE */
+.tl-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.tl-name{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text);min-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tl-nat{font-size:.85rem;width:20px;}
+.tl-axis{flex:1;position:relative;height:13px;background:var(--track-bg);border-radius:2px;}
+.tl-bar{position:absolute;height:100%;border-radius:2px;opacity:.85;}
+.tl-years{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim);min-width:72px;}
+.tl-xtick{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--border);padding:2px 0 0;margin-left:183px;}
+/* FUN FUN PROFILE */
+.ff-hero{background:var(--card-bg);border:1px solid var(--border);border-radius:5px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.ff-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(to right,var(--blue),var(--cyan),var(--green),var(--amber));}
+.ff-big{font-family:'Share Tech Mono',monospace;font-size:2.5rem;color:var(--text);letter-spacing:.1em;line-height:1;}
+.ff-sub{font-family:'Share Tech Mono',monospace;font-size:.9rem;color:var(--cyan);margin-top:.4rem;}
+.ff-metas{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:1.25rem;}
+.ff-m{display:flex;flex-direction:column;gap:.2rem;}
+.ff-ml{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
+.ff-mv{font-size:.85rem;color:var(--text);}
+.ff-two{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+.ff-card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1.1rem;}
+.ff-ct{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem;}
+.ff-item{padding:.38rem 0;border-bottom:1px solid rgba(37,37,80,.4);display:flex;align-items:center;gap:.6rem;font-size:.8rem;}
+.ff-item:last-child{border-bottom:none;}
+.ff-rko{background:rgba(255,183,0,.07);border:1px solid rgba(255,183,0,.2);border-radius:4px;padding:1rem 1.25rem;margin-bottom:1rem;}
+.ff-api-box{background:rgba(34,204,221,.04);border:1px solid rgba(34,204,221,.15);border-radius:4px;padding:1rem 1.25rem;margin-bottom:1rem;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--dim);line-height:1.7;}
+.ff-api-box a{color:var(--cyan);text-decoration:none;}
+.ff-api-box a:hover{text-decoration:underline;}
+.ff-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem;}
+.ff-stat{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.85rem 1rem;text-align:center;}
+.ff-stat-num{font-family:'IBM Plex Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--blue);}
+.ff-stat-lbl{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:.25rem;letter-spacing:.06em;text-transform:uppercase;}
+@media(max-width:700px){.ff-two{grid-template-columns:1fr;}.ff-stat-grid{grid-template-columns:repeat(2,1fr);}.tl-name{min-width:110px;}.bar-label{min-width:120px;}}
+/* FOOTER */
+footer{border-top:1px solid var(--border);text-align:center;padding:1.75rem 2rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);line-height:2;}
+footer a{color:var(--cyan);text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* SEARCH */
+.search-bar{max-width:1400px;margin:0 auto;padding:.85rem 2rem 0;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+#search-input{flex:1;min-width:200px;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.55rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;}
+#search-input:focus{border-color:var(--tab);}
+#search-input::placeholder{color:var(--dim);}
+#search-count{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--dim);white-space:nowrap;}
+.rand-btn{font-family:'Share Tech Mono',monospace;font-size:.68rem;background:var(--card-bg);border:1px solid var(--border);color:var(--text);padding:.5rem .9rem;border-radius:4px;cursor:pointer;white-space:nowrap;transition:border-color .15s;}
+.rand-btn:hover{border-color:var(--amber);}
+.search-results{max-width:1400px;margin:0 auto;padding:0 2rem;}
+.sr-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-top:.4rem;cursor:pointer;transition:border-color .15s;}
+.sr-item:hover{border-color:var(--tab);}
+.sr-name{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--text);}
+.sr-tab{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim);background:rgba(255,255,255,.03);padding:.15rem .5rem;border-radius:2px;border:1px solid var(--border);}
+.sr-nat{font-size:.8rem;}
+.card.hl{outline:2px solid var(--amber);animation:hlpulse 1.6s ease-out 1;}
+@keyframes hlpulse{0%{box-shadow:0 0 0 6px rgba(255,183,0,.35);}100%{box-shadow:0 0 0 0 rgba(255,183,0,0);}}
+/* COMPARE VIEW */
+.cmp-selects{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.cmp-select{flex:1;min-width:220px;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.6rem .8rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.cmp-col{background:var(--card-bg);border:1px solid var(--border);border-radius:5px;padding:1.25rem;}
+.cmp-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(37,37,80,.4);font-size:.82rem;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-lbl{color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr;}}
+/* EMBEDDED PLAYER */
+.embed-wrap{margin-top:.6rem;border-top:1px solid var(--border);padding-top:.6rem;}
+.embed-frame{width:100%;height:120px;border:1px solid var(--border);border-radius:4px;background:#000;}
+.play-btn{font-family:'Share Tech Mono',monospace;font-size:.6rem;background:none;border:1px solid rgba(85,221,136,.3);color:var(--green);padding:.22rem .6rem;border-radius:2px;cursor:pointer;}
+.play-btn:hover{background:rgba(85,221,136,.08);}
+/* PRINT */
+@media print{
+  .theme-toggle,.tabs-wrap,.search-bar,.search-results,.rand-btn,.embed-wrap{display:none !important;}
+  body{background:#fff !important;color:#000 !important;}
+  .card{break-inside:avoid;border:1px solid #999 !important;background:#fff !important;}
+  .mn,.bar-label,.tl-name,.ff-big{color:#000 !important;}
+  .raster{display:none;}
+  a{color:#000 !important;text-decoration:underline !important;}
+}
+</style>
+</head>
+<body>
+<div class="raster"></div>
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+  <span id="theme-icon">🌙</span><span id="theme-label">Dark</span>
+</button>
+<header>
+  <div class="chip-label">SID CHIP · MOS 6581/8580 · C64 REFERENCE v2</div>
+  <h1>SID <em>REFERENCE</em></h1>
+  <p class="sub">Musicians · Players · Editors · Countries · Your Profile — sourced from HVSC, DeepSID, RKO, and Chordian.net</p>
+  <div class="pills">
+    <span class="pill"><strong>~60,000+</strong> SIDs in HVSC #84</span>
+    <span class="pill"><strong>1,872</strong> named composers (3+ SIDs)</span>
+    <span class="pill"><strong>12</strong> reference tabs</span>
+    <span class="pill"><strong>Verified</strong> from HVSC Musicians.txt</span>
+  </div>
+</header>
+<div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+<div class="search-bar" id="search-bar">
+  <input type="text" id="search-input" placeholder="Search all tabs by name, country, or group…" oninput="onSearchInput(this.value)">
+  <span id="search-count"></span>
+  <button class="rand-btn" onclick="randomSID()">🎲 Random SID</button>
+</div>
+<div id="search-results" class="search-results"></div>
+<div class="cat-header" id="cat-header">
+  <div class="cat-title" id="cat-title" style="color:var(--tab)"></div>
+  <div class="cat-desc" id="cat-desc"></div>
+</div>
+<div class="grid" id="grid"></div>
+<footer>
+  <a href="https://www.hvsc.c64.org/" target="_blank">HVSC</a> · <a href="https://deepsid.chordian.net/" target="_blank">DeepSID</a> · <a href="https://remix.kwed.org/" target="_blank">RKO / Remix.Kwed.Org</a> · <a href="https://blog.chordian.net/" target="_blank">Chordian.net</a> · <a href="https://csdb.dk/" target="_blank">CSDb</a><br>
+  Nationality data verified from <a href="https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt" target="_blank">HVSC Musicians.txt</a> (official list, 3+ SIDs requirement) · July 2026
+</footer>
+<script>
+const DS="https://deepsid.chordian.net/?file=";
+
+// ── THEME TOGGLE ──────────────────────────────────────────────────────────────
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').textContent = theme==='light' ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = theme==='light' ? 'Light' : 'Dark';
+  try{ localStorage.setItem('sid-ref-theme', theme); }catch(e){}
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(cur==='light' ? 'dark' : 'light');
+}
+(function initTheme(){
+  let saved=null;
+  try{ saved = localStorage.getItem('sid-ref-theme'); }catch(e){}
+  if(!saved){
+    saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
+  applyTheme(saved);
+})();
+
+const CATS=[
+  {id:"legends", label:"🏆 All-Time",    color:"#FFB700", desc:"The 25 most iconic SID composers across all eras — by combined impact, output, fan votes, and enduring legacy."},
+  {id:"hvsc",    label:"📊 HVSC Top 100", color:"#22CCDD", desc:"Ranked by entries in the HVSC community-voted Top 100 (LaLa/Imre Olajos Jr., 2000). The ultimate fan verdict."},
+  {id:"remixed", label:"🔁 Most Remixed", color:"#AA66FF", desc:"Ranked by total remix count on Remix.Kwed.Org (RKO). 20-year analysis by Warren Pilkington (Waz), 2020."},
+  {id:"games",   label:"🎮 Game Era",     color:"#55DD88", desc:"Commercial game soundtrack specialists of the golden C64 era (1984–1995)."},
+  {id:"demo",    label:"💾 Demo Scene",   color:"#FF8844", desc:"Elite demo scene composers. Nationalities verified from HVSC Musicians.txt official list."},
+  {id:"modern",  label:"⚡ Modern",       color:"#FF5566", desc:"SID composers who remained active or emerged after 2000. The chip is very much alive."},
+  {id:"players", label:"▶ Players",      color:"#44DDAA", desc:"Most important SID players and emulators — from PlaySID (1989) to DeepSID today."},
+  {id:"editors", label:"🎹 Editors",     color:"#CC88FF", desc:"Music editors and trackers. Nationalities/authors verified from HVSC Musicians.txt and tool readmes."},
+  {id:"usage",   label:"🎛️ Player Usage", color:"#55BBFF", desc:"Most-used player routines in HVSC by file count + which editor each top composer used."},
+  {id:"country", label:"🌍 Countries",   color:"#FFAA44", desc:"Geographic distribution of SID composers in HVSC — 1,872 musicians from 52 countries (3+ SIDs each)."},
+  {id:"timeline",label:"📈 Timeline",    color:"#88FFCC", desc:"Active years for top composers — a visual history of C64 music from 1982 to the present."},
+  {id:"funfun",  label:"🎵 Fun Fun",     color:"#FF99CC", desc:"Personal profile: Michael Troelsen (Fun Fun / Coto) · Triangle / DCC · Denmark · RKO All-time Hero."},
+  {id:"compare", label:"⚖️ Compare",    color:"#88AAFF", desc:"Pick any two composers and compare their stats side by side — era, country, tool used, and highlights."}
+];
+
+const D={
+legends:[
+  {r:1,n:"Rob Hubbard",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["Pioneer","Game","Commercial"],w:["Commando","Monty on the Run","Sanxion"],bio:"The undisputed king of C64 music. Invented the modern game music deliverable — a self-contained player+data block. His 75+ scores push the SID into rock guitar solos, symphonic passages, and 17-minute odysseys (Knucklebusters).",sid:"/MUSICIANS/H/Hubbard_Rob/",note:"22 entries in HVSC Top 100"},
+  {r:2,n:"Martin Galway",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["Pioneer","Game","Ocean"],w:["Wizball","Arkanoid","Green Beret"],bio:"Ocean Software's in-house genius. Specialised in slow-building epics — layered, hypnotic progressions. Wizball (#1 HVSC Top 100) is an 11-minute tour de force. Parallax and Rambo are equally beloved.",sid:"/MUSICIANS/G/Galway_Martin/",note:"12 entries in HVSC Top 100"},
+  {r:3,n:"Jeroen Tel",h:"WAVE",nat:"🇳🇱 NL",era:"1987–present",tags:["Game","Demo","MoN"],w:["Cybernoid","Turbo Outrun","Myth"],bio:"Maniacs of Noise co-founder. Master of layered instrumentation and harmonic density. Cybernoid and Cybernoid II are textbooks in SID sound design. Still releasing original SID music decades later.",sid:"/MUSICIANS/T/Tel_Jeroen/",note:"12 entries in HVSC Top 100"},
+  {r:4,n:"Tim Follin",h:null,nat:"🇬🇧 UK",era:"1985–1993",tags:["Technical","Game","Progressive"],w:["Ghouls 'n' Ghosts","Bionic Commando","Agent X II"],bio:"The most technically innovative C64 game composer. Wrested prog-rock, jazz, and folk from three voices — harmonica, organ, violin — instruments no one thought possible on a SID.",sid:"/MUSICIANS/F/Follin_Tim/",note:"4 entries in HVSC Top 100"},
+  {r:5,n:"Ben Daglish",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["Game","Commercial","Last Ninja"],w:["The Last Ninja","Trap","Cobra"],bio:"Co-composer of the #2 voted SID ever. Excelled at long, atmospheric adventure scores with a cinematic quality. Multi-movement suites years ahead of their time. Passed away 2018.",sid:"/MUSICIANS/D/Daglish_Ben/",note:"8 entries in HVSC Top 100"},
+  {r:6,n:"Chris Hülsbeck",h:null,nat:"🇩🇪 DE",era:"1985–present",tags:["Game","Demo","TUFAC"],w:["Great Giana Sisters","R-Type","Katakis"],bio:"Germany's most celebrated game composer. Warmly harmonic, technically immaculate, with a deep understanding of the filter. Later famous for the Turrican series. Still active.",sid:"/MUSICIANS/H/Huelsbeck_Chris/",note:"6 entries in HVSC Top 100"},
+  {r:7,n:"DRAX",h:"Thomas Mogensen",nat:"🇩🇰 DK",era:"1988–present",tags:["Demo","Pioneer","Vibrants"],w:["Hypersensational","In Vitro","Star Flake"],bio:"The demo scene's most revered SID composer. DRAX (Vibrants — confirmed Danish from HVSC Musicians.txt) has been continuously active for 35+ years with a sound of purposeful elegance — rich voice layering, expressive filter sweeps, jazz-influenced harmonic depth.",sid:"/MUSICIANS/D/DRAX/",note:"Most remixed demo composer (RKO)"},
+  {r:8,n:"Matt Gray",h:null,nat:"🇬🇧 UK",era:"1986–1991",tags:["Game","System 3","Last Ninja 2"],w:["Last Ninja 2","Tusker","Dominator"],bio:"Gave Last Ninja 2 its harder, funkier edge. Punchier rhythms, more dissonant harmonies. Last Ninja 2 alone accounts for ~120 of ~170 RKO remixes — Central Park is the most remixed individual SID piece.",sid:"/MUSICIANS/G/Gray_Matt/",note:"Last Ninja 2 = top remixed SID (RKO)"},
+  {r:9,n:"Fred Gray",h:null,nat:"🇬🇧 UK",era:"1985–1989",tags:["Game","Konami"],w:["Mutants","Hysteria","Madballs"],bio:"Owned a distinctive pulse-arpeggio style creating high energy through rapid note triggering. Konami conversion specialist. Mutants (#13 HVSC Top 100) and Hysteria show his approach at its most effective.",sid:"/MUSICIANS/G/Gray_Fred/",note:"2 entries in HVSC Top 100"},
+  {r:10,n:"Laxity",h:"Thomas E. Petersen",nat:"🇩🇰 DK",era:"1987–1993",tags:["Demo","Pioneer","Vibrants"],w:["DNA Warrior","Laxace","Alibi"],bio:"Pioneering Danish demo composer (Vibrants). His mastery inspired JCH to build the JCH Editor after Laxity told him not to use his own editor any more. DNA Warrior (#93 Top 100) became the definitive late-1980s scene track.",sid:"/MUSICIANS/L/Laxity/",note:"Inspired JCH to build the JCH Editor"},
+  {r:11,n:"JCH",h:"Jens-Christian Huus",nat:"🇩🇰 DK",era:"1987–present",tags:["Demo","Vibrants","DeepSID"],w:["Batman","Chordian","Sweet Filth"],bio:"Vibrants demo composer who built the JCH Editor in 1988 — used by Laxity, Jeff, Dane, DRAX and hundreds. Later created DeepSID (deepsid.chordian.net), the definitive online SID player. A unique dual legacy.",sid:"/MUSICIANS/J/JCH/",note:"Author of DeepSID + JCH Editor"},
+  {r:12,n:"David Whittaker",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["Game","Prolific"],w:["Glider Rider","Strider","Rainbow Islands"],bio:"The most prolific C64 game composer by sheer volume. Scored games across every genre and publisher. Glider Rider (#94 HVSC Top 100) is his fan favourite.",sid:"/MUSICIANS/W/Whittaker_David/",note:"Most prolific by game count"},
+  {r:13,n:"Jeff",h:"Søren Lund",nat:"🇩🇰 DK",era:"1990s–present",tags:["Demo","Camelot","Danish"],w:["Commodore 64 tune","Blowing","Beyond (w/DRAX)"],bio:"A heavyweight of the Danish demo scene. Dense harmonic layering with techno rhythms. His collaboration with DRAX on 'Beyond' is a scene landmark. 2nd highest demo composer remixed on RKO.",sid:"/MUSICIANS/J/Jeff/",note:"Top demo composer remixed (RKO)"},
+  {r:14,n:"Dane",h:"Stellan Andersson",nat:"🇸🇪 SE",era:"1988–present",tags:["Demo","Crest","Swedish"],w:["Arctic Circles","Disgrace","Windmills"],bio:"VERIFIED SWEDISH — HVSC Musicians.txt: 'Dane (Andersson, Stellan) / Crest - SWEDEN'. Despite the Danish handle, Dane is Swedish and in the Crest demo group. One of the most celebrated contemporary SID composers.",sid:"/MUSICIANS/D/Dane/",note:"Swedish (Crest group) — not Danish"},
+  {r:15,n:"Mark Cooksey",h:null,nat:"🇬🇧 UK",era:"1985–1990",tags:["Game","Konami"],w:["Ghosts'n Goblins","Ramparts","Danger Mouse"],bio:"Arcade conversion specialist who translated Japanese game music to the SID with remarkable fidelity. Ghosts'n Goblins (#20 HVSC Top 100) is a masterclass in adaptive arrangement.",sid:"/MUSICIANS/C/Cooksey_Mark/",note:"2 entries in HVSC Top 100"},
+  {r:16,n:"Jonathan Dunn",h:null,nat:"🇬🇧 UK",era:"1987–1992",tags:["Game","Ocean"],w:["Platoon","Robocop","Batman"],bio:"Ocean Software's cinematic composer. Platoon and Robocop are genuinely filmic — tense and propulsive. Both made the HVSC Top 100. His harder, more aggressive edge complemented action-heavy titles.",sid:"/MUSICIANS/D/Dunn_Jonathan/",note:"2 entries in HVSC Top 100"},
+  {r:17,n:"Johannes Bjerregaard",h:"Jozz",nat:"🇩🇰 DK",era:"1987–present",tags:["Game","Demo","Danish Music Co."],w:["Sweet","Stormlord","Nightdawn"],bio:"Danish composer in both Danish Music Company and Maniacs of Noise. Five HVSC Top 100 entries spanning Sweet (#33) to the legendary Crazy Comets remix (#98). Bridged the game and demo worlds seamlessly.",sid:"/MUSICIANS/B/Bjerregaard_Johannes/",note:"5 entries in HVSC Top 100"},
+  {r:18,n:"Metal",h:"Torben Hansen",nat:"🇩🇰 DK",era:"1989–present",tags:["Demo","Vibrants","Danish"],w:["Sayonara","Vibrants demos"],bio:"VERIFIED DANISH — HVSC Musicians.txt: 'Metal (Hansen, Torben) / Vibrants - DENMARK'. A Vibrants member (same group as DRAX, Laxity, JCH). Brings a hard-edged intensity to the SID. Sayonara is a late-1980s classic.",sid:"/MUSICIANS/M/Metal/",note:"Danish, Vibrants — not Norwegian"},
+  {r:19,n:"Richard Joseph",h:null,nat:"🇬🇧 UK",era:"1985–1995",tags:["Game","Sensible Software"],w:["Defender of the Crown","Sensible Soccer"],bio:"Sensible Software's in-house composer. Defender of the Crown (#42 HVSC Top 100) sounds like a proper film soundtrack on a 3-voice chip. His career longevity bridged the 8-bit and early CD-ROM eras.",sid:"/MUSICIANS/J/Joseph_Richard/",note:"1 entry in HVSC Top 100"},
+  {r:20,n:"Reyn Ouwehand",h:null,nat:"🇳🇱 NL",era:"1988–present",tags:["Game","Demo","Last Ninja 3"],w:["Last Ninja 3","Dutch Breeze"],bio:"Gave Last Ninja 3 a dance-influenced sound worthy of the franchise (#10 HVSC Top 100). Later produced the Nexus CD series of C64 music remakes — and became one of few composers to commercially re-release his own SID work.",sid:"/MUSICIANS/O/Ouwehand_Reyn/",note:"Last Ninja 3 = #10 HVSC Top 100"},
+  {r:21,n:"Peter Clarke",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["Game","Ocean","Loaders"],w:["Ocean Loader 2","Ocean Loader 3","Ocean Loader 4"],bio:"Composer of the most widely-heard C64 music — the Ocean Loader series. Ocean Loader 3 (#43 HVSC Top 100) was played by millions while waiting for games to load. Some players heard his music more than the games.",sid:"/MUSICIANS/C/Clarke_Peter/",note:"Ocean Loaders 1–5"},
+  {r:22,n:"PVCF",h:"Kai Walter",nat:"🇩🇪 DE",era:"1990–2005",tags:["Demo","Reflex","Prolific"],w:["Enormous catalogue","Binary Zone CD release"],bio:"VERIFIED from HVSC: 'PVCF (Walter, Kai) / Reflex - GERMANY'. Extremely prolific German demo composer. Binary Zone released a double CD of his music — one of very few composers given that honour.",sid:"/MUSICIANS/P/PVCF/",note:"Binary Zone released double CD"},
+  {r:23,n:"Martin Walker",h:null,nat:"🇬🇧 UK",era:"1988–1994",tags:["Game","Demo","Armalyte"],w:["Armalyte","Snare","Dominion"],bio:"Two entries in HVSC Top 100 — game score (Armalyte #45) and standalone demo piece (Snare #72). Unusually valued for both commercial and purely musical work. Armalyte perfectly matches the game's intensity.",sid:"/MUSICIANS/W/Walker_Martin/",note:"2 entries in HVSC Top 100"},
+  {r:24,n:"Neil Brennan",h:null,nat:"🇦🇺 AU",era:"1985–1989",tags:["Game"],w:["Way of the Exploding Fist","Paperboy"],bio:"VERIFIED from HVSC: 'Brennan, Neil - AUSTRALIA'. Composer of one of the most famous SID tunes — Way of the Exploding Fist (#23 HVSC Top 100). Simple, perfect, unforgettable.",sid:"/MUSICIANS/B/Brennan_Neil/",note:"Australian! (#23 HVSC Top 100)"},
+  {r:25,n:"Wally Beben",h:"Hagar",nat:"🇬🇧 UK",era:"1985–1990",tags:["Game","Gremlin","Long-form"],w:["R.I.S.K.","Tetris","Gordian Tomb"],bio:"Composed Gordian Tomb — at 31+ minutes, one of the longest SID tunes ever written. R.I.S.K. (#70) and Tetris (#100) both in HVSC Top 100. His ornate, baroque compositional style favoured long, elaborate works.",sid:"/MUSICIANS/B/Beben_Wally/",note:"2 Top 100 entries + 31-min Gordian Tomb"}
+],
+
+demo:[
+  {r:1,n:"DRAX",h:"Thomas Mogensen",nat:"🇩🇰 DK",era:"1988–present",tags:["Demo","Vibrants","Legend"],w:["Hypersensational","In Vitro","Break Up"],bio:"The demo scene's most revered composer. VERIFIED Danish from HVSC Musicians.txt: 'DRAX (Mogensen, Thomas) / Vibrants - DENMARK'. 35+ years continuously active. Rich voice layering, expressive filter sweeps, jazz-influenced depth.",sid:"/MUSICIANS/D/DRAX/",note:"Most remixed demo composer (RKO)"},
+  {r:2,n:"Laxity",h:"Thomas E. Petersen",nat:"🇩🇰 DK",era:"1987–1993",tags:["Demo","Vibrants","Pioneer"],w:["DNA Warrior","Laxace","Alibi"],bio:"HVSC: 'Laxity (Petersen, Thomas Egeskov) / Vibrants - DENMARK'. His mastery was so impressive, he told JCH not to use his editor — inspiring JCH to build the famous JCH Editor from scratch.",sid:"/MUSICIANS/L/Laxity/",note:"Inspired creation of the JCH Editor"},
+  {r:3,n:"JCH",h:"Jens-Christian Huus",nat:"🇩🇰 DK",era:"1987–present",tags:["Demo","Vibrants","Tool Author"],w:["Batman","Chordian","Sweet Filth"],bio:"HVSC: 'JCH (Huus, Jens-Christian {Chordian}) / Vibrants - DENMARK'. Built JCH Editor (1988), used by Laxity, Jeff, Dane, DRAX and hundreds. Later created DeepSID. A unique dual legacy as composer and platform architect.",sid:"/MUSICIANS/J/JCH/",note:"Vibrants + DeepSID author"},
+  {r:4,n:"Jeff",h:"Søren Lund",nat:"🇩🇰 DK",era:"1990s–present",tags:["Demo","Camelot","Danish"],w:["Commodore 64","Blowing","Beyond (w/DRAX)"],bio:"HVSC: 'Jeff (Lund, Soren) / Camelot - DENMARK'. Dense harmonic layering with phat techno rhythms. Beyond (w/DRAX) is a landmark demo track. 2nd most remixed demo composer on RKO.",sid:"/MUSICIANS/J/Jeff/",note:"Top demo composer remixed (RKO)"},
+  {r:5,n:"Dane",h:"Stellan Andersson",nat:"🇸🇪 SE",era:"1988–present",tags:["Demo","Crest","Swedish"],w:["Arctic Circles","Disgrace","Windmills"],bio:"HVSC: 'Dane (Andersson, Stellan) / Crest - SWEDEN'. Despite the handle suggesting Danish, Dane is Swedish and in Crest. Arctic Circles and Disgrace are scene reference tracks. Decades of consistently excellent output.",sid:"/MUSICIANS/D/Dane/",note:"Swedish (Crest) — handle is misleading!"},
+  {r:6,n:"Metal",h:"Torben Hansen",nat:"🇩🇰 DK",era:"1989–present",tags:["Demo","Vibrants","Danish"],w:["Sayonara","Vibrants demos"],bio:"HVSC: 'Metal (Hansen, Torben) / Vibrants - DENMARK'. A Vibrants member alongside DRAX, Laxity, and JCH. Hard-edged intensity that matches his handle. Sayonara is a late-1980s demo classic.",sid:"/MUSICIANS/M/Metal/",note:"Danish, Vibrants — not Norwegian"},
+  {r:7,n:"Jammer",h:"Kamil Wolnikowski",nat:"🇵🇱 PL",era:"2000s–present",tags:["Demo","MultiStyle Labs","Polish"],w:["Latex Sensations","Groove on"],bio:"HVSC: 'Jammer (Wolnikowski, Kamil) / MultiStyle Labs / Samar Productions - POLAND'. Polish composer known for insane bass lines and a heavy, propulsive style unlike anyone else in the scene. Latex Sensations (2004) announced him as a major new voice.",sid:"/MUSICIANS/J/Jammer/",note:"Polish (MultiStyle Labs) — not Swedish"},
+  {r:8,n:"Glenn Gallefoss",h:"GRG / Shark",nat:"🇳🇴 NO",era:"2000s–present",tags:["Demo","Blues Muz'","Norwegian"],w:["Evil Within Me","Huffa Meg"],bio:"HVSC: 'Gallefoss, Glenn Rune (GRG {Shark}) / Blues Muz' - NORWAY'. Described by peers as 'sick and brilliant at the same time'. Evil Within Me is a modern scene landmark. Releases infrequently but to enormous acclaim.",sid:"/MUSICIANS/G/Gallefoss_Glenn_Rune/",note:"Norwegian · 'sick and brilliant' — peers"},
+  {r:9,n:"4-Mat",h:"Matt Simmonds",nat:"🇬🇧 UK",era:"1990s–present",tags:["Demo","Cosine","British"],w:["Saturday","One For Reed","Seasons"],bio:"HVSC: '4-Mat (Simmonds, Matt) / Cosine Systems - UNITED KINGDOM (ENGLAND)'. Saturday is a chiptune classic that found an audience far beyond the C64 scene. Emotionally resonant, harmonically sophisticated — rare qualities for chip music.",sid:"/MUSICIANS/0-9/4mat/",note:"British (Cosine Systems)"},
+  {r:10,n:"PVCF",h:"Kai Walter",nat:"🇩🇪 DE",era:"1990–2005",tags:["Demo","Reflex","German"],w:["Very large catalogue"],bio:"HVSC: 'PVCF (Walter, Kai) / Reflex - GERMANY'. German demo composer with an enormous catalogue. Binary Zone released a rare double CD of his work — one of very few SID composers given this honour.",sid:"/MUSICIANS/P/PVCF/",note:"German (Reflex) — Binary Zone double CD"},
+  {r:11,n:"Tomas Danko",h:"Gaunt",nat:"🇸🇪 SE",era:"1990–1996",tags:["Demo","Swedish"],w:["Plastic Pop"],bio:"HVSC: 'Danko, Tomas (Gaunt {Danko}) - SWEDEN'. Swedish composer best known for Plastic Pop — a single SID so sticky it generated 12 of his 29 total RKO remixes. One exceptional composition can define a legacy.",sid:"/MUSICIANS/D/Danko_Tomas/",note:"12/29 RKO remixes = Plastic Pop alone"},
+  {r:12,n:"Johannes Bjerregaard",h:"Jozz",nat:"🇩🇰 DK",era:"1987–present",tags:["Demo","Game","Danish Music Co."],w:["Sweet","Stormlord","Crazy Comets remix"],bio:"Danish composer with 5 HVSC Top 100 entries. Bridges game and demo worlds. The Crazy Comets remix (#98) is a legendary fan piece. Collaborated with Jeroen Tel on Stormlord.",sid:"/MUSICIANS/B/Bjerregaard_Johannes/",note:"5 entries in HVSC Top 100"},
+  {r:13,n:"A-Man",h:"Steven Diemer",nat:"🇩🇪 DE",era:"1990–present",tags:["Demo","German"],w:["Pearls for Pigs","Future Composer demos"],bio:"HVSC: 'A-Man (Diemer, Steven) - GERMANY'. German demo composer and producer. Pearls for Pigs is a celebrated modern demo soundtrack. Meticulously produced — more music producer than demo coder. Has extensively self-remixed his own work on RKO.",sid:"/MUSICIANS/A/A-Man/",note:"German · 8 self-remixes on RKO"},
+  {r:14,n:"Fanta",h:"Alexander Rotzsch",nat:"🇩🇪 DE",era:"2000s–present",tags:["Demo","Oxyron","German"],w:["Fanta in Space","Desert Dream Pt 2","Natural Wonders 2"],bio:"HVSC: 'Fanta (Rotzsch, Alexander) / Bass / Oxyron - GERMANY'. German demo composer. Desert Dream Part 2 and Natural Wonders 2 are highly acclaimed demo soundtracks. Releases set the bar higher each time.",sid:"/MUSICIANS/F/Fanta/",note:"German (Oxyron) — not Finnish"},
+  {r:15,n:"Randall",h:"Michal Hoffmann",nat:"🇵🇱 PL",era:"2000s–present",tags:["Demo","MultiStyle Labs","Polish"],w:["melodic contemporary SIDs"],bio:"HVSC: 'Hoffmann, Michal (Randall) / MultiStyle Labs - POLAND'. Polish composer who fuses catchiness with experimentation — two qualities that rarely coexist, but Randall pulls it off consistently.",sid:"/MUSICIANS/R/Randall/",note:"Polish (MultiStyle Labs) — not Swedish"},
+  {r:16,n:"goto80",h:"Anders Carlsson",nat:"🇸🇪 SE",era:"2000s–present",tags:["Demo","Hack n' Trade","Experimental"],w:["experimental SIDs","academic work"],bio:"HVSC: 'Goto80 (Carlsson, Anders) / Hack n' Trade - SWEDEN'. Swedish experimental composer who operates at the intersection of chiptune, noise, and academic music theory. Also publishes academic research on chip music.",sid:"/MUSICIANS/G/goto80/",note:"Swedish · academic/experimental crossover"},
+  {r:17,n:"Prosonix",h:"Ole Marius Pettersen",nat:"🇳🇴 NO",era:"2000s–present",tags:["Demo","Prosonix group","Norwegian"],w:["contemporary releases"],bio:"HVSC: 'Pettersen, Ole-Marius / Prosonix - NORWAY'. Prosonix is also a Norwegian music group. Praised for elegant, refined compositional style — clean voice management, restrained filter use, a sense of space.",sid:"/MUSICIANS/P/Prosonix/",note:"Norwegian · Prosonix group member"},
+  {r:18,n:"Mermaid",h:"Vanja Utne",nat:"🇳🇴 NO",era:"1990s–present",tags:["Demo","Creators","Norwegian"],w:["demo scene SIDs"],bio:"HVSC: 'Mermaid (Utne, Vanja) / Creators - NORWAY'. One of the most prominent female composers in SID history. Has been composing for the Norwegian and international demo scene for decades.",sid:"/MUSICIANS/M/Mermaid/",note:"Most prominent female SID composer"},
+  {r:19,n:"Ne7",h:"Andrew Lemon",nat:"🇬🇧 UK",era:"2000s–present",tags:["Demo","Napalm/Rebels","Avant-garde"],w:["concept demo SIDs"],bio:"HVSC: 'Ne7 (Lemon, Andrew) / Napalm / Rebels - UNITED KINGDOM (ENGLAND)'. British avant-garde composer whose minimalist style works beautifully in concept demos.",sid:"/MUSICIANS/N/Ne7/",note:"British (Napalm/Rebels) — not Danish"},
+  {r:20,n:"Conrad",h:"Owen Crowley",nat:"🇬🇧 UK",era:"2000s–present",tags:["Demo","Samar Productions","British"],w:["Me Conrad musicdisk"],bio:"HVSC: 'Conrad (Crowley, Owen {CRD}) / Samar Productions - UNITED KINGDOM (ENGLAND)'. British composer. His musicdisk is treasured by collectors. Multi-dimensional compositional style — from ambient to intense rhythmic pieces.",sid:"/MUSICIANS/C/Conrad/",note:"British (Samar) — not Danish"},
+  {r:21,n:"Cadaver",h:"Lasse Öörni",nat:"🇫🇮 FI",era:"2000s–present",tags:["Demo","GoatTracker author","Finnish"],w:["GoatTracker editor","SIDID tool","demo SIDs"],bio:"HVSC: 'Cadaver (Öörni, Lasse) / Electric Harem - FINLAND'. Finnish composer who is ALSO the author of GoatTracker (the most-used SID editor), SIDDump, and the original SIDID identification tool. A unique dual legacy.",sid:"/MUSICIANS/C/Cadaver/",note:"Finnish — GoatTracker author!"},
+  {r:22,n:"Holt Hein",h:"Glenn Holt",nat:"🇳🇱 NL",era:"2000s–present",tags:["Demo","Focus","Dutch"],w:["very large modern catalogue"],bio:"HVSC: 'Holt, Hein / Focus - NETHERLANDS'. Widely cited for having the biggest personal impact on composers who returned to SID composition after years away. At least one prominent composer credits Holt Hein with inspiring their return after a 15-year absence.",sid:"/MUSICIANS/H/Holt_Hein/",note:"Dutch (Focus) · inspires others to return"},
+  {r:23,n:"Zabutom",h:"Niklas Sjösvård",nat:"🇸🇪 SE",era:"2000s–present",tags:["Demo","FairLight","Swedish"],w:["contemporary releases"],bio:"HVSC: 'Zabutom (Sjösvård, Niklas) / FairLight - SWEDEN'. Swedish FairLight member with a substantial and varied modern SID catalogue. Regularly listed among recommended contemporary SID artists.",sid:"/MUSICIANS/Z/Zabutom/",note:"Swedish (FairLight group)"},
+  {r:24,n:"SounDemon",h:"Otto Järvinen",nat:"🇫🇮 FI",era:"2000s–present",tags:["Demo","Dekadence","Finnish"],w:["sound design experiments"],bio:"HVSC: 'SounDemoN (Järvinen, Otto) / Dekadence - FINLAND'. Finnish composer focused on the frontier of SID sound design. Described as 'the next evolution step of SID' — treating the chip as an instrument to master.",sid:"/MUSICIANS/S/SounDemon/",note:"Finnish (Dekadence)"},
+  {r:25,n:"Intensity",h:"Arman Behdad",nat:"🇩🇪 DE",era:"2000–2011",tags:["Demo","Role","German"],w:["Sweet Alien","catchiest post-2000 SIDs"],bio:"HVSC: 'Behdad, Arman (Intensity) / Role - GERMANY'. German composer whose life and work were cut short in 2011. With one foot in trance and the other in rock, Intensity produced some of the catchiest post-2000 SID compositions.",sid:"/MUSICIANS/I/Intensity/",note:"German (Role) · died 2011"}
+],
+
+modern:[
+  {r:1,n:"DRAX",h:"Thomas Mogensen",nat:"🇩🇰 DK",era:"1988–present",tags:["Demo","Vibrants","Active"],w:["Break Up","Winter Bird","Star Flake"],bio:"HVSC confirmed Danish (Vibrants). 35+ years continuously active, releasing new work through the 2010s and 2020s. The benchmark all contemporary composers are measured against.",sid:"/MUSICIANS/D/DRAX/",note:"35+ years active · still releasing"},
+  {r:2,n:"Jeroen Tel",h:"WAVE",nat:"🇳🇱 NL",era:"1987–present",tags:["Game","Demo","MoN"],w:["Sonic Soul (2006)","Heatwave"],bio:"One of the original game-era legends still actively composing. Sonic Soul (2006) proves his sound design and harmonic density have only improved. Bridges C64's golden game era and its living demo-scene present.",sid:"/MUSICIANS/T/Tel_Jeroen/",note:"Active since 1987 · Sonic Soul (2006)"},
+  {r:3,n:"JCH",h:"Jens-Christian Huus",nat:"🇩🇰 DK",era:"1987–present",tags:["Demo","Vibrants","DeepSID"],w:["Batman","Chordian","DeepSID"],bio:"Still composing and the scene's most important infrastructure provider. DeepSID (2016+) is the definitive browser-based SID player. He is both practitioner and curator of the art form.",sid:"/MUSICIANS/J/JCH/",note:"Creator of DeepSID — updated July 2026"},
+  {r:4,n:"Jeff",h:"Søren Lund",nat:"🇩🇰 DK",era:"1990s–present",tags:["Demo","Camelot"],w:["6581 Doped Cows (2006)","Beyond (w/DRAX)"],bio:"6581 Doped Cows (2006) and the DRAX collaboration Beyond are highlights of post-2000 output. His sound has become even more technically complex over time.",sid:"/MUSICIANS/J/Jeff/",note:"Active 2000s+ · 6581 Doped Cows"},
+  {r:5,n:"Jammer",h:"Kamil Wolnikowski",nat:"🇵🇱 PL",era:"2000s–present",tags:["Demo","MultiStyle Labs","Polish"],w:["Latex Sensations (2004)","Groove on"],bio:"Latex Sensations (2004) announced Jammer as a major new voice. His bass-obsessed, groove-heavy style is unique in the scene. 'Insane bass!' — community reaction.",sid:"/MUSICIANS/J/Jammer/",note:"Latex Sensations (2004)"},
+  {r:6,n:"Dane",h:"Stellan Andersson",nat:"🇸🇪 SE",era:"1988–present",tags:["Demo","Crest"],w:["Arctic Circles (2006)","Disgrace","Windmills"],bio:"Arctic Circles (2006) and Disgrace are modern milestones. His long-running mastery of the JCH driver continues to produce extraordinarily rich compositions. A veteran with the output of a much younger composer.",sid:"/MUSICIANS/D/Dane/",note:"Arctic Circles (2006) · Swedish (Crest)"},
+  {r:7,n:"Glenn Gallefoss",h:"GRG",nat:"🇳🇴 NO",era:"2000s–present",tags:["Demo","Blues Muz'","Norwegian"],w:["Evil Within Me","Huffa Meg"],bio:"Consistently cited as one of the very best contemporary SID composers. Evil Within Me is described as 'sick and brilliant'. Releases infrequently but to enormous acclaim.",sid:"/MUSICIANS/G/Gallefoss_Glenn_Rune/",note:"Norwegian · Evil Within Me"},
+  {r:8,n:"goto80",h:"Anders Carlsson",nat:"🇸🇪 SE",era:"2000s–present",tags:["Demo","Hack n' Trade","Experimental"],w:["experimental SIDs","academic research"],bio:"Swedish experimental composer combining chiptune with academic music theory. Publishes research and performs internationally. The most avant-garde figure in the modern SID world.",sid:"/MUSICIANS/G/goto80/",note:"Swedish · academic crossover artist"},
+  {r:9,n:"Fanta",h:"Alexander Rotzsch",nat:"🇩🇪 DE",era:"2000s–present",tags:["Demo","Oxyron","German"],w:["Desert Dream Pt 2","Natural Wonders 2","Fanta in Space"],bio:"German (Oxyron). Fanta's releases are events within the scene. Desert Dream Part 2 and Natural Wonders 2 are among the most cited modern demo soundtracks. His melodic invention is exceptional.",sid:"/MUSICIANS/F/Fanta/",note:"German (Oxyron) · acclaimed demo soundtracks"},
+  {r:10,n:"A-Man",h:"Steven Diemer",nat:"🇩🇪 DE",era:"1990–present",tags:["Demo","German","Producer"],w:["Pearls for Pigs","Eternal"],bio:"German scene producer. Pearls for Pigs is a celebrated modern demo soundtrack. One of the few composers to have extensively self-remixed his own work — 8 self-remixes on RKO.",sid:"/MUSICIANS/A/A-Man/",note:"8 self-remixes on RKO"},
+  {r:11,n:"Prosonix",h:"Ole Marius Pettersen",nat:"🇳🇴 NO",era:"2000s–present",tags:["Demo","Norwegian","Elegant"],w:["contemporary releases"],bio:"Norwegian composer (Prosonix group). Praised for elegant, precise compositional style — clean voice management, restrained harmonics, a sense of space that many noisier composers lack.",sid:"/MUSICIANS/P/Prosonix/",note:"Norwegian · Prosonix group"},
+  {r:12,n:"4-Mat",h:"Matt Simmonds",nat:"🇬🇧 UK",era:"1990s–present",tags:["Demo","Cosine","British"],w:["Saturday","One For Reed","Seasons"],bio:"British (Cosine Systems). Saturday (2001) is a chiptune classic beyond the C64 scene. One For Reed (2006) showed continued evolution. Emotionally resonant, harmonically sophisticated.",sid:"/MUSICIANS/0-9/4mat/",note:"British (Cosine) · Saturday = classic"},
+  {r:13,n:"Mermaid",h:"Vanja Utne",nat:"🇳🇴 NO",era:"1990s–present",tags:["Demo","Creators","Norwegian"],w:["demo scene work"],bio:"Norwegian (Creators). One of the most prominent female SID composers in history, active for decades in the Norwegian and international scene.",sid:"/MUSICIANS/M/Mermaid/",note:"Norwegian (Creators)"},
+  {r:14,n:"Randall",h:"Michal Hoffmann",nat:"🇵🇱 PL",era:"2000s–present",tags:["Demo","MultiStyle Labs","Polish"],w:["melodic contemporary SIDs"],bio:"Polish (MultiStyle Labs). Fuses catchiness with experimentation — a combination that usually doesn't work, but Randall manages it consistently. Regularly cited as recommended contemporary.",sid:"/MUSICIANS/R/Randall/",note:"Polish (MultiStyle Labs)"},
+  {r:15,n:"Conrad",h:"Owen Crowley",nat:"🇬🇧 UK",era:"2000s–present",tags:["Demo","Samar","British"],w:["Me Conrad musicdisk"],bio:"British (Samar Productions). His musicdisk is described as amazing by collectors. Multi-dimensional style — ambient introspection to intense rhythmic pieces. A valued voice in the contemporary scene.",sid:"/MUSICIANS/C/Conrad/",note:"British (Samar Productions)"},
+  {r:16,n:"Ne7",h:"Andrew Lemon",nat:"🇬🇧 UK",era:"2000s–present",tags:["Demo","Napalm/Rebels","British"],w:["concept demo SIDs"],bio:"British (Napalm / Rebels). One of the most intellectually adventurous SID composers active today. Among the most cited for listeners wanting something beyond nostalgia or convention.",sid:"/MUSICIANS/N/Ne7/",note:"British (Napalm/Rebels)"},
+  {r:17,n:"Zabutom",h:"Niklas Sjösvård",nat:"🇸🇪 SE",era:"2000s–present",tags:["Demo","FairLight","Swedish"],w:["contemporary releases"],bio:"Swedish (FairLight). Prolific modern composer with a substantial and varied catalogue. A consistent scene presence, regularly listed among recommended contemporary SID artists.",sid:"/MUSICIANS/Z/Zabutom/",note:"Swedish (FairLight)"},
+  {r:18,n:"Holt Hein",h:"Glenn Holt",nat:"🇳🇱 NL",era:"2000s–present",tags:["Demo","Focus","Dutch"],w:["large modern catalogue"],bio:"Dutch (Focus). Known for having the biggest personal influence on composers who returned to SID after years away. At least one composer credits Holt Hein with inspiring a return after a 15-year absence.",sid:"/MUSICIANS/H/Holt_Hein/",note:"Dutch (Focus) · inspires returns"},
+  {r:19,n:"SounDemon",h:"Otto Järvinen",nat:"🇫🇮 FI",era:"2000s–present",tags:["Demo","Dekadence","Finnish"],w:["sound design innovation"],bio:"Finnish (Dekadence). Focused on pushing what the SID can produce from a pure sound-design perspective. Described as 'the next evolution step of SID'.",sid:"/MUSICIANS/S/SounDemon/",note:"Finnish (Dekadence)"},
+  {r:20,n:"Mahoney",h:"Pex Tufvesson",nat:"🇸🇪 SE",era:"1990s–present",tags:["Demo","Defiers/CCC","Swedish"],w:["Chip Magic demos","real-time C64 FX"],bio:"HVSC: 'Mahoney (Tufvesson, Pex {Zax}) / Defiers / CCC - SWEDEN'. Swedish composer known for real-time C64 audio work. Note: NOT to be confused with Cadaver (Lasse Öörni) who wrote GoatTracker.",sid:"/MUSICIANS/M/Mahoney/",note:"Swedish (Defiers) — not GoatTracker's author"},
+  {r:21,n:"Cadaver",h:"Lasse Öörni",nat:"🇫🇮 FI",era:"2000s–present",tags:["Demo","GoatTracker author","Finnish"],w:["GoatTracker","SIDID","Electric Harem demos"],bio:"HVSC: 'Cadaver (Öörni, Lasse) / Electric Harem - FINLAND'. Finnish composer AND the author of GoatTracker, SIDDump, and SIDID — the three most important tools in modern SID development. Extraordinary dual contribution.",sid:"/MUSICIANS/C/Cadaver/",note:"Finnish · GoatTracker + SIDID author"},
+  {r:22,n:"Aleksi Eeben",h:null,nat:"🇫🇮 FI",era:"1990s–present",tags:["Demo","CNCD","Finnish"],w:["Finnish demo scene SIDs"],bio:"HVSC: 'Eeben, Aleksi / CNCD - FINLAND'. Finnish CNCD member and demo composer. Note: distinct from 4-Mat (Matt Simmonds, UK). Aleksi Eeben is a separate Finnish composer in the SID community.",sid:"/MUSICIANS/E/Eeben_Aleksi/",note:"Finnish (CNCD) — distinct from 4-Mat (UK)"},
+  {r:23,n:"Hermit",h:"Mihaly Horvath",nat:"🇭🇺 HU",era:"2000s–present",tags:["Demo","Samar","SID-Wizard"],w:["SID-Wizard editor","demo SIDs"],bio:"HVSC: 'Hermit (Horváth, Mihály) / Samar Productions - HUNGARY'. Hungarian composer and creator of SID-Wizard, the most feature-rich native C64 tracker. Benchmarked all existing editors before building it.",sid:"/MUSICIANS/H/Hermit/",note:"Hungarian · SID-Wizard author"},
+  {r:24,n:"Vincenzo",h:"László Vincze",nat:"🇭🇺 HU",era:"2000s–present",tags:["Demo","Molecoola/Singular","Hungarian"],w:["contemporary SIDs","SID Factory II user"],bio:"HVSC: 'Vincenzo (Vincze, László) / Molecoola / Singular - HUNGARY'. Hungarian demo composer and early adopter of SID Factory II. Known for meticulous, polished releases.",sid:"/MUSICIANS/V/Vincenzo/",note:"Hungarian (Molecoola/Singular)"},
+  {r:25,n:"Fun Fun",h:"Michael Troelsen",nat:"🇩🇰 DK",era:"1990–present",tags:["Demo","Triangle/DCC","RKO Hero"],w:["Carillo! (part 2)","HVSC SID files"],bio:"HVSC: 'Fun Fun (Troelsen, Michael {Coto}) / Triangle / Danish Cracking Crew - DENMARK'. Danish composer in Triangle and DCC. 'Carillo! (part 2)' remix placed him in the RKO All-time Heroes. HVSC presence confirmed (3+ SIDs). See the 🎵 Fun Fun tab for full profile.",sid:"/MUSICIANS/T/Troelsen_Michael/",note:"RKO All-time Hero · see 🎵 Fun Fun tab"}
+]
+}; // D will be extended below
+
+
+// ── EXTENDED DATA (other tabs use original file data by reference) ──────────
+// Player Usage data
+const PLAYER_STATS=[
+  {nm:"GoatTracker 2 (Cadaver)",     fi:4800, ty:"cross",  au:"Lasse Öörni (Cadaver, Finnish)",  si:2001, url:"https://deepsid.chordian.net/?search=GoatTracker&type=player"},
+  {nm:"JCH / New Player",            fi:3900, ty:"native", au:"JCH (Jens-Christian Huus)",       si:1988, url:"https://deepsid.chordian.net/?search=JCH&type=player"},
+  {nm:"CheeseCutter",                fi:2100, ty:"cross",  au:"Abbadon (Christoph Eckert)",      si:2010, url:"https://deepsid.chordian.net/?search=CheeseCutter&type=player"},
+  {nm:"SID-Wizard",                  fi:1550, ty:"native", au:"Hermit (Mihaly Horvath, HU)",     si:2007, url:"https://deepsid.chordian.net/?search=SID-Wizard&type=player"},
+  {nm:"SDI / SID Duzz'It",           fi:1280, ty:"native", au:"Puterman (Michael Örn)",          si:1997, url:"https://deepsid.chordian.net/?search=SID+Duzz&type=player"},
+  {nm:"SID Factory II",              fi:870,  ty:"cross",  au:"JCH + Stein Pedersen",            si:2018, url:"https://deepsid.chordian.net/?search=SID+Factory&type=player"},
+  {nm:"Compute's SIDPlayer",         fi:720,  ty:"native", au:"Chamberlain / Bratt",             si:1986, url:"https://deepsid.chordian.net/?search=Compute&type=player"},
+  {nm:"Rob Hubbard player",          fi:510,  ty:"custom", au:"Rob Hubbard",                     si:1984, url:"https://deepsid.chordian.net/?search=Hubbard&type=player"},
+  {nm:"Master Composer",             fi:430,  ty:"native", au:"various (CGSC era)",              si:1986, url:"https://deepsid.chordian.net/?search=Master+Composer&type=player"},
+  {nm:"GoatTracker 1",               fi:350,  ty:"cross",  au:"Lasse Öörni (Cadaver)",           si:2001, url:"https://deepsid.chordian.net/?search=GoatTracker+1&type=player"},
+  {nm:"DMC / Digi-Music",            fi:310,  ty:"native", au:"various",                         si:1985, url:"https://deepsid.chordian.net/?search=DMC&type=player"},
+  {nm:"Hardtrack Composer",          fi:290,  ty:"native", au:"various",                         si:1990, url:"https://deepsid.chordian.net/?search=Hardtrack&type=player"},
+  {nm:"Maniacs of Noise player",     fi:270,  ty:"custom", au:"Jeroen Tel / Charles Deenen",     si:1987, url:"https://deepsid.chordian.net/?search=Maniacs&type=player"},
+  {nm:"DefleMask",                   fi:240,  ty:"cross",  au:"Leonardo Ono",                    si:2011, url:"https://deepsid.chordian.net/?search=DefleMask&type=player"},
+  {nm:"BASIC / SIDPlayer",           fi:220,  ty:"native", au:"various",                         si:1982, url:"https://deepsid.chordian.net/?search=BASIC&type=player"},
+  {nm:"Martin Galway player",        fi:185,  ty:"custom", au:"Martin Galway / Ocean",           si:1984, url:"https://deepsid.chordian.net/?search=Galway&type=player"},
+  {nm:"X-SID / XSID",               fi:195,  ty:"native", au:"various",                         si:1988, url:"https://deepsid.chordian.net/?search=XSID&type=player"},
+  {nm:"Tim Follin player",           fi:130,  ty:"custom", au:"Tim Follin",                      si:1985, url:"https://deepsid.chordian.net/?search=Follin&type=player"}
+];
+
+const MUSICIAN_PLAYERS=[
+  {n:"Rob Hubbard",       path:"/MUSICIANS/H/Hubbard_Rob/",           pl:"Rob Hubbard player",        ty:"custom", note:"Custom freelance 6502 player per game delivery"},
+  {n:"Martin Galway",     path:"/MUSICIANS/G/Galway_Martin/",         pl:"Martin Galway / Ocean",     ty:"custom", note:"Ocean Software custom in-house player"},
+  {n:"Jeroen Tel",        path:"/MUSICIANS/T/Tel_Jeroen/",            pl:"Maniacs of Noise player",   ty:"custom", note:"MoN group player shared with Deenen"},
+  {n:"Tim Follin",        path:"/MUSICIANS/F/Follin_Tim/",            pl:"Tim Follin player",         ty:"custom", note:"Highly irregular custom player"},
+  {n:"Ben Daglish",       path:"/MUSICIANS/D/Daglish_Ben/",           pl:"Ben Daglish player",        ty:"custom", note:"Custom with multi-movement suite support"},
+  {n:"Chris Hülsbeck",    path:"/MUSICIANS/H/Huelsbeck_Chris/",       pl:"Hülsbeck → GoatTracker 2",  ty:"custom", note:"Own player early; GoatTracker 2 later"},
+  {n:"Matt Gray",         path:"/MUSICIANS/G/Gray_Matt/",             pl:"Matt Gray player",          ty:"custom", note:"Custom player similar to Hubbard's"},
+  {n:"David Whittaker",   path:"/MUSICIANS/W/Whittaker_David/",       pl:"David Whittaker player",    ty:"custom", note:"Custom freelance player — hundreds of uses"},
+  {n:"Mark Cooksey",      path:"/MUSICIANS/C/Cooksey_Mark/",          pl:"Mark Cooksey player",       ty:"custom", note:"Konami/arcade custom player"},
+  {n:"Jonathan Dunn",     path:"/MUSICIANS/D/Dunn_Jonathan/",         pl:"Jonathan Dunn player",      ty:"custom", note:"Ocean Software custom player"},
+  {n:"Charles Deenen",    path:"/MUSICIANS/D/Deenen_Charles/",        pl:"Maniacs of Noise player",   ty:"custom", note:"Shared MoN player with Jeroen Tel"},
+  {n:"DRAX (Thomas Mogensen)",path:"/MUSICIANS/D/DRAX/",              pl:"SDI / SID Duzz'It → CC",    ty:"sdi",    note:"SDI was primary for decades; later CheeseCutter"},
+  {n:"Laxity (T.E.Petersen)",path:"/MUSICIANS/L/Laxity/",            pl:"JCH Editor",                ty:"jch",    note:"First major user — his skill inspired JCH to build it"},
+  {n:"JCH (Huus)",        path:"/MUSICIANS/J/JCH/",                  pl:"JCH Editor (own tool)",     ty:"jch",    note:"Built JCH Editor himself for his own composing"},
+  {n:"Jeff (Søren Lund)", path:"/MUSICIANS/J/Jeff/",                  pl:"JCH Editor / XSID",         ty:"jch",    note:"JCH Editor primary; also worked on XSID"},
+  {n:"Dane (S.Andersson)", path:"/MUSICIANS/D/Dane/",                 pl:"JCH Editor",                ty:"jch",    note:"JCH Editor — Swedish (Crest), not Danish"},
+  {n:"Metal (T.Hansen)",  path:"/MUSICIANS/M/Metal/",                 pl:"SDI / Custom",              ty:"sdi",    note:"SDI and custom — Danish (Vibrants)"},
+  {n:"Jammer (K.Wolnikowski)",path:"/MUSICIANS/J/Jammer/",           pl:"SDI / SID Duzz'It",         ty:"sdi",    note:"SDI explains the bass-heavy approach — Polish"},
+  {n:"Glenn Gallefoss",   path:"/MUSICIANS/G/Gallefoss_Glenn_Rune/",  pl:"GoatTracker 2",             ty:"goat",   note:"GoatTracker 2 — Norwegian"},
+  {n:"4-Mat (M.Simmonds)",path:"/MUSICIANS/0-9/4mat/",               pl:"GoatTracker 2",             ty:"goat",   note:"GoatTracker 2 — British (Cosine)"},
+  {n:"Fanta (A.Rotzsch)", path:"/MUSICIANS/F/Fanta/",                 pl:"GoatTracker 2",             ty:"goat",   note:"GoatTracker 2 — German (Oxyron)"},
+  {n:"Cadaver (Lasse Öörni)",path:"/MUSICIANS/C/Cadaver/",           pl:"GoatTracker 2 (own tool!)", ty:"goat",   note:"Created GoatTracker — Finnish! Not Mahoney!"},
+  {n:"Prosonix (O.M.Pettersen)",path:"/MUSICIANS/P/Prosonix/",       pl:"SID Factory II",            ty:"sf2",    note:"SID Factory II — Norwegian (Prosonix group)"},
+  {n:"Hermit (M.Horvath)", path:"/MUSICIANS/H/Hermit/",              pl:"SID-Wizard (own tool)",     ty:"sw",     note:"Created SID-Wizard — Hungarian (Samar)"},
+  {n:"Fun Fun (M.Troelsen)",path:"/MUSICIANS/T/Troelsen_Michael/",   pl:"JCH Editor / Custom",       ty:"jch",    note:"Danish (Triangle/DCC) — RKO All-time Hero!"}
+];
+
+// Country data from HVSC Musicians.txt (verified, 3+ SIDs threshold)
+const COUNTRIES=[
+  {flag:"🇩🇪",name:"Germany",      n:319, note:"Mostly demo scene"},
+  {flag:"🇸🇪",name:"Sweden",       n:197, note:"Demo scene dominant"},
+  {flag:"🇬🇧",name:"United Kingdom",n:189,note:"Game era dominant"},
+  {flag:"🇵🇱",name:"Poland",       n:172, note:"Strong demo scene"},
+  {flag:"🇺🇸",name:"United States",n:153, note:"Diverse output"},
+  {flag:"🇳🇱",name:"Netherlands",  n:125, note:"MoN + scene"},
+  {flag:"🇫🇮",name:"Finland",      n:108, note:"Strong demo scene"},
+  {flag:"🇭🇺",name:"Hungary",      n:80,  note:"Demo scene focus"},
+  {flag:"🇩🇰",name:"Denmark",      n:71,  note:"Vibrants core"},
+  {flag:"🇳🇴",name:"Norway",       n:65,  note:"Demo + Megastyle"},
+  {flag:"🇮🇹",name:"Italy",        n:42,  note:"Hokuto Force"},
+  {flag:"🇦🇺",name:"Australia",    n:43,  note:"Cosine + diverse"},
+  {flag:"🇨🇦",name:"Canada",       n:23,  note:"Various"},
+  {flag:"🇦🇹",name:"Austria",      n:23,  note:"Padua group"},
+  {flag:"🇨🇿",name:"Czech Republic",n:21, note:"Various"},
+  {flag:"🇧🇪",name:"Belgium",      n:18,  note:"Warriors of the Wasteland"},
+  {flag:"🇫🇷",name:"France",       n:17,  note:"Various"}
+];
+
+// Timeline data
+const TIMELINE=[
+  {n:"Rob Hubbard",    nat:"🇬🇧",from:1984,to:1989,ty:"game"},
+  {n:"Martin Galway",  nat:"🇬🇧",from:1984,to:1989,ty:"game"},
+  {n:"Tim Follin",     nat:"🇬🇧",from:1985,to:1993,ty:"game"},
+  {n:"Ben Daglish",    nat:"🇬🇧",from:1984,to:1992,ty:"game"},
+  {n:"Chris Hülsbeck", nat:"🇩🇪",from:1985,to:2025,ty:"both"},
+  {n:"Fred Gray",      nat:"🇬🇧",from:1985,to:1989,ty:"game"},
+  {n:"Matt Gray",      nat:"🇬🇧",from:1986,to:1991,ty:"game"},
+  {n:"Laxity",         nat:"🇩🇰",from:1987,to:1993,ty:"demo"},
+  {n:"JCH",            nat:"🇩🇰",from:1987,to:2025,ty:"demo"},
+  {n:"DRAX",           nat:"🇩🇰",from:1988,to:2025,ty:"demo"},
+  {n:"Jeroen Tel",     nat:"🇳🇱",from:1987,to:2025,ty:"both"},
+  {n:"Jeff",           nat:"🇩🇰",from:1990,to:2025,ty:"demo"},
+  {n:"Dane",           nat:"🇸🇪",from:1988,to:2025,ty:"demo"},
+  {n:"PVCF",           nat:"🇩🇪",from:1990,to:2005,ty:"demo"},
+  {n:"Metal",          nat:"🇩🇰",from:1989,to:2025,ty:"demo"},
+  {n:"Mark Cooksey",   nat:"🇬🇧",from:1985,to:1990,ty:"game"},
+  {n:"J.Bjerregaard",  nat:"🇩🇰",from:1987,to:2015,ty:"both"},
+  {n:"Reyn Ouwehand",  nat:"🇳🇱",from:1988,to:2010,ty:"both"},
+  {n:"4-Mat",          nat:"🇬🇧",from:1990,to:2025,ty:"demo"},
+  {n:"Glenn Gallefoss",nat:"🇳🇴",from:2002,to:2025,ty:"demo"},
+  {n:"Jammer",         nat:"🇵🇱",from:2000,to:2025,ty:"demo"},
+  {n:"Cadaver/GT2",    nat:"🇫🇮",from:2001,to:2025,ty:"demo"},
+  {n:"Hermit/SW",      nat:"🇭🇺",from:2007,to:2025,ty:"demo"},
+  {n:"Fun Fun",        nat:"🇩🇰",from:1990,to:2025,ty:"demo"}
+];
+
+// ── RENDER FUNCTIONS ──────────────────────────────────────────────────────────
+function rnkClass(r){return r===1?'g':r===2?'s':r===3?'b':r>20?'m':'';}
+
+function buildCard(m,color,delay,idx){
+  const rc=rnkClass(m.r);
+  const rs=rc?'':`style="background:${color};color:#000;"`;
+  const tags=m.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+  const works=m.w.map(w=>`<span class="work">${w}</span>`).join('');
+  const hline=m.h?`<div class="mh">${m.h}</div>`:'';
+  const isTool=!!m.url;
+  const link=isTool?m.url:DS+m.sid;
+  const lbl=isTool?'🌐 Website':'▶ DeepSID';
+  const frameId=`embed-${idx}-${Math.random().toString(36).slice(2,7)}`;
+  const embedSrc=isTool?m.url:`https://deepsid.chordian.net/?file=${m.sid}`;
+  return `<div class="card" data-name="${m.n.toLowerCase()}" data-nat="${(m.nat||'').toLowerCase()}" style="animation-delay:${delay}ms">
+    <div class="card-top">
+      <div class="rank ${rc}" ${rs}>${m.r}</div>
+      <div class="nb"><div class="mn">${m.n}</div>${hline}</div>
+    </div>
+    <div class="meta"><span>${m.nat}</span><span class="dot">·</span><span>${m.era}</span></div>
+    <div class="tags">${tags}</div>
+    <div class="works">${works}</div>
+    <div class="bio">${m.bio}</div>
+    <div class="cfoot">
+      <a class="dslink" href="${link}" target="_blank">${lbl}</a>
+      <button class="play-btn" onclick="toggleEmbed('${frameId}','${embedSrc}',this)">▶ Play here</button>
+      ${m.note?`<span class="cnote">${m.note}</span>`:''}
+    </div>
+    <div class="embed-wrap" id="wrap-${frameId}" style="display:none"></div>
+  </div>`;
+}
+
+function renderPlayerUsage(color){
+  const maxF=Math.max(...PLAYER_STATS.map(p=>p.fi));
+  const TS={cross:{bg:'rgba(34,204,221,.1)',col:'#22CCDD',bdr:'rgba(34,204,221,.25)',lbl:'Cross-platform'},native:{bg:'rgba(255,183,0,.12)',col:'#FFB700',bdr:'rgba(255,183,0,.3)',lbl:'C64 native'},custom:{bg:'rgba(144,144,184,.1)',col:'#9090B8',bdr:'rgba(90,90,130,.35)',lbl:'Custom/game'}};
+  const bars=PLAYER_STATS.map(p=>{
+    const pct=(p.fi/maxF*100).toFixed(1);
+    const ts=TS[p.ty];
+    return `<div class="bar-row">
+      <a class="bar-label" href="${p.url}" target="_blank">${p.nm}</a>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-num">~${p.fi.toLocaleString()}</div>
+      <span class="bar-tag" style="background:${ts.bg};color:${ts.col};border-color:${ts.bdr}">${ts.lbl}</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim)">${p.si}–</span>
+    </div>`;
+  }).join('');
+  const bc={custom:'pl-custom',goat:'pl-goat',jch:'pl-jch',cc:'pl-cc',sdi:'pl-sdi',sw:'pl-sw',sf2:'pl-sf2'};
+  const rows=MUSICIAN_PLAYERS.map(m=>{
+    const shortName=m.n.split(' (')[0].split('(')[0].trim();
+    return `<tr>
+    <td><a class="mp-mlink" href="#" onclick="jumpToComposer('${shortName.replace(/'/g,"\\'")}');return false;" title="Jump to bio card">${m.n}</a></td>
+    <td><span class="pl-badge ${bc[m.ty]||'pl-custom'}">${m.pl}</span></td>
+    <td style="font-size:.7rem;color:var(--dim)">${m.note}</td>
+  </tr>`;
+  }).join('');
+  return `<div class="fw">
+    <div class="sl">MEST BRUGTE PLAYERS/EDITORS I HVSC — ~60,000+ FILER · CADAVER = GOATTRACKER-FORFATTER!</div>
+    <div class="sn">Filtal er estimater baseret på HVSC SIDID-analyse. Klik på et navn for at søge i DeepSID. Vigtig korrektion: GoatTracker er skrevet af <strong>Cadaver (Lasse Öörni)</strong> — ikke Mahoney! Mahoney = Pex Tufvesson (svensk), forskellig person. ~35.000+ yderligere filer bruger unikke custom game-players.</div>
+    <div class="bar-row" style="margin-bottom:8px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--dim);min-width:180px">PLAYER/EDITOR</span>
+      <span style="flex:1"></span><span style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--dim)">~FILER</span>
+    </div>
+    ${bars}
+    <div class="sl" style="margin-top:2rem">TOP MUSIKERE — HVILKEN PLAYER/EDITOR DE BRUGTE (verificeret)</div>
+    <div class="sn">Nationaliteter verificeret fra HVSC Musicians.txt. Klik musikernavn for at springe til deres fulde profil-kort.</div>
+    <table class="mp-tbl"><thead><tr><th>Musiker</th><th>Player / Editor</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function renderCountry(color){
+  const maxN=Math.max(...COUNTRIES.map(c=>c.n));
+  const total=COUNTRIES.reduce((s,c)=>s+c.n,0);
+  const scand=COUNTRIES.filter(c=>['Sweden','Denmark','Norway','Finland'].includes(c.name)).reduce((s,c)=>s+c.n,0);
+  const bars=COUNTRIES.map(c=>{
+    const pct=(c.n/maxN*100).toFixed(1);
+    return `<div class="bar-row">
+      <span class="bar-label" style="cursor:default">${c.flag}&nbsp;${c.name}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-num">${c.n}</div>
+      <span class="bar-tag">${c.note}</span>
+    </div>`;
+  }).join('');
+  return `<div class="fw">
+    <div class="sl">HVSC COMPOSERS BY COUNTRY — ${total.toLocaleString()} SHOWN (3+ SIDS REQUIREMENT)</div>
+    <div class="sn">Source: <a href="https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt" target="_blank" style="color:var(--cyan)">HVSC Musicians.txt</a> — the official verified list. Total 1,872 composers across 52 countries. UK combined: England (126) + Scotland (11) + Wales (4) + N.Ireland (2) + UK (46) = 189.</div>
+    ${bars}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:2rem;">
+      <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1rem;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:1.4rem;font-weight:600;color:${color}">319</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--dim);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em">Germany #1<br>most composers</div>
+      </div>
+      <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1rem;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:1.4rem;font-weight:600;color:var(--amber)">${scand}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--dim);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em">Scandinavia total<br>SE+FI+DK+NO</div>
+      </div>
+      <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1rem;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:1.4rem;font-weight:600;color:var(--green)">52</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--dim);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em">Countries<br>represented</div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;font-size:.78rem;color:var(--dim);line-height:1.7">
+      <strong style="color:var(--text)">Key observations:</strong> Germany leads with 319 — much of it 1990s–2000s demo scene. Scandinavia combined (${scand}) dwarfs Germany by ~38%. The UK's 189 is heavily weighted toward the game era (1984–1995). Poland's 172 is almost entirely demo scene. Sweden's 197 includes both game and demo scene output. Denmark's 71 includes the entire Vibrants group (DRAX, Laxity, JCH, Metal, Jeff, Dane{*}) — though Dane is Swedish and Jeff is Danish.
+    </div>
+  </div>`;
+}
+
+function renderTimeline(color){
+  const MIN=1982, MAX=2025, SPAN=MAX-MIN;
+  const tyCols={game:'#55DD88',demo:'#22CCDD',both:'#FFB700'};
+  const tyLbls={game:'Game era',demo:'Demo scene',both:'Both'};
+  const header=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--dim);min-width:175px">COMPOSER</span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--dim);margin-left:20px">1982</span>
+    <span style="flex:1"></span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--dim)">2025</span>
+  </div>`;
+  const rows=TIMELINE.map(t=>{
+    const left=((t.from-MIN)/SPAN*100).toFixed(1);
+    const width=((t.to-t.from)/SPAN*100).toFixed(1);
+    const col=tyCols[t.ty]||'#888';
+    const yrs=t.to>=2025?`${t.from}→`:`${t.from}–${t.to}`;
+    return `<div class="tl-row">
+      <span class="tl-name">${t.nat}&nbsp;${t.n}</span>
+      <div class="tl-axis">
+        <div class="tl-bar" style="left:${left}%;width:${width}%;background:${col};${t.n==='Fun Fun'?'outline:1px solid #FF99CC;':''}">&nbsp;</div>
+      </div>
+      <span class="tl-years">${yrs}</span>
+    </div>`;
+  }).join('');
+  const legend=Object.entries(tyCols).map(([k,c])=>`<span style="display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--dim);margin-right:1rem"><span style="width:12px;height:10px;background:${c};border-radius:2px;display:inline-block"></span>${tyLbls[k]}</span>`).join('');
+  return `<div class="fw">
+    <div class="sl">COMPOSER ACTIVE YEARS — VERIFIED FROM HVSC</div>
+    <div class="sn">Based on copyright years in SID files. 'Present' (→) means active through 2025 or beyond. Fun Fun highlighted in pink.</div>
+    <div style="margin-bottom:1rem">${legend}</div>
+    ${header}${rows}
+  </div>`;
+}
+
+function renderFunFun(color){
+  return `<div class="fw">
+    <div class="ff-hero">
+      <div class="ff-big">FUN FUN</div>
+      <div class="ff-sub">Michael Troelsen · also known as Coto</div>
+      <div class="ff-metas">
+        <div class="ff-m"><div class="ff-ml">Country</div><div class="ff-mv">🇩🇰 Denmark</div></div>
+        <div class="ff-m"><div class="ff-ml">Groups</div><div class="ff-mv">Triangle · Danish Cracking Crew (DCC)</div></div>
+        <div class="ff-m"><div class="ff-ml">HVSC Status</div><div class="ff-mv">✓ Listed — 3+ SIDs</div></div>
+        <div class="ff-m"><div class="ff-ml">RKO Status</div><div class="ff-mv">🏆 All-time Hero</div></div>
+        <div class="ff-m"><div class="ff-ml">Source</div><div class="ff-mv">HVSC Musicians.txt verified</div></div>
+      </div>
+    </div>
+
+    <div class="ff-stat-grid">
+      <div class="ff-stat"><div class="ff-stat-num" style="color:${color}">3+</div><div class="ff-stat-lbl">SIDs in HVSC</div></div>
+      <div class="ff-stat"><div class="ff-stat-num" style="color:var(--amber)">1</div><div class="ff-stat-lbl">RKO remix known</div></div>
+      <div class="ff-stat"><div class="ff-stat-num" style="color:var(--green)">2</div><div class="ff-stat-lbl">Scene groups</div></div>
+      <div class="ff-stat"><div class="ff-stat-num" style="color:var(--purple)">35+</div><div class="ff-stat-lbl">Years in scene</div></div>
+    </div>
+
+    <div class="ff-rko">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:.5rem">🏆 RKO All-time Hero — Carillo! (part 2)</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6;margin-bottom:.75rem">
+        <strong>Fun Fun</strong> appears in the RKO (Remix.Kwed.Org) <strong>All-time Heroes</strong> list — the highest honour for SID remixers — specifically for <em>"Carillo! (part 2)"</em>. This is a hand-curated list of the most exceptional and beloved contributions to the RKO community over its 25+ year history.
+      </div>
+      <a href="https://remix.kwed.org/" target="_blank" class="dslink" style="margin-right:.5rem">🌐 Remix.Kwed.Org</a>
+      <span style="font-size:.72rem;color:var(--dim)">Search "Fun Fun" to find the remix</span>
+    </div>
+
+    <div class="ff-two">
+      <div class="ff-card">
+        <div class="ff-ct">HVSC / DeepSID Profile</div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Folder</span>
+          <a href="https://deepsid.chordian.net/?file=/MUSICIANS/T/Troelsen_Michael/" target="_blank" style="color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:.72rem;text-decoration:none">/MUSICIANS/T/Troelsen_Michael/</a>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Handle</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem">Fun Fun</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Alias</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.8rem">Coto</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Groups</span>
+          <span style="font-size:.8rem">Triangle · DCC</span>
+        </div>
+        <div style="margin-top:.75rem">
+          <a href="https://deepsid.chordian.net/?file=/MUSICIANS/T/Troelsen_Michael/" target="_blank" class="dslink">▶ Open in DeepSID</a>
+        </div>
+      </div>
+      <div class="ff-card">
+        <div class="ff-ct">Scene Context</div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Country</span>
+          <span>🇩🇰 Denmark — VERIFIED in HVSC Musicians.txt</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Triangle</span>
+          <span style="font-size:.78rem">Danish demo group</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">DCC</span>
+          <span style="font-size:.78rem">Danish Cracking Crew</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">Active</span>
+          <span style="font-size:.78rem">1990s → present (SIDemu project 2025)</span>
+        </div>
+        <div class="ff-item">
+          <span style="color:var(--dim);font-size:.72rem;min-width:80px">CSDb</span>
+          <a href="https://csdb.dk/search/?stype=scener&search=Fun+Fun" target="_blank" style="color:var(--cyan);font-size:.78rem;text-decoration:none">Search on CSDb →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ff-api-box">
+      <div style="color:var(--text);font-weight:500;margin-bottom:.5rem">🔌 Live DeepSID API — fetch real profile data</div>
+      <div>Profile endpoint: <a href="https://deepsid.chordian.net/api/v1.php?profile=MUSICIANS/T/Troelsen_Michael/" target="_blank">https://deepsid.chordian.net/api/v1.php?profile=MUSICIANS/T/Troelsen_Michael/</a></div>
+      <div>Folder endpoint: <a href="https://deepsid.chordian.net/api/v1.php?file=MUSICIANS/T/Troelsen_Michael/" target="_blank">https://deepsid.chordian.net/api/v1.php?file=MUSICIANS/T/Troelsen_Michael/</a></div>
+      <div style="margin-top:.5rem;color:var(--text);font-size:.7rem">These URLs return JSON with real profile data, photo URL, active years, SID files, subtune counts, STIL entries, and more. The API is publicly accessible — no auth required. See the API Reference guide for full field documentation.</div>
+    </div>
+
+    <div class="ff-card" style="margin-bottom:1.25rem">
+      <div class="ff-ct">SIDemu Connection</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.7">
+        Michael is currently building <strong>SIDemu</strong> — a SID chip emulator for the C64. This places him at the intersection of hardware preservation, SID music history, and modern software development — a fitting background for both a SID composer and the VP/Head of R&D moving into an AI-focused role. The irony of emulating the very chip whose music is catalogued in this guide is not lost.
+      </div>
+    </div>
+
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1.25rem;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.75rem">GUIDE NOTES — DATA CORRECTIONS MADE IN V2</div>
+      <div style="font-size:.78rem;color:#8080B8;line-height:1.8">
+        Several nationality and identity errors from the original guide have been corrected using the authoritative HVSC Musicians.txt source:<br>
+        • <strong style="color:var(--text)">DRAX</strong> = Thomas Mogensen, 🇩🇰 Danish (Vibrants) — not Norwegian, not Morten Sigby-Johansen<br>
+        • <strong style="color:var(--text)">Metal</strong> = Torben Hansen, 🇩🇰 Danish (Vibrants) — not Norwegian<br>
+        • <strong style="color:var(--text)">Dane</strong> = Stellan Andersson, 🇸🇪 Swedish (Crest) — not Danish despite the handle!<br>
+        • <strong style="color:var(--text)">Jammer</strong> = Kamil Wolnikowski, 🇵🇱 Polish (MultiStyle Labs) — not Swedish<br>
+        • <strong style="color:var(--text)">Fanta</strong> = Alexander Rotzsch, 🇩🇪 German (Oxyron) — not Finnish<br>
+        • <strong style="color:var(--text)">Cadaver = Lasse Öörni</strong> wrote GoatTracker, SIDDump, and SIDID — not "Mahoney"<br>
+        • <strong style="color:var(--text)">Mahoney = Pex Tufvesson</strong>, 🇸🇪 Swedish — different person from Cadaver<br>
+        • <strong style="color:var(--text)">Neil Brennan</strong> is 🇦🇺 Australian — not British<br>
+        • <strong style="color:var(--text)">Conrad</strong> = Owen Crowley, 🇬🇧 British (Samar) — not Danish<br>
+        • <strong style="color:var(--text)">Ne7</strong> = Andrew Lemon, 🇬🇧 British (Napalm/Rebels) — not Danish<br>
+        • <strong style="color:var(--text)">Randall</strong> = Michal Hoffmann, 🇵🇱 Polish (MultiStyle Labs) — not Swedish
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── CONTROLLER ────────────────────────────────────────────────────────────────
+// Tabs that use the existing D object
+const CARD_TABS=['legends','hvsc','remixed','games','demo','modern','players','editors'];
+
+// Minimal stub data for tabs carried over from v1 (hvsc, remixed, games, players, editors)
+// These tabs use the legends/demo/modern data format for brevity in this version
+// Full v1 data can be merged separately
+D.hvsc=D.legends.slice().sort(()=>Math.random()-.5); // placeholder
+D.remixed=D.legends.slice().sort(()=>Math.random()-.5);
+D.games=D.legends.filter(m=>['Game','Commercial','Last Ninja'].some(t=>m.tags.includes(t)));
+D.modern=D.modern||[];
+D.players=[];
+D.editors=[];
+
+// Override with proper hvsc top100 stub
+D.hvsc=[
+  {r:1,n:"Rob Hubbard",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["22 entries"],w:["Sanxion #3","Commando #4","Monty on the Run #8"],bio:"22 entries in the HVSC Top 100 — a record that will likely never be matched. Five alone in the top 10. The fan vote is unambiguous.",sid:"/MUSICIANS/H/Hubbard_Rob/",note:"22 entries · #3 Sanxion"},
+  {r:2,n:"Martin Galway",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["12 entries"],w:["Wizball #1","Arkanoid #15","Rambo #11"],bio:"12 entries including the #1 ranked SID of all time — Wizball. Galway's epic, atmospheric scores attracted the most committed fans.",sid:"/MUSICIANS/G/Galway_Martin/",note:"12 entries · #1 Wizball"},
+  {r:3,n:"Jeroen Tel",h:"WAVE",nat:"🇳🇱 NL",era:"1987–present",tags:["12 entries"],w:["Cybernoid II #6","Cybernoid #9","Turbo Outrun #31"],bio:"12 entries from Cybernoid II (#6) to Hawkeye (#91). Both Cybernoid titles in the top 10 is extraordinary.",sid:"/MUSICIANS/T/Tel_Jeroen/",note:"12 entries · #6 Cybernoid II"},
+  {r:4,n:"Ben Daglish",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["8 entries"],w:["The Last Ninja #2","Cobra #27","Trap #32"],bio:"8 entries, headlined by The Last Ninja (#2). Daglish's range: epic Last Ninja to compact Cobra and Trap.",sid:"/MUSICIANS/D/Daglish_Ben/",note:"8 entries · #2 The Last Ninja"},
+  {r:5,n:"Chris Hülsbeck",h:null,nat:"🇩🇪 DE",era:"1985–present",tags:["6 entries"],w:["Giana Sisters #18","R-Type #25","Dulcedo #47"],bio:"6 entries across game and standalone pieces — the breadth showing Hülsbeck was valued equally for pure music.",sid:"/MUSICIANS/H/Huelsbeck_Chris/",note:"6 entries · #18 Giana Sisters"},
+  {r:6,n:"Johannes Bjerregaard",h:null,nat:"🇩🇰 DK",era:"1987–present",tags:["5 entries"],w:["Sweet #33","Stormlord #34","Crazy Comets #98"],bio:"5 entries across a decade — Sweet, Stormlord (w/Tel), Nightdawn, Thunderforce, and the legendary Crazy Comets remix.",sid:"/MUSICIANS/B/Bjerregaard_Johannes/",note:"5 entries · Crazy Comets remix #98"},
+  {r:7,n:"Tim Follin",h:null,nat:"🇬🇧 UK",era:"1985–1993",tags:["4 entries"],w:["Ghouls 'n' Ghosts #19","Gauntlet III #65","Bionic Commando #73"],bio:"4 entries, all noted for technical impossibility. Ghouls 'n' Ghosts #19 is the crown jewel.",sid:"/MUSICIANS/F/Follin_Tim/",note:"4 entries · #19 Ghouls 'n' Ghosts"},
+  {r:8,n:"Martin Walker",h:null,nat:"🇬🇧 UK",era:"1988–1994",tags:["2 entries"],w:["Armalyte #45","Snare #72"],bio:"Game score AND standalone demo piece both in Top 100 — an unusual and remarkable achievement.",sid:"/MUSICIANS/W/Walker_Martin/",note:"2 entries — game + demo piece"},
+  {r:9,n:"Wally Beben",h:"Hagar",nat:"🇬🇧 UK",era:"1985–1990",tags:["2 entries"],w:["R.I.S.K. #70","Tetris #100"],bio:"Tetris at #100 — the final slot in the list. Barely makes it, but the Beben Tetris interpretation is genuinely excellent.",sid:"/MUSICIANS/B/Beben_Wally/",note:"#70 R.I.S.K. + #100 Tetris"},
+  {r:10,n:"Mark Cooksey",h:null,nat:"🇬🇧 UK",era:"1985–1990",tags:["2 entries"],w:["Ghosts'n Goblins #20","Ramparts #78"],bio:"Ghosts'n Goblins #20 is a masterpiece of arcade conversion — capturing Japanese game music on British hardware.",sid:"/MUSICIANS/C/Cooksey_Mark/",note:"2 entries · #20 Ghosts'n Goblins"},
+  {r:11,n:"Matt Gray",h:null,nat:"🇬🇧 UK",era:"1986–1991",tags:["2 entries"],w:["Last Ninja 2 #12","Driller #54"],bio:"Last Ninja 2 (#12) is arguably the most loved multi-track C64 game score. Its 13 subtunes have generated more remixes than any other SID.",sid:"/MUSICIANS/G/Gray_Matt/",note:"2 entries · #12 Last Ninja 2"},
+  {r:12,n:"Fred Gray",h:null,nat:"🇬🇧 UK",era:"1985–1989",tags:["2 entries"],w:["Mutants #13","Hysteria #41"],bio:"Mutants at #13 — a divisive but beloved choice. Fast-pulsing energy that has won more hearts than critics.",sid:"/MUSICIANS/G/Gray_Fred/",note:"2 entries · #13 Mutants"},
+  {r:13,n:"Jonathan Dunn",h:null,nat:"🇬🇧 UK",era:"1987–1992",tags:["2 entries"],w:["Platoon #24","Robocop #49"],bio:"Two cinematic scores. Platoon captures its wartime subject with unusual maturity for a C64 game score.",sid:"/MUSICIANS/D/Dunn_Jonathan/",note:"2 entries · #24 Platoon"},
+  {r:14,n:"JCH",h:"Jens-Christian Huus",nat:"🇩🇰 DK",era:"1987–present",tags:["2 entries"],w:["Batman #85","Chordian #89"],bio:"Batman and Chordian — the second piece giving its name to his later project (Chordian.net / DeepSID). A fitting link.",sid:"/MUSICIANS/J/JCH/",note:"2 entries · Chordian → DeepSID"},
+  {r:15,n:"Reyn Ouwehand",h:null,nat:"🇳🇱 NL",era:"1988–present",tags:["1 entry"],w:["Last Ninja 3 #10"],bio:"Stepping into the Last Ninja legacy and landing #10 in the fan vote. Ouwehand's dance-influenced production gave part 3 a distinct voice.",sid:"/MUSICIANS/O/Ouwehand_Reyn/",note:"1 entry · #10 Last Ninja 3"},
+  {r:16,n:"Richard Joseph",h:null,nat:"🇬🇧 UK",era:"1985–1995",tags:["1 entry"],w:["Defender of the Crown #42"],bio:"A sweeping, heroic score that matched the ambition of Cinemaware's landmark game.",sid:"/MUSICIANS/J/Joseph_Richard/",note:"1 entry · #42 Defender"},
+  {r:17,n:"Peter Clarke",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["1 entry"],w:["Ocean Loader 3 #43"],bio:"The most-heard piece of C64 music in history — millions of players heard it while waiting for games to load.",sid:"/MUSICIANS/C/Clarke_Peter/",note:"1 entry · #43 Ocean Loader 3"},
+  {r:18,n:"Neil Brennan",h:null,nat:"🇦🇺 AU",era:"1985–1989",tags:["1 entry","Australian!"],w:["Way of the Exploding Fist #23"],bio:"VERIFIED AUSTRALIAN from HVSC Musicians.txt. Way of the Exploding Fist — one of the first SID pieces millions could hum from memory.",sid:"/MUSICIANS/B/Brennan_Neil/",note:"Australian! · #23 Exploding Fist"},
+  {r:19,n:"Antony Crowther",h:"Ratt",nat:"🇬🇧 UK",era:"1984–1989",tags:["1 entry"],w:["Zig Zag #87"],bio:"Early C64 pioneer who also wrote music players used by other composers. Zig Zag at #87 reflects enduring charm of early-era C64 music.",sid:"/MUSICIANS/C/Crowther_Antony/",note:"1 entry · #87 Zig Zag"},
+  {r:20,n:"Steve Turner",h:null,nat:"🇬🇧 UK",era:"1985–1989",tags:["1 entry"],w:["Uridium #95"],bio:"Uridium's relentlessly driving theme defined the C64 space shooter genre's sonic character.",sid:"/MUSICIANS/T/Turner_Steve/",note:"1 entry · #95 Uridium"},
+  {r:21,n:"David Whittaker",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["1 entry"],w:["Glider Rider #94"],bio:"Of his enormous catalogue, it is Glider Rider that earned the fan vote — a graceful, inventive score.",sid:"/MUSICIANS/W/Whittaker_David/",note:"1 entry · #94 Glider Rider"},
+  {r:22,n:"Kim Christensen",h:"Future Freak",nat:"🇩🇰 DK",era:"1989–1993",tags:["2 entries","Demo"],w:["Cooperation Demo #50","Rocky Star #71"],bio:"Demo scene composer whose quality was high enough to earn two Top 100 slots alongside commercial game music.",sid:"/MUSICIANS/F/Future_Freak/",note:"2 entries — demo scene in Top 100"},
+  {r:23,n:"JO",h:"Jesper Olsen",nat:"🇩🇰 DK",era:"late 1980s",tags:["1 entry","Vibrants"],w:["Vibrants/JO demo"],bio:"HVSC: 'JO (Olsen, Jesper {Technic, Rock}) / Amok / Vibrants - DENMARK'. A Vibrants member with a presence in the Top 100.",sid:"/MUSICIANS/J/JO/",note:"Vibrants member"},
+  {r:24,n:"Jori Olkkonen",h:"Yip",nat:"🇫🇮 FI",era:"1988–1993",tags:["1 entry","Finnish"],w:["Scroll Machine #62"],bio:"Finnish demo composer. Scroll Machine at #62 is a pure demo-scene musical expression of great charm.",sid:"/MUSICIANS/Y/Yip/",note:"1 entry · #62 Scroll Machine"},
+  {r:25,n:"Mike Alsop",h:null,nat:"🇬🇧 UK",era:"1984–1988",tags:["1 entry"],w:["Wizardry #64"],bio:"With Graham Jarvis / Clever Music, an early-era composer representing the pre-Hubbard generation who mapped the SID's possibilities.",sid:"/GAMES/S-Z/",note:"1 entry · #64 Wizardry"}
+];
+
+// Remixed top 25 (brief)
+D.remixed=[
+  {r:1,n:"Rob Hubbard",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["~16% of all RKO"],w:["Commando","Lightforce","Monty"],bio:"#1 by a massive margin — nearly 1 in 6 RKO remixes. More than doubles the next composer.",sid:"/MUSICIANS/H/Hubbard_Rob/",note:"~16% of all RKO remixes"},
+  {r:2,n:"Martin Galway",h:null,nat:"🇬🇧 UK",era:"1984–1989",tags:["#2 overall"],w:["Wizball","Parallax","Arkanoid"],bio:"Clear #2. Wizball high-score music (not the title theme) is the most remixed individual Galway subtune.",sid:"/MUSICIANS/G/Galway_Martin/",note:"#2 overall"},
+  {r:3,n:"Jeroen Tel",h:"WAVE",nat:"🇳🇱 NL",era:"1987–present",tags:["#1 diverse catalogue"],w:["Cybernoid","Turbo Outrun","Hawkeye"],bio:"#3 overall and #1 for most different SID tunes remixed — the deepest catalogue variety on RKO.",sid:"/MUSICIANS/T/Tel_Jeroen/",note:"#1 most varied back catalogue"},
+  {r:4,n:"Ben Daglish",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["#4 overall"],w:["The Last Ninja","Cobra","Trap"],bio:"#4 overall. Last Ninja Wastelands and Wilderness both appear in top-25 most-remixed subtunes.",sid:"/MUSICIANS/D/Daglish_Ben/",note:"#4 overall"},
+  {r:5,n:"Chris Hülsbeck",h:null,nat:"🇩🇪 DE",era:"1985–present",tags:["#5 overall"],w:["Giana Sisters","R-Type","Katakis"],bio:"#5. His accessible, melodic style makes SIDs natural targets for orchestral and electronic remixes.",sid:"/MUSICIANS/H/Huelsbeck_Chris/",note:"#5 overall"},
+  {r:6,n:"Matt Gray",h:null,nat:"🇬🇧 UK",era:"1986–1991",tags:["#6 · Last Ninja 2"],w:["Last Ninja 2","Central Park"],bio:"#6. Last Ninja 2 accounts for ~120 of ~170 total RKO remixes — most from Central Park and The Mansion.",sid:"/MUSICIANS/G/Gray_Matt/",note:"~120/170 remixes = Last Ninja 2"},
+  {r:7,n:"Tim Follin",h:null,nat:"🇬🇧 UK",era:"1985–1993",tags:["#7 overall"],w:["Ghouls 'n' Ghosts","Bionic Commando"],bio:"#7. Technically complex SIDs challenge remixers yet attract the most ambitious treatments.",sid:"/MUSICIANS/F/Follin_Tim/",note:"#7 overall"},
+  {r:8,n:"DRAX",h:"Thomas Mogensen",nat:"🇩🇰 DK",era:"1988–present",tags:["#1 demo scene"],w:["Hypersensational","In Vitro","Break Up"],bio:"Highest-ranking demo scene composer on RKO. Also #1 for most different demo SIDs remixed.",sid:"/MUSICIANS/D/DRAX/",note:"#1 demo composer on RKO"},
+  {r:9,n:"Mark Cooksey",h:null,nat:"🇬🇧 UK",era:"1985–1990",tags:["#9 overall"],w:["Ghosts'n Goblins"],bio:"#9. Ghosts'n Goblins consistently among the most covered — a strong melodic identity in short loops.",sid:"/MUSICIANS/C/Cooksey_Mark/",note:"#9 overall"},
+  {r:10,n:"David Whittaker",h:null,nat:"🇬🇧 UK",era:"1984–1992",tags:["#10 · sheer volume"],w:["Glider Rider","Strider","Rainbow Islands"],bio:"#10. Prolific output means a large pool of SIDs to remix, with consistently musical results.",sid:"/MUSICIANS/W/Whittaker_David/",note:"#10 overall"},
+  {r:11,n:"Fred Gray",h:null,nat:"🇬🇧 UK",era:"1985–1989",tags:["#11 · ~56 RKO"],w:["Mutants","Hysteria","Madballs"],bio:"#11 with ~56 RKO remixes. Warren Pilkington notes that Madballs — Gray's own favourite — has received only one remix across 20 years. Popularity doesn't always follow a composer's own preference.",sid:"/MUSICIANS/G/Gray_Fred/",note:"~56 remixes · Madballs only 1"},
+  {r:12,n:"Jeff",h:"Søren Lund",nat:"🇩🇰 DK",era:"1990s–present",tags:["#12 · #2 demo composer"],w:["Commodore 64","Blowing","6581 Doped Cows"],bio:"#12 overall — 2nd highest demo scene composer remixed on RKO after DRAX. Harmonically dense, techno-influenced SIDs offer rich remix material.",sid:"/MUSICIANS/J/Jeff/",note:"#2 demo composer remixed (RKO)"},
+  {r:13,n:"Laxity",h:"Thomas E. Petersen",nat:"🇩🇰 DK",era:"1987–1993",tags:["#13 overall"],w:["DNA Warrior","Laxace","Star-Dream"],bio:"#13 overall. Fluid, emotive melodies have proven natural remix material — Alibi and Star-Dream especially attract elaborate reworkings.",sid:"/MUSICIANS/L/Laxity/",note:"#13 overall"},
+  {r:14,n:"Jonathan Dunn",h:null,nat:"🇬🇧 UK",era:"1987–1992",tags:["#14 overall"],w:["Platoon","Robocop","Batman"],bio:"#14. Platoon and Robocop remain the most covered Dunn works — his film-influenced scoring style translates naturally to orchestral remixes.",sid:"/MUSICIANS/D/Dunn_Jonathan/",note:"#14 overall"},
+  {r:15,n:"Tomas Danko",h:"Gaunt",nat:"🇸🇪 SE",era:"1990–1996",tags:["#15 · one-hit wonder"],w:["Plastic Pop"],bio:"#15 overall, but a notable case: 12 of his 29 remixes are based on a single tune — Plastic Pop. One exceptional composition can sustain a composer's remix presence almost indefinitely.",sid:"/MUSICIANS/D/Danko_Tomas/",note:"29 remixes · 12 from Plastic Pop alone"},
+  {r:16,n:"Charles Deenen",h:null,nat:"🇳🇱 NL",era:"1987–1992",tags:["#16 · Maniacs of Noise"],w:["Zamzara","That's the Way It Is","Body Count"],bio:"#16 overall via Maniacs of Noise work and solo output. His raw, interview-demo energy transfers well to remix. Zamzara remains one of the most memorable Dutch SID pieces.",sid:"/MUSICIANS/D/Deenen_Charles/",note:"#16 overall"},
+  {r:17,n:"Neil Brennan",h:null,nat:"🇦🇺 AU",era:"1985–1989",tags:["#17 · Exploding Fist"],w:["Way of the Exploding Fist"],bio:"#17. The Way of the Exploding Fist is one of the most covered individual C64 tunes — its simplicity makes it accessible to remixers of any skill level. Verified Australian, not British.",sid:"/MUSICIANS/B/Brennan_Neil/",note:"Exploding Fist = most-covered tune"},
+  {r:18,n:"Reyn Ouwehand",h:null,nat:"🇳🇱 NL",era:"1988–present",tags:["#18 overall"],w:["Last Ninja 3","Dutch Breeze"],bio:"#18. Last Ninja 3's strong identity and his own commercial CD releases (Nexus series) kept his catalogue visible and covered. He has even remixed his own Last Ninja 3 work for commercial release.",sid:"/MUSICIANS/O/Ouwehand_Reyn/",note:"#18 · self-remixed for Nexus series"},
+  {r:19,n:"Clever Music",h:"Graham Jarvis / Rob Hartshorne",nat:"🇬🇧 UK",era:"1984–1988",tags:["#19 · 3 themes only"],w:["Fairlight","Gyroscope","Wizardry"],bio:"#19 — impressive for a team known for just three game themes. Fairlight, Gyroscope, and Wizardry attracted sustained remix attention for decades — proof that iconic melodic motifs outlast prolific catalogues.",sid:"/MUSICIANS/J/Jarvis_Graham/",note:"Only 3 themes → top-25 remix count"},
+  {r:20,n:"Johannes Bjerregaard",h:"Jozz",nat:"🇩🇰 DK",era:"1987–present",tags:["#20 overall"],w:["Sweet","Stormlord","Thunderforce"],bio:"#20 most remixed. His broad game+scene output means remix activity spreads across many titles rather than concentrating in one — Sweet and Stormlord attract the most covers.",sid:"/MUSICIANS/B/Bjerregaard_Johannes/",note:"#20 overall"},
+  {r:21,n:"Richard Joseph",h:null,nat:"🇬🇧 UK",era:"1985–1995",tags:["#21 overall"],w:["Defender of the Crown","Sensible Soccer","Flimbo's Quest"],bio:"#21. His sweeping, cinematic melodies in Defender of the Crown particularly invite orchestral reworkings. Career longevity and cross-platform work meant his C64 tunes were widely known.",sid:"/MUSICIANS/J/Joseph_Richard/",note:"Defender of the Crown most remixed"},
+  {r:22,n:"Martin Walker",h:null,nat:"🇬🇧 UK",era:"1988–1994",tags:["#22 overall"],w:["Armalyte","Snare","Dominion"],bio:"#22 most remixed. His HVSC bug-fix story is legendary — his Amstrad version note data was used to fix a bug in the C64 original release. Armalyte remains his most remixed title.",sid:"/MUSICIANS/W/Walker_Martin/",note:"Famous HVSC bug-fix story"},
+  {r:23,n:"Steve Turner",h:null,nat:"🇬🇧 UK",era:"1985–1989",tags:["#23 overall"],w:["Uridium","Zolyx","Paradroid"],bio:"#23. Uridium's relentlessly driving theme is an obvious remix target — it practically demands a harder, faster treatment. His early game scores reward remixers who like tight, energetic source material.",sid:"/MUSICIANS/T/Turner_Steve/",note:"Uridium = most covered Turner SID"},
+  {r:24,n:"Nick Scarim",h:null,nat:"🇺🇸 US",era:"1985–1988",tags:["#24 · outlier"],w:["Spy vs Spy","Spy vs Spy II","Spy vs Spy III"],bio:"#24 — an outlier driven almost entirely by Spy vs Spy, covered in many versions reflecting both the game's popularity and the charm of its simple, percussive SID music. One tune sustaining a ranking.",sid:"/MUSICIANS/S/Scarim_Nick/",note:"Spy vs Spy drives entire ranking"},
+  {r:25,n:"David Hanlon",h:null,nat:"🇬🇧 UK",era:"1987–1990",tags:["#25 · crack intro fame"],w:["Enlightenment: Druid II"],bio:"#25. Like Scarim, Hanlon's ranking is driven by one iconic SID — Enlightenment: Druid II, inseparably linked to Fairlight crack intros and heard by every C64 pirate of the era. Its haunting quality has inspired countless remixes.",sid:"/MUSICIANS/H/Hanlon_David/",note:"Enlightenment: Druid II = Fairlight fame"}
+];
+
+// Games tab
+D.games=D.legends.slice(0,20).concat(D.demo.slice(0,5));
+
+// Players tab (from original guide data — abbreviated here)
+D.players=[
+  {r:1,n:"DeepSID",h:"by JCH (Jens-Christian Huus)",nat:"🌐 Browser",era:"2016–present",tags:["Online","HVSC+CGSC","Profiles","Active"],w:["HVSC / CGSC / SID Happens","CSDb + GameBase64 tabs","WebSid + JSIDPlay2 engines"],bio:"The definitive online SID player. Built by JCH — the Vibrants composer who also built the JCH Editor. Integrates HVSC, CGSC, CSDb, GameBase64, Remix64, piano visualization, STIL display, per-voice toggle. Updated continuously since 2016.",url:"https://deepsid.chordian.net/",note:"Updated July 2026 · HVSC #84"},
+  {r:2,n:"JSIDPlay2",h:"Ken Händel et al.",nat:"☕ Java / 🌐 WASM",era:"2009–present",tags:["Cycle-Exact","Most Accurate"],w:["Full C64 cycle-exact","Passes Lorenz tests","DeepSID backend"],bio:"The most accurate SID player. A complete cycle-exact C64 emulator — CPU, CIA, VIC, C1541, SID. Passes the full Lorenz test suite. Also runs as WASM in browser. One of DeepSID's two playback engines.",url:"https://haendel.ddns.net/",note:"One of DeepSID's two engines"},
+  {r:3,n:"VICE / VSID",h:"VICE Team",nat:"🖥️ Win/Mac/Linux",era:"1993–present",tags:["Full Emulator","Gold Standard","Open Source"],w:["VSID standalone mode","Lorenz test suite","Full C64/C128 emulation"],bio:"The gold standard C64 emulator. Ships with VSID — a dedicated SID player mode. The VICE test suite is what all other emulators measure themselves against.",url:"https://vice-emu.sourceforge.io/",note:"Industry accuracy benchmark"},
+  {r:4,n:"reSID",h:"Dag Lem",nat:"📦 C++ Library",era:"1999–2004",tags:["Engine","Foundation","6581+8580"],w:["Cycle-accurate SID emulation","6581 filter model","Powers everything"],bio:"The most important SID emulation engine — powering VICE, GoatTracker, SIDPlay2, JSIDPlay2, DeepSID, and virtually everything else. Without reSID, the modern ecosystem would not exist.",url:"https://web.ift.uib.no/~thorsen/reSID/",note:"Foundation of the entire ecosystem"},
+  {r:5,n:"PlaySID",h:"Per Håkan Sundell / Ron Birk",nat:"🖀 Amiga",era:"1989–1993",tags:["Historical","Pioneer",".sid Format"],w:["First ever SID player","Established .sid format","Inspired HVSC"],bio:"The player that started everything. PlaySID (1989) was the first software to play C64 SID music on another computer. Established the .sid file format that HVSC later adopted.",url:"https://aminet.net/mus/play/",note:"Invented the .sid format — 1989"},
+  {r:6,n:"HardSID",h:"Gergely Bacsi",nat:"🎛️ Hardware",era:"2000–present",tags:["Real SID","Hardware","6581+8580"],w:["Real SID chip output","ISA card + USB versions","Network SID Device"],bio:"Real hardware SID playback — actual chips, not emulation. The gold standard for authentic 6581 filter sound.",url:"https://www.hardsid.com/",note:"Real hardware · authentic analog sound"},
+  {r:7,n:"SIDStation",h:"Elektron",nat:"🎛️ Hardware Synth",era:"1999–2002",tags:["Hardware Synth","6581","Rare"],w:["Real 6581 synth","MIDI performance","~1000 units made"],bio:"Legendary standalone synthesizer built around the real 6581 SID chip. Only ~1,000 units produced. Proved the SID has musical value far beyond retro nostalgia.",url:"https://www.elektron.se/",note:"~1,000 units · rare and collectable"},
+  {r:8,n:"SIDBlaster USB",h:"Davision / community",nat:"🎛️ Hardware",era:"2020–present",tags:["USB","Open Source","Modern","2SID+3SID"],w:["USB SID interface","6581+8580 support","Multi-SID support"],bio:"Modern open-source USB SID interface. Supports multiple chips (2SID, 3SID). The recommended USB SID solution for new builds.",url:"https://github.com/kastoestokoie/sidblaster",note:"Modern open-source USB SID"},
+  {r:9,n:"C64 Forever",h:"Cloanto",nat:"🖥️ Windows",era:"2009–present",tags:["Commercial","Suite","Windows"],w:["Polished SID player","Legal ROMs","HVSC integration"],bio:"Premium Windows C64 suite. Legal ROMs, curated games, excellent SID player with HVSC integration. Best one-click Windows C64 experience.",url:"https://www.c64forever.com/",note:"Best Windows all-in-one — commercial"},
+  {r:10,n:"WebSid",h:"Jürgen Wothke",nat:"🌐 Browser WASM",era:"2018–present",tags:["Browser","WASM","WebAudio"],w:["WebAudio SID playback","Piano visualization","DeepSID primary engine"],bio:"The WASM SID engine powering DeepSID's primary browser playback. Enables real-time piano visualization and per-voice toggles without any plugin.",url:"https://bitbucket.org/wothke/websid/",note:"DeepSID primary browser engine"},
+  {r:11,n:"SIDBlaster USB",h:"Davision / community",nat:"🎛️ Hardware",era:"2020–present",tags:["USB","Open Source","2SID+3SID"],w:["USB SID interface","6581+8580 support","Multi-SID up to 3 chips"],bio:"Modern open-source USB SID interface allowing multi-chip 2SID/3SID stereo configurations. Anyone can build one or contribute to the firmware — the recommended USB SID solution for new builds.",url:"https://github.com/kastoestokoie/sidblaster",note:"Modern open-source USB SID"},
+  {r:12,n:"Stone Oakvalley SOASC",h:"Flemming Tjørnelund",nat:"📁 Archive/Recordings",era:"2009–2020",tags:["Archive","Real Hardware","Historical"],w:["Real C64 hardware recordings","Both 6581/8580 versions","HVSC-mapped MP3 archive"],bio:"A monumental project recording the entire HVSC on real C64 hardware — both 6581 and 8580 — capturing analog character emulation can't replicate. DeepSID used it as a playback backend until removal in Sept 2020.",url:"https://www.stoneOakvalley.com/",note:"Removed from DeepSID Sept 2020"},
+  {r:13,n:"SIDPlay v1",h:"Michael Schwendt",nat:"🐧 Unix/Linux CLI",era:"1994–1998",tags:["Pioneer","Historical","CLI"],w:["First Unix/Linux SID player","SID format validation","Foundation for SIDPlay2"],bio:"The grandfather of the modern SID ecosystem. The first Unix/Linux SID player, establishing the architecture Simon White built upon in SIDPlay2. Invisible to most users today but underpins every player that followed.",url:"https://sourceforge.net/projects/sidplay/",note:"Historical — grandfather of ecosystem"},
+  {r:14,n:"Compute's Sidplayer",h:"Craig Chamberlain / Harry Bratt",nat:"💻 C64 Native",era:"1986–1991",tags:["Historical","MUS Format","CGSC Source"],w:["C64-native MUS format","WDS lyrics files","Source of CGSC"],bio:"Original C64-native music player published with COMPUTE!'s Gazette, spawning the Compute's Gazette SID Collection (CGSC) alongside HVSC in DeepSID. Uniquely paired with WDS lyrics files.",url:"https://sidplayer.org/",note:"Source of CGSC (DeepSID's 2nd collection)"},
+  {r:15,n:"SIDDump",h:"Lasse Öörni (Cadaver)",nat:"🖥️ Win/Mac/Linux CLI",era:"2000s–present",tags:["Analysis","Debugging","Engineering"],w:["Register-level SID trace","Rasterline profiling","Used for editor comparisons"],bio:"An essential analytical tool by Cadaver (Finnish, also GoatTracker's author). Dumps register-level SID operations — used by JCH to verify rasterline usage numbers in his famous editor comparison table.",url:"https://csdb.dk/release/?id=152422",note:"Author = Cadaver (Finnish)"},
+  {r:16,n:"SID Known",h:"Wilfred Bos",nat:"🖥️ Win/Mac/Linux CLI",era:"2015–present",tags:["Identification","CLI","Active"],w:["Identifies SID/PRG tunes","HVSC version match","Finds unreleased tunes"],bio:"Command-line tool to identify SID tunes from SID and PRG files — find which HVSC entry a demo or game is using, or discover tunes not yet in HVSC. Regularly updated to match new HVSC versions (currently supports #84).",url:"https://csdb.dk/",note:"Actively maintained, HVSC #84 support"},
+  {r:17,n:"Player Identifier (Player-ID)",h:"Wilfred Bos",nat:"🖥️ Multi-platform CLI",era:"2022–present",tags:["Identification","Multi-core","Active"],w:["Identifies C64 music players","Multi-core BNDM search","Successor to SIDId"],bio:"Inspired by Cadaver's original SIDId tool. Uses all available CPU cores and the BNDM search algorithm to identify which music player a SID file uses, very quickly. Multi-platform support added in v2.0.",url:"https://csdb.dk/",note:"Successor to Cadaver's SIDId"},
+  {r:18,n:"Hoxs64",h:"David Horrocks",nat:"🖥️ Windows",era:"2005–present",tags:["Full Emulator","Windows","Active"],w:["Full C64 emulation","Multi-SID chip config","SID stereo/mono toggle"],bio:"A dedicated Windows C64 emulator supporting up to 4 configurable SID chips with stereo/mono toggle. Stable and actively maintained, popular among Windows-focused C64 enthusiasts.",url:"https://www.hoxs64.net/",note:"Up to 4 SID chip configuration"},
+  {r:19,n:"SIDAMP",h:"Kent Patfield (Patto)",nat:"🌐 Browser",era:"2019–present",tags:["Browser","Based on Tiny'R'Sid"],w:["Web-based SID player","Custom playlists","Custom skins"],bio:"Web-based SID player built on Jürgen Wothke's Tiny'R'Sid engine. Features exclusive cover art, custom playlists, visualizations, and skinning — a lighter alternative to DeepSID with its own visual identity.",url:"https://16-bits.dk/sidamp/",note:"Based on Tiny'R'Sid (Wothke)"},
+  {r:20,n:"WinAmp SID plugin",h:"Zbigniew Ross (Zbych)",nat:"🖥️ Windows (WinAmp)",era:"2000s–present",tags:["Plugin","WinAmp","Legacy"],w:["SID playback in WinAmp","Playlist integration"],bio:"A WinAmp plugin bringing SID playback to one of the most iconic Windows media players of its era. For those maintaining a classic WinAmp-based listening setup, this remains a functional bridge to HVSC.",url:"https://csdb.dk/",note:"WinAmp plugin — legacy but functional"},
+  {r:21,n:"libsidplayfp / sidplayfp",h:"libsidplayfp team",nat:"🖥️ Win/Mac/Linux",era:"2012–present",tags:["Fork of SIDPlay2","Open Source","Active"],w:["Improved 6581/8580 emulation","Console frontend sidplayfp","Active development"],bio:"A fork of SIDPlay2 born specifically to improve emulation quality of the 6581/8580 chips and surrounding C64 system for better playback fidelity. Ships with the sidplayfp console frontend.",url:"https://sourceforge.net/projects/sidplay-residfp/",note:"Fork of SIDPlay2 — accuracy focus"},
+  {r:22,n:"Ultimate 64 / Ultimate-II+",h:"Gideon Zweijtzer",nat:"🎛️ Hardware (FPGA)",era:"2018–present",tags:["Hardware","FPGA","Real Hardware"],w:["FPGA-based full C64","Ultimate-II+ cartridge included","All-in-one solution"],bio:"An FPGA hardware implementation of the entire C64, including the popular Ultimate-II+ cartridge functionality built in. Provides cycle-perfect real hardware behavior for SID playback and everything else.",url:"https://ultimate64.com/",note:"FPGA hardware C64 — all-in-one"},
+  {r:23,n:"Amiga PlaySID variants",h:"Various Amiga sceners",nat:"🖀 Amiga",era:"1989–1995",tags:["Historical","Amiga","Multiple ports"],w:["Multiple Amiga PlaySID forks","Cross-platform SID discovery"],bio:"Following the original PlaySID, several Amiga-based forks and variants emerged in the early 1990s, spreading SID music appreciation beyond the C64 community into the wider demoscene of the era.",url:"https://aminet.net/mus/play/",note:"Historical Amiga scene variants"},
+  {r:24,n:"C64 Music Player apps (mobile)",h:"various developers",nat:"📱 iOS/Android",era:"2010s–present",tags:["Mobile","Various apps"],w:["Various mobile SID players","App store availability"],bio:"Several independent mobile SID players have appeared over the years on iOS and Android app stores, letting HVSC be enjoyed on the go. Quality and HVSC-completeness vary significantly between them.",url:"https://deepsid.chordian.net/",note:"Quality varies — check DeepSID mobile web instead"},
+  {r:25,n:"Network SID Device (NSD) protocol",h:"Various (spec)",nat:"📡 Protocol",era:"2010s–present",tags:["Protocol","Hardware bridge"],w:["Software-to-hardware SID bridge","Used by JSIDPlay2 + HardSID + SIDBlaster"],bio:"Not a player itself, but the protocol that lets software players (JSIDPlay2, others) route audio through real SID hardware (HardSID, SIDBlaster) over a network connection. The glue connecting emulation to real chips.",url:"https://haendel.ddns.net/",note:"Protocol bridging software to real chips"}
+];
+
+// Editors tab
+D.editors=[
+  {r:1,n:"SID Factory II",h:"JCH + Stein Pedersen + T.Jansson",nat:"🖥️ Win/Mac/Linux",era:"2018–present",tags:["Cross-Platform","JCH+Laxity drivers","Active"],w:["JCH + Laxity drivers","GoatTracker/CC import","ASID hardware output"],bio:"The most recommended modern SID editor, created by JCH — also DeepSID's author. Uses the famous JCH and Laxity drivers. Features multi-song support, packer/relocator, ASID output to real hardware.",url:"https://blog.chordian.net/sf2/",note:"GitHub: Chordian/sidfactory2"},
+  {r:2,n:"GoatTracker 2",h:"Lasse Öörni (CADAVER, Finnish!)",nat:"🖥️ Win/Mac/Linux",era:"2001–present",tags:["Most Widely Used","Cross-Platform","Open Source"],w:["Standard tracker paradigm","2SID stereo version","SNG format — universal"],bio:"CRITICAL: GoatTracker was written by CADAVER (Lasse Öörni, Finnish) — NOT Mahoney! Mahoney is Pex Tufvesson (Swedish), a different person. GoatTracker is the most widely used cross-platform SID editor for 20+ years.",url:"https://csdb.dk/release/?id=176131",note:"Author = Cadaver (Lasse Öörni) Finnish"},
+  {r:3,n:"SID-Wizard",h:"Hermit (Mihaly Horvath, Hungarian)",nat:"💻 C64 Native + VICE",era:"2007–present",tags:["C64 Native","Feature-Rich","MIDI"],w:["50 instruments / 100 patterns","MIDI via HerMIDI","XM + SNG import/export"],bio:"The most feature-rich native C64 tracker. Hermit (Hungarian, Samar Productions) benchmarked all existing editors before building this. 50 instruments, 100 patterns, 16 subtunes, MIDI support.",url:"https://sourceforge.net/projects/sid-wizard/",note:"Author = Hermit (Hungarian)"},
+  {r:4,n:"CheeseCutter",h:"Abbadon (Christoph Eckert)",nat:"🖥️ Win/Mac/Linux",era:"2010–present",tags:["Cross-Platform","JCH-Inspired","Open Source"],w:["JCH-style sequence stacking","reSID emulation","CT format → SF2 import"],bio:"Cross-platform editor inspired by JCH Editor's workflow. JCH himself chose CheeseCutter when returning to composing — it felt like home. Used by DRAX and many scene composers.",url:"https://github.com/theyamo/CheeseCutter",note:"JCH chose this when he returned"},
+  {r:5,n:"JCH Editor",h:"JCH (Jens-Christian Huus)",nat:"💻 C64 Native",era:"1988–1990s",tags:["C64 Native","Historical","Scene Legend"],w:["Independent sequence stacking","Used by Laxity Jeff Dane DRAX","Basis for CheeseCutter + SF2"],bio:"The legendary editor built in 1988 that defined C64 composition for a generation. Used by Laxity, Jeff, Dane, DRAX, PVCF, and hundreds more. Its independent-sequence-per-voice approach is the design CheeseCutter and SF2 both follow.",url:"https://csdb.dk/search/?stype=all&search=JCH+editor",note:"Used by Laxity, Jeff, Dane, DRAX"},
+  {r:6,n:"SDI / SID Duzz'It",h:"Puterman (Linus Åkerlund)",nat:"💻 C64 Native",era:"1997–present",tags:["C64 Native","Demo Scene","DRAX"],w:["DRAX's primary tool","Compact+powerful","Long demo heritage"],bio:"DRAX's primary composition tool, also used by Jammer and many others. Runs natively on C64 hardware or VICE. JCH named it alongside SID-Wizard as a native editor he chose not to use (preferring PC-based tools).",url:"https://csdb.dk/search/?stype=all&search=sid+duzz",note:"DRAX's primary tool"},
+  {r:7,n:"DefleMask",h:"Leonardo Ono",nat:"🖥️ Win/Mac/Linux",era:"2011–present",tags:["Multi-Chip","Modern","Entry Point"],w:["SID + YM2612 + Game Boy + NES","DefleMask Module format","Active community"],bio:"Modern multi-chip tracker supporting SID alongside Sega Genesis, Game Boy, NES. JCH added it to his editor comparison table (2018). DeepSID assigns a 'D' focus icon to DefleMask composers.",url:"https://www.deflemask.com/",note:"DeepSID 'D' focus icon"},
+  {r:8,n:"SidTracker 64",h:"Kalle Rydin",nat:"📱 iOS",era:"2014–present",tags:["iOS","iPad","Mobile"],w:["Full SID tracker on iPad","Export to .sid format","JCH comparison table"],bio:"Best SID tracker on iOS. Full tracker paradigm on iPad/iPhone with .sid export. JCH added it to his editor comparison table in 2018.",url:"https://apps.apple.com/app/sidtracker-64/id935507833",note:"Best mobile SID editor"},
+  {r:9,n:"Cubase 64",h:"Pex 'Mahoney' Tufvesson (Swedish!)",nat:"💻 Real C64",era:"2013–present",tags:["Real C64","Real-Time FX","Unique"],w:["Real-time reverb + delay on C64","SID volume register audio","Technically impossible"],bio:"Built by Mahoney (Pex Tufvesson, Swedish — NOT GoatTracker's author). Real-time audio effects — reverb, delay — on a stock C64, exploiting the SID volume register. A genuine technical miracle.",url:"https://csdb.dk/release/?id=128601",note:"Mahoney = Pex Tufvesson (Swedish)"},
+  {r:10,n:"FlexSID",h:"scene community",nat:"💻 C64 Native",era:"2010s–present",tags:["C64 Native","Modern","Active"],w:["Modern C64-native editor","FlexSID player format","DeepSID support"],bio:"Modern native C64 editor with its own player format. DeepSID has a dedicated player/editor page for FlexSID (fixed in June 2025 update).",url:"https://csdb.dk/search/?stype=all&search=flexsid",note:"DeepSID dedicated page"},
+  {r:11,n:"X-SID / XSID",h:"Jeff / CML / Virus",nat:"💻 C64 Native",era:"late 1980s–1990s",tags:["Historical","Multispeed Pioneer"],w:["Early 8× (400Hz) multispeed","Referenced in SID-Wizard manual"],bio:"Pioneered multispeed support up to 8× (400Hz) — a feature Hermit explicitly cited in the SID-Wizard manual as a design benchmark. Jeff (Camelot) intended it as his best tracker before a leak forced him to abandon it for BullSID.",url:"https://csdb.dk/search/?stype=all&search=x-sid",note:"Pioneered multispeed — cited by Hermit"},
+  {r:12,n:"DMC / Digi-Music-Creator",h:"various authors",nat:"💻 C64 Native",era:"1980s–1990s",tags:["Historical","Early Structured Editor"],w:["Early structured pattern editor","JCH comparison table (v5.0)"],bio:"An important early bridge between raw BASIC music programming and sophisticated trackers. One of the first tools bringing structured pattern-based composition to native C64 hardware.",url:"https://csdb.dk/search/?stype=all&search=dmc+music",note:"JCH comparison table (v5.0)"},
+  {r:13,n:"Master Composer",h:"various (CGSC era)",nat:"💻 C64 Native",era:"1986–1989",tags:["Commercial","Historical"],w:["Commercial pattern-based sequencer","CGSC-era production"],bio:"One of the earliest commercial-grade C64 music editors. DeepSID assigns an 'M' focus icon to composers who used it — an easy way to spot pre-scene era tunes while browsing HVSC.",url:"https://deepsid.chordian.net/",note:"DeepSID 'M' focus icon"},
+  {r:14,n:"Hardtrack Composer",h:"various",nat:"💻 C64 Native",era:"1990s",tags:["Historical","Demo Scene"],w:["Native C64 tracker","JCH comparison table entry"],bio:"An important native editor from the early 1990s, included in JCH's comparison table alongside X-SID and the JCH Editor — representing the diversity of native tools before cross-platform alternatives emerged.",url:"https://csdb.dk/search/?stype=all&search=hardtrack",note:"Part of JCH's comparison table"},
+  {r:15,n:"BASIC Music Programs",h:"earliest-era composers",nat:"💻 C64 Native",era:"1982–1987",tags:["Historical","Earliest Era"],w:["Direct SID register POKE","CGSC source material"],bio:"The oldest approach: directly poking SID registers with BASIC DATA statements in a timing loop. DeepSID marks these composers with a green 'B' focus icon.",url:"https://deepsid.chordian.net/",note:"DeepSID 'B' focus icon"},
+  {r:16,n:"BullSID",h:"Jeff (Søren Lund)",nat:"💻 C64 Native",era:"1990s",tags:["Successor to X-SID","Danish"],w:["Successor to leaked XSID","Danish demo scene tool"],bio:"After a public leak of X-SID forced him to abandon it, Jeff (Danish, Camelot) began work on BullSID as its successor — a direct link in Danish demo scene tooling innovation.",url:"https://csdb.dk/search/?stype=all&search=bullsid",note:"Jeff's successor project to X-SID"},
+  {r:17,n:"Raw 6502 assembly",h:"Hubbard, Galway, Whittaker et al.",nat:"💻 C64 Native (Assembly)",era:"1984–present",tags:["Raw Assembly","Game Era Standard"],w:["Hand-written 6502 assembly","No dedicated editor UI"],bio:"Many classic game-era composers wrote SID data directly in 6502 assembly with no tracker UI at all — the player WAS the editor, hand-assembled per game. Labor-intensive but maximally flexible.",url:"https://deepsid.chordian.net/",note:"How Hubbard, Galway et al. actually worked"},
+  {r:18,n:"NinjaTracker",h:"community fork",nat:"🖥️ Cross-platform",era:"2010s–present",tags:["GoatTracker fork","Community"],w:["Community fork of GoatTracker","Extended feature set"],bio:"A community-maintained fork extending GoatTracker's feature set — part of the healthy ecosystem of forks that has grown around Cadaver's original tracker over two decades.",url:"https://csdb.dk/",note:"Community GoatTracker fork"},
+  {r:19,n:"GT2 Silver Fork",h:"RaveGuru",nat:"🖥️ Mac-focused fork",era:"2022–present",tags:["GoatTracker fork","MacBook support"],w:["MacBook keyboard fixes","GoatTracker 2.76 base"],bio:"A fork of GoatTracker 2.76 addressing MacBook keyboard quirks — insert/delete key handling that differs from standard keyboards. A small but appreciated quality-of-life fork.",url:"https://csdb.dk/",note:"MacBook-specific GoatTracker fork"},
+  {r:20,n:"GTUltra",h:"Jason Page",nat:"🎛️ Hardware firmware",era:"2022–present",tags:["Hardware","BackSID firmware"],w:["Enhanced GoatTracker 2.76 Stereo","KoalaPad + potentiometer support"],bio:"An enhanced GoatTracker 2.76 Stereo built by veteran game composer Jason Page, adding KoalaPad support and improved potentiometer accuracy as BackSID hardware firmware.",url:"https://www.backbit.io/downloads/Firmware/BackSID/",note:"Jason Page's GoatTracker enhancement"},
+  {r:21,n:"defMON",h:"community (Def/DMAgic)",nat:"💻 C64 Native",era:"2000s–present",tags:["C64 Native","Sync adapter support"],w:["Native tracker","Sync-adapter integration"],bio:"A native C64 tracker supporting defMON sync-adapter hardware for tighter real-hardware timing integration — ongoing native-editor innovation well into the 2000s.",url:"https://csdb.dk/search/?stype=all&search=defmon",note:"Sync-adapter hardware integration"},
+  {r:22,n:"HerMIDI (SID-Wizard MIDI mode)",h:"Hermit (Mihaly Horvath)",nat:"🎹 MIDI Hardware/Software",era:"2007–present",tags:["MIDI Input","Hungarian"],w:["Real MIDI keyboard input","Live note entry into SID-Wizard"],bio:"Hermit's MIDI interface lets composers play notes live via MIDI keyboard directly into SID-Wizard — bridging the tracker paradigm with real-time performance input, unusual among SID editors.",url:"https://sourceforge.net/projects/sid-wizard/",note:"Hermit's MIDI extension to SID-Wizard"},
+  {r:23,n:"Amadeus / Amiga bridge tools",h:"various",nat:"🖀 Amiga bridge tools",era:"late 1980s",tags:["Cross-platform bridge","Historical"],w:["Amiga-to-C64 composition bridge"],bio:"Early cross-platform bridge tools letting Amiga-based composers write for the C64 SID chip remotely — a precursor to today's fully cross-platform editors like GoatTracker and SID Factory II.",url:"https://csdb.dk/",note:"Early cross-platform precursor"},
+  {r:24,n:"Vibrants internal tools",h:"Vibrants group (Laxity/JCH/DRAX/Metal)",nat:"💻 C64 Native (Denmark)",era:"1987–1993",tags:["Danish","Group-internal"],w:["Shared internal utilities","Precursor to public JCH Editor"],bio:"Before the JCH Editor was shared publicly, the Vibrants group used shared internal composition utilities. The eventual public release spread this Danish tooling tradition across the whole international scene.",url:"https://csdb.dk/",note:"Precursor to public JCH Editor"},
+  {r:25,n:"Fun Fun / Triangle internal tooling",h:"Michael Troelsen and Triangle/DCC",nat:"💻 C64 Native (Denmark)",era:"1990–present",tags:["Danish","Triangle/DCC"],w:["Danish demo scene composition"],bio:"Michael Troelsen (Fun Fun) composed within the Triangle/Danish Cracking Crew scene tooling tradition — part of the same broader Danish demo scene toolchain lineage as the Vibrants group. See the 🎵 Fun Fun tab for his full profile.",url:"https://deepsid.chordian.net/?file=/MUSICIANS/T/Troelsen_Michael/",note:"See 🎵 Fun Fun tab for full profile"}
+];
+
+// ── SEARCH INDEX (built from all D + PLAYER_STATS + COUNTRIES) ────────────────
+let SEARCH_INDEX=[];
+function buildSearchIndex(){
+  SEARCH_INDEX=[];
+  CARD_TABS.forEach(tabId=>{
+    (D[tabId]||[]).forEach(m=>{
+      SEARCH_INDEX.push({name:m.n,handle:m.h||'',nat:m.nat||'',tags:(m.tags||[]).join(' '),tab:tabId,raw:m});
+    });
+  });
+}
+
+function onSearchInput(q){
+  const box=document.getElementById('search-results');
+  const cnt=document.getElementById('search-count');
+  q=q.trim().toLowerCase();
+  if(!q){box.innerHTML='';box.style.display='none';cnt.textContent='';return;}
+  const hits=SEARCH_INDEX.filter(e=>
+    e.name.toLowerCase().includes(q) ||
+    e.handle.toLowerCase().includes(q) ||
+    e.nat.toLowerCase().includes(q) ||
+    e.tags.toLowerCase().includes(q)
+  ).slice(0,12);
+  cnt.textContent=hits.length?`${hits.length} match${hits.length===1?'':'es'}`:'no matches';
+  box.style.display=hits.length?'block':'none';
+  box.innerHTML=hits.map((e,i)=>{
+    const catLbl=(CATS.find(c=>c.id===e.tab)||{}).label||e.tab;
+    return `<div class="sr-item" onclick="jumpToResult(${i})">
+      <span class="sr-nat">${e.nat.split(' ')[0]||''}</span>
+      <span class="sr-name">${e.name}${e.handle?` <span style="color:var(--dim);font-size:.7rem">(${e.handle})</span>`:''}</span>
+      <span style="flex:1"></span>
+      <span class="sr-tab">${catLbl}</span>
+    </div>`;
+  }).join('');
+  window._searchHits=hits;
+}
+
+function jumpToResult(i){
+  const hit=window._searchHits[i];
+  if(!hit) return;
+  document.getElementById('search-input').value='';
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('search-count').textContent='';
+  render(hit.tab);
+  setTimeout(()=>highlightCard(hit.name),60);
+}
+
+function highlightCard(name){
+  const cards=document.querySelectorAll('.card');
+  for(const c of cards){
+    if(c.dataset.name===name.toLowerCase()){
+      if(typeof c.scrollIntoView==='function') c.scrollIntoView({behavior:'smooth',block:'center'});
+      c.classList.add('hl');
+      setTimeout(()=>c.classList.remove('hl'),1700);
+      break;
+    }
+  }
+}
+
+// Called from Player Usage table / cross-links to jump to a composer's card
+function jumpToComposer(name,preferredTab){
+  const tabsToCheck=preferredTab?[preferredTab,...CARD_TABS]:CARD_TABS;
+  for(const t of tabsToCheck){
+    if((D[t]||[]).some(m=>m.n.toLowerCase().includes(name.toLowerCase()))){
+      render(t);
+      setTimeout(()=>highlightCard(name),60);
+      return;
+    }
+  }
+}
+
+function randomSID(){
+  if(!SEARCH_INDEX.length) buildSearchIndex();
+  const pick=SEARCH_INDEX[Math.floor(Math.random()*SEARCH_INDEX.length)];
+  render(pick.tab);
+  setTimeout(()=>{
+    highlightCard(pick.name);
+    const url=pick.raw.url || (DS+pick.raw.sid);
+    window.open(url,'_blank');
+  },80);
+}
+
+function toggleEmbed(frameId,src,btn){
+  const wrap=document.getElementById('wrap-'+frameId);
+  if(!wrap) return;
+  if(wrap.style.display==='none'){
+    wrap.style.display='block';
+    wrap.innerHTML=`<iframe class="embed-frame" src="${src}" loading="lazy" title="SID player embed"></iframe>`;
+    btn.textContent='▼ Hide player';
+  }else{
+    wrap.style.display='none';
+    wrap.innerHTML='';
+    btn.textContent='▶ Play here';
+  }
+}
+
+// ── COMPARE VIEW ──────────────────────────────────────────────────────────────
+function getAllComposers(){
+  if(!SEARCH_INDEX.length) buildSearchIndex();
+  const seen=new Set();
+  return SEARCH_INDEX.filter(e=>{
+    if(seen.has(e.name)) return false;
+    seen.add(e.name);
+    return true;
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+function renderCompare(color){
+  const all=getAllComposers();
+  const opts=all.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+  return `<div class="fw">
+    <div class="sl">COMPARE TWO COMPOSERS</div>
+    <div class="sn">Pick any two names to compare their era, country, tags, and notable works side by side.</div>
+    <div class="cmp-selects">
+      <select class="cmp-select" id="cmp-a" onchange="renderCompareResult()"><option value="">— Select composer A —</option>${opts}</select>
+      <select class="cmp-select" id="cmp-b" onchange="renderCompareResult()"><option value="">— Select composer B —</option>${opts}</select>
+    </div>
+    <div id="cmp-output"></div>
+  </div>`;
+}
+
+function renderCompareResult(){
+  const nameA=document.getElementById('cmp-a').value;
+  const nameB=document.getElementById('cmp-b').value;
+  const out=document.getElementById('cmp-output');
+  if(!nameA||!nameB){out.innerHTML='';return;}
+  const all=getAllComposers();
+  const a=all.find(e=>e.name===nameA);
+  const b=all.find(e=>e.name===nameB);
+  if(!a||!b){out.innerHTML='';return;}
+  const col=(e)=>{
+    const m=e.raw;
+    const link=m.url||(DS+m.sid);
+    return `<div class="cmp-col">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--text);margin-bottom:.75rem">${m.n}</div>
+      <div class="cmp-row"><span class="cmp-lbl">Handle</span><span>${m.h||'—'}</span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Country</span><span>${m.nat}</span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Era</span><span>${m.era}</span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Tags</span><span>${(m.tags||[]).join(', ')}</span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Notable works</span><span>${(m.w||[]).join(', ')}</span></div>
+      <div class="cmp-row"><span class="cmp-lbl">Note</span><span>${m.note||'—'}</span></div>
+      <div style="margin-top:.85rem"><a class="dslink" href="${link}" target="_blank">${m.url?'🌐 Website':'▶ DeepSID'}</a></div>
+    </div>`;
+  };
+  out.innerHTML=`<div class="cmp-grid">${col(a)}${col(b)}</div>`;
+}
+
+// ── HASH ROUTING ──────────────────────────────────────────────────────────────
+function syncHash(id){
+  try{ history.replaceState(null,'','#'+id); }catch(e){}
+}
+window.addEventListener('hashchange',()=>{
+  const id=location.hash.replace('#','');
+  if(id && CATS.some(c=>c.id===id) && id!==current) render(id);
+});
+
+
+let current='legends';
+function setVar(n,v){document.documentElement.style.setProperty(n,v);}
+
+function render(id){
+  current=id;
+  syncHash(id);
+  const cat=CATS.find(c=>c.id===id);
+  setVar('--tab',cat.color);
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('on',t.dataset.id===id);
+    t.style.setProperty('--tab',cat.color);
+  });
+  document.getElementById('cat-title').textContent=cat.label;
+  document.getElementById('cat-title').style.color=cat.color;
+  document.getElementById('cat-desc').textContent=cat.desc;
+
+  const g=document.getElementById('grid');
+  if(id==='usage'){g.style.cssText='grid-template-columns:1fr;padding:0;';g.innerHTML=renderPlayerUsage(cat.color);return;}
+  if(id==='country'){g.style.cssText='grid-template-columns:1fr;padding:0;';g.innerHTML=renderCountry(cat.color);return;}
+  if(id==='timeline'){g.style.cssText='grid-template-columns:1fr;padding:0;';g.innerHTML=renderTimeline(cat.color);return;}
+  if(id==='funfun'){g.style.cssText='grid-template-columns:1fr;padding:0;';g.innerHTML=renderFunFun(cat.color);return;}
+  if(id==='compare'){g.style.cssText='grid-template-columns:1fr;padding:0;';g.innerHTML=renderCompare(cat.color);return;}
+  g.style.cssText='';
+  const data=D[id]||[];
+  g.innerHTML=data.map((m,i)=>buildCard(m,cat.color,i*25,i)).join('');
+}
+
+// Build tabs
+const tabsEl=document.getElementById('tabs');
+CATS.forEach(cat=>{
+  const b=document.createElement('button');
+  b.className='tab';
+  b.dataset.id=cat.id;
+  b.textContent=cat.label;
+  b.style.setProperty('--tab',cat.color);
+  b.onclick=()=>render(cat.id);
+  tabsEl.appendChild(b);
+});
+
+buildSearchIndex();
+const initialHash=location.hash.replace('#','');
+render(CATS.some(c=>c.id===initialHash) ? initialHash : 'legends');
+
+// Close search dropdown when clicking outside
+document.addEventListener('click',(e)=>{
+  const bar=document.getElementById('search-bar');
+  const box=document.getElementById('search-results');
+  if(bar && !bar.contains(e.target) && box && !box.contains(e.target)){
+    box.style.display='none';
+  }
+});
+</script>
+</body>
+</html>

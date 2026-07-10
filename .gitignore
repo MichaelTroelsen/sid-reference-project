@@ -7,5 +7,6 @@ node_modules/
 data/composers/*.json
 data/players.json
 data/gaps-report.json
+data/composer-list-full.json
 
 output/*.html

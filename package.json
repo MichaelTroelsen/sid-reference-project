@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "seed:full": "node scripts/build-seed-from-hvsc.js",
     "fetch:composers": "node scripts/fetch-composers.js",
     "fetch:players": "node scripts/fetch-players.js",
     "fetch:all": "npm run fetch:players && npm run fetch:composers",

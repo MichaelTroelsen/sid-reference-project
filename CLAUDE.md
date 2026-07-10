@@ -11,7 +11,8 @@ picture; this file is quick orientation for a fresh session.
 - Data lives in `data/*.json`, all gitignored except `data/composer-list.json` (the seed)
 - The DeepSID API is undocumented publicly — `scripts/lib/deepsid-client.js`
   has the endpoint shapes in its comments, verified against DeepSID's own
-  source at github.com/Chordian/deepsid/blob/master/api/v1.php
+  source at github.com/Chordian/deepsid/blob/master/api/v1.php. Full
+  endpoint-by-endpoint reference: `docs/DEEPSID-API.md`.
 - Rate limit is 400ms between requests, intentionally conservative —
   this is a free single-maintainer service, not a commercial API
 
@@ -28,9 +29,11 @@ picture; this file is quick orientation for a fresh session.
 
 ## Known TODOs (not yet built)
 
-- No full-HVSC seed generator — `data/composer-list.json` is a curated
-  56-composer subset, not exhaustive. Would need a `?folder=` recursive
-  walk starting at `/MUSICIANS/`.
+- `data/composer-list.json` is still a curated 56-composer subset, not
+  exhaustive. `scripts/build-seed-from-hvsc.js` (`npm run seed:full`)
+  generates the full list from DeepSID's `/MUSICIANS/` tree in one
+  request, but nothing merges its output (`data/composer-list-full.json`)
+  into the curated seed automatically — that's a manual review step.
 - No automated tests, particularly around `find-gaps.js`'s detection
   logic — false positives there waste a maintainer's time if reported
   upstream without review.

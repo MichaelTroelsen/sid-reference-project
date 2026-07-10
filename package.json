@@ -11,12 +11,13 @@
     "fetch:composers": "node scripts/fetch-composers.js",
     "fetch:players": "node scripts/fetch-players.js",
     "fetch:csdb": "node scripts/fetch-csdb.js",
+    "fetch:player-media": "node scripts/fetch-player-media.js",
     "fetch:hvsc-docs": "node scripts/fetch-hvsc-docs.js",
-    "fetch:all": "npm run fetch:players && npm run fetch:composers && npm run fetch:csdb && npm run fetch:hvsc-docs",
+    "fetch:all": "npm run fetch:players && npm run fetch:composers && npm run fetch:csdb && npm run fetch:player-media && npm run fetch:hvsc-docs",
     "gaps": "node scripts/find-gaps.js",
     "build": "node scripts/build-html.js",
     "all": "npm run fetch:all && npm run gaps && npm run build",
-    "refresh": "node scripts/fetch-composers.js --refresh && node scripts/fetch-players.js --refresh && node scripts/fetch-csdb.js --refresh && node scripts/fetch-hvsc-docs.js --refresh && npm run gaps && npm run build"
+    "refresh": "node scripts/fetch-composers.js --refresh && node scripts/fetch-players.js --refresh && node scripts/fetch-csdb.js --refresh && node scripts/fetch-player-media.js --refresh && node scripts/fetch-hvsc-docs.js --refresh && npm run gaps && npm run build"
   },
   "dependencies": {
     "fast-xml-parser": "^5.9.3"

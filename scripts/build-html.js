@@ -24,6 +24,7 @@ const ROOT = path.join(__dirname, '..');
 const COMPOSERS_DIR = path.join(ROOT, 'data', 'composers');
 const CSDB_DIR = path.join(ROOT, 'data', 'csdb');
 const PLAYERS_PATH = path.join(ROOT, 'data', 'players.json');
+const PLAYER_MEDIA_PATH = path.join(ROOT, 'data', 'csdb', 'players.json');
 const GAPS_PATH = path.join(ROOT, 'data', 'gaps-report.json');
 const STIL_PATH = path.join(ROOT, 'data', 'hvsc', 'stil.json');
 const TEMPLATE_PATH = path.join(ROOT, 'templates', 'index.html.template');
@@ -137,6 +138,11 @@ async function main() {
   const composers = loadAllComposers();
   const players = readJSON(PLAYERS_PATH);
   const gaps = readJSON(GAPS_PATH);
+  const playerMedia = readJSON(PLAYER_MEDIA_PATH) || {};
+  const playerList = (players?.players ?? []).map((p) => {
+    const media = p.csdb_id ? playerMedia[String(p.csdb_id)] : null;
+    return { ...p, screenshot: media?.screenshot ?? null };
+  });
 
   const files = composers.flatMap((c) => c.files.map((f) => ({ ...f, composer: c.name, composerPath: c.path })));
   const filesFromDeepsid = files.filter((f) => f.source === 'deepsid').length;
@@ -161,7 +167,7 @@ async function main() {
   const dataPayload = {
     generatedAt: new Date().toISOString(),
     composers,
-    players: players?.players ?? [],
+    players: playerList,
     gaps: gaps?.gaps ?? [],
     files,
   };

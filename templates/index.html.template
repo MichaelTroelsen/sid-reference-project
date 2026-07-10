@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SID Reference — Live from DeepSID</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0C1A;--card-bg:#13132A;--border:#252550;--text:#D8D8F0;--dim:#6060A0;--cyan:#22CCDD;--amber:#FFB700;--green:#55DD88;--red:#FF5566;--tab:var(--cyan);}
+:root[data-theme="light"]{--bg:#F5F5FA;--card-bg:#FFFFFF;--border:#D8D8EA;--text:#1A1A2E;--dim:#8888AA;--cyan:#0099AA;--amber:#B87700;--green:#1A9955;--red:#CC2244;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+header{padding:2rem;text-align:center;border-bottom:1px solid var(--border);}
+h1{font-family:'Share Tech Mono',monospace;font-size:2rem;letter-spacing:.1em;color:var(--text);}
+h1 em{color:var(--cyan);font-style:normal;}
+.sub{color:var(--dim);font-size:.85rem;margin-top:.4rem;}
+.gen-time{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--dim);margin-top:.75rem;}
+.theme-toggle{position:fixed;top:14px;right:16px;z-index:200;background:var(--card-bg);border:1px solid var(--border);border-radius:99px;padding:.4rem .9rem;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--text);cursor:pointer;}
+.tabs{display:flex;gap:4px;max-width:1200px;margin:0 auto;padding:1rem 2rem 0;overflow-x:auto;}
+.tab{padding:.7rem 1rem;background:none;border:none;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:.72rem;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.tab.on{color:var(--text);border-bottom-color:var(--tab);}
+.search-bar{max-width:1200px;margin:0 auto;padding:1rem 2rem 0;}
+#search{width:100%;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.6rem .9rem;color:var(--text);font-size:.85rem;}
+.grid{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 4rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+@media(max-width:880px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1.1rem;display:flex;flex-direction:column;gap:.6rem;}
+.card img.thumb{width:100%;height:140px;object-fit:cover;border-radius:3px;border:1px solid var(--border);}
+.cname{font-family:'Share Tech Mono',monospace;font-size:.95rem;color:var(--text);}
+.cmeta{font-size:.72rem;color:var(--dim);}
+.ctag{display:inline-block;font-size:.6rem;border:1px solid var(--border);color:var(--dim);padding:.1rem .4rem;border-radius:2px;margin-right:.3rem;}
+.cfoot{display:flex;justify-content:space-between;align-items:center;padding-top:.5rem;border-top:1px solid var(--border);}
+.dslink{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,204,221,.25);padding:.2rem .55rem;border-radius:2px;}
+.filecount{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--amber);}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--dim);}
+.empty-state code{background:var(--card-bg);border:1px solid var(--border);padding:.2rem .5rem;border-radius:3px;}
+.gap-item{background:var(--card-bg);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:3px;padding:.75rem 1rem;margin-bottom:.5rem;font-size:.8rem;}
+.gap-type{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--red);text-transform:uppercase;letter-spacing:.06em;}
+.player-row{display:flex;justify-content:space-between;padding:.5rem .8rem;border-bottom:1px solid var(--border);font-size:.8rem;}
+</style>
+</head>
+<body>
+<button class="theme-toggle" onclick="toggleTheme()">🌙/☀️</button>
+<header>
+  <h1>SID <em>REFERENCE</em></h1>
+  <p class="sub">Generated locally from live DeepSID API data</p>
+  <p class="gen-time" id="gen-time"></p>
+</header>
+<div class="tabs" id="tabs">
+  <button class="tab on" data-t="composers" onclick="render('composers')">Composers</button>
+  <button class="tab" data-t="players" onclick="render('players')">Players / Editors</button>
+  <button class="tab" data-t="gaps" onclick="render('gaps')">Documentation Gaps</button>
+</div>
+<div class="search-bar"><input id="search" placeholder="Filter current tab…" oninput="applyFilter(this.value)"></div>
+<div class="grid" id="grid"></div>
+
+<script>
+/*__SID_DATA_INJECTION_POINT__*/
+
+// Fallback if build-html.js hasn't been run yet / no data cached
+window.SID_DATA = window.SID_DATA || { generatedAt: null, composers: [], players: [], gaps: [] };
+
+let currentTab = 'composers';
+let currentFilter = '';
+
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', cur === 'light' ? 'dark' : 'light');
+}
+
+function applyFilter(v){ currentFilter = v.toLowerCase(); render(currentTab); }
+
+function render(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.t === tab));
+  const grid = document.getElementById('grid');
+  const genTime = document.getElementById('gen-time');
+  genTime.textContent = window.SID_DATA.generatedAt
+    ? `Data generated: ${new Date(window.SID_DATA.generatedAt).toLocaleString()}`
+    : 'No data yet — run the fetch + build scripts (see README.md)';
+
+  if (tab === 'composers') return renderComposers(grid);
+  if (tab === 'players') return renderPlayers(grid);
+  if (tab === 'gaps') return renderGaps(grid);
+}
+
+function emptyState(msg, cmd){
+  return `<div class="empty-state" style="grid-column:1/-1">
+    <p>${msg}</p>
+    ${cmd ? `<p style="margin-top:.75rem"><code>${cmd}</code></p>` : ''}
+  </div>`;
+}
+
+function renderComposers(grid){
+  grid.style.gridTemplateColumns = '';
+  let list = window.SID_DATA.composers || [];
+  if (currentFilter) {
+    list = list.filter(c => c.name.toLowerCase().includes(currentFilter));
+  }
+  if (list.length === 0) {
+    grid.innerHTML = emptyState(
+      'No composer data cached yet.',
+      'node scripts/fetch-composers.js'
+    );
+    return;
+  }
+  grid.innerHTML = list.map(c => {
+    const p = c.profile || {};
+    const files = Array.isArray(c.folder)
+      ? c.folder
+      : Object.values(c.folder || {}).filter(v => v && typeof v === 'object' && v.name);
+    const thumb = p.thumbnail
+      ? `<img class="thumb" src="${p.thumbnail}" alt="${c.name}" loading="lazy" onerror="this.remove()">`
+      : '';
+    const country = p.country || '—';
+    const active = p.active || '—';
+    const dsUrl = `https://deepsid.chordian.net/?file=${c.path}`;
+    return `<div class="card">
+      ${thumb}
+      <div class="cname">${c.name}</div>
+      <div class="cmeta">${country} · ${active}</div>
+      <div><span class="ctag">${files.length} SID${files.length===1?'':'s'}</span>${p.affiliation ? `<span class="ctag">${p.affiliation}</span>` : ''}</div>
+      <div class="cfoot">
+        <a class="dslink" href="${dsUrl}" target="_blank">▶ DeepSID</a>
+        <span class="filecount">${c.path}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPlayers(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  let list = window.SID_DATA.players || [];
+  if (currentFilter) {
+    list = list.filter(p => (p.title||'').toLowerCase().includes(currentFilter));
+  }
+  if (list.length === 0) {
+    grid.innerHTML = emptyState(
+      'No player/editor data cached yet.',
+      'node scripts/fetch-players.js'
+    );
+    return;
+  }
+  const rows = list.map(p => `<div class="player-row">
+    <span>${p.title || '(untitled)'}</span>
+    <span style="color:var(--dim)">${p.developer || 'unknown developer'} · ${p.start_year || '?'}</span>
+  </div>`).join('');
+  grid.innerHTML = `<div>${rows}</div>`;
+}
+
+function renderGaps(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  let list = window.SID_DATA.gaps || [];
+  if (currentFilter) {
+    list = list.filter(g => JSON.stringify(g).toLowerCase().includes(currentFilter));
+  }
+  if (list.length === 0) {
+    grid.innerHTML = emptyState(
+      'No gaps report cached yet.',
+      'node scripts/find-gaps.js'
+    );
+    return;
+  }
+  grid.innerHTML = list.slice(0, 300).map(g => `<div class="gap-item">
+    <div class="gap-type">${g.type}</div>
+    <div>${g.composer || g.title || ''} ${g.file ? '— ' + g.file : ''} ${g.detail ? '— ' + g.detail : ''}</div>
+  </div>`).join('') + (list.length > 300 ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${list.length-300} more — see docs/GAPS_REPORT.md</p>` : '');
+}
+
+render('composers');
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+node_modules/
+*.log
+.DS_Store
+
+# Cached API data is regeneratable — keep it out of git by default.
+# Comment these out if you'd rather version the cache for reproducibility.
+data/composers/*.json
+data/players.json
+data/gaps-report.json
+
+output/*.html

@@ -1,0 +1,18 @@
+{
+  "name": "sid-reference-project",
+  "version": "1.0.0",
+  "description": "Fetches SID composer/player/editor data from the DeepSID API into local JSON, builds a browsable HTML reference from it, and finds documentation gaps to report back upstream.",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "fetch:composers": "node scripts/fetch-composers.js",
+    "fetch:players": "node scripts/fetch-players.js",
+    "fetch:all": "npm run fetch:players && npm run fetch:composers",
+    "gaps": "node scripts/find-gaps.js",
+    "build": "node scripts/build-html.js",
+    "all": "npm run fetch:all && npm run gaps && npm run build",
+    "refresh": "node scripts/fetch-composers.js --refresh && npm run fetch:players && npm run gaps && npm run build"
+  }
+}

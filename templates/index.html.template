@@ -203,6 +203,7 @@ const TABS = [
   {id:'files',     label:'SID Files',          desc:'Every known SID file across all composers, linked to its player where identifiable.'},
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
   {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
+  {id:'groups',    label:'Scene Groups',       desc:'Composers grouped by demoscene/cracking group membership, from CSDb — who made music for whom.'},
   {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.'}
 ];
 
@@ -256,6 +257,7 @@ function render(tab){
   if (tab === 'files') return renderFiles(grid);
   if (tab === 'countries') return renderCountries(grid);
   if (tab === 'families') return renderFamilies(grid);
+  if (tab === 'groups') return renderGroups(grid);
   if (tab === 'gaps') return renderGaps(grid);
 }
 
@@ -763,6 +765,66 @@ function renderFamilies(grid){
     <div class="sl">Known import/derivation links (${links.length})</div>
     ${linkRows || '<p style="color:var(--dim);font-size:.8rem">None found — import_from is unpopulated for every cached player.</p>'}
   </div>`;
+}
+
+const GROUPS_TAB_CAP = 300;
+
+// CSDb's group membership (composer.csdb.groups, already summarized
+// server-side by summarizeCsdb()) is per-composer — nothing aggregates it
+// across the whole dataset yet, even though it's the richest untapped
+// insight CSDb enrichment produced: 737 groups have 2+ SID composers as
+// members, once you can see across all 1,609 CSDb-enriched composers at
+// once instead of one card at a time.
+function computeGroupMembership(composers){
+  const byGroup = new Map();
+  composers.forEach((c) => {
+    (c.csdb && c.csdb.groups || []).forEach((g) => {
+      if (!g.name) return;
+      if (!byGroup.has(g.name)) byGroup.set(g.name, []);
+      byGroup.get(g.name).push(c.name);
+    });
+  });
+  return byGroup;
+}
+
+function renderGroups(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  const composers = window.SID_DATA.composers || [];
+  const byGroup = computeGroupMembership(composers);
+
+  // A group with exactly one cached SID composer isn't really an
+  // "insight" — same threshold the Player Families tab already uses for
+  // developers with only one tool.
+  let entries = [...byGroup.entries()].filter(([, members]) => members.length > 1);
+  if (currentFilter) {
+    entries = entries.filter(([name, members]) =>
+      name.toLowerCase().includes(currentFilter) || members.some((m) => m.toLowerCase().includes(currentFilter))
+    );
+  }
+  entries.sort((a, b) => b[1].length - a[1].length);
+  document.getElementById('search-count').textContent = `${entries.length} groups with 2+ cached composers`;
+
+  if (entries.length === 0) {
+    grid.innerHTML = emptyState('No CSDb group data cached yet.', 'node scripts/fetch-csdb.js');
+    return;
+  }
+
+  const rows = entries.slice(0, GROUPS_TAB_CAP).map(([name, members]) => {
+    const shown = members.slice(0, 30);
+    const memberLinks = shown
+      .map((m) => `<a href="#" onclick="jumpToComposer('${m.replace(/'/g, "\\'")}');return false;" style="color:var(--cyan);text-decoration:none">${m}</a>`)
+      .join(', ');
+    const more = members.length > shown.length ? ` <span style="color:var(--dim)">+${members.length - shown.length} more</span>` : '';
+    return `<div class="gap-item" style="border-left-color:var(--cyan)">
+      <div class="gap-type" style="color:var(--cyan)">${name} — ${members.length} composer${members.length === 1 ? '' : 's'}</div>
+      <div style="font-size:.78rem">${memberLinks}${more}</div>
+    </div>`;
+  }).join('');
+  const capNote = entries.length > GROUPS_TAB_CAP
+    ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${entries.length - GROUPS_TAB_CAP} more groups — refine your search to narrow this down.</p>`
+    : '';
+
+  grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${rows}${capNote}</div>`;
 }
 
 function renderGaps(grid){

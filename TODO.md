@@ -132,6 +132,16 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       checked the full list). Same function also feeds the "✓ HVSC
       verified" composer-card badge, so ~13 composers that were wrongly
       showing a mismatch warning now correctly show verified.
+- [x] ~~Surface CSDb group membership across the whole dataset.~~ Done —
+      each composer's CSDb groups were already summarized server-side
+      (`composer.csdb.groups`) and shown as tags on individual composer
+      cards, but nothing aggregated them across composers. New "Scene
+      Groups" tab (`computeGroupMembership()`, all client-side, no new
+      fetch) lists every group with 2+ cached composers as members —
+      737 of 1,817 distinct groups qualify, sorted by size, each member
+      name clickable (jumps to their composer card). Onslaught leads at
+      48 composers, Hokuto Force 43, Triad 36. Only viable now that CSDb
+      enrichment covers 1,609 composers instead of 47.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

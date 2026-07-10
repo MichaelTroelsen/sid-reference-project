@@ -82,26 +82,30 @@ picture; this file is quick orientation for a fresh session.
   aggregates each composer's already-cached `csdb.groups` client-side;
   737 groups have 2+ cached composers once the full CSDb re-enrichment
   landed, up from effectively unviewable when only 47 composers had CSDb
-  data), and Insights (nine aggregate stats/charts; two computed
-  server-side once and added to the payload as small summaries —
-  `stilCoverStats`, `subtuneStats` — everything else reads data already
-  in the client payload for other reasons): composer activity by year
-  1983–2026 (chronological, not ranked, since the point is the shape over
-  time); scene roles from CSDb; most prolific composers by cached file
-  count, with a concentration note (top 50 made 25% of all files);
-  covers-vs-originals from STIL.txt's "[from X]" tag (DeepSID has no
-  equivalent field); a subtune/medley stat (`accumulateSubtuneStats()`,
-  computed in `build-html.js`'s `loadAllComposers()` from
-  `composer.folder`'s raw records right before that field gets deleted —
-  same "one-time aggregate, not worth threading through every file"
-  reasoning as `stilCoverStats`); which tool dominated which era
-  (approximate — tagged by composer's overall `active` year, not a
-  per-file date); coder rate by country (gated to a 20+ composer sample
-  size per country); group mobility (composers in 3+ groups). Shares a
-  `barChart()` helper (now with an optional `valueFn(n, name)` for
-  percentage-style displays) with the Countries tab, which was refactored
-  to use it too. Excludes one known composer-identity edge case,
-  `unreleased` — see TODO.md.
+  data), and Insights (ten aggregate stats/charts, considered done for
+  now — deliberately stopped adding more once new findings got
+  noticeably less compelling than earlier ones; two computed server-side
+  once and added to the payload as small summaries — `stilCoverStats`,
+  `subtuneStats` — everything else reads data already in the client
+  payload for other reasons): composer activity by year 1983–2026
+  (chronological, not ranked, since the point is the shape over time);
+  scene roles from CSDb; most prolific composers by cached file count,
+  with a concentration note (top 50 made 25% of all files); covers-vs-
+  originals from STIL.txt's "[from X]" tag (DeepSID has no equivalent
+  field); a subtune/medley stat (`accumulateSubtuneStats()`, computed in
+  `build-html.js`'s `loadAllComposers()` from `composer.folder`'s raw
+  records right before that field gets deleted — same "one-time
+  aggregate, not worth threading through every file" reasoning as
+  `stilCoverStats`); which tool dominated which era (approximate —
+  tagged by composer's overall `active` year, not a per-file date);
+  coder rate by country (gated to a 20+ composer sample size per
+  country); group mobility (composers in 3+ groups); files per composer
+  by country (`computeAvgFilesByCountry()`, min. 15 composers — a
+  different cut than the Countries tab, which counts composers, not
+  output). Shares a `barChart()` helper (now with an optional
+  `valueFn(n, name)` for percentage-style displays) with the Countries
+  tab, which was refactored to use it too. Excludes one known composer-
+  identity edge case, `unreleased` — see TODO.md.
 - **Number formatting**: `Number.prototype.toLocaleString()` with no
   locale argument uses the *visitor's browser locale* — this dev
   environment defaults to `en-DK`, which renders "14.043" (period as the

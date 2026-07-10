@@ -236,6 +236,17 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
         percentage display here (bar width still driven by `n`, but the
         text can be `"53% (119)"` instead of a raw count) — backward
         compatible, every existing caller keeps its default `fmtNum(n)`.
+- [x] ~~Files per composer, by country.~~ Done — final Insights addition,
+      `computeAvgFilesByCountry()` (min. 15 composers per country to
+      qualify). A different cut than the Countries tab (which counts
+      composers, not output): Denmark leads at 58.1 files/composer (64
+      composers), Poland 41.5, Norway 36.7 — while the biggest countries
+      by headcount (Germany, Sweden) aren't the most prolific per person.
+      USA (13.8) and France (10.9) trail. **Insights tab considered done
+      for now** at 10 sections — explicitly stopped adding more here
+      rather than padding it out; later findings in this pass were
+      noticeably less compelling than the earlier ones (diminishing
+      returns), a good signal for when to stop mining one angle.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

@@ -100,7 +100,7 @@ h1 em{color:var(--cyan);font-style:normal;}
 .pp-byline{color:var(--dim);font-size:.8rem;margin:.3rem 0 1rem;}
 .pp-cols{display:grid;grid-template-columns:1fr 1.6fr;gap:1.5rem;align-items:start;}
 @media(max-width:900px){.pp-cols{grid-template-columns:1fr;}}
-.pp-shot{width:100%;border:1px solid var(--border);border-radius:4px;display:block;margin-bottom:1rem;image-rendering:pixelated;}
+.pp-shot{width:100%;max-width:920px;border:1px solid var(--border);border-radius:4px;display:block;margin:0 0 1.5rem;image-rendering:pixelated;image-rendering:crisp-edges;}
 .info-box{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--card-bg);}
 .info-box-section{background:rgba(34,204,221,.07);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tab);padding:.45rem .9rem;border-top:1px solid var(--border);}
 .info-box-section:first-child{border-top:none;}
@@ -466,9 +466,9 @@ function renderPlayerPage(index){
     </div>
     <div class="pp-byline">${years} by ${p.developer || 'unknown'}</div>
     ${p.description ? `<div class="bio" style="margin-bottom:1.25rem">${p.description}</div>` : ''}
+    ${p.screenshot ? `<img class="pp-shot" src="${p.screenshot}" alt="${p.title} screenshot" loading="lazy" onerror="this.remove()">` : ''}
     <div class="pp-cols">
       <div>
-        ${p.screenshot ? `<img class="pp-shot" src="${p.screenshot}" alt="${p.title} screenshot" loading="lazy" onerror="this.remove()">` : ''}
         ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags" style="margin-bottom:1.25rem">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
         <div class="sl">Composers/files using this player (${used.length})</div>
         ${usedRows || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}

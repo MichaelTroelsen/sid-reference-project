@@ -204,6 +204,38 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
         commit (`renderPlayers()`'s "N files" badge) that had the same
         latent bug — it hadn't been visually verified with a real
         multi-thousand number until this pass caught it.
+- [x] ~~Add tool-era-dominance, subtune-medley, and coder-rate-by-country
+      insights.~~ Done — three more Insights-tab additions:
+      - **Tool era dominance**: `computeEraToolDominance()` — approximates
+        "which tool dominated which era" by tagging each of a composer's
+        files with their overall DeepSID `active` year (files don't carry
+        individual dates, so this is a real approximation, called out in
+        the UI text). Shows a clean handoff: SoundMonitor/MusicMaster led
+        the 1980s (881 files), Music Assembler/DMC took the 1990s–2000s
+        (2,667 / 1,842), GoatTracker v2.x has dominated since the 2010s
+        and exploded to 6,215 files in the 2020s alone — more than any
+        other era's leader.
+      - **Subtune medleys**: new server-side `subtuneStats` aggregate
+        (`accumulateSubtuneStats()` in `build-html.js`, computed from
+        `composer.folder`'s raw records right before that field gets
+        deleted — same one-time-aggregate pattern as `stilCoverStats`,
+        not worth threading `subtunes` through every file record). 4,022
+        of 55,223 files (7.3%) have 2+ subtunes; the record is Alan
+        Bond's "Randomly generated music 2" at 256 subtunes — almost
+        certainly a procedural-generation experiment, not a composed
+        piece.
+      - **Coder rate by country**: `computeCoderRateByCountry()`, gated
+        to countries with 20+ CSDb-credited composers so a 1-of-2 country
+        doesn't show as "50%". Nordic countries (Netherlands, Sweden,
+        Norway, Denmark, Finland) run 51–53% "also credited as a coder";
+        Poland and Hungary sit at 26–31%. Presented factually (the data
+        shows this split), no speculation about why — this is the one
+        chart in Insights closest to characterizing people by nationality,
+        worth being careful with if extended further.
+      - `barChart()` gained an optional `valueFn(n, name)` to support the
+        percentage display here (bar width still driven by `n`, but the
+        text can be `"53% (119)"` instead of a raw count) — backward
+        compatible, every existing caller keeps its default `fmtNum(n)`.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

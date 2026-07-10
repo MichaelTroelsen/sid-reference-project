@@ -64,10 +64,14 @@ function computeStilCoverStats(stilByFolder) {
  * made a file, so `player` stays null for STIL-sourced entries; that's a
  * real gap in what's knowable from that source, not a bug.
  */
-function buildFileList(composer, stilByFolder) {
-  const real = Array.isArray(composer.folder)
+function rawFolderFiles(composer) {
+  return Array.isArray(composer.folder)
     ? composer.folder
     : Object.values(composer.folder || {}).filter((v) => v && typeof v === 'object' && v.name);
+}
+
+function buildFileList(composer, stilByFolder) {
+  const real = rawFolderFiles(composer);
 
   // STIL.txt's free-text COMMENT field is an independent per-file source
   // that DeepSID doesn't have at all — cross-referenced by filename onto
@@ -138,12 +142,30 @@ function summarizeCsdb(entry) {
   return { country: scener.Country || null, groups, creditCount, roles };
 }
 
+// Subtunes-per-file (medleys) is another stat, like stilCoverStats, that's
+// only worth a one-time aggregate — computed here, while composer.folder's
+// raw per-file records (which carry the real `subtunes` count) still exist,
+// right before loadAllComposers() deletes that field. Not worth adding
+// `subtunes` to composer.files just for this one fact across ~55,000 files.
+function accumulateSubtuneStats(stats, composer, realFiles) {
+  realFiles.forEach((f) => {
+    const n = parseInt(f.subtunes, 10) || 1;
+    stats.total++;
+    if (n > 1) stats.multi++;
+    if (!stats.max || n > stats.max.subtunes) {
+      const filename = (f.collection_path || '').split('/').pop() || f.name || '(untitled)';
+      stats.max = { composer: composer.name, file: filename, subtunes: n };
+    }
+  });
+}
+
 function loadAllComposers() {
-  if (!fs.existsSync(COMPOSERS_DIR)) return [];
+  const subtuneStats = { total: 0, multi: 0, max: null };
+  if (!fs.existsSync(COMPOSERS_DIR)) return { composers: [], subtuneStats };
   const hvscMusicians = loadHvscMusicians();
   const stilByFolder = loadStilByFolder();
 
-  return fs
+  const composers = fs
     .readdirSync(COMPOSERS_DIR)
     .filter((f) => f.endsWith('.json'))
     .map((f) => readJSON(path.join(COMPOSERS_DIR, f)))
@@ -162,6 +184,8 @@ function loadAllComposers() {
           }
         : null;
 
+      const realFiles = rawFolderFiles(composer);
+      accumulateSubtuneStats(subtuneStats, composer, realFiles);
       composer.files = buildFileList(composer, stilByFolder);
       // `folder` (the raw per-file records read from disk) has now been
       // projected into the smaller `files` shape above — dropping it
@@ -174,12 +198,14 @@ function loadAllComposers() {
       return composer;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  return { composers, subtuneStats };
 }
 
 async function main() {
   console.log('Building output/index.html from cached data...\n');
 
-  const composers = loadAllComposers();
+  const { composers, subtuneStats } = loadAllComposers();
   const players = readJSON(PLAYERS_PATH);
   const gaps = readJSON(GAPS_PATH);
   const playerMedia = readJSON(PLAYER_MEDIA_PATH) || {};
@@ -201,6 +227,7 @@ async function main() {
   console.log(`  country mismatches vs HVSC: ${composers.filter((c) => c.hvsc?.countryMismatch).length}`);
   console.log(`  total files indexed: ${files.length} (${filesFromDeepsid} from DeepSID, ${filesFromStil} from HVSC STIL fallback)`);
   console.log(`  STIL-documented covers/adaptations: ${stilCoverStats.covers} of ${stilCoverStats.total}`);
+  console.log(`  files with 2+ subtunes: ${subtuneStats.multi} of ${subtuneStats.total} (max: ${subtuneStats.max?.subtunes ?? 0} in "${subtuneStats.max?.file ?? '?'}" by ${subtuneStats.max?.composer ?? '?'})`);
 
   if (!fs.existsSync(TEMPLATE_PATH)) {
     console.error(`\nTemplate not found: ${TEMPLATE_PATH}`);
@@ -216,6 +243,7 @@ async function main() {
     players: playerList,
     gaps: gaps?.gaps ?? [],
     stilCoverStats,
+    subtuneStats,
     // Deliberately not embedding a flattened `files` array here — every
     // composer already carries its own `files`, and duplicating all
     // ~55,000 records again at the top level roughly doubled the

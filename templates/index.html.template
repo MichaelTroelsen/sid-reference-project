@@ -85,6 +85,9 @@ h1 em{color:var(--cyan);font-style:normal;}
 .mp-links a:hover{text-decoration:underline;}
 .gap-item{background:var(--card-bg);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:3px;padding:.75rem 1rem;margin-bottom:.5rem;font-size:.8rem;}
 .gap-type{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--red);text-transform:uppercase;letter-spacing:.06em;}
+.sl{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:1.5rem 0 .65rem;}
+.sn{font-size:.72rem;color:var(--dim);background:rgba(34,204,221,.04);border:1px solid rgba(34,204,221,.12);padding:.55rem .9rem;border-radius:3px;margin:.5rem 0 1.25rem;line-height:1.6;}
+.sn code{background:var(--card-bg);border:1px solid var(--border);padding:.05rem .35rem;border-radius:2px;}
 .empty-state{text-align:center;padding:4rem 2rem;color:var(--dim);grid-column:1/-1;}
 .empty-state code{background:var(--card-bg);border:1px solid var(--border);padding:.2rem .5rem;border-radius:3px;}
 .card.hl{outline:2px solid var(--amber);animation:hlpulse 1.6s ease-out 1;}
@@ -179,6 +182,7 @@ const TABS = [
   {id:'composers', label:'Composers',          desc:'Every composer fetched from DeepSID so far — profile bio, country, and HVSC file count.'},
   {id:'players',   label:'Players / Editors',  desc:'The full players/editors database DeepSID knows about, in one request.'},
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
+  {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
   {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.'}
 ];
 
@@ -225,6 +229,7 @@ function render(tab){
   if (tab === 'composers') return renderComposers(grid);
   if (tab === 'players') return renderPlayers(grid);
   if (tab === 'countries') return renderCountries(grid);
+  if (tab === 'families') return renderFamilies(grid);
   if (tab === 'gaps') return renderGaps(grid);
 }
 
@@ -402,6 +407,91 @@ function renderCountries(grid){
     <div class="bar-num">${n}</div>
   </div>`).join('');
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${bars}</div>`;
+}
+
+function stripTags(html){
+  return (html || '').replace(/<[^>]*>/g, '').trim();
+}
+
+function renderFamilies(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  const players = window.SID_DATA.players || [];
+  document.getElementById('search-count').textContent = `${players.length} players scanned`;
+  if (players.length === 0) {
+    grid.innerHTML = emptyState('No player/editor data cached yet.', 'node scripts/fetch-players.js');
+    return;
+  }
+
+  // Group by developer — DeepSID's `developer` field is itself HTML (often an
+  // <a> link to the person's composer page), so the grouping key strips tags
+  // but display keeps the original markup, same trust model as the Players tab.
+  const byDev = {};
+  players.forEach(p => {
+    const key = stripTags(p.developer) || '(unknown developer)';
+    byDev[key] = byDev[key] || { developerHtml: p.developer || '(unknown developer)', titles: [] };
+    byDev[key].titles.push(p.title || '(untitled)');
+  });
+  let families = Object.values(byDev).filter(f => f.titles.length > 1);
+  if (currentFilter) {
+    families = families.filter(f =>
+      stripTags(f.developerHtml).toLowerCase().includes(currentFilter) ||
+      f.titles.some(t => t.toLowerCase().includes(currentFilter))
+    );
+  }
+  families.sort((a,b) => b.titles.length - a.titles.length);
+
+  const familyRows = families.map(f => `<div class="gap-item" style="border-left-color:var(--cyan)">
+    <div class="gap-type" style="color:var(--cyan)">${f.titles.length} tools by the same developer</div>
+    <div>${f.developerHtml} — ${f.titles.join(', ')}</div>
+  </div>`).join('');
+
+  // Real derivation links: DeepSID's own `import_from` field, where populated.
+  // Free text (e.g. "Soundmonitor + Future Composer v1.0") often names a
+  // *specific* version, unlike the SID-file player field — so this prefers
+  // an exact (version-intact) substring match first, and only falls back to
+  // the version-stripped loose match (deduped to one hit per product) when
+  // no exact version is named, e.g. "GoatTracker instruments" with no version.
+  const links = players.filter(p => p.import_from && p.import_from.trim());
+  const linkRows = links.map(p => {
+    const raw = p.import_from.toLowerCase();
+    let linkedTitles = players.filter(other => other.title !== p.title && raw.includes(other.title.toLowerCase()));
+    if (linkedTitles.length === 0) {
+      const resolved = normalizePlayerName(p.import_from);
+      const seenProduct = new Set();
+      linkedTitles = players.filter(other => {
+        if (other.title === p.title) return false;
+        const norm = normalizePlayerName(other.title);
+        if (norm.length < 3 || !resolved.includes(norm) || seenProduct.has(norm)) return false;
+        seenProduct.add(norm);
+        return true;
+      });
+    }
+    const linkedHtml = linkedTitles.map(o => `<span class="tag ok">${o.title}</span>`).join('');
+    return `<div class="gap-item" style="border-left-color:var(--amber)">
+      <div class="gap-type" style="color:var(--amber)">${p.title}</div>
+      <div>imports from: ${p.import_from}${linkedHtml ? `<div class="tags" style="margin-top:.3rem">${linkedHtml}</div>` : ''}</div>
+    </div>`;
+  }).join('');
+
+  const note = `<div class="sn">
+    <strong style="color:var(--text)">On "most players derive from Rob Hubbard":</strong>
+    the cached dataset doesn't support that literally — none of the ${players.length}
+    player/editor entries mention Hubbard, and only ${links.length} have a
+    machine-readable derivation field (<code>import_from</code>) at all; Hubbard's
+    own player was a custom per-game routine, not a distributable format later
+    tools import from. What the data does show: ${families.length} developers/teams
+    built more than one distinct player, and among the real derivation links that
+    do exist, GoatTracker's own instrument format is the closest thing to a hub —
+    imported by its author's other tools and independently by at least one other.
+  </div>`;
+
+  grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">
+    ${note}
+    <div class="sl">Developers with multiple players (${families.length})</div>
+    ${familyRows || '<p style="color:var(--dim);font-size:.8rem">None found.</p>'}
+    <div class="sl">Known import/derivation links (${links.length})</div>
+    ${linkRows || '<p style="color:var(--dim);font-size:.8rem">None found — import_from is unpopulated for every cached player.</p>'}
+  </div>`;
 }
 
 function renderGaps(grid){

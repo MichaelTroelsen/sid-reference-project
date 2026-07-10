@@ -98,15 +98,19 @@ h1 em{color:var(--cyan);font-style:normal;}
 .pp-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
 .pp-title{font-family:'Share Tech Mono',monospace;font-size:1.4rem;color:var(--text);}
 .pp-byline{color:var(--dim);font-size:.8rem;margin:.3rem 0 1rem;}
-.pp-cols{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(340px,1fr);gap:1.5rem;align-items:start;}
-@media(max-width:820px){.pp-cols{grid-template-columns:1fr;}}
-.pp-shot{width:100%;display:block;border:1px solid var(--border);border-radius:4px;image-rendering:pixelated;image-rendering:crisp-edges;}
-.info-box{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--card-bg);}
-.info-box-section{background:rgba(34,204,221,.07);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tab);padding:.45rem .9rem;border-top:1px solid var(--border);}
-.info-box-section:first-child{border-top:none;}
-.info-row{display:flex;gap:1.25rem;padding:.5rem .9rem;font-size:.78rem;border-top:1px solid rgba(37,37,80,.4);}
-.info-row .k{color:var(--dim);flex:0 0 130px;}
-.info-row .v{color:var(--text);flex:1;min-width:0;text-align:left;}
+.pp-cols{display:grid;grid-template-columns:384px 1fr;gap:1.5rem;align-items:start;}
+@media(max-width:700px){.pp-cols{grid-template-columns:1fr;}}
+.pp-shot{width:100%;max-width:384px;display:block;border:1px solid var(--border);border-radius:4px;image-rendering:pixelated;image-rendering:crisp-edges;}
+.pinfo{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:4px;overflow:hidden;font-size:.78rem;}
+.pinfo td{padding:.5rem .9rem;border-top:1px solid rgba(37,37,80,.4);vertical-align:top;}
+.pinfo tr:first-child td{border-top:none;}
+.pinfo td:first-child{color:var(--dim);white-space:nowrap;}
+.pinfo td:last-child{color:var(--text);width:100%;}
+.pinfo tr.sec td{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem .9rem;white-space:normal;}
+.pinfo tr.sec-package td{background:rgba(255,136,68,.12);color:var(--orange);}
+.pinfo tr.sec-features td{background:rgba(255,183,0,.12);color:var(--amber);}
+.pinfo tr.sec-player td{background:rgba(34,204,221,.12);color:var(--tab);}
+.pinfo tr.sec-editor td{background:rgba(85,221,136,.12);color:var(--green);}
 footer{border-top:1px solid var(--border);text-align:center;padding:1.75rem 2rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);line-height:2;}
 footer a{color:var(--cyan);text-decoration:none;}
 footer a:hover{text-decoration:underline;}
@@ -419,6 +423,50 @@ function renderPlayers(grid){
  * JS-rendered SPA with no predictable image URL) and they're screenshots
  * of the editors' own UI, not something to embed without a real source.
  */
+// Field → label → section mapping, matching DeepSID's own grouping
+// (checked its player.php on GitHub, per the user's pointer) — a real
+// <table> instead of the earlier flex-based rows, since that's what
+// actually fixes uneven-width label/value wrapping: table columns
+// auto-size to content instead of needing a guessed fixed pixel width.
+// `file_format` (DeepSID's "Proprietary file format" row) is skipped —
+// it's in their DB but not in the public ?players API response this
+// project reads (0 of 129 cached players have it), so there's no data
+// to show honestly.
+const PLAYER_INFO_SECTIONS = [
+  ['package', '📦 Package', [
+    ['Platform', 'platform'], ['Distribution', 'distribution'], ['PAL / NTSC', 'encoding'],
+    ['Source code', 'source_code'], ['Documentation', 'docs'], ['Example tunes', 'example_tunes'],
+  ]],
+  ['features', '✓ Features', [
+    ['Number of SID chips', 'sid_chip_count'], ['Channels visible', 'channels_visible'],
+    ['Speeds', 'speeds'], ['Digi / Samples', 'digi'], ['Auxiliary support', 'aux_support'],
+    ['Import from', 'import_from'], ['Save/Export to', 'save_to'], ['Packer', 'packer'],
+    ['Relocator', 'relocator'], ['Load/Save sounds', 'load_save_snd'],
+    ['Instruments / Sounds', 'instruments'], ['Sub tunes', 'subtunes'],
+  ]],
+  ['player', '🎚 Player', [
+    ['Noteworthy', 'noteworthy'], ['Size of player', 'player_size'], ['Zero page usage', 'zero_pages'],
+    ['CPU time (1x)', 'cpu_time'], ['Arpeggio', 'arpeggio'], ['Pulsating', 'pulsating'],
+    ['Filtering', 'filtering'], ['Vibrato', 'vibrato'], ['Hard restart', 'hard_restart'],
+  ]],
+  ['editor', '🗂 Editor', [
+    ['Track system', 'track_system'], ['Patterns / Sequences', 'patterns'], ['Follow-play', 'follow_play'],
+    ['Copy and Paste', 'copy_paste'], ['Undo', 'undoing'], ['Track commands', 'track_cmds'],
+    ['Note input layout', 'note_input'],
+  ]],
+];
+
+function buildPlayerInfoTable(p){
+  const rows = PLAYER_INFO_SECTIONS.map(([key, label, fields]) => {
+    const filled = fields.filter(([,f]) => p[f] && String(p[f]).trim());
+    if (!filled.length) return '';
+    const header = `<tr class="sec sec-${key}"><td colspan="2">${label}</td></tr>`;
+    const body = filled.map(([k,f]) => `<tr><td>${k}</td><td>${p[f]}</td></tr>`).join('');
+    return header + body;
+  }).join('');
+  return `<table class="pinfo">${rows}</table>`;
+}
+
 function renderPlayerPage(index){
   const players = window.SID_DATA.players || [];
   const p = players[index];
@@ -428,21 +476,7 @@ function renderPlayerPage(index){
 
   const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
   const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
-
-  function section(title, rows){
-    const filled = rows.filter(([,v]) => v && String(v).trim());
-    if (!filled.length) return '';
-    return `<div class="info-box-section">${title}</div>` + filled.map(([k,v]) =>
-      `<div class="info-row"><span class="k">${k}</span><span class="v">${v}</span></div>`
-    ).join('');
-  }
-  const infoBox = `<div class="info-box">
-    ${section('📦 Package', [['Platform', p.platform], ['Distribution', p.distribution]])}
-    ${section('✓ Features', [['Number of SID chips', p.sid_chip_count], ['Channels visible', p.channels_visible], ['Speeds', p.speeds], ['Digi / Samples', p.digi]])}
-    ${section('🎚 Player', [['Zero page usage', p.zero_pages], ['CPU time', p.cpu_time]])}
-    ${section('🗂 Editor', [['Track system', p.track_system], ['Undo', p.undoing], ['Track commands', p.track_cmds]])}
-    ${section('🔗 More', [['Imports from', p.import_from], ['Docs', p.docs], ['Source', p.source_code]])}
-  </div>`;
+  const infoBox = buildPlayerInfoTable(p);
 
   const devKey = stripTags(p.developer) || '(unknown developer)';
   const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);

@@ -653,26 +653,27 @@ function renderFamilies(grid){
   </div>`).join('');
 
   // Real derivation links: DeepSID's own `import_from` field, where populated.
-  // Free text (e.g. "Soundmonitor + Future Composer v1.0") often names a
-  // *specific* version, unlike the SID-file player field — so this prefers
-  // an exact (version-intact) substring match first, and only falls back to
-  // the version-stripped loose match (deduped to one hit per product) when
-  // no exact version is named, e.g. "GoatTracker instruments" with no version.
+  // Free text (e.g. "Soundmonitor + Future Composer v1.0") can name several
+  // products at once, sometimes with a specific version and sometimes without
+  // (e.g. "GoatTracker instruments") — so this finds every exact (version-
+  // intact) substring match first, then separately loose-matches (version-
+  // stripped, deduped to one hit per product) anything not already covered,
+  // so a multi-product string doesn't lose its unversioned members just
+  // because one other member happened to match exactly.
   const links = players.filter(p => p.import_from && p.import_from.trim());
   const linkRows = links.map(p => {
     const raw = p.import_from.toLowerCase();
-    let linkedTitles = players.filter(other => other.title !== p.title && raw.includes(other.title.toLowerCase()));
-    if (linkedTitles.length === 0) {
-      const resolved = normalizePlayerName(p.import_from);
-      const seenProduct = new Set();
-      linkedTitles = players.filter(other => {
-        if (other.title === p.title) return false;
-        const norm = normalizePlayerName(other.title);
-        if (norm.length < 3 || !resolved.includes(norm) || seenProduct.has(norm)) return false;
-        seenProduct.add(norm);
-        return true;
-      });
-    }
+    const exactMatches = players.filter(other => other.title !== p.title && raw.includes(other.title.toLowerCase()));
+    const resolved = normalizePlayerName(p.import_from);
+    const seenProduct = new Set(exactMatches.map(o => normalizePlayerName(o.title)));
+    const looseMatches = players.filter(other => {
+      if (other.title === p.title) return false;
+      const norm = normalizePlayerName(other.title);
+      if (norm.length < 3 || !resolved.includes(norm) || seenProduct.has(norm)) return false;
+      seenProduct.add(norm);
+      return true;
+    });
+    const linkedTitles = [...exactMatches, ...looseMatches];
     const linkedHtml = linkedTitles.map(o => `<span class="tag ok">${o.title}</span>`).join('');
     return `<div class="gap-item" style="border-left-color:var(--amber)">
       <div class="gap-type" style="color:var(--amber)">${p.title}</div>

@@ -23,20 +23,45 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       badge (intentional — that badge shouldn't claim unverified matches);
       accented-character normalization (e.g. "Hülsbeck" vs "Huelsbeck")
       is still unaddressed.
-- [ ] **Feed the Countries tab from the full HVSC list**
-      (`data/hvsc/musicians.json`, 1870 entries) instead of just the 56
-      cached DeepSID profiles — already fetched, gives a true HVSC-wide
-      distribution rather than the curated subset.
-- [ ] **Investigate the 8 `COMPOSER_NO_PROFILE` gaps** for path mistakes
-      in `data/composer-list.json` before assuming they're genuine
-      DeepSID gaps — a wrong path looks identical to a real gap right
-      now.
+- [x] ~~Feed the Countries tab from the full HVSC list~~ Superseded by
+      the DeepSID database export (see git history) — checked before
+      implementing: `profile.country` now comes straight from DeepSID's
+      own `composers.sql` (`buildProfile()` in
+      `scripts/import-deepsid-dump.js`), not a live per-composer fetch,
+      and already covers 1792 of 1903 composers (94%). Cross-checked the
+      remaining 110 against `data/hvsc/musicians.json` by exact handle —
+      only 5 gain a country that way, not worth adding a fallback for.
+      HVSC's Musicians.txt is also the wrong source to switch to anyway:
+      it's a community-maintained list of *all* sceners (crackers,
+      graphicians, groups), not composers specifically, so aggregating
+      it directly would count non-composers. The Countries tab's current
+      DeepSID-sourced data is both more complete and more authoritative.
+- [x] ~~Investigate the 8 `COMPOSER_NO_PROFILE` gaps~~ Checked each of
+      the 8 (4-Mat, Clever Music, Conrad, Dane, Fun Fun, Glenn Gallefoss,
+      Intensity, Randall) directly in `data/composers/*.json`: every one
+      has real `folder` data (1 to 445 files), which proves the HVSC
+      path being queried is genuinely correct — a wrong path would fetch
+      zero files, not just an empty profile. `profile` is a literal empty
+      array (`[]`, not an error or missing key) for all 8. These are
+      confirmed genuine DeepSID gaps, safe to report upstream as-is; no
+      path-mistake false positives found. (Note: `data/composer-list.json`
+      does carry a stale path for a couple of these, e.g. "Fun Fun" as
+      `/MUSICIANS/F/Fun_Fun/` vs the confirmed-correct
+      `/MUSICIANS/T/Troelsen_Michael/` in the composer's own cache file —
+      cosmetic only, since `find-gaps.js` reads the path from the
+      per-composer cache file, not from `composer-list.json`.)
 - [ ] **Resolve `import_from` cross-references properly.** Only 6 of 129
       players have this field populated (see "Player Families" tab on
-      the generated page). Matching now prefers an exact version-intact
-      substring match before falling back to the version-stripped loose
-      one (fixed a real bug where it over-matched — see git history), but
-      it's still text matching, not a real identifier join.
+      the generated page). Matching finds every exact version-intact
+      substring match, then separately loose-matches (version-stripped)
+      anything not already covered, so a multi-product string like
+      "Soundmonitor + Future Composer v1.0" links *both* products instead
+      of losing the unversioned one once the versioned one hit an exact
+      match (real bug, found and fixed this pass — previously the loose
+      pass only ran when zero exact matches were found at all, an
+      all-or-nothing check, not per-product). Still text matching over a
+      free-text field, though — not a real identifier join, since DeepSID
+      doesn't expose one.
 - [ ] **Parse STIL.txt's `COMMENT` field.** Deliberately skipped when
       building `stil.json` — free-text community commentary, useful for
       a "song info" detail view but not needed for the file listing this
@@ -47,14 +72,20 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       screenshot from CSDb's `type=release` endpoint (same csdb_id
       already used for the CSDb link), not from DeepSID's own page. 123
       of 124 players with a csdb_id got one.
-- [ ] **Suggestions coverage is intentionally conservative.** Only 15 of
-      127 gaps have a `suggestion` field (see `find-gaps.js`) — composer
-      suggestions require an exact or unambiguous HVSC match (Clever
-      Music and Randall have none, correctly, since Randall genuinely
-      matches 2 different HVSC entries), and player `site` suggestions
-      only use CSDb's `Website` field, which is sparse (14 of 123 cached
-      releases have one). Raising real coverage means better sources, not
-      looser matching — loosening the matching further risks reintroducing
-      the false-positive problem this was built to avoid (see git history
-      for the "Fun Fun" → wrong scener false match caught during CSDb
-      search testing).
+- [ ] **Suggestions coverage is intentionally conservative.** Re-measured
+      after the DeepSID database export expanded composer coverage:
+      **97 of 253 gaps** now have a `suggestion` field (was 15 of 127 —
+      most of the jump is `COMPOSER_MISSING_COUNTRY`, 88 of 110, thanks
+      to exact HVSC matches going from 23 to 1064 composers). Remaining
+      gaps without a suggestion: `PLAYER_MISSING_FIELDS` (3 of 111 — still
+      bottlenecked on CSDb's sparse `Website` field, 14 of 123 cached
+      releases have one) and `COMPOSER_COUNTRY_MISMATCH` (0 of 24, by
+      design — a mismatch is two sources disagreeing, there's no single
+      "right" answer to suggest). Composer suggestions still require an
+      exact or unambiguous HVSC match (Clever Music and Randall have none,
+      correctly, since Randall genuinely matches 2 different HVSC
+      entries). Raising coverage further means better sources, not looser
+      matching — loosening the matcher risks reintroducing the
+      false-positive problem this was built to avoid (see git history for
+      the "Fun Fun" → wrong scener false match caught during CSDb search
+      testing).

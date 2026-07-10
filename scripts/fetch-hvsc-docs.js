@@ -88,16 +88,21 @@ function parseMusicianLine(line, requireCountry) {
   if (requireCountry && !country) return null;
   if (!rest) return null;
 
-  let group = null;
-  const slashSplit = rest.lastIndexOf(' / ');
-  if (slashSplit !== -1) {
-    group = rest.slice(slashSplit + 3).trim();
-    rest = rest.slice(0, slashSplit).trim();
-  }
+  // A composer can belong to more than one group (e.g. "Handle (Name) /
+  // Triangle / Danish Cracking Crew"). Splitting on the *last* " / " only
+  // (the original approach) leaves earlier groups attached to the handle
+  // part, which then fails the handle/realname paren match below (it
+  // requires the string to *end* in ")"). Splitting on every " / "
+  // instead — first segment is always "Handle (Realname)", everything
+  // after is one or more group names — handles both cases correctly.
+  const parts = rest.split(' / ').map((s) => s.trim()).filter(Boolean);
+  const handlePart = parts[0] || '';
+  const groups = parts.slice(1);
+  const group = groups.length ? groups.join(' / ') : null;
 
-  let handle = rest;
+  let handle = handlePart;
   let realName = null;
-  const parenMatch = rest.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  const parenMatch = handlePart.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
   if (parenMatch) {
     handle = parenMatch[1].trim();
     realName = parenMatch[2].trim();

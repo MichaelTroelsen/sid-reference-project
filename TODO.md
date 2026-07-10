@@ -14,11 +14,16 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       fallback (0 from DeepSID) since the `?file=`/`?folder=` outage is
       still ongoing — re-run `npm run fetch:composers -- --refresh` once
       it recovers to get real per-file player data back.
-- [ ] **Improve HVSC name matching.** `scripts/lib/hvsc.js` only matches
-      on an exact, case-insensitive handle string — 16 of 56 curated
-      composers match today. Falling back to `full_name` and normalizing
-      accented characters (e.g. "Hülsbeck" vs "Huelsbeck") would raise
-      coverage and make `COMPOSER_COUNTRY_MISMATCH` more useful.
+- [x] ~~Improve HVSC name matching~~ Partially done — fixed a real parsing
+      bug affecting 181 of 1870 Musicians.txt entries (composers with 2+
+      group memberships broke the handle/realname split; see git history)
+      and added `findHvscLooseMatch` as a conservative fallback (only
+      accepts an unambiguous single candidate — see `scripts/lib/hvsc.js`).
+      Exact matches went from 16 to 23 of 56 curated composers just from
+      the parsing fix. Still exact-string-only for the "HVSC verified"
+      badge (intentional — that badge shouldn't claim unverified matches);
+      accented-character normalization (e.g. "Hülsbeck" vs "Huelsbeck")
+      is still unaddressed.
 - [ ] **Feed the Countries tab from the full HVSC list**
       (`data/hvsc/musicians.json`, 1870 entries) instead of just the 56
       cached DeepSID profiles — already fetched, gives a true HVSC-wide
@@ -38,9 +43,19 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       a "song info" detail view but not needed for the file listing this
       was built for. Would need per-file storage (not just title/artist)
       given comments can be long.
-- [ ] **Player screenshot thumbnails.** DeepSID's own players page shows
-      a small screenshot per player; there's no equivalent field in the
-      `?players` API and no predictable image URL pattern (the page is a
-      JS-rendered SPA, not static HTML) — would need a headless browser
-      to extract, for a purely cosmetic gain. Skipped for now; see chat
-      history around 2026-07-10 for what was checked.
+- [x] ~~Player screenshot thumbnails~~ Done, via a different source than
+      first assumed — `scripts/fetch-player-media.js` pulls a real
+      screenshot from CSDb's `type=release` endpoint (same csdb_id
+      already used for the CSDb link), not from DeepSID's own page. 123
+      of 124 players with a csdb_id got one.
+- [ ] **Suggestions coverage is intentionally conservative.** Only 15 of
+      127 gaps have a `suggestion` field (see `find-gaps.js`) — composer
+      suggestions require an exact or unambiguous HVSC match (Clever
+      Music and Randall have none, correctly, since Randall genuinely
+      matches 2 different HVSC entries), and player `site` suggestions
+      only use CSDb's `Website` field, which is sparse (14 of 123 cached
+      releases have one). Raising real coverage means better sources, not
+      looser matching — loosening the matching further risks reintroducing
+      the false-positive problem this was built to avoid (see git history
+      for the "Fun Fun" → wrong scener false match caught during CSDb
+      search testing).

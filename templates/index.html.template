@@ -658,9 +658,17 @@ function renderGaps(grid){
     grid.innerHTML = emptyState('No gaps report cached yet.', 'node scripts/find-gaps.js');
     return;
   }
+  function suggestionLine(s){
+    if (!s) return '';
+    if (s.site) return `<div class="sn" style="margin:.5rem 0 0">💡 Suggested fix: <a href="${s.site}" target="_blank">${s.site}</a> <span style="color:var(--dim)">(via ${s.source})</span></div>`;
+    const bits = [s.realName && `real name: ${s.realName}`, s.group && `group: ${s.group}`, s.country && `country: ${s.country}`].filter(Boolean).join(' · ');
+    return `<div class="sn" style="margin:.5rem 0 0">💡 Suggested fix: ${bits} <span style="color:var(--dim)">(via ${s.source})</span></div>`;
+  }
   const items = list.slice(0, 300).map(g => `<div class="gap-item">
     <div class="gap-type">${g.type}</div>
     <div>${g.composer || g.title || ''} ${g.file ? '— ' + g.file : ''} ${g.detail ? '— ' + g.detail : ''}</div>
+    ${g.missingFields ? `<div class="cnote">missing: ${g.missingFields.join(', ')}</div>` : ''}
+    ${suggestionLine(g.suggestion)}
   </div>`).join('');
   const more = list.length > 300 ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${list.length-300} more — see docs/GAPS_REPORT.md</p>` : '';
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${items}${more}</div>`;

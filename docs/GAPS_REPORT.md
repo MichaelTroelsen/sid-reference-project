@@ -1,6 +1,6 @@
 # DeepSID Documentation Gaps Report
 
-Generated: 2026-07-10T10:43:11.445Z
+Generated: 2026-07-10T11:30:56.735Z
 Composers scanned: 56
 Player/editor entries scanned: 129
 Total gaps found: 127
@@ -16,7 +16,7 @@ https://github.com/Chordian/deepsid/issues — not a criticism, just a diff.
 ## Player/editor entries with missing fields (111)
 
 - **JCH Editor v2.x** — missing: site
-- **CheeseCutter 2.x** — missing: site
+- **CheeseCutter 2.x** — missing: site — *suggested site: https://github.com/theyamo/CheeseCutter (via CSDb release #157512)*
 - **SID-Wizard 1.x** — missing: site
 - **SID Duzz'It** — missing: site
 - **Blackbird** — missing: description
@@ -82,7 +82,7 @@ https://github.com/Chordian/deepsid/issues — not a criticism, just a diff.
 - **CCC Music Editor** — missing: site
 - **Songsmith** — missing: site
 - **Kawasaki Synthesizer** — missing: site
-- **SadoTracker** — missing: description, site
+- **SadoTracker** — missing: description, site — *suggested site: http://covertbitops.c64.org/tools.htm (via CSDb release #6073)*
 - **Mac Music** — missing: description, site
 - **Parabola Advanced Synthesis Software** — missing: description, site
 - **Bytemare Music Editor** — missing: description, site
@@ -96,7 +96,7 @@ https://github.com/Chordian/deepsid/issues — not a criticism, just a diff.
 - **Digitronix** — missing: site
 - **Element 114 Studio Plus v1.x** — missing: description
 - **Music Studio 2.x** — missing: site
-- **1 Raster-Tracker v1.x** — missing: site
+- **1 Raster-Tracker v1.x** — missing: site — *suggested site: https://hermit.sidrip.com (via CSDb release #117935)*
 - **Extra Sound** — missing: description, site
 - **Sample Studio** — missing: site
 - **PlayStar Editor v2.0** — missing: site
@@ -120,24 +120,24 @@ _(+11 more, see data/gaps-report.json for the full list)_
 
 ## Composers with HVSC files but no DeepSID profile (8)
 
-- **4-Mat** (`/MUSICIANS/0-9/4mat/`) — Profile endpoint returned no usable data
+- **4-Mat** (`/MUSICIANS/0-9/4mat/`) — Profile endpoint returned no usable data — *suggested (real name: Simmonds, Matt, group: Cosine Systems, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
 - **Clever Music** (`/MUSICIANS/J/Jarvis_Graham/`) — Profile endpoint returned no usable data
-- **Conrad** (`/MUSICIANS/C/Conrad/`) — Profile endpoint returned no usable data
-- **Dane** (`/MUSICIANS/D/Dane/`) — Profile endpoint returned no usable data
-- **Fun Fun** (`/MUSICIANS/T/Troelsen_Michael/`) — Profile endpoint returned no usable data
-- **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile endpoint returned no usable data
-- **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile endpoint returned no usable data
+- **Conrad** (`/MUSICIANS/C/Conrad/`) — Profile endpoint returned no usable data — *suggested (real name: Crowley, Owen {CRD}, group: Samar Productions, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
+- **Dane** (`/MUSICIANS/D/Dane/`) — Profile endpoint returned no usable data — *suggested (real name: Andersson, Stellan, group: Crest, country: SWEDEN) via HVSC Musicians.txt (exact match)*
+- **Fun Fun** (`/MUSICIANS/T/Troelsen_Michael/`) — Profile endpoint returned no usable data — *suggested (real name: Troelsen, Michael {Coto}, group: Triangle / Danish Cracking Crew, country: DENMARK) via HVSC Musicians.txt (exact match)*
+- **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile endpoint returned no usable data — *suggested (real name: GRG {Shark}, group: Blues Muz', country: NORWAY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile endpoint returned no usable data — *suggested (real name: Intensity {Arman, S.U.C.K., Snickers}, group: Role, country: GERMANY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Randall** (`/MUSICIANS/R/Randall/`) — Profile endpoint returned no usable data
 
 ## Composer profiles missing a country (8)
 
-- **4-Mat** (`/MUSICIANS/0-9/4mat/`) — Profile exists but country field is blank
+- **4-Mat** (`/MUSICIANS/0-9/4mat/`) — Profile exists but country field is blank — *suggested (real name: Simmonds, Matt, group: Cosine Systems, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
 - **Clever Music** (`/MUSICIANS/J/Jarvis_Graham/`) — Profile exists but country field is blank
-- **Conrad** (`/MUSICIANS/C/Conrad/`) — Profile exists but country field is blank
-- **Dane** (`/MUSICIANS/D/Dane/`) — Profile exists but country field is blank
-- **Fun Fun** (`/MUSICIANS/T/Troelsen_Michael/`) — Profile exists but country field is blank
-- **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile exists but country field is blank
-- **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile exists but country field is blank
+- **Conrad** (`/MUSICIANS/C/Conrad/`) — Profile exists but country field is blank — *suggested (real name: Crowley, Owen {CRD}, group: Samar Productions, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
+- **Dane** (`/MUSICIANS/D/Dane/`) — Profile exists but country field is blank — *suggested (real name: Andersson, Stellan, group: Crest, country: SWEDEN) via HVSC Musicians.txt (exact match)*
+- **Fun Fun** (`/MUSICIANS/T/Troelsen_Michael/`) — Profile exists but country field is blank — *suggested (real name: Troelsen, Michael {Coto}, group: Triangle / Danish Cracking Crew, country: DENMARK) via HVSC Musicians.txt (exact match)*
+- **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile exists but country field is blank — *suggested (real name: GRG {Shark}, group: Blues Muz', country: NORWAY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile exists but country field is blank — *suggested (real name: Intensity {Arman, S.U.C.K., Snickers}, group: Role, country: GERMANY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Randall** (`/MUSICIANS/R/Randall/`) — Profile exists but country field is blank
 
 ## DeepSID country disagrees with HVSC Musicians.txt (0)

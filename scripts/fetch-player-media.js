@@ -2,17 +2,21 @@
 /**
  * fetch-player-media.js
  *
- * Enriches players/editors with a screenshot image, sourced from CSDb's
- * `type=release` endpoint — the same csdb_id already used to link out to
- * CSDb (124 of 129 cached players have one). CSDb's release response
- * includes a `ScreenShot` field with a direct image URL. DeepSID's own
- * players page shows something similar, but there's no equivalent field
- * in DeepSID's own ?players API, and no reliable way to pull it from
- * DeepSID directly (that page is a JS-rendered SPA with no predictable
- * image URL — see docs/DEEPSID-API.md's players section and the git
- * history around 2026-07-10 for what was checked before landing on this).
+ * Enriches players/editors with a screenshot image and homepage link,
+ * sourced from CSDb's `type=release` endpoint — the same csdb_id already
+ * used to link out to CSDb (124 of 129 cached players have one). CSDb's
+ * release response includes a `ScreenShot` field with a direct image URL,
+ * and sometimes a `Website` field (sparse — not every release has one).
+ * DeepSID's own players page shows a screenshot too, but there's no
+ * equivalent field in DeepSID's own ?players API, and no reliable way to
+ * pull it from DeepSID directly (that page is a JS-rendered SPA with no
+ * predictable image URL — see docs/DEEPSID-API.md's players section and
+ * the git history around 2026-07-10 for what was checked before landing
+ * on this). find-gaps.js uses the Website field as a candidate fix for
+ * the PLAYER_MISSING_FIELDS `site` gap — the single most common missing
+ * field (108 of 111 player gaps as of this writing).
  *
- * Cached to data/csdb/players.json, keyed by csdb_id: { screenshot, releaseName }.
+ * Cached to data/csdb/players.json, keyed by csdb_id: { screenshot, releaseName, website }.
  * Cache-aware: skips csdb_ids already cached unless --refresh. This is a
  * single combined file (unlike fetch-csdb.js's one-file-per-composer
  * layout) since there are only ~129 players — no need for per-item files.
@@ -62,6 +66,7 @@ async function main() {
       out[key] = {
         screenshot: (rel && rel.ScreenShot) || null,
         releaseName: (rel && rel.Name) || null,
+        website: (rel && rel.Website) || null,
       };
       console.log(out[key].screenshot ? 'done' : 'done (no screenshot on CSDb)');
       ok++;

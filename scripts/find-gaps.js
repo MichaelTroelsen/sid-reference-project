@@ -30,6 +30,16 @@
  *                             run fetch-hvsc-docs.js first, skipped
  *                             entirely if that file isn't cached)
  *
+ * Where possible, a gap also gets a `suggestion` — a candidate fix found
+ * in a second independent source (CSDb, HVSC), for a human to verify
+ * before reporting upstream. This is deliberately conservative: composer
+ * suggestions only use an unambiguous single match (see
+ * lib/hvsc.js's findHvscLooseMatch), and player `site` suggestions only
+ * come from CSDb's own Website field for that release (sparse — not
+ * every release has one). No suggestion is invented from nothing; gaps
+ * without a `suggestion` field genuinely have no candidate fix available
+ * from data already fetched, not "this script didn't try."
+ *
  * Usage:
  *   node scripts/find-gaps.js
  */
@@ -37,11 +47,12 @@
 const fs = require('fs');
 const path = require('path');
 const { readJSON, writeJSON } = require('./lib/cache');
-const { loadHvscMusicians, findHvscMatch, countriesRoughlyMatch } = require('./lib/hvsc');
+const { loadHvscMusicians, findHvscMatch, findHvscLooseMatch, countriesRoughlyMatch } = require('./lib/hvsc');
 
 const ROOT = path.join(__dirname, '..');
 const COMPOSERS_DIR = path.join(ROOT, 'data', 'composers');
 const PLAYERS_PATH = path.join(ROOT, 'data', 'players.json');
+const PLAYER_MEDIA_PATH = path.join(ROOT, 'data', 'csdb', 'players.json');
 const REPORT_JSON = path.join(ROOT, 'data', 'gaps-report.json');
 const REPORT_MD = path.join(ROOT, 'docs', 'GAPS_REPORT.md');
 
@@ -59,16 +70,26 @@ function findPlayerGaps(playersData) {
   const list = Array.isArray(playersData?.players)
     ? playersData.players
     : Object.values(playersData?.players || {});
+  const playerMedia = readJSON(PLAYER_MEDIA_PATH) || {};
 
   for (const p of list) {
     const missing = EXPECTED_PLAYER_FIELDS.filter((f) => isBlank(p[f]));
     if (missing.length > 0) {
-      gaps.push({
+      const gap = {
         type: 'PLAYER_MISSING_FIELDS',
         title: p.title || p.name || '(untitled entry)',
         missingFields: missing,
         currentData: p,
-      });
+      };
+
+      if (missing.includes('site') && p.csdb_id) {
+        const media = playerMedia[String(p.csdb_id)];
+        if (media && media.website) {
+          gap.suggestion = { site: media.website, source: `CSDb release #${p.csdb_id}` };
+        }
+      }
+
+      gaps.push(gap);
     }
   }
   return gaps;
@@ -86,28 +107,49 @@ function findComposerGaps() {
     if (!data) continue;
     const { name, path: composerPath, profile, folder } = data;
 
+    // A candidate fix for "no profile"/"no country": an unambiguous HVSC
+    // match (exact first, then the conservative loose fallback) gives a
+    // real name, group, and country from a second independent source.
+    function hvscSuggestion() {
+      const exact = findHvscMatch(name, hvscMusicians);
+      if (exact) return { ...exact, matchType: 'exact' };
+      const loose = findHvscLooseMatch(name, hvscMusicians);
+      if (loose) return { ...loose, matchType: 'loose (unverified — confirm before reporting)' };
+      return null;
+    }
+
     // Composer has a folder (real HVSC presence) but no usable profile
     const profileEmpty =
       !profile ||
       profile._error ||
       (Object.keys(profile).length === 0);
     if (profileEmpty) {
-      gaps.push({
+      const gap = {
         type: 'COMPOSER_NO_PROFILE',
         composer: name,
         path: composerPath,
         detail: profile?._error || 'Profile endpoint returned no usable data',
-      });
+      };
+      const hvsc = hvscSuggestion();
+      if (hvsc) {
+        gap.suggestion = { realName: hvsc.realName, group: hvsc.group, country: hvsc.country, source: `HVSC Musicians.txt (${hvsc.matchType} match)` };
+      }
+      gaps.push(gap);
     }
 
     // Profile exists but has no country
     if (profile && !profile._error && isBlank(profile.country)) {
-      gaps.push({
+      const countryGap = {
         type: 'COMPOSER_MISSING_COUNTRY',
         composer: name,
         path: composerPath,
         detail: 'Profile exists but country field is blank',
-      });
+      };
+      const hvsc = hvscSuggestion();
+      if (hvsc) {
+        countryGap.suggestion = { realName: hvsc.realName, group: hvsc.group, country: hvsc.country, source: `HVSC Musicians.txt (${hvsc.matchType} match)` };
+      }
+      gaps.push(countryGap);
     }
 
     // DeepSID's country disagrees with HVSC's own Musicians.txt
@@ -178,7 +220,9 @@ function toMarkdown(gaps, meta) {
     }
     if (type === 'PLAYER_MISSING_FIELDS') {
       for (const g of items.slice(0, 100)) {
-        md += `- **${g.title}** — missing: ${g.missingFields.join(', ')}\n`;
+        md += `- **${g.title}** — missing: ${g.missingFields.join(', ')}`;
+        if (g.suggestion) md += ` — *suggested site: ${g.suggestion.site} (via ${g.suggestion.source})*`;
+        md += `\n`;
       }
     } else if (type === 'FILE_UNIDENTIFIED_PLAYER') {
       for (const g of items.slice(0, 200)) {
@@ -186,7 +230,13 @@ function toMarkdown(gaps, meta) {
       }
     } else {
       for (const g of items.slice(0, 100)) {
-        md += `- **${g.composer}** (\`${g.path}\`) — ${g.detail}\n`;
+        md += `- **${g.composer}** (\`${g.path}\`) — ${g.detail}`;
+        if (g.suggestion) {
+          const s = g.suggestion;
+          const bits = [s.realName && `real name: ${s.realName}`, s.group && `group: ${s.group}`, s.country && `country: ${s.country}`].filter(Boolean);
+          md += ` — *suggested (${bits.join(', ')}) via ${s.source}*`;
+        }
+        md += `\n`;
       }
     }
     if (items.length > 100) {
@@ -234,6 +284,7 @@ async function main() {
   const counts = {};
   for (const g of allGaps) counts[g.type] = (counts[g.type] || 0) + 1;
   for (const [type, n] of Object.entries(counts)) console.log(`  ${type}: ${n}`);
+  console.log(`  with a suggested fix (CSDb/HVSC): ${allGaps.filter((g) => g.suggestion).length}`);
   console.log(`\nWritten:`);
   console.log(`  data/gaps-report.json  (machine-readable)`);
   console.log(`  docs/GAPS_REPORT.md    (human-readable, GitHub-issue-ready)`);

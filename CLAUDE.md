@@ -41,10 +41,28 @@ picture; this file is quick orientation for a fresh session.
   derivation links).
 - Clicking a player card (Players tab or a matched tag on the Files tab)
   opens a dedicated full-page detail view (`renderPlayerPage()`) —
-  title/byline/download link, then Package/Features/Player/Editor spec
-  sections, styled after DeepSID's own player detail page but in this
-  project's visual theme. All from already-cached `players.json`; no
-  scraping (checked field-by-field against DeepSID's real page first).
+  title/byline/download link, screenshot, then Package/Features/Player/
+  Editor spec sections, styled after DeepSID's own player detail page but
+  in this project's visual theme. Specs are all from already-cached
+  `players.json` (checked field-by-field against DeepSID's real page
+  first — no scraping needed there); the screenshot itself comes from
+  CSDb's `type=release` endpoint (`scripts/fetch-player-media.js`) since
+  DeepSID's own players page has no equivalent API field and is a
+  JS-rendered SPA with no predictable image URL.
+- `find-gaps.js` adds a `suggestion` field to a gap when a candidate fix
+  exists in CSDb or HVSC — composer country/realname/group from an
+  unambiguous HVSC Musicians.txt match (`lib/hvsc.js`'s `findHvscMatch`/
+  `findHvscLooseMatch` — the loose fallback only fires on a single
+  unambiguous candidate; it returns null rather than guessing when a name
+  matches multiple HVSC entries), player `site` from CSDb's `Website`
+  field. This is deliberately conservative — only 15 of 127 gaps
+  currently qualify — see TODO.md for why looser matching isn't the fix.
+- Musicians.txt's parser had a real bug (fixed): composers with 2+ group
+  memberships (e.g. "Handle (Name) / Group1 / Group2") broke the handle/
+  realname paren-extraction, since splitting on only the *last* " / "
+  left earlier group text attached to the handle segment. Affected 181
+  of 1870 entries. Fixed by splitting on *every* " / " and taking the
+  first segment as the handle/realname part.
 
 ## When extending this project
 

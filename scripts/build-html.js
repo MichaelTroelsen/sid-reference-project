@@ -97,7 +97,11 @@ function buildFileList(composer, stilByFolder) {
  * credit history is useful to have cached on disk, but embedding all of
  * it into the generated HTML would bloat the page for no display benefit.
  * This keeps only what the composer card actually shows: country, group
- * memberships, and a credit count (with a link out to CSDb for the rest).
+ * memberships, freelance roles (this project only cares that someone made
+ * music, but CSDb tracks every scene role a person is credited for — most
+ * SID composers turn out to not be dedicated musicians at all, see
+ * FreelanceFunctions below), and a credit count (with a link out to CSDb
+ * for the rest).
  */
 function summarizeCsdb(entry) {
   const handle = entry && entry.scener && entry.scener.Handle;
@@ -109,7 +113,9 @@ function summarizeCsdb(entry) {
     .map((m) => ({ name: m.Group.Name, id: m.Group.ID, status: m.Status || null }));
   const credits = handle.Credits && handle.Credits.Credit;
   const creditCount = Array.isArray(credits) ? credits.length : credits ? 1 : 0;
-  return { country: scener.Country || null, groups, creditCount };
+  const fn = handle.FreelanceFunctions && handle.FreelanceFunctions.Function;
+  const roles = Array.isArray(fn) ? fn : fn ? [fn] : [];
+  return { country: scener.Country || null, groups, creditCount, roles };
 }
 
 function loadAllComposers() {

@@ -142,6 +142,17 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       name clickable (jumps to their composer card). Onslaught leads at
       48 composers, Hokuto Force 43, Triad 36. Only viable now that CSDb
       enrichment covers 1,609 composers instead of 47.
+- [x] ~~Surface CSDb's other scene roles per composer.~~ Done —
+      `summarizeCsdb()` now also extracts `handle.FreelanceFunctions`
+      (was fetched and cached but never read). 897 of 1,579 role-tagged
+      composers (57%) are credited for more than just music — 688 also
+      coded, 461 also did graphics, 183 swapped, 120 cracked, 117
+      organized events. Composer cards show these as a second tag row
+      (`Musician` itself filtered out — every card here is a SID composer
+      by definition, so it's the *other* roles that are informative).
+      Checked a related idea and skipped it: CSDb's `country` field could
+      only fill 6 of the 110 `COMPOSER_MISSING_COUNTRY` gaps — not enough
+      yield to justify wiring it into `find-gaps.js`'s suggestion logic.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

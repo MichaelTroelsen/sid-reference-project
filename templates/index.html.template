@@ -384,6 +384,14 @@ function buildComposerCard(c){
   const tags = [p.focus2, p.affiliation]
     .filter(t => t && t !== 'NONE')
     .map(t => `<span class="tag">${t}</span>`).join('') + csdbGroups;
+  // "Musician" is filtered out — every card here is a SID composer by
+  // definition, so it's not informative. What is informative: CSDb credits
+  // most of them for other scene roles too (57% of enriched composers),
+  // so this is usually the tag row that shows "not just a musician".
+  const otherRoles = ((c.csdb && c.csdb.roles) || []).filter((r) => r !== 'Musician');
+  const roleTags = otherRoles.length
+    ? `<div class="tags" title="Other scene roles credited on CSDb, besides music" style="margin-top:.3rem">${otherRoles.map((r) => `<span class="tag">${r}</span>`).join('')}</div>`
+    : '';
   const bio = cleanNotable(p.notable);
   const died = deathYear(p.date_death);
   const memoriam = died
@@ -416,6 +424,7 @@ function buildComposerCard(c){
     <div class="meta"><span>${flagFor(p.country)} ${p.country || 'Unknown'}</span><span class="dot">·</span><span>${p.active || '—'}</span></div>
     ${verifyBadge ? `<div class="tags">${verifyBadge}</div>` : ''}
     ${tags ? `<div class="tags">${tags}</div>` : ''}
+    ${roleTags}
     ${memoriam}
     ${bio ? `<div class="bio">${bio}</div>` : ''}
     <div class="cfoot">

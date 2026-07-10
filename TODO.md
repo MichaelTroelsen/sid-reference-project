@@ -153,6 +153,27 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       Checked a related idea and skipped it: CSDb's `country` field could
       only fill 6 of the 110 `COMPOSER_MISSING_COUNTRY` gaps — not enough
       yield to justify wiring it into `find-gaps.js`'s suggestion logic.
+- [x] ~~Add real chart visualizations, not just sorted lists.~~ Done — new
+      **Insights** tab, three bar charts sharing a new `barChart()` helper
+      (Countries tab refactored onto it too, no behavior change there):
+      (1) composer activity by year, 1983–2026, chronological rather than
+      ranked — 114+68+73+31 = 286 composers active 2023–2026 alone versus
+      164 across the entire 1983–1989 era, i.e. the scene this project
+      documents is still growing, not just being archived; (2) CSDb scene
+      roles aggregated across all composers (Musician 1392, Coder 688,
+      Graphician 461, ...); (3) most prolific composers by cached SID file
+      count, top 20, clickable back to their composer card.
+      - **Found and excluded a real data-identity edge case** while
+        building the "most prolific" chart: `/MUSICIANS/L/Link/unreleased/`
+        (a subfolder of composer "Link"'s own directory) got imported as
+        its own separate composer named "unreleased" by the DeepSID dump's
+        folder-depth-based identity derivation — confirmed by both sharing
+        the exact same CSDb credit count (2,654). Checked whether this is
+        systemic (scanned for other generic subfolder names like `misc`/
+        `demos`/`other`/`various`/`unknown` across all 1,902 composers) —
+        it's isolated, 1 of 1,902, so excluding it from this one chart
+        (`INSIGHTS_EXCLUDED_COMPOSERS`) is the right scope, not a fix to
+        `import-deepsid-dump.js`'s identity derivation itself.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

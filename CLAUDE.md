@@ -73,16 +73,22 @@ picture; this file is quick orientation for a fresh session.
   actual charset and silently corrupts every accented character.
   `fetch-hvsc-docs.js`'s `downloadText()` decodes via `Buffer.from(...).toString('latin1')`
   instead — don't swap that back to `res.text()`.
-- The generated page has five data-driven tabs beyond Composers/Gaps:
+- The generated page has six data-driven tabs beyond Composers/Gaps:
   Players/Editors, SID Files (every file across every composer, linked
   to its player where identifiable), Countries, Player Families
   (developers who built more than one tool, plus known `import_from`
-  derivation links), and Scene Groups (composers grouped by CSDb
+  derivation links), Scene Groups (composers grouped by CSDb
   demoscene/cracking-group membership — `computeGroupMembership()`
   aggregates each composer's already-cached `csdb.groups` client-side;
   737 groups have 2+ cached composers once the full CSDb re-enrichment
   landed, up from effectively unviewable when only 47 composers had CSDb
-  data).
+  data), and Insights (three aggregate bar charts, all client-side, no
+  new fetch: composer activity by year 1983–2026 — chronological, not
+  ranked, since the point is the shape over time; scene roles from CSDb;
+  most prolific composers by cached file count. Shares a new `barChart()`
+  helper with the Countries tab, which was refactored to use it too.
+  Excludes one known composer-identity edge case, `unreleased` — see
+  TODO.md).
 - Clicking a player card (Players tab or a matched tag on the Files tab)
   opens a dedicated full-page detail view (`renderPlayerPage()`) —
   title/byline/download link, screenshot, then Package/Features/Player/

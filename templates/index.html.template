@@ -204,6 +204,7 @@ const TABS = [
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
   {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
   {id:'groups',    label:'Scene Groups',       desc:'Composers grouped by demoscene/cracking group membership, from CSDb — who made music for whom.'},
+  {id:'insights',  label:'Insights',           desc:'Aggregate charts across the whole dataset — activity over time, scene roles, most prolific composers.'},
   {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.'}
 ];
 
@@ -258,6 +259,7 @@ function render(tab){
   if (tab === 'countries') return renderCountries(grid);
   if (tab === 'families') return renderFamilies(grid);
   if (tab === 'groups') return renderGroups(grid);
+  if (tab === 'insights') return renderInsights(grid);
   if (tab === 'gaps') return renderGaps(grid);
 }
 
@@ -633,6 +635,21 @@ function renderFiles(grid){
   grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Composer</th><th>File</th><th>Player</th><th>Source</th><th></th></tr></thead><tbody>${rows}</tbody></table>${more}</div>`;
 }
 
+// Shared horizontal bar-chart renderer — entries is already-sorted
+// [label, value][], scaled relative to the largest value in the set (not
+// a fixed max), same visual language across every chart that uses it.
+function barChart(entries, opts){
+  opts = opts || {};
+  const color = opts.color || 'var(--cyan)';
+  const labelFn = opts.labelFn || ((name) => name);
+  const max = Math.max(...entries.map(([, n]) => n), 1);
+  return entries.map(([name, n]) => `<div class="bar-row">
+    <span class="bar-label">${labelFn(name)}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${(n / max * 100).toFixed(1)}%;background:${color}"></div></div>
+    <div class="bar-num">${n.toLocaleString()}</div>
+  </div>`).join('');
+}
+
 function renderCountries(grid){
   grid.style.gridTemplateColumns = '1fr';
   const composers = window.SID_DATA.composers || [];
@@ -649,12 +666,7 @@ function renderCountries(grid){
     grid.innerHTML = emptyState('No composer profile data with country info cached yet.', 'node scripts/fetch-composers.js');
     return;
   }
-  const max = entries[0][1];
-  const bars = entries.map(([name, n]) => `<div class="bar-row">
-    <span class="bar-label">${flagFor(name)} ${name}</span>
-    <div class="bar-track"><div class="bar-fill" style="width:${(n/max*100).toFixed(1)}%;background:var(--cyan)"></div></div>
-    <div class="bar-num">${n}</div>
-  </div>`).join('');
+  const bars = barChart(entries, { labelFn: (name) => `${flagFor(name)} ${name}` });
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${bars}</div>`;
 }
 
@@ -834,6 +846,91 @@ function renderGroups(grid){
     : '';
 
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${rows}${capNote}</div>`;
+}
+
+const INSIGHTS_ROLE_CAP = 15;
+const INSIGHTS_PROLIFIC_CAP = 20;
+
+// "unreleased" is excluded — a known, isolated composer-identity quirk
+// from the DeepSID database import: /MUSICIANS/L/Link/unreleased/ is a
+// subfolder of composer "Link"'s own directory, not a separate person,
+// but the dump's folder-depth-based identity derivation treated it as
+// one anyway (see TODO.md). Confirmed isolated (1 of 1,902) rather than
+// a systemic issue, so this exclusion — not a broader identity fix — is
+// the right scope for keeping this specific chart honest.
+const INSIGHTS_EXCLUDED_COMPOSERS = new Set(['unreleased']);
+
+function computeActivityByYear(composers){
+  const counts = {};
+  composers.forEach((c) => {
+    const active = c.profile && c.profile.active;
+    if (!active) return;
+    const year = active.slice(0, 4);
+    if (!/^\d{4}$/.test(year) || year === '0000') return;
+    counts[year] = (counts[year] || 0) + 1;
+  });
+  return counts;
+}
+
+function computeRoleCounts(composers){
+  const counts = {};
+  composers.forEach((c) => {
+    (c.csdb && c.csdb.roles || []).forEach((r) => { counts[r] = (counts[r] || 0) + 1; });
+  });
+  return counts;
+}
+
+function computeMostProlific(composers, limit){
+  return composers
+    .filter((c) => !INSIGHTS_EXCLUDED_COMPOSERS.has((c.name || '').toLowerCase()))
+    .map((c) => [c.name, (c.files || []).length])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+}
+
+function renderInsights(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  const composers = window.SID_DATA.composers || [];
+  document.getElementById('search-count').textContent = `${composers.length} composers analyzed`;
+  if (composers.length === 0) {
+    grid.innerHTML = emptyState('No composer data cached yet.', 'node scripts/fetch-composers.js');
+    return;
+  }
+
+  // Chronological, not ranked by size — this is a timeline, so the point
+  // is the shape over time (recent years rival the mid-1980s), not a
+  // leaderboard.
+  const yearCounts = computeActivityByYear(composers);
+  const yearEntries = Object.entries(yearCounts).sort((a, b) => a[0].localeCompare(b[0]));
+  const recentTotal = yearEntries.filter(([y]) => Number(y) >= 2023).reduce((s, [, n]) => s + n, 0);
+  const eightiesTotal = yearEntries.filter(([y]) => Number(y) >= 1983 && Number(y) <= 1989).reduce((s, [, n]) => s + n, 0);
+
+  const roleCounts = computeRoleCounts(composers);
+  const roleEntries = Object.entries(roleCounts).sort((a, b) => b[1] - a[1]);
+  const roleShown = roleEntries.slice(0, INSIGHTS_ROLE_CAP);
+  const musicianTotal = roleCounts.Musician || 0;
+  const multiRoleTotal = composers.filter((c) => {
+    const roles = (c.csdb && c.csdb.roles) || [];
+    return roles.some((r) => r !== 'Musician');
+  }).length;
+
+  const prolific = computeMostProlific(composers, INSIGHTS_PROLIFIC_CAP);
+
+  grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">
+    <div class="sl">Composer activity by year (${yearEntries.length} years, ${yearEntries[0]?.[0] || '?'}–${yearEntries[yearEntries.length - 1]?.[0] || '?'})</div>
+    <div class="sn" style="margin-bottom:.75rem">This isn't a purely historical archive — ${recentTotal.toLocaleString()} composers were active
+      2023–2026 alone, versus ${eightiesTotal.toLocaleString()} across the entire 1983–1989 era the C64 originally shipped in.</div>
+    ${barChart(yearEntries, { color: 'var(--amber)' })}
+
+    <div class="sl">Scene roles credited on CSDb (top ${roleShown.length} of ${roleEntries.length})</div>
+    <div class="sn" style="margin-bottom:.75rem">${multiRoleTotal.toLocaleString()} of ${musicianTotal.toLocaleString()} CSDb-credited composers
+      are credited for more than just music — coding, graphics, swapping, and cracking all show up.</div>
+    ${barChart(roleShown, { color: 'var(--green)' })}
+
+    <div class="sl">Most prolific composers, by cached SID file count (top ${prolific.length})</div>
+    ${barChart(prolific, { color: 'var(--cyan)', labelFn: (name) => `<a href="#" onclick="jumpToComposer('${name.replace(/'/g, "\\'")}');return false;" style="color:inherit;text-decoration:none">${name}</a>` })}
+  </div>`;
 }
 
 function renderGaps(grid){

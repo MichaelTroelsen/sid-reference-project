@@ -94,8 +94,16 @@ picture; this file is quick orientation for a fresh session.
   `findHvscLooseMatch` — the loose fallback only fires on a single
   unambiguous candidate; it returns null rather than guessing when a name
   matches multiple HVSC entries), player `site` from CSDb's `Website`
-  field. This is deliberately conservative — only 15 of 127 gaps
+  field. This is deliberately conservative — only 97 of 240 gaps
   currently qualify — see TODO.md for why looser matching isn't the fix.
+- `lib/hvsc.js`'s `countriesRoughlyMatch()` (feeds both the composer
+  card's "✓ HVSC verified" badge and the `COMPOSER_COUNTRY_MISMATCH` gap)
+  has a small constituent-country alias table (England/Scotland/Wales →
+  United Kingdom, USA → United States, Holland → Netherlands). Found this
+  was needed while cross-referencing CSDb's country data against
+  DeepSID's: 14 of 24 then-reported mismatches were just "England" vs
+  "UNITED KINGDOM", not real disagreements. Only covers pairs actually
+  observed causing false positives in this dataset, not a full ISO table.
 - Musicians.txt's parser had a real bug (fixed): composers with 2+ group
   memberships (e.g. "Handle (Name) / Group1 / Group2") broke the handle/
   realname paren-extraction, since splitting on only the *last* " / "

@@ -118,14 +118,28 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       in the tooltip, when recorded). `deathYear()` treats DeepSID's
       "0000-00-00" convention as absent and handles year-only-known dates
       like "2018-00-00".
+- [x] ~~Fix false-positive country mismatches from naming-convention
+      differences.~~ Done — found while cross-checking CSDb's newly-
+      enriched country data against DeepSID's: **14 of the then-24**
+      `COMPOSER_COUNTRY_MISMATCH` gaps were just "England" vs
+      "UNITED KINGDOM" (same country), not real disagreements — the
+      shared `countriesRoughlyMatch()` in `scripts/lib/hvsc.js` had no
+      concept of constituent countries. Added a small alias table
+      (England/Scotland/Wales/Northern Ireland → United Kingdom, USA/
+      America → United States, Holland → Netherlands — the actual pairs
+      observed causing false positives, not a full ISO table). Mismatches
+      dropped from 24 to 11, all genuinely different countries now (spot-
+      checked the full list). Same function also feeds the "✓ HVSC
+      verified" composer-card badge, so ~13 composers that were wrongly
+      showing a mismatch warning now correctly show verified.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
-      **97 of 253 gaps** now have a `suggestion` field (was 15 of 127 —
+      **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —
       most of the jump is `COMPOSER_MISSING_COUNTRY`, 88 of 110, thanks
       to exact HVSC matches going from 23 to 1064 composers). Remaining
       gaps without a suggestion: `PLAYER_MISSING_FIELDS` (3 of 111 — still
       bottlenecked on CSDb's sparse `Website` field, 14 of 123 cached
-      releases have one) and `COMPOSER_COUNTRY_MISMATCH` (0 of 24, by
+      releases have one) and `COMPOSER_COUNTRY_MISMATCH` (0 of 11, by
       design — a mismatch is two sources disagreeing, there's no single
       "right" answer to suggest). Composer suggestions still require an
       exact or unambiguous HVSC match (Clever Music and Randall have none,

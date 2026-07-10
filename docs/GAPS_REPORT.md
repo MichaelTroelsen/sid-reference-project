@@ -1,9 +1,9 @@
 # DeepSID Documentation Gaps Report
 
-Generated: 2026-07-10T13:10:33.065Z
+Generated: 2026-07-10T15:01:45.772Z
 Composers scanned: 1902
 Player/editor entries scanned: 129
-Total gaps found: 253
+Total gaps found: 240
 
 ---
 
@@ -234,31 +234,18 @@ _(+11 more, see data/gaps-report.json for the full list)_
 
 _(+10 more, see data/gaps-report.json for the full list)_
 
-## DeepSID country disagrees with HVSC Musicians.txt (24)
+## DeepSID country disagrees with HVSC Musicians.txt (11)
 
 - **Aegis** (`/MUSICIANS/A/Aegis/`) — DeepSID says "Finland", HVSC Musicians.txt says "SWEDEN"
-- **Ant1** (`/MUSICIANS/A/Ant1/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Blade** (`/MUSICIANS/B/Blade/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Derek** (`/MUSICIANS/D/Derek/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Doomdark** (`/MUSICIANS/D/Doomdark/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
 - **Drake** (`/MUSICIANS/D/Drake/`) — DeepSID says "Sweden", HVSC Musicians.txt says "DENMARK"
 - **Fuzz** (`/MUSICIANS/F/Fuzz/`) — DeepSID says "Canada", HVSC Musicians.txt says "USA"
 - **Ganja** (`/MUSICIANS/G/Ganja/`) — DeepSID says "Germany", HVSC Musicians.txt says "NETHERLANDS"
-- **Golem** (`/MUSICIANS/G/Golem/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
 - **HeatWave** (`/MUSICIANS/H/HeatWave/`) — DeepSID says "Netherlands", HVSC Musicians.txt says "FINLAND"
-- **Kendal** (`/MUSICIANS/K/Kendal/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Kfaraday** (`/MUSICIANS/K/Kfaraday/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
 - **Mitch** (`/MUSICIANS/M/Mitch_and_Dane/Mitch/`) — DeepSID says "Denmark", HVSC Musicians.txt says "SWEDEN"
 - **Necrophobic** (`/MUSICIANS/N/Necrophobic/`) — DeepSID says "Canada", HVSC Musicians.txt says "USA"
-- **OminPigeonMaster** (`/MUSICIANS/O/OminPigeonMaster/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **PoloBreath** (`/MUSICIANS/P/PoloBreath/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Sean** (`/MUSICIANS/S/Sean/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
 - **Sharp** (`/MUSICIANS/S/Sharp/`) — DeepSID says "Poland", HVSC Musicians.txt says "SWEDEN"
-- **SRB2er** (`/MUSICIANS/S/SRB2er/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
 - **Static** (`/MUSICIANS/S/Static/`) — DeepSID says "Sweden", HVSC Musicians.txt says "USA"
-- **Stepz** (`/MUSICIANS/S/Stepz/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Topshelf** (`/MUSICIANS/T/Topshelf/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
-- **Watchman** (`/MUSICIANS/W/Watchman/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Venom** (`/MUSICIANS/V/Venom/`) — DeepSID says "USA or Germany (?)", HVSC Musicians.txt says "USA"
 - **Willox** (`/MUSICIANS/W/Willox/`) — DeepSID says "Austria", HVSC Musicians.txt says "DENMARK"
 
 ## SID files with no identified player routine (0)

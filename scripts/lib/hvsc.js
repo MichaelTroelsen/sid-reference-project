@@ -39,11 +39,36 @@ function findHvscLooseMatch(name, musicians) {
   return candidates.length === 1 ? candidates[0] : null;
 }
 
+// Constituent-country / common-alias table — found while cross-checking
+// CSDb country data against DeepSID's: 14 of the 24 COMPOSER_COUNTRY_MISMATCH
+// gaps reported at the time were just "England" vs "UNITED KINGDOM" (same
+// country, different naming convention), not genuine disagreements. These
+// are real, common naming choices across DeepSID/HVSC/CSDb — not a full
+// ISO country-code table, just the pairs actually observed causing false
+// mismatches in this dataset.
+const COUNTRY_ALIASES = {
+  ENGLAND: 'UNITED KINGDOM',
+  SCOTLAND: 'UNITED KINGDOM',
+  WALES: 'UNITED KINGDOM',
+  'NORTHERN IRELAND': 'UNITED KINGDOM',
+  'GREAT BRITAIN': 'UNITED KINGDOM',
+  UK: 'UNITED KINGDOM',
+  USA: 'UNITED STATES',
+  US: 'UNITED STATES',
+  AMERICA: 'UNITED STATES',
+  HOLLAND: 'NETHERLANDS',
+};
+function canonicalCountry(s) {
+  const upper = s.trim().toUpperCase();
+  return COUNTRY_ALIASES[upper] || upper;
+}
+
 /** Loose comparison — DeepSID says "United Kingdom", HVSC says "UNITED KINGDOM (ENGLAND)". */
 function countriesRoughlyMatch(a, b) {
   if (!a || !b) return true; // nothing to compare, don't flag a false mismatch
-  const na = a.trim().toUpperCase();
-  const nb = b.trim().toUpperCase();
+  const na = canonicalCountry(a);
+  const nb = canonicalCountry(b);
+  if (na === nb) return true;
   return na.includes(nb) || nb.includes(na) || na.startsWith(nb.split(' ')[0]) || nb.startsWith(na.split(' ')[0]);
 }
 

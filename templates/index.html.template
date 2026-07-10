@@ -472,7 +472,7 @@ function renderPlayerPage(index){
   const p = players[index];
   if (!p) return;
   const families = computePlayerFamilies(players);
-  const files = window.SID_DATA.files || [];
+  const files = allFiles();
 
   const years = `${p.start_year || '?'}–${p.end_year || 'present'}`;
   const csdbUrl = p.csdb_id ? `https://csdb.dk/release/?id=${p.csdb_id}` : null;
@@ -482,7 +482,7 @@ function renderPlayerPage(index){
   const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
   const used = filesForPlayer(p.title, files);
   const usedRows = used.slice(0, 40).map(f =>
-    `<div class="file-row"><a class="file-name" href="${f.url || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
+    `<div class="file-row"><a class="file-name" href="${deepsidFileUrl(f) || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
   ).join('');
   const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
 
@@ -521,7 +521,7 @@ const FILES_TAB_CAP = 500;
 
 function renderFiles(grid){
   grid.style.gridTemplateColumns = '1fr';
-  let list = window.SID_DATA.files || [];
+  let list = allFiles();
   if (currentFilter) {
     list = list.filter(f =>
       f.composer.toLowerCase().includes(currentFilter) ||
@@ -548,7 +548,7 @@ function renderFiles(grid){
       <td style="font-size:.75rem">${f.title || f.file}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}</td>
       <td>${playerCell}</td>
       <td><span class="tag">${f.source}</span></td>
-      <td>${f.url ? `<a class="dslink" href="${f.url}" target="_blank">▶</a>` : ''}</td>
+      <td>${deepsidFileUrl(f) ? `<a class="dslink" href="${deepsidFileUrl(f)}" target="_blank">▶</a>` : ''}</td>
     </tr>`;
   }).join('');
   const more = list.length > FILES_TAB_CAP
@@ -596,6 +596,24 @@ function computePlayerFamilies(players){
     byDev[key].titles.push(p.title || '(untitled)');
   });
   return byDev;
+}
+
+// Flattens every composer's files into one list, tagged with composer
+// name/path — computed on demand rather than embedded as a second copy
+// of the same ~55,000 records in the page payload (see build-html.js).
+let _allFilesCache = null;
+function allFiles(){
+  if (_allFilesCache) return _allFilesCache;
+  const composers = window.SID_DATA.composers || [];
+  _allFilesCache = composers.flatMap(c => (c.files || []).map(f => ({ ...f, composer: c.name, composerPath: c.path })));
+  return _allFilesCache;
+}
+
+// A file's DeepSID link is always `?file=<composer path><filename>` —
+// reconstructed here instead of being stored per file (see build-html.js).
+function deepsidFileUrl(f){
+  if (!f.composerPath || !f.file) return null;
+  return `https://deepsid.chordian.net/?file=${f.composerPath.replace(/^\//,'')}${f.file}`;
 }
 
 function filesForPlayer(playerTitle, files){

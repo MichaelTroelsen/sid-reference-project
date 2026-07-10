@@ -34,12 +34,6 @@ function loadStilByFolder() {
   return readJSON(STIL_PATH)?.byFolder ?? {};
 }
 
-function fileUrlFromCollectionPath(collectionPath) {
-  if (!collectionPath) return null;
-  const clean = collectionPath.replace(/^_High Voltage SID Collection\//, '');
-  return `https://deepsid.chordian.net/?file=${clean}`;
-}
-
 /**
  * A composer's real per-file listing comes from DeepSID's ?file= endpoint
  * (composer.folder) — but that endpoint has been unreliable (see
@@ -55,6 +49,13 @@ function buildFileList(composer, stilByFolder) {
     ? composer.folder
     : Object.values(composer.folder || {}).filter((v) => v && typeof v === 'object' && v.name);
 
+  // `url` is deliberately not stored per file — every file's DeepSID
+  // link is just `?file=<composer.path><filename>`, so the template
+  // reconstructs it client-side from data it already has (composer.path
+  // + f.file) instead of embedding a ~35-char URL prefix per record.
+  // At ~55,000 files (after the DeepSID database dump import expanded
+  // composer coverage from 56 to ~1900), that was ~1.9MB of pure
+  // repetition in the generated page.
   if (real.length) {
     return real.map((f) => {
       const filename = (f.collection_path || '').split('/').pop() || f.name || '(untitled)';
@@ -63,7 +64,6 @@ function buildFileList(composer, stilByFolder) {
         title: f.name || filename,
         artist: f.author || null,
         player: f.player || null,
-        url: fileUrlFromCollectionPath(f.collection_path),
         source: 'deepsid',
       };
     });
@@ -75,7 +75,6 @@ function buildFileList(composer, stilByFolder) {
     title: f.title || f.file,
     artist: f.artist || null,
     player: null,
-    url: `https://deepsid.chordian.net/?file=${composer.path}${f.file}`,
     source: 'stil',
   }));
 }
@@ -126,6 +125,13 @@ function loadAllComposers() {
         : null;
 
       composer.files = buildFileList(composer, stilByFolder);
+      // `folder` (the raw per-file records read from disk) has now been
+      // projected into the smaller `files` shape above — dropping it
+      // here avoids embedding the same ~55,000 file records twice in the
+      // generated page (this mattered once composer coverage went from
+      // 56 curated composers to the full ~1900 in the DeepSID database
+      // dump — at that scale the raw `folder` field alone was ~14MB).
+      delete composer.folder;
 
       return composer;
     })
@@ -169,7 +175,12 @@ async function main() {
     composers,
     players: playerList,
     gaps: gaps?.gaps ?? [],
-    files,
+    // Deliberately not embedding a flattened `files` array here — every
+    // composer already carries its own `files`, and duplicating all
+    // ~55,000 records again at the top level roughly doubled the
+    // generated page's size for no reason. The Files tab computes this
+    // flattened view client-side from `composers` instead (see
+    // allFiles() in the template) — same data, one copy.
   };
 
   // The template contains a marker comment; we replace it with a real

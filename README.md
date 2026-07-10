@@ -6,9 +6,13 @@
 Fetches composer, player, and editor data live from the [DeepSID](https://deepsid.chordian.net/)
 API into local JSON, builds a browsable HTML reference page from that JSON,
 and cross-references everything to find documentation gaps worth reporting
-back to DeepSID upstream. Two independent sources enrich and verify that
-data further: [CSDb](https://csdb.dk/) (scener bios, group history) and
-HVSC's own `Musicians.txt` (the community-verified handle/country list).
+back to DeepSID upstream. Three independent sources enrich and verify that
+data further: [CSDb](https://csdb.dk/) (scener bios, group history, release
+screenshots), HVSC's own `Musicians.txt`/`STIL.txt` (community-verified
+handle/country list and per-file titles), and DeepSID's own published
+database export (github.com/Chordian/deepsid's README — a dated snapshot
+covering the full ~1,900 HVSC composers and ~55,000 files, not just the
+curated seed — see "The DeepSID database export" below).
 
 This replaces an earlier version of this project that was a single
 hand-curated HTML file with all data hardcoded inline — preserved at
@@ -58,16 +62,25 @@ scripts/
   fetch-composers.js     — pulls profile + folder for each seed composer
   fetch-players.js       — pulls the entire players/editors database
   fetch-csdb.js           — enriches cached composers with CSDb scener data
+  fetch-player-media.js   — pulls a screenshot + homepage link per player from CSDb
   fetch-hvsc-docs.js      — pulls + parses HVSC's Musicians.txt, caches STIL.txt raw
+  import-deepsid-dump.js — one-time import of DeepSID's own database export (see below)
   find-gaps.js           — cross-references everything, flags missing data
   build-html.js          — injects data/*.json into the HTML template
 
 data/
-  composer-list.json     — seed list: which composers to fetch (name + path)
+  composer-list.json     — every composer to fetch (name + path) — now generated
+                            from the DeepSID database export (~1,900 entries),
+                            see "The DeepSID database export" below
   composers/*.json        — one cache file per composer (gitignored)
   players.json            — full players/editors cache (gitignored)
   gaps-report.json        — machine-readable gap analysis (gitignored)
-  csdb/*.json              — one CSDb scener cache file per enriched composer (gitignored)
+  csdb/*.json              — one CSDb scener cache file per enriched composer,
+                             plus players.json (screenshot/website per player,
+                             keyed by csdb_id) (gitignored)
+  deepsid-dump/
+    meta.json               — when the dump was imported, which HVSC/CGSC
+                               version it's from (gitignored)
   hvsc/
     Musicians.txt          — raw HVSC download, ISO-8859-1 decoded correctly (gitignored)
     musicians.json          — parsed {handle, realName, group, country}[] (gitignored)
@@ -169,16 +182,56 @@ To fetch just one or two composers while testing:
 node scripts/fetch-composers.js --only "DRAX,Fun Fun"
 ```
 
-## Extending the seed list
+## The DeepSID database export
 
-`data/composer-list.json` currently has 56 composers — the ones from the
-original curated guide. To track more of HVSC, add entries in the same
-`{ "name": "...", "path": "/MUSICIANS/X/Name/" }` shape. Paths are the
-same paths DeepSID and HVSC both use — copy them straight from a DeepSID
-URL's `?file=` parameter.
+DeepSID publishes its own full database export specifically for running
+local/offline copies (see the "Setting up for offline use" section of
+[github.com/Chordian/deepsid](https://github.com/Chordian/deepsid)'s
+README — download `DeepSID_Database.zip` from there). This project uses
+that same export as a local data source instead of standing up a real
+MySQL server: `scripts/lib/sql-dump.js` parses the mysqldump `INSERT`
+statements directly, and `scripts/import-deepsid-dump.js` reads
+`composers.sql` (~2,083 rows, ~1,895 of them real `MUSICIANS/` composers
+— the rest are scene groups, Compute's Gazette SID Collection entries,
+and `_SID Happens` date folders, none of which DeepSID's own API
+supports, so they're filtered out) and `hvsc_files.sql` (~80,000 rows)
+to build the same `{name, path, profile, folder, fetchedAt}` shape
+`fetch-composers.js` already produces:
 
-To generate a full HVSC composer list instead of hand-curating one,
-run:
+```bash
+node scripts/import-deepsid-dump.js
+# or: npm run import:dump
+```
+
+Unpack `DeepSID_Database.zip` into `deepsid_dl/DeepSID_Database/`
+first (gitignored — this isn't something to publish in this repo; see
+the README linked above for where to get it). The importer is
+conservative about existing data: composers already cached from a live
+fetch keep their existing `profile` (which may be more current than
+the dump's snapshot), but get their `folder` filled in from the dump
+if the live one is empty or erroring — which, given the ongoing
+`?file=`/`?folder=` outage, it currently always is. `data/composer-list.json`
+gets regenerated from the dump's full composer list (~1,895 entries,
+up from the original 56 curated ones).
+
+This is a **one-time, dated snapshot import**, not a live source —
+`data/deepsid-dump/meta.json` records which HVSC/CGSC version it came
+from. Re-run the importer against a newer export to refresh; there's no
+way to "re-fetch" it like the live-API sources.
+
+One naming subtlety worth knowing if you touch this script: the dump's
+`shortname`/`name` columns inconsistently hold either a scene handle or
+a real name (e.g. DRAX's `shortname` is "Thomas Mogensen", not "DRAX")
+— composer identity is always taken from the HVSC folder path instead
+(the same `Lastname_Firstname` → `Firstname Lastname` heuristic
+`build-seed-from-hvsc.js` already used), which is what every other part
+of this project already treats as canonical anyway.
+
+### Extending the seed list further
+
+To generate a full HVSC composer list from the **live** API instead
+(no local dump needed, but depends on `?folder=`, which is down as of
+this writing):
 
 ```bash
 npm run seed:full
@@ -189,12 +242,9 @@ entire `/MUSICIANS/` folder tree in a **single** request — DeepSID's
 `?folder=` endpoint matches subfolders with a SQL `LIKE '%path/%'`,
 which (per its own source, see `docs/DEEPSID-API.md`) returns every
 folder at every depth under the requested path, not just direct
-children. So one call is enough; no per-letter crawl needed. It writes
-`data/composer-list-full.json` (gitignored, regenerable) and never
-touches the curated `data/composer-list.json` — review the output and
-merge entries in by hand. Composer display names are heuristically
-derived from HVSC's `Lastname_Firstname` folder-naming convention and
-may need manual cleanup for handle-style names.
+children. It writes `data/composer-list-full.json` (gitignored,
+regenerable) rather than overwriting `data/composer-list.json` directly
+— review the output and merge entries in by hand.
 
 ## SID files linked to players
 
@@ -212,23 +262,29 @@ Unmatched or unidentified players render without a link rather than a
 false match — the **Players** tab's detail view (click any player
 title) shows the reverse: every composer/file matched to *that* player.
 
-### Two sources for file listings
+### Three sources for file listings
+
+`build-html.js` builds each composer's file list preferring, in order:
+(1) a real live fetch via DeepSID's own `folder` field (`?file=<composer>/`,
+including each file's free-text `player` field), (2) the DeepSID
+database export (`import-deepsid-dump.js` — also has the real `player`
+field, since it's the same underlying table `?file=` reads from), (3)
+HVSC's own `STIL.txt` (filename/title/artist only — STIL doesn't track
+which player/editor made a file, so those entries can't be linked to a
+player and show honestly as "unknown — STIL has no player data" rather
+than a guess).
 
 DeepSID's `?file=`/`?folder=` endpoints have been returning
 `"Could not connect to the DeepSID database"` since this project was
 built — a live outage on DeepSID's side (confirmed independent of this
-project: `?players` and `?profile=` still work fine). While that's
-down, `build-html.js` falls back to HVSC's own `STIL.txt`
-(`fetch-hvsc-docs.js` parses its `/MUSICIANS/` subset into
-`data/hvsc/stil.json`) for filename/title/artist — but STIL doesn't
-track which player/editor made a file, so those entries can't be
-linked to a player; that shows honestly as "unknown — STIL has no
-player data" rather than a guess. As of this writing, **all** cached
-files (928 across the 56 curated composers) are STIL fallback. The
-DeepSID-based linking logic was verified against a hand-written fixture
-matching the real API shape (see `docs/DEEPSID-API.md`) — re-run
-`npm run fetch:composers -- --refresh` once the endpoint recovers to
-get real per-file player data back.
+project: `?players` and `?profile=` still work fine). The database
+export import (above) exists largely *because of* this outage — it
+gets real per-file player data for the ~1,895 composers in the dump
+without depending on the broken endpoint at all, just from an older
+snapshot rather than the live site. Only composers outside the dump's
+coverage (there shouldn't be many) still fall back to STIL. Once the
+outage recovers, `npm run fetch:composers -- --refresh` will get
+current live data for the curated set again.
 
 ## Rate limiting
 
@@ -249,26 +305,29 @@ are legitimately unknown (lost to history) rather than un-filled-in.
 
 ## Known limitations
 
-- The curated seed list is 56 composers, not all of HVSC's ~1,872+ named
-  musicians. `npm run seed:full` generates the complete list — see
-  "Extending the seed list" above — but it isn't merged into
-  `data/composer-list.json` automatically. (It also depends on the same
-  `?folder=` endpoint currently affected by the outage noted below.)
-- Per-composer SID file lists currently come entirely from the HVSC
-  STIL.txt fallback (0 from DeepSID), because of the ongoing DeepSID
-  `?file=`/`?folder=` outage — filenames/titles are real, but none of
-  them can be linked to a player until that recovers. See "SID files
-  linked to players" above.
+- Composer coverage now comes from the DeepSID database export
+  (~1,895 real `MUSICIANS/` composers) rather than the original
+  56-composer curated seed — but it's a **dated snapshot**
+  (`data/deepsid-dump/meta.json` records the HVSC/CGSC version), not
+  live data. Composers added to HVSC after that snapshot won't appear
+  until the export is re-downloaded and re-imported.
+- The generated page is correspondingly large now — about 8-9MB for
+  ~1,900 composers and ~55,000 files, down from an initial 42MB before
+  a few redundant-data fixes (duplicate file records embedded three
+  times over; see git history). Still large enough that a low-end
+  device or slow connection will notice.
 - DeepSID's `developer`/`docs`/`source_code` player fields sometimes
   contain pre-formatted HTML (an embedded `<a>` link) and sometimes
   plain description text ("Included in archive") — the template renders
   them as trusted HTML content rather than wrapping the whole field in
   its own link, which would break for the plain-text cases.
-- HVSC name matching (`lib/hvsc.js`) is exact-string-on-handle only —
-  accented characters, alternate spellings, or composers who go by a
-  different handle in DeepSID vs. HVSC won't match. Of the 56 curated
-  composers, 16 currently match; the rest aren't flagged as wrong, just
-  unverified.
+- HVSC name matching (`lib/hvsc.js`) is exact-string-on-handle (plus a
+  conservative unambiguous-candidate fallback for gap suggestions) —
+  accented characters or composers who go by a different handle in
+  DeepSID vs. HVSC still won't match. Coverage jumped from 23 to over
+  1,000 matches once the full composer set was imported and a real
+  Musicians.txt parsing bug was fixed (see git history), but it's not
+  exhaustive.
 - CSDb enrichment only covers composers whose DeepSID profile already has
   a non-zero `csdb_id` — composers DeepSID hasn't linked to CSDb yet get
   no enrichment, not an error.

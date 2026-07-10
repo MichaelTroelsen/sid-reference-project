@@ -1,9 +1,9 @@
 # DeepSID Documentation Gaps Report
 
-Generated: 2026-07-10T11:30:56.735Z
-Composers scanned: 56
+Generated: 2026-07-10T13:10:33.065Z
+Composers scanned: 1902
 Player/editor entries scanned: 129
-Total gaps found: 127
+Total gaps found: 253
 
 ---
 
@@ -129,20 +129,137 @@ _(+11 more, see data/gaps-report.json for the full list)_
 - **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile endpoint returned no usable data — *suggested (real name: Intensity {Arman, S.U.C.K., Snickers}, group: Role, country: GERMANY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Randall** (`/MUSICIANS/R/Randall/`) — Profile endpoint returned no usable data
 
-## Composer profiles missing a country (8)
+## Composer profiles missing a country (110)
 
 - **4-Mat** (`/MUSICIANS/0-9/4mat/`) — Profile exists but country field is blank — *suggested (real name: Simmonds, Matt, group: Cosine Systems, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
+- **Arti Haroutunian** (`/MUSICIANS/H/Haroutunian_Arti/`) — Profile exists but country field is blank
+- **Ashrilyn** (`/MUSICIANS/A/Ashrilyn/`) — Profile exists but country field is blank — *suggested (real name: Blase, Justin) via HVSC Musicians.txt (exact match)*
+- **Barik** (`/MUSICIANS/B/Barik/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (exact match)*
+- **Benjamin Walbeehm** (`/MUSICIANS/W/Walbeehm_Benjamin/`) — Profile exists but country field is blank
+- **Bitch** (`/MUSICIANS/B/Bitch/`) — Profile exists but country field is blank — *suggested (group: Attention Whore) via HVSC Musicians.txt (exact match)*
+- **Boyd** (`/MUSICIANS/B/Boyd/`) — Profile exists but country field is blank — *suggested (group: Nausea) via HVSC Musicians.txt (exact match)*
+- **Carter** (`/MUSICIANS/C/Carter/`) — Profile exists but country field is blank — *suggested (real name: Dalsgaard, Dennis, group: Faction) via HVSC Musicians.txt (exact match)*
+- **Charles Rounsaville** (`/MUSICIANS/R/Rounsaville_Charles/`) — Profile exists but country field is blank — *suggested (group: Spartanburg C= User Group) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Clever Music** (`/MUSICIANS/J/Jarvis_Graham/`) — Profile exists but country field is blank
+- **Composer Unknown** (`/MUSICIANS/U/Unknown_Composer/`) — Profile exists but country field is blank
 - **Conrad** (`/MUSICIANS/C/Conrad/`) — Profile exists but country field is blank — *suggested (real name: Crowley, Owen {CRD}, group: Samar Productions, country: UNITED KINGDOM (ENGLAND)) via HVSC Musicians.txt (exact match)*
+- **Crisps** (`/MUSICIANS/C/Crisps/`) — Profile exists but country field is blank — *suggested (country: UNITED KINGDOM) via HVSC Musicians.txt (exact match)*
+- **CRV** (`/MUSICIANS/C/CRV/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (exact match)*
+- **Cyrion** (`/MUSICIANS/C/Cyrion/`) — Profile exists but country field is blank — *suggested (group: Device) via HVSC Musicians.txt (exact match)*
+- **Dale Edgar** (`/MUSICIANS/E/Edgar_Dale/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Damme Van** (`/MUSICIANS/V/Van_Damme/`) — Profile exists but country field is blank — *suggested (real name: ROBOT666, group: Hackers) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Dane** (`/MUSICIANS/D/Dane/`) — Profile exists but country field is blank — *suggested (real name: Andersson, Stellan, group: Crest, country: SWEDEN) via HVSC Musicians.txt (exact match)*
+- **Darling_David_and_Richard** (`/MUSICIANS/D/Darling_David_and_Richard/`) — Profile exists but country field is blank
+- **Dave Thomas** (`/MUSICIANS/T/Thomas_Dave/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Debby Cruz** (`/MUSICIANS/C/Cruz_Debby/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Dissident Rupert** (`/MUSICIANS/R/Rupert_Dissident/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Don Williams** (`/MUSICIANS/W/Williams_Don/`) — Profile exists but country field is blank
+- **Douglas Dragin** (`/MUSICIANS/D/Dragin_Douglas/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Dream Elastic** (`/MUSICIANS/E/Elastic_Dream/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Eric Haas** (`/MUSICIANS/H/Haas_Eric/`) — Profile exists but country field is blank
+- **Erich Koske** (`/MUSICIANS/K/Koske_Erich/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Ferock** (`/MUSICIANS/F/Ferock/`) — Profile exists but country field is blank — *suggested (real name: van Loosbroek, Pascal {Ferock}, group: Slash Design, country: NETHERLANDS) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Frank Tout** (`/MUSICIANS/T/Tout_Frank/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Frederic Thiesse** (`/MUSICIANS/T/Thiesse_Frederic/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Fun Fun** (`/MUSICIANS/T/Troelsen_Michael/`) — Profile exists but country field is blank — *suggested (real name: Troelsen, Michael {Coto}, group: Triangle / Danish Cracking Crew, country: DENMARK) via HVSC Musicians.txt (exact match)*
+- **Gary Davis** (`/MUSICIANS/D/Davis_Gary/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Ghormak** (`/MUSICIANS/G/Ghormak/`) — Profile exists but country field is blank — *suggested (real name: Slotte, Andreas) via HVSC Musicians.txt (exact match)*
 - **Glenn Gallefoss** (`/MUSICIANS/G/Gallefoss_Glenn_Rune/`) — Profile exists but country field is blank — *suggested (real name: GRG {Shark}, group: Blues Muz', country: NORWAY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Gotoandplay** (`/MUSICIANS/G/Gotoandplay/`) — Profile exists but country field is blank — *suggested (real name: Atherall, Jethro) via HVSC Musicians.txt (exact match)*
+- **Gwildor** (`/MUSICIANS/G/Gwildor/`) — Profile exists but country field is blank — *suggested (group: Unicess / Vector) via HVSC Musicians.txt (exact match)*
+- **Harald Rosenfeldt** (`/MUSICIANS/R/Rosenfeldt_Harald/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Howard Boles** (`/MUSICIANS/B/Boles_Howard/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Inc Imagineering** (`/MUSICIANS/I/Imagineering_Inc/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 - **Intensity** (`/MUSICIANS/I/Intensity/`) — Profile exists but country field is blank — *suggested (real name: Intensity {Arman, S.U.C.K., Snickers}, group: Role, country: GERMANY) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Invisible** (`/MUSICIANS/I/Invisible/`) — Profile exists but country field is blank — *suggested (group: The Famous Ones) via HVSC Musicians.txt (exact match)*
+- **James Vogel** (`/MUSICIANS/V/Vogel_James/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jason Briggs** (`/MUSICIANS/B/Briggs_Jason/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jason Morrell** (`/MUSICIANS/M/Morrell_Jason/`) — Profile exists but country field is blank — *suggested (real name: Dave, group: Boys from the Bas Lab) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jeremy Hall** (`/MUSICIANS/H/Hall_Jeremy/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jeremy Thorne** (`/MUSICIANS/T/Thorne_Jeremy/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jericho Swathe** (`/MUSICIANS/S/Swathe_Jericho/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Joerg Schuette** (`/MUSICIANS/S/Schuette_Joerg/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Joerg Sieslack** (`/MUSICIANS/S/Sieslack_Joerg/`) — Profile exists but country field is blank
+- **John Prince** (`/MUSICIANS/P/Prince_John/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **John Stephenson** (`/MUSICIANS/S/Stephenson_John/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Jon Rami** (`/MUSICIANS/R/Rami_Jon/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Kaos Tonal** (`/MUSICIANS/T/Tonal_Kaos/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Kidd_Clark_and_Kathy** (`/MUSICIANS/K/Kidd_Clark_and_Kathy/`) — Profile exists but country field is blank
+- **Knee Raw** (`/MUSICIANS/R/Raw_Knee/`) — Profile exists but country field is blank — *suggested (group: Hotstuffaz) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Kohal** (`/MUSICIANS/K/Kohal/`) — Profile exists but country field is blank — *suggested (real name: The Ninja Cat, group: The Silents) via HVSC Musicians.txt (exact match)*
+- **Kyle Hodgetts** (`/MUSICIANS/H/Hodgetts_Kyle/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Laserboy** (`/MUSICIANS/L/Laserboy/`) — Profile exists but country field is blank — *suggested (group: Laserboy+Hot Multimedia) via HVSC Musicians.txt (exact match)*
+- **Leif Geijer** (`/MUSICIANS/G/Geijer_Leif/`) — Profile exists but country field is blank — *suggested (real name: Mantiz, group: Digital Evolution) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Locust** (`/MUSICIANS/L/Locust/`) — Profile exists but country field is blank — *suggested (group: Accuracy) via HVSC Musicians.txt (exact match)*
+- **Lonely Mr** (`/MUSICIANS/M/Mr_Lonely/`) — Profile exists but country field is blank — *suggested (group: UnderZone Industries) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Louis Ewens** (`/MUSICIANS/E/Ewens_Louis/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **M_O_T** (`/MUSICIANS/M/M_O_T/`) — Profile exists but country field is blank
+- **Mark Darin** (`/MUSICIANS/D/Darin_Mark/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Mark Hammond** (`/MUSICIANS/H/Hammond_Mark/`) — Profile exists but country field is blank — *suggested (group: Mayhem) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Michael Greenlee** (`/MUSICIANS/G/Greenlee_Michael/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Michael Simon** (`/MUSICIANS/S/Simon_Michael/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **MSB** (`/MUSICIANS/M/MSB/`) — Profile exists but country field is blank — *suggested (group: Uncle Ben's Soft) via HVSC Musicians.txt (exact match)*
+- **Mushroom_and_Pickle** (`/MUSICIANS/M/Mushroom_and_Pickle/`) — Profile exists but country field is blank
+- **Noise_The_Pollution** (`/MUSICIANS/N/Noise_The_Pollution/`) — Profile exists but country field is blank
+- **Nonplusultra Mr** (`/MUSICIANS/M/Mr_Nonplusultra/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Oliver Daudey** (`/MUSICIANS/D/Daudey_Oliver/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Oliver Gaspar** (`/MUSICIANS/G/Gaspar_Oliver/`) — Profile exists but country field is blank
+- **Olly Mc** (`/MUSICIANS/M/Mc_Olly/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Paul Higginbottom** (`/MUSICIANS/H/Higginbottom_Paul/`) — Profile exists but country field is blank
+- **Paul Kleimeyer** (`/MUSICIANS/K/Kleimeyer_Paul/`) — Profile exists but country field is blank — *suggested (group: Access Software Inc.) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Pet_Shop_Boy** (`/MUSICIANS/P/Pet_Shop_Boy/`) — Profile exists but country field is blank
+- **Peter McBride** (`/MUSICIANS/M/McBride_Peter/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Peter Therkildsen** (`/MUSICIANS/T/Therkildsen_Peter/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Pierre Conus** (`/MUSICIANS/C/Conus_Pierre/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Pierre Sarratou** (`/MUSICIANS/S/Sarratou_Pierre/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **R Keays** (`/MUSICIANS/K/Keays_R/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **R Love** (`/MUSICIANS/L/Love_R/`) — Profile exists but country field is blank
 - **Randall** (`/MUSICIANS/R/Randall/`) — Profile exists but country field is blank
+- **Rich Worthley** (`/MUSICIANS/W/Worthley_Rich/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Rick Cardinali** (`/MUSICIANS/C/Cardinali_Rick/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Robert Westgate** (`/MUSICIANS/W/Westgate_Robert/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Ron Coffen** (`/MUSICIANS/C/Coffen_Ron/`) — Profile exists but country field is blank — *suggested (country: USA) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Russell Black** (`/MUSICIANS/B/Black_Russell/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Sam Roads** (`/MUSICIANS/R/Roads_Sam/`) — Profile exists but country field is blank — *suggested (group: Plasma Grafix) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **Sharks Thor** (`/MUSICIANS/T/Thor_Sharks/`) — Profile exists but country field is blank
+- **Silverware Mr** (`/MUSICIANS/M/Mr_Silverware/`) — Profile exists but country field is blank — *suggested (real name: Almeida, Luís, country: BRAZIL) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **SOS** (`/MUSICIANS/S/SOS/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (exact match)*
+- **Source_The_Software_House** (`/MUSICIANS/S/Source_The_Software_House/`) — Profile exists but country field is blank
+- **Steek** (`/MUSICIANS/S/Steek/`) — Profile exists but country field is blank — *suggested (real name: Jakobsson, Stefan) via HVSC Musicians.txt (exact match)*
+- **Steven Baumrucker** (`/MUSICIANS/B/Baumrucker_Steven/`) — Profile exists but country field is blank — *suggested () via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
+- **System Music** (`/MUSICIANS/M/Music_System/`) — Profile exists but country field is blank
+- **Target** (`/MUSICIANS/T/Target/`) — Profile exists but country field is blank — *suggested (group: Tritech) via HVSC Musicians.txt (exact match)*
+- **TCC** (`/MUSICIANS/T/TCC/`) — Profile exists but country field is blank — *suggested (group: Hysteria) via HVSC Musicians.txt (exact match)*
+- **Team DJ** (`/MUSICIANS/D/DJ_Team/`) — Profile exists but country field is blank — *suggested (group: The Sharks) via HVSC Musicians.txt (loose (unverified — confirm before reporting) match)*
 
-## DeepSID country disagrees with HVSC Musicians.txt (0)
+_(+10 more, see data/gaps-report.json for the full list)_
 
-_None found._
+## DeepSID country disagrees with HVSC Musicians.txt (24)
+
+- **Aegis** (`/MUSICIANS/A/Aegis/`) — DeepSID says "Finland", HVSC Musicians.txt says "SWEDEN"
+- **Ant1** (`/MUSICIANS/A/Ant1/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Blade** (`/MUSICIANS/B/Blade/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Derek** (`/MUSICIANS/D/Derek/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Doomdark** (`/MUSICIANS/D/Doomdark/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Drake** (`/MUSICIANS/D/Drake/`) — DeepSID says "Sweden", HVSC Musicians.txt says "DENMARK"
+- **Fuzz** (`/MUSICIANS/F/Fuzz/`) — DeepSID says "Canada", HVSC Musicians.txt says "USA"
+- **Ganja** (`/MUSICIANS/G/Ganja/`) — DeepSID says "Germany", HVSC Musicians.txt says "NETHERLANDS"
+- **Golem** (`/MUSICIANS/G/Golem/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **HeatWave** (`/MUSICIANS/H/HeatWave/`) — DeepSID says "Netherlands", HVSC Musicians.txt says "FINLAND"
+- **Kendal** (`/MUSICIANS/K/Kendal/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Kfaraday** (`/MUSICIANS/K/Kfaraday/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Mitch** (`/MUSICIANS/M/Mitch_and_Dane/Mitch/`) — DeepSID says "Denmark", HVSC Musicians.txt says "SWEDEN"
+- **Necrophobic** (`/MUSICIANS/N/Necrophobic/`) — DeepSID says "Canada", HVSC Musicians.txt says "USA"
+- **OminPigeonMaster** (`/MUSICIANS/O/OminPigeonMaster/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **PoloBreath** (`/MUSICIANS/P/PoloBreath/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Sean** (`/MUSICIANS/S/Sean/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Sharp** (`/MUSICIANS/S/Sharp/`) — DeepSID says "Poland", HVSC Musicians.txt says "SWEDEN"
+- **SRB2er** (`/MUSICIANS/S/SRB2er/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Static** (`/MUSICIANS/S/Static/`) — DeepSID says "Sweden", HVSC Musicians.txt says "USA"
+- **Stepz** (`/MUSICIANS/S/Stepz/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Topshelf** (`/MUSICIANS/T/Topshelf/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Watchman** (`/MUSICIANS/W/Watchman/`) — DeepSID says "England", HVSC Musicians.txt says "UNITED KINGDOM"
+- **Willox** (`/MUSICIANS/W/Willox/`) — DeepSID says "Austria", HVSC Musicians.txt says "DENMARK"
 
 ## SID files with no identified player routine (0)
 

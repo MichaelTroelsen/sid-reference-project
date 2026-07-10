@@ -3,17 +3,16 @@
 Improvement ideas identified while building out CSDb/HVSC cross-referencing,
 not yet implemented. Not a commitment list — pick off whichever's useful.
 
-- [x] ~~Parse `STIL.txt` for a partial file listing.~~ Done —
-      `fetch-hvsc-docs.js` parses the `/MUSICIANS/` subset into
-      `data/hvsc/stil.json` (12,038 files across 1382 folders), and
-      `build-html.js` falls back to it per-composer when DeepSID's real
-      folder data is unavailable. STIL doesn't track which player/editor
-      made a file, so those entries can't be linked to a player — that's
-      a real gap in what's knowable from that source, not a bug. Right
-      now **all** 928 files across the 56 curated composers are STIL
-      fallback (0 from DeepSID) since the `?file=`/`?folder=` outage is
-      still ongoing — re-run `npm run fetch:composers -- --refresh` once
-      it recovers to get real per-file player data back.
+- [x] ~~Parse `STIL.txt` for a partial file listing.~~ Done, then
+      largely superseded — `import-deepsid-dump.js` now gets ~55,000
+      files with *real* `player` data (not just title/artist) for
+      ~1,895 composers straight from DeepSID's own published database
+      export, no live API needed. STIL.txt fallback still exists for
+      anything outside the dump's coverage.
+- [x] ~~Full composer coverage.~~ Done, via the DeepSID database export
+      rather than `npm run seed:full` (which still depends on the
+      broken `?folder=` endpoint) — see "The DeepSID database export"
+      in README.md. ~1,895 real composers, up from the curated 56.
 - [x] ~~Improve HVSC name matching~~ Partially done — fixed a real parsing
       bug affecting 181 of 1870 Musicians.txt entries (composers with 2+
       group memberships broke the handle/realname split; see git history)

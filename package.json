@@ -8,6 +8,7 @@
   },
   "scripts": {
     "seed:full": "node scripts/build-seed-from-hvsc.js",
+    "import:dump": "node scripts/import-deepsid-dump.js",
     "fetch:composers": "node scripts/fetch-composers.js",
     "fetch:players": "node scripts/fetch-players.js",
     "fetch:csdb": "node scripts/fetch-csdb.js",

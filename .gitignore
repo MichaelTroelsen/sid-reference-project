@@ -10,5 +10,11 @@ data/gaps-report.json
 data/composer-list-full.json
 data/csdb/*.json
 data/hvsc/
+data/deepsid-dump/
+
+# Raw official DeepSID database/image/font export (github.com/Chordian/deepsid
+# README's "Setting up for offline use" section) — a large, one-time-imported
+# local snapshot, not something to publish in this repo. See scripts/import-deepsid-dump.js.
+deepsid_dl/
 
 output/*.html

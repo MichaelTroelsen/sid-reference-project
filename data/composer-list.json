@@ -1,226 +1,7582 @@
 [
   {
+    "name": "142 CHR",
+    "path": "/MUSICIANS/C/CHR_142/"
+  },
+  {
+    "name": "2 Phase",
+    "path": "/MUSICIANS/P/Phase_2/"
+  },
+  {
+    "name": "2003 Kruki",
+    "path": "/MUSICIANS/K/Kruki_2003/"
+  },
+  {
+    "name": "20CC",
+    "path": "/MUSICIANS/0-9/20CC/"
+  },
+  {
+    "name": "2121",
+    "path": "/MUSICIANS/0-9/2121/"
+  },
+  {
+    "name": "2222",
+    "path": "/MUSICIANS/0-9/2222/"
+  },
+  {
+    "name": "2NY",
+    "path": "/MUSICIANS/0-9/2NY/"
+  },
+  {
+    "name": "3001 ABS",
+    "path": "/MUSICIANS/A/ABS_3001/"
+  },
+  {
     "name": "4-Mat",
-    "path": "/MUSICIANS/0-9/4mat/"
+    "path": "/MUSICIANS/0-9/4-Mat/"
+  },
+  {
+    "name": "451",
+    "path": "/MUSICIANS/0-9/451/"
+  },
+  {
+    "name": "4gente",
+    "path": "/MUSICIANS/0-9/4gente/"
+  },
+  {
+    "name": "4wd-soft",
+    "path": "/MUSICIANS/0-9/4wd-soft/"
+  },
+  {
+    "name": "505",
+    "path": "/MUSICIANS/0-9/505/"
+  },
+  {
+    "name": "5bot",
+    "path": "/MUSICIANS/0-9/5bot/"
+  },
+  {
+    "name": "8 Warp",
+    "path": "/MUSICIANS/W/Warp_8/"
+  },
+  {
+    "name": "87 Turbocracker",
+    "path": "/MUSICIANS/T/Turbocracker_87/"
+  },
+  {
+    "name": "9 Ash",
+    "path": "/MUSICIANS/A/Ash_9/"
   },
   {
     "name": "A-Man",
     "path": "/MUSICIANS/A/A-Man/"
   },
   {
+    "name": "Abaddon",
+    "path": "/MUSICIANS/A/Abaddon/"
+  },
+  {
+    "name": "Abee",
+    "path": "/MUSICIANS/A/Abee/"
+  },
+  {
+    "name": "Abject",
+    "path": "/MUSICIANS/A/Abject/"
+  },
+  {
+    "name": "Abynx",
+    "path": "/MUSICIANS/A/Abynx/"
+  },
+  {
+    "name": "Accused",
+    "path": "/MUSICIANS/A/Accused/"
+  },
+  {
+    "name": "Ace64",
+    "path": "/MUSICIANS/A/Ace64/"
+  },
+  {
+    "name": "AceMan",
+    "path": "/MUSICIANS/A/AceMan/"
+  },
+  {
+    "name": "Achmed",
+    "path": "/MUSICIANS/A/Achmed/"
+  },
+  {
+    "name": "Acme Matt",
+    "path": "/MUSICIANS/M/Matt_Acme/"
+  },
+  {
+    "name": "Acrouzet",
+    "path": "/MUSICIANS/A/Acrouzet/"
+  },
+  {
+    "name": "Active",
+    "path": "/MUSICIANS/A/Active/"
+  },
+  {
+    "name": "Acute",
+    "path": "/MUSICIANS/A/Acute/"
+  },
+  {
+    "name": "Adam Gilmore",
+    "path": "/MUSICIANS/G/Gilmore_Adam/"
+  },
+  {
+    "name": "Adam Morton",
+    "path": "/MUSICIANS/M/Morton_Adam/"
+  },
+  {
+    "name": "Adrock",
+    "path": "/MUSICIANS/A/Adrock_and_Deadeye/Adrock/"
+  },
+  {
+    "name": "Adrock_and_Deadeye",
+    "path": "/MUSICIANS/A/Adrock_and_Deadeye/"
+  },
+  {
+    "name": "AEG",
+    "path": "/MUSICIANS/A/AEG/"
+  },
+  {
+    "name": "Aegis",
+    "path": "/MUSICIANS/A/Aegis/"
+  },
+  {
+    "name": "Agemixer",
+    "path": "/MUSICIANS/A/Agemixer/"
+  },
+  {
+    "name": "AGS",
+    "path": "/MUSICIANS/A/AGS/"
+  },
+  {
+    "name": "Ahti",
+    "path": "/MUSICIANS/A/Ahti/"
+  },
+  {
+    "name": "Ahz_The_Demon",
+    "path": "/MUSICIANS/A/Ahz_The_Demon/"
+  },
+  {
+    "name": "Ajitek",
+    "path": "/MUSICIANS/A/Ajitek/"
+  },
+  {
+    "name": "Akadem",
+    "path": "/MUSICIANS/A/Akadem/"
+  },
+  {
+    "name": "Aki Latvamaeki",
+    "path": "/MUSICIANS/L/Latvamaeki_Aki/"
+  },
+  {
+    "name": "Al Lowe",
+    "path": "/MUSICIANS/L/Lowe_Al/"
+  },
+  {
+    "name": "Al Weseman",
+    "path": "/MUSICIANS/W/Weseman_Al/"
+  },
+  {
+    "name": "Alain Dubus",
+    "path": "/MUSICIANS/D/Dubus_Alain/"
+  },
+  {
+    "name": "Alan Baker",
+    "path": "/MUSICIANS/B/Baker_Alan/"
+  },
+  {
+    "name": "Alan Beggerow",
+    "path": "/MUSICIANS/B/Beggerow_Alan/"
+  },
+  {
+    "name": "Alan Bond",
+    "path": "/MUSICIANS/B/Bond_Alan/"
+  },
+  {
+    "name": "Alan Gardner",
+    "path": "/MUSICIANS/G/Gardner_Alan/"
+  },
+  {
+    "name": "Alan Peters",
+    "path": "/MUSICIANS/P/Peters_Alan/"
+  },
+  {
+    "name": "Alchemy",
+    "path": "/MUSICIANS/A/Alchemy/"
+  },
+  {
+    "name": "Aldo Chiummo",
+    "path": "/MUSICIANS/C/Chiummo_Aldo/"
+  },
+  {
     "name": "Aleksi Eeben",
     "path": "/MUSICIANS/E/Eeben_Aleksi/"
+  },
+  {
+    "name": "Alex",
+    "path": "/MUSICIANS/A/Alex/"
+  },
+  {
+    "name": "Alex DeMeo",
+    "path": "/MUSICIANS/D/DeMeo_Alex/"
+  },
+  {
+    "name": "Alex Las",
+    "path": "/MUSICIANS/L/Las_Alex/"
+  },
+  {
+    "name": "Alex Mauer",
+    "path": "/MUSICIANS/M/Mauer_Alex/"
+  },
+  {
+    "name": "Alexander Kirsch",
+    "path": "/MUSICIANS/K/Kirsch_Alexander/"
+  },
+  {
+    "name": "Alexander Martinelle",
+    "path": "/MUSICIANS/M/Martinelle_Alexander/"
+  },
+  {
+    "name": "Alfatech",
+    "path": "/MUSICIANS/A/Alfatech/"
+  },
+  {
+    "name": "Alien-Crackings",
+    "path": "/MUSICIANS/A/Alien-Crackings/"
+  },
+  {
+    "name": "Alivers Mac",
+    "path": "/MUSICIANS/M/Mac_Alivers/"
+  },
+  {
+    "name": "Allister Brimble",
+    "path": "/MUSICIANS/B/Brimble_Allister/"
+  },
+  {
+    "name": "Alpha",
+    "path": "/MUSICIANS/A/Alpha/"
+  },
+  {
+    "name": "Altbauten Stabile",
+    "path": "/MUSICIANS/S/Stabile_Altbauten/"
+  },
+  {
+    "name": "Amadeus_Meka_Design",
+    "path": "/MUSICIANS/A/Amadeus_Meka_Design/"
+  },
+  {
+    "name": "Amadeus_Slash_Design",
+    "path": "/MUSICIANS/A/Amadeus_Slash_Design/"
+  },
+  {
+    "name": "Amaze",
+    "path": "/MUSICIANS/A/Amaze/"
+  },
+  {
+    "name": "AMB",
+    "path": "/MUSICIANS/A/AMB/"
+  },
+  {
+    "name": "AMJ",
+    "path": "/MUSICIANS/A/AMJ/"
+  },
+  {
+    "name": "Anakonda",
+    "path": "/MUSICIANS/A/Anakonda/"
+  },
+  {
+    "name": "Andre",
+    "path": "/MUSICIANS/A/Andre/"
+  },
+  {
+    "name": "Andreas Bauernfeind",
+    "path": "/MUSICIANS/B/Bauernfeind_Andreas/"
+  },
+  {
+    "name": "Andreas Hellmanzik",
+    "path": "/MUSICIANS/H/Hellmanzik_Andreas/"
+  },
+  {
+    "name": "Andreas Mettler",
+    "path": "/MUSICIANS/M/Mettler_Andreas/"
+  },
+  {
+    "name": "Andreas Montecchio",
+    "path": "/MUSICIANS/M/Montecchio_Andreas/"
+  },
+  {
+    "name": "Andreas Spreen",
+    "path": "/MUSICIANS/S/Spreen_Andreas/"
+  },
+  {
+    "name": "Andrew Colin",
+    "path": "/MUSICIANS/C/Colin_Andrew/"
+  },
+  {
+    "name": "Andrew Green",
+    "path": "/MUSICIANS/G/Green_Andrew/"
+  },
+  {
+    "name": "Andrew Rodger",
+    "path": "/MUSICIANS/R/Rodger_Andrew/"
+  },
+  {
+    "name": "Andrik",
+    "path": "/MUSICIANS/A/Andrik/"
+  },
+  {
+    "name": "Android",
+    "path": "/MUSICIANS/A/Android/"
+  },
+  {
+    "name": "Andy",
+    "path": "/MUSICIANS/A/Andy/"
+  },
+  {
+    "name": "Andy Brown",
+    "path": "/MUSICIANS/B/Brown_Andy/"
+  },
+  {
+    "name": "Andy Finkel",
+    "path": "/MUSICIANS/F/Finkel_Andy/"
+  },
+  {
+    "name": "Andy Jervis",
+    "path": "/MUSICIANS/J/Jervis_Andy/"
+  },
+  {
+    "name": "Andy Taylor",
+    "path": "/MUSICIANS/T/Taylor_Andy/"
+  },
+  {
+    "name": "Andy Vaisey",
+    "path": "/MUSICIANS/V/Vaisey_Andy/"
+  },
+  {
+    "name": "Angee",
+    "path": "/MUSICIANS/A/Angee/"
+  },
+  {
+    "name": "AnnoyedArt1256",
+    "path": "/MUSICIANS/A/AnnoyedArt1256/"
+  },
+  {
+    "name": "Ant1",
+    "path": "/MUSICIANS/A/Ant1/"
+  },
+  {
+    "name": "Anthiax",
+    "path": "/MUSICIANS/A/Anthiax/"
+  },
+  {
+    "name": "Anthony Lees",
+    "path": "/MUSICIANS/L/Lees_Anthony/"
+  },
+  {
+    "name": "Antitrack",
+    "path": "/MUSICIANS/A/Antitrack/"
   },
   {
     "name": "Antony Crowther",
     "path": "/MUSICIANS/C/Crowther_Antony/"
   },
   {
+    "name": "Antti Hannula",
+    "path": "/MUSICIANS/H/Hannula_Antti/"
+  },
+  {
+    "name": "Antti Piirainen",
+    "path": "/MUSICIANS/P/Piirainen_Antti/"
+  },
+  {
+    "name": "Anvil",
+    "path": "/MUSICIANS/A/Anvil/"
+  },
+  {
+    "name": "Anzac Zeus",
+    "path": "/MUSICIANS/Z/Zeus_Anzac/"
+  },
+  {
+    "name": "Aomeba",
+    "path": "/MUSICIANS/A/Aomeba/"
+  },
+  {
+    "name": "Apollo",
+    "path": "/MUSICIANS/A/Apollo/"
+  },
+  {
+    "name": "Apollyon",
+    "path": "/MUSICIANS/A/Apollyon/"
+  },
+  {
+    "name": "Archmage",
+    "path": "/MUSICIANS/A/Archmage/"
+  },
+  {
+    "name": "Ares",
+    "path": "/MUSICIANS/A/Ares/"
+  },
+  {
+    "name": "Argon",
+    "path": "/MUSICIANS/A/Argon/"
+  },
+  {
+    "name": "Arman Behdad",
+    "path": "/MUSICIANS/B/Behdad_Arman/"
+  },
+  {
+    "name": "Armani Giorgio",
+    "path": "/MUSICIANS/G/Giorgio_Armani/"
+  },
+  {
+    "name": "Arndt Heitkamp",
+    "path": "/MUSICIANS/H/Heitkamp_Arndt/"
+  },
+  {
+    "name": "Arne",
+    "path": "/MUSICIANS/A/Arne/"
+  },
+  {
+    "name": "Arson Static",
+    "path": "/MUSICIANS/S/Static_Arson/"
+  },
+  {
+    "name": "Art",
+    "path": "/MUSICIANS/A/Art/"
+  },
+  {
+    "name": "Art_of_Noise",
+    "path": "/MUSICIANS/A/Art_of_Noise/"
+  },
+  {
+    "name": "Art_of_Sonix",
+    "path": "/MUSICIANS/A/Art_of_Sonix/"
+  },
+  {
+    "name": "Arthur",
+    "path": "/MUSICIANS/A/Arthur/"
+  },
+  {
+    "name": "Arti Haroutunian",
+    "path": "/MUSICIANS/H/Haroutunian_Arti/"
+  },
+  {
+    "name": "Artlace",
+    "path": "/MUSICIANS/A/Artlace/"
+  },
+  {
+    "name": "Arts Audial",
+    "path": "/MUSICIANS/A/Audial_Arts/"
+  },
+  {
+    "name": "Ash_and_Dave",
+    "path": "/MUSICIANS/A/Ash_and_Dave/"
+  },
+  {
+    "name": "Ashler Baron",
+    "path": "/MUSICIANS/B/Baron_Ashler/"
+  },
+  {
+    "name": "Ashley Hogg",
+    "path": "/MUSICIANS/H/Hogg_Ashley/"
+  },
+  {
+    "name": "Ashrilyn",
+    "path": "/MUSICIANS/A/Ashrilyn/"
+  },
+  {
+    "name": "ASL",
+    "path": "/MUSICIANS/A/ASL/"
+  },
+  {
+    "name": "Asterion",
+    "path": "/MUSICIANS/T/Tinnitus/Asterion/"
+  },
+  {
+    "name": "Astovel",
+    "path": "/MUSICIANS/A/Astovel/"
+  },
+  {
+    "name": "Ati",
+    "path": "/MUSICIANS/A/Ati/"
+  },
+  {
+    "name": "Atom",
+    "path": "/MUSICIANS/A/Atom/"
+  },
+  {
+    "name": "Atomcode",
+    "path": "/MUSICIANS/A/Atomcode/"
+  },
+  {
+    "name": "ATOO",
+    "path": "/MUSICIANS/A/ATOO/"
+  },
+  {
+    "name": "Atte",
+    "path": "/MUSICIANS/A/Atte/"
+  },
+  {
+    "name": "Attic Amadeus",
+    "path": "/MUSICIANS/A/Amadeus_Attic/"
+  },
+  {
+    "name": "Avalon",
+    "path": "/MUSICIANS/A/Avalon/"
+  },
+  {
+    "name": "Avory_Sarah_Jane",
+    "path": "/MUSICIANS/A/Avory_Sarah_Jane/"
+  },
+  {
+    "name": "Avrilcadabra",
+    "path": "/MUSICIANS/A/Avrilcadabra/"
+  },
+  {
+    "name": "Axel Teichmann",
+    "path": "/MUSICIANS/T/Teichmann_Axel/"
+  },
+  {
+    "name": "Axl",
+    "path": "/MUSICIANS/A/Axl/"
+  },
+  {
+    "name": "Azeuph",
+    "path": "/MUSICIANS/A/Azeuph/"
+  },
+  {
+    "name": "B00daW",
+    "path": "/MUSICIANS/B/B00daW/"
+  },
+  {
+    "name": "B0rje",
+    "path": "/MUSICIANS/B/B0rje/"
+  },
+  {
+    "name": "Babyface",
+    "path": "/MUSICIANS/B/Babyface/"
+  },
+  {
+    "name": "Bad",
+    "path": "/MUSICIANS/B/Bad/"
+  },
+  {
+    "name": "Balboa",
+    "path": "/MUSICIANS/B/Balboa/"
+  },
+  {
+    "name": "Bamse",
+    "path": "/MUSICIANS/B/Bamse/"
+  },
+  {
+    "name": "Banana",
+    "path": "/MUSICIANS/B/Banana/"
+  },
+  {
+    "name": "Bappalander",
+    "path": "/MUSICIANS/B/Bappalander/"
+  },
+  {
+    "name": "Barik",
+    "path": "/MUSICIANS/B/Barik/"
+  },
+  {
+    "name": "Barracuda",
+    "path": "/MUSICIANS/B/Barracuda/"
+  },
+  {
+    "name": "Barricade",
+    "path": "/MUSICIANS/B/Barricade/"
+  },
+  {
+    "name": "Barry Leitch",
+    "path": "/MUSICIANS/L/Leitch_Barry/"
+  },
+  {
+    "name": "Bart",
+    "path": "/MUSICIANS/B/Bart/"
+  },
+  {
+    "name": "Bart Coelus",
+    "path": "/MUSICIANS/C/Coelus_Bart/"
+  },
+  {
+    "name": "Batsman",
+    "path": "/MUSICIANS/B/Batsman/"
+  },
+  {
+    "name": "Battalion Gunhed",
+    "path": "/MUSICIANS/G/Gunhed_Battalion/"
+  },
+  {
+    "name": "Batty Roy",
+    "path": "/MUSICIANS/R/Roy_Batty/"
+  },
+  {
+    "name": "Bax",
+    "path": "/MUSICIANS/B/Bax/"
+  },
+  {
+    "name": "Beast",
+    "path": "/MUSICIANS/B/Beast/"
+  },
+  {
+    "name": "Beat Colonel",
+    "path": "/MUSICIANS/C/Colonel_Beat/"
+  },
+  {
+    "name": "Beat Nordic",
+    "path": "/MUSICIANS/N/Nordic_Beat/"
+  },
+  {
+    "name": "Beatbox",
+    "path": "/MUSICIANS/B/Beatbox/"
+  },
+  {
+    "name": "Beathoven",
+    "path": "/MUSICIANS/B/Beathoven/"
+  },
+  {
+    "name": "Bekir Ogurlu",
+    "path": "/MUSICIANS/O/Ogurlu_Bekir/"
+  },
+  {
+    "name": "Beliar",
+    "path": "/MUSICIANS/B/Beliar/"
+  },
+  {
+    "name": "Bellows The",
+    "path": "/MUSICIANS/T/The_Bellows/"
+  },
+  {
     "name": "Ben Daglish",
     "path": "/MUSICIANS/D/Daglish_Ben/"
+  },
+  {
+    "name": "Ben Hayes",
+    "path": "/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/"
+  },
+  {
+    "name": "Benjamin Walbeehm",
+    "path": "/MUSICIANS/W/Walbeehm_Benjamin/"
+  },
+  {
+    "name": "Benji",
+    "path": "/MUSICIANS/B/Benji/"
+  },
+  {
+    "name": "Benno",
+    "path": "/MUSICIANS/B/Benno/"
+  },
+  {
+    "name": "Bernhard Arenz",
+    "path": "/MUSICIANS/A/Arenz_Bernhard/"
+  },
+  {
+    "name": "Bernhard Burgstaller",
+    "path": "/MUSICIANS/B/Burgstaller_Bernhard/"
+  },
+  {
+    "name": "Birdrun",
+    "path": "/MUSICIANS/B/Birdrun/"
+  },
+  {
+    "name": "Bitbreaker",
+    "path": "/MUSICIANS/B/Bitbreaker/"
+  },
+  {
+    "name": "Bitbuster",
+    "path": "/MUSICIANS/B/Bitbuster/"
+  },
+  {
+    "name": "Bitch",
+    "path": "/MUSICIANS/B/Bitch/"
+  },
+  {
+    "name": "Bizet",
+    "path": "/MUSICIANS/B/Bizet/"
+  },
+  {
+    "name": "Bizzmo",
+    "path": "/MUSICIANS/B/Bizzmo/"
+  },
+  {
+    "name": "Black",
+    "path": "/MUSICIANS/B/Black/"
+  },
+  {
+    "name": "BlackBeltJones",
+    "path": "/MUSICIANS/B/BlackBeltJones/"
+  },
+  {
+    "name": "Blackbug",
+    "path": "/MUSICIANS/B/Blackbug/"
+  },
+  {
+    "name": "Blackice",
+    "path": "/MUSICIANS/B/Blackice/"
+  },
+  {
+    "name": "Blackman",
+    "path": "/MUSICIANS/B/Blackman/"
+  },
+  {
+    "name": "Blade",
+    "path": "/MUSICIANS/B/Blade/"
+  },
+  {
+    "name": "Blaster Byte",
+    "path": "/MUSICIANS/B/Byte_Blaster/"
+  },
+  {
+    "name": "Bleed_Into_One",
+    "path": "/MUSICIANS/B/Bleed_Into_One/"
+  },
+  {
+    "name": "Blondie Da",
+    "path": "/MUSICIANS/D/Da_Blondie/"
+  },
+  {
+    "name": "Bluez",
+    "path": "/MUSICIANS/B/Bluez/"
+  },
+  {
+    "name": "Bo Mellberg",
+    "path": "/MUSICIANS/M/Mellberg_Bo/"
+  },
+  {
+    "name": "Boased",
+    "path": "/MUSICIANS/B/Boased/"
+  },
+  {
+    "name": "Bob Kingham",
+    "path": "/MUSICIANS/K/Kingham_Bob/"
+  },
+  {
+    "name": "Bob Landwehr",
+    "path": "/MUSICIANS/L/Landwehr_Bob/"
+  },
+  {
+    "name": "Bob Vieira",
+    "path": "/MUSICIANS/V/Vieira_Bob/"
+  },
+  {
+    "name": "Bob Yewchuk",
+    "path": "/MUSICIANS/Y/Yewchuk_Bob/"
+  },
+  {
+    "name": "Bocky Mr",
+    "path": "/MUSICIANS/M/Mr_Bocky/"
+  },
+  {
+    "name": "Bod",
+    "path": "/MUSICIANS/B/Bod/"
+  },
+  {
+    "name": "BOGG",
+    "path": "/MUSICIANS/B/BOGG/"
+  },
+  {
+    "name": "Bolleman",
+    "path": "/MUSICIANS/B/Bolleman/"
+  },
+  {
+    "name": "Boogaloo",
+    "path": "/MUSICIANS/B/Boogaloo/"
+  },
+  {
+    "name": "Booker",
+    "path": "/MUSICIANS/B/Booker/"
+  },
+  {
+    "name": "Boon Pat",
+    "path": "/MUSICIANS/P/Pat_Boon/"
+  },
+  {
+    "name": "Bop",
+    "path": "/MUSICIANS/B/Bop/"
+  },
+  {
+    "name": "Boray",
+    "path": "/MUSICIANS/B/Boray/"
+  },
+  {
+    "name": "Bordeaux",
+    "path": "/MUSICIANS/B/Bordeaux/"
+  },
+  {
+    "name": "Boris Koester",
+    "path": "/MUSICIANS/K/Koester_Boris/"
+  },
+  {
+    "name": "Bowie",
+    "path": "/MUSICIANS/B/Bowie/"
+  },
+  {
+    "name": "boy Ghetto",
+    "path": "/MUSICIANS/G/Ghetto_boy/"
+  },
+  {
+    "name": "Boyd",
+    "path": "/MUSICIANS/B/Boyd/"
+  },
+  {
+    "name": "Boyd Monte",
+    "path": "/MUSICIANS/M/Monte_Boyd/"
+  },
+  {
+    "name": "Brandis",
+    "path": "/MUSICIANS/B/Brandis/"
+  },
+  {
+    "name": "Breeze Carlos",
+    "path": "/MUSICIANS/C/Carlos_Breeze/"
+  },
+  {
+    "name": "Brian",
+    "path": "/MUSICIANS/B/Brian/"
+  },
+  {
+    "name": "Brian Doe",
+    "path": "/MUSICIANS/D/Doe_Brian/"
+  },
+  {
+    "name": "Brian Szepatowski",
+    "path": "/MUSICIANS/S/Szepatowski_Brian/"
+  },
+  {
+    "name": "Brian Wilson",
+    "path": "/MUSICIANS/W/Wilson_Brian/"
+  },
+  {
+    "name": "Britelite",
+    "path": "/MUSICIANS/B/Britelite/"
+  },
+  {
+    "name": "Brizz",
+    "path": "/MUSICIANS/B/Brizz/"
+  },
+  {
+    "name": "Bruce",
+    "path": "/MUSICIANS/B/Bruce/"
+  },
+  {
+    "name": "Buddha",
+    "path": "/MUSICIANS/B/Buddha/"
+  },
+  {
+    "name": "Bulldog",
+    "path": "/MUSICIANS/B/Bulldog/"
+  },
+  {
+    "name": "Bungle Mr",
+    "path": "/MUSICIANS/M/Mr_Bungle/"
+  },
+  {
+    "name": "Burp_Level_11",
+    "path": "/MUSICIANS/B/Burp_Level_11/"
+  },
+  {
+    "name": "Butka",
+    "path": "/MUSICIANS/B/Butka/"
+  },
+  {
+    "name": "Bzyk",
+    "path": "/MUSICIANS/B/Bzyk/"
+  },
+  {
+    "name": "C0zmo",
+    "path": "/MUSICIANS/C/C0zmo/"
   },
   {
     "name": "Cadaver",
     "path": "/MUSICIANS/C/Cadaver/"
   },
   {
+    "name": "Caine",
+    "path": "/MUSICIANS/C/Caine/"
+  },
+  {
+    "name": "Cameron Kaiser",
+    "path": "/MUSICIANS/K/Kaiser_Cameron/"
+  },
+  {
+    "name": "Cane",
+    "path": "/MUSICIANS/C/Cane/"
+  },
+  {
+    "name": "Caper",
+    "path": "/MUSICIANS/C/Caper/"
+  },
+  {
+    "name": "Cargo",
+    "path": "/MUSICIANS/C/Cargo/"
+  },
+  {
+    "name": "Carl",
+    "path": "/MUSICIANS/C/Carl/"
+  },
+  {
+    "name": "Carter",
+    "path": "/MUSICIANS/C/Carter/"
+  },
+  {
+    "name": "Cascade Carlos",
+    "path": "/MUSICIANS/C/Carlos_Cascade/"
+  },
+  {
+    "name": "Castor",
+    "path": "/MUSICIANS/C/Castor/"
+  },
+  {
+    "name": "Cat Iron",
+    "path": "/MUSICIANS/I/Iron_Cat/"
+  },
+  {
+    "name": "Catch",
+    "path": "/MUSICIANS/C/Catch/"
+  },
+  {
+    "name": "Cavi",
+    "path": "/MUSICIANS/C/Cavi/"
+  },
+  {
+    "name": "CB",
+    "path": "/MUSICIANS/C/CB/"
+  },
+  {
+    "name": "Cecile",
+    "path": "/MUSICIANS/C/Cecile/"
+  },
+  {
+    "name": "Cees Kramer",
+    "path": "/MUSICIANS/K/Kramer_Cees/"
+  },
+  {
+    "name": "Cerix",
+    "path": "/MUSICIANS/C/Cerix/"
+  },
+  {
+    "name": "Cerror",
+    "path": "/MUSICIANS/C/Cerror/"
+  },
+  {
+    "name": "Cesar Astudillo",
+    "path": "/MUSICIANS/A/Astudillo_Cesar/"
+  },
+  {
+    "name": "Chabee",
+    "path": "/MUSICIANS/C/Chabee/"
+  },
+  {
+    "name": "Champion Chip",
+    "path": "/MUSICIANS/C/Chip_Champion/"
+  },
+  {
+    "name": "Chantal Goret",
+    "path": "/MUSICIANS/G/Goret_Chantal/"
+  },
+  {
+    "name": "Chaos",
+    "path": "/MUSICIANS/C/Chaos/"
+  },
+  {
+    "name": "Chaos Professor",
+    "path": "/MUSICIANS/P/Professor_Chaos/"
+  },
+  {
+    "name": "Chapelier",
+    "path": "/MUSICIANS/C/Chapelier/"
+  },
+  {
+    "name": "Charles Callet",
+    "path": "/MUSICIANS/C/Callet_Charles/"
+  },
+  {
     "name": "Charles Deenen",
     "path": "/MUSICIANS/D/Deenen_Charles/"
   },
   {
-    "name": "Chris Hülsbeck",
+    "name": "Charles Rounsaville",
+    "path": "/MUSICIANS/R/Rounsaville_Charles/"
+  },
+  {
+    "name": "Charm Moogle",
+    "path": "/MUSICIANS/M/Moogle_Charm/"
+  },
+  {
+    "name": "Cherubs Sentinel",
+    "path": "/MUSICIANS/S/Sentinel_Cherubs/"
+  },
+  {
+    "name": "Chesser",
+    "path": "/MUSICIANS/C/Chesser/"
+  },
+  {
+    "name": "Chester Claff",
+    "path": "/MUSICIANS/C/Claff_Chester/"
+  },
+  {
+    "name": "Chock",
+    "path": "/MUSICIANS/C/Chock/"
+  },
+  {
+    "name": "Chotaire",
+    "path": "/MUSICIANS/C/Chotaire/"
+  },
+  {
+    "name": "Chris",
+    "path": "/MUSICIANS/B/Beat_Machine/Chris/"
+  },
+  {
+    "name": "Chris Abbott",
+    "path": "/MUSICIANS/A/Abbott_Chris/"
+  },
+  {
+    "name": "Chris Cox",
+    "path": "/MUSICIANS/C/Cox_Chris/"
+  },
+  {
+    "name": "Chris Grigg",
+    "path": "/MUSICIANS/G/Grigg_Chris/"
+  },
+  {
+    "name": "Chris Huelsbeck",
     "path": "/MUSICIANS/H/Huelsbeck_Chris/"
   },
   {
-    "name": "Clever Music",
-    "path": "/MUSICIANS/J/Jarvis_Graham/"
+    "name": "Chris Poole",
+    "path": "/MUSICIANS/P/Poole_Chris/"
   },
   {
-    "name": "Conrad",
-    "path": "/MUSICIANS/C/Conrad/"
+    "name": "Chris Walsh",
+    "path": "/MUSICIANS/W/Walsh_Chris/"
   },
   {
-    "name": "DRAX",
-    "path": "/MUSICIANS/D/DRAX/"
+    "name": "Chris Wemyss",
+    "path": "/MUSICIANS/W/Wemyss_Chris/"
+  },
+  {
+    "name": "Chris-Do",
+    "path": "/MUSICIANS/C/Chris-Do/"
+  },
+  {
+    "name": "Christian Hikl",
+    "path": "/MUSICIANS/H/Hikl_Christian/"
+  },
+  {
+    "name": "Christian Janoff",
+    "path": "/MUSICIANS/J/Janoff_Christian/"
+  },
+  {
+    "name": "Christoph Albert",
+    "path": "/MUSICIANS/A/Albert_Christoph/"
+  },
+  {
+    "name": "Christoph Bergmann",
+    "path": "/MUSICIANS/B/Bergmann_Christoph/"
+  },
+  {
+    "name": "ChristopherJam",
+    "path": "/MUSICIANS/C/ChristopherJam/"
+  },
+  {
+    "name": "Chromance Sphere",
+    "path": "/MUSICIANS/S/Sphere_Chromance/"
+  },
+  {
+    "name": "Chronos",
+    "path": "/MUSICIANS/C/Chronos/"
+  },
+  {
+    "name": "Chubrock",
+    "path": "/MUSICIANS/C/Chubrock/"
+  },
+  {
+    "name": "Chuck Hawes",
+    "path": "/MUSICIANS/H/Hawes_Chuck/"
+  },
+  {
+    "name": "Chunter",
+    "path": "/MUSICIANS/C/Chunter/"
+  },
+  {
+    "name": "Ciaran",
+    "path": "/MUSICIANS/C/Ciaran/"
+  },
+  {
+    "name": "Cinder_and_Ranzbak",
+    "path": "/MUSICIANS/C/Cinder_and_Ranzbak/"
+  },
+  {
+    "name": "Claxon",
+    "path": "/MUSICIANS/C/Claxon/"
+  },
+  {
+    "name": "Cleve",
+    "path": "/MUSICIANS/C/Cleve/"
+  },
+  {
+    "name": "Cliff",
+    "path": "/MUSICIANS/C/Cliff/"
+  },
+  {
+    "name": "Clone Nico",
+    "path": "/MUSICIANS/N/Nico_Clone/"
+  },
+  {
+    "name": "CLS",
+    "path": "/MUSICIANS/C/CLS/"
+  },
+  {
+    "name": "CMP",
+    "path": "/MUSICIANS/C/CMP/"
+  },
+  {
+    "name": "Coax",
+    "path": "/MUSICIANS/C/Coax/"
+  },
+  {
+    "name": "Cobra",
+    "path": "/MUSICIANS/C/Cobra/"
+  },
+  {
+    "name": "Coco",
+    "path": "/MUSICIANS/C/Coco/"
+  },
+  {
+    "name": "Code Dr",
+    "path": "/MUSICIANS/D/Dr_Code/"
+  },
+  {
+    "name": "Codehead",
+    "path": "/MUSICIANS/C/Codehead/"
+  },
+  {
+    "name": "Codex",
+    "path": "/MUSICIANS/C/Codex/"
+  },
+  {
+    "name": "Codey",
+    "path": "/MUSICIANS/C/Codey/"
+  },
+  {
+    "name": "Coldcut Dr",
+    "path": "/MUSICIANS/D/Dr_Coldcut/"
+  },
+  {
+    "name": "Colin Davies",
+    "path": "/MUSICIANS/D/Davies_Colin/"
+  },
+  {
+    "name": "Comer",
+    "path": "/MUSICIANS/C/Comer/"
+  },
+  {
+    "name": "Commander",
+    "path": "/MUSICIANS/C/Commander/"
+  },
+  {
+    "name": "Commando",
+    "path": "/MUSICIANS/C/Commando/"
+  },
+  {
+    "name": "Compod",
+    "path": "/MUSICIANS/C/Compod/"
+  },
+  {
+    "name": "Composer Unknown",
+    "path": "/MUSICIANS/U/Unknown_Composer/"
+  },
+  {
+    "name": "Comu",
+    "path": "/MUSICIANS/C/Comu/"
+  },
+  {
+    "name": "Condor",
+    "path": "/MUSICIANS/C/Condor/"
+  },
+  {
+    "name": "Control",
+    "path": "/MUSICIANS/C/Control/"
+  },
+  {
+    "name": "Cook MC",
+    "path": "/MUSICIANS/M/MC_Cook/"
+  },
+  {
+    "name": "Cool Curt",
+    "path": "/MUSICIANS/C/Curt_Cool/"
+  },
+  {
+    "name": "Coolrock",
+    "path": "/MUSICIANS/C/Coolrock/"
+  },
+  {
+    "name": "Cooper",
+    "path": "/MUSICIANS/C/Cooper/"
+  },
+  {
+    "name": "Cope",
+    "path": "/MUSICIANS/C/Cope/"
+  },
+  {
+    "name": "Corpsicle",
+    "path": "/MUSICIANS/C/Corpsicle/"
+  },
+  {
+    "name": "Cosowi",
+    "path": "/MUSICIANS/C/Cosowi/"
+  },
+  {
+    "name": "Cranksy",
+    "path": "/MUSICIANS/C/Cranksy/"
+  },
+  {
+    "name": "Crap",
+    "path": "/MUSICIANS/C/Crap/"
+  },
+  {
+    "name": "CreaMD",
+    "path": "/MUSICIANS/C/CreaMD/"
+  },
+  {
+    "name": "Creek",
+    "path": "/MUSICIANS/C/Creek/"
+  },
+  {
+    "name": "Creo",
+    "path": "/MUSICIANS/C/Creo/"
+  },
+  {
+    "name": "Criminal",
+    "path": "/MUSICIANS/C/Criminal/"
+  },
+  {
+    "name": "Crisps",
+    "path": "/MUSICIANS/C/Crisps/"
+  },
+  {
+    "name": "Crokocat",
+    "path": "/MUSICIANS/C/Crokocat/"
+  },
+  {
+    "name": "Crome",
+    "path": "/MUSICIANS/C/Crome/"
+  },
+  {
+    "name": "Crosspider",
+    "path": "/MUSICIANS/C/Crosspider/"
+  },
+  {
+    "name": "Crowley Mr",
+    "path": "/MUSICIANS/M/Mr_Crowley/"
+  },
+  {
+    "name": "CRV",
+    "path": "/MUSICIANS/C/CRV/"
+  },
+  {
+    "name": "cTrix",
+    "path": "/MUSICIANS/C/cTrix/"
+  },
+  {
+    "name": "Cubaxd",
+    "path": "/MUSICIANS/C/Cubaxd/"
+  },
+  {
+    "name": "Cube",
+    "path": "/MUSICIANS/C/Cube/"
+  },
+  {
+    "name": "Cubehead",
+    "path": "/MUSICIANS/C/Cubehead/"
+  },
+  {
+    "name": "Cyberbrain",
+    "path": "/MUSICIANS/C/Cyberbrain/"
+  },
+  {
+    "name": "Cyberdyne",
+    "path": "/MUSICIANS/C/Cyberdyne/"
+  },
+  {
+    "name": "Cyborgjeff",
+    "path": "/MUSICIANS/C/Cyborgjeff/"
+  },
+  {
+    "name": "Cycleburner",
+    "path": "/MUSICIANS/C/Cycleburner/"
+  },
+  {
+    "name": "Cyke",
+    "path": "/MUSICIANS/C/Cyke/"
+  },
+  {
+    "name": "Cyrion",
+    "path": "/MUSICIANS/C/Cyrion/"
+  },
+  {
+    "name": "Czyszy",
+    "path": "/MUSICIANS/C/Czyszy/"
+  },
+  {
+    "name": "D-Tract",
+    "path": "/MUSICIANS/D/D-Tract/"
+  },
+  {
+    "name": "Da_Phuture_Kemist",
+    "path": "/MUSICIANS/D/Da_Phuture_Kemist/"
+  },
+  {
+    "name": "Dadah Erig",
+    "path": "/MUSICIANS/E/Erig_Dadah/"
+  },
+  {
+    "name": "Daf",
+    "path": "/MUSICIANS/D/Daf/"
+  },
+  {
+    "name": "DaFunk",
+    "path": "/MUSICIANS/D/DaFunk/"
+  },
+  {
+    "name": "DaJoshy",
+    "path": "/MUSICIANS/D/DaJoshy/"
+  },
+  {
+    "name": "Dale Edgar",
+    "path": "/MUSICIANS/E/Edgar_Dale/"
+  },
+  {
+    "name": "Dalezy",
+    "path": "/MUSICIANS/D/Dalezy/"
+  },
+  {
+    "name": "Dalton",
+    "path": "/MUSICIANS/D/Dalton/"
+  },
+  {
+    "name": "DAM",
+    "path": "/MUSICIANS/D/DAM/"
+  },
+  {
+    "name": "Damifortune",
+    "path": "/MUSICIANS/D/Damifortune/"
+  },
+  {
+    "name": "Damion",
+    "path": "/MUSICIANS/D/Damion/"
+  },
+  {
+    "name": "Damme Van",
+    "path": "/MUSICIANS/V/Van_Damme/"
+  },
+  {
+    "name": "Dan Fiehtner",
+    "path": "/MUSICIANS/F/Fiehtner_Dan/"
+  },
+  {
+    "name": "Dan Gillgrass",
+    "path": "/MUSICIANS/G/Gillgrass_Dan/"
   },
   {
     "name": "Dane",
-    "path": "/MUSICIANS/D/Dane/"
+    "path": "/MUSICIANS/M/Mitch_and_Dane/Dane/"
+  },
+  {
+    "name": "Daniel Wikholm",
+    "path": "/MUSICIANS/W/Wikholm_Daniel/"
+  },
+  {
+    "name": "Daniele Liverani",
+    "path": "/MUSICIANS/L/Liverani_Daniele/"
+  },
+  {
+    "name": "Darling_David_and_Richard",
+    "path": "/MUSICIANS/D/Darling_David_and_Richard/"
+  },
+  {
+    "name": "Darren LaBatt",
+    "path": "/MUSICIANS/L/LaBatt_Darren/"
+  },
+  {
+    "name": "Daryll Reynolds",
+    "path": "/MUSICIANS/R/Reynolds_Daryll/"
+  },
+  {
+    "name": "Data",
+    "path": "/MUSICIANS/D/Data/"
+  },
+  {
+    "name": "Dave Kelly",
+    "path": "/MUSICIANS/K/Kelly_Dave/"
+  },
+  {
+    "name": "Dave Lee",
+    "path": "/MUSICIANS/L/Lee_Dave/"
+  },
+  {
+    "name": "Dave Lowe",
+    "path": "/MUSICIANS/L/Lowe_Dave/"
+  },
+  {
+    "name": "Dave Marquis",
+    "path": "/MUSICIANS/M/Marquis_Dave/"
+  },
+  {
+    "name": "Dave Pridmore",
+    "path": "/MUSICIANS/P/Pridmore_Dave/"
+  },
+  {
+    "name": "Dave Schmoldt",
+    "path": "/MUSICIANS/S/Schmoldt_Dave/"
+  },
+  {
+    "name": "Dave Thomas",
+    "path": "/MUSICIANS/T/Thomas_Dave/"
+  },
+  {
+    "name": "Dave Warhol",
+    "path": "/MUSICIANS/W/Warhol_Dave/"
+  },
+  {
+    "name": "Dave_Ocean_Studios",
+    "path": "/MUSICIANS/D/Dave_Ocean_Studios/"
+  },
+  {
+    "name": "David Bain",
+    "path": "/MUSICIANS/B/Bain_David/"
+  },
+  {
+    "name": "David Dunn",
+    "path": "/MUSICIANS/D/Dunn_David/"
+  },
+  {
+    "name": "David Estall",
+    "path": "/MUSICIANS/E/Estall_David/"
+  },
+  {
+    "name": "David Green",
+    "path": "/MUSICIANS/G/Green_David/"
   },
   {
     "name": "David Hanlon",
     "path": "/MUSICIANS/H/Hanlon_David/"
   },
   {
+    "name": "David Selwood",
+    "path": "/MUSICIANS/S/Selwood_David/"
+  },
+  {
+    "name": "David Spicer",
+    "path": "/MUSICIANS/S/Spicer_David/"
+  },
+  {
+    "name": "David Thiel",
+    "path": "/MUSICIANS/T/Thiel_David/"
+  },
+  {
     "name": "David Whittaker",
     "path": "/MUSICIANS/W/Whittaker_David/"
+  },
+  {
+    "name": "Daw",
+    "path": "/MUSICIANS/D/Daw/"
+  },
+  {
+    "name": "Dazz",
+    "path": "/MUSICIANS/D/Dazz/"
+  },
+  {
+    "name": "DB",
+    "path": "/MUSICIANS/D/DB/"
+  },
+  {
+    "name": "DC 801",
+    "path": "/MUSICIANS/0-9/801_DC/"
+  },
+  {
+    "name": "de_Hoog_Elton",
+    "path": "/MUSICIANS/D/de_Hoog_Elton/"
+  },
+  {
+    "name": "Deadbeat",
+    "path": "/MUSICIANS/D/Deadbeat/"
+  },
+  {
+    "name": "Deadeye",
+    "path": "/MUSICIANS/A/Adrock_and_Deadeye/Deadeye/"
+  },
+  {
+    "name": "Deadman",
+    "path": "/MUSICIANS/D/Deadman/"
+  },
+  {
+    "name": "Dealer",
+    "path": "/MUSICIANS/D/Dealer/"
+  },
+  {
+    "name": "Death Mr",
+    "path": "/MUSICIANS/M/Mr_Death/"
+  },
+  {
+    "name": "Death Sudden",
+    "path": "/MUSICIANS/S/Sudden_Death/"
+  },
+  {
+    "name": "Deathlok",
+    "path": "/MUSICIANS/D/Deathlok/"
+  },
+  {
+    "name": "Debby Cruz",
+    "path": "/MUSICIANS/C/Cruz_Debby/"
+  },
+  {
+    "name": "Dec",
+    "path": "/MUSICIANS/D/Dec/"
+  },
+  {
+    "name": "Decoder",
+    "path": "/MUSICIANS/D/Decoder/"
+  },
+  {
+    "name": "Decoy",
+    "path": "/MUSICIANS/D/Decoy/"
+  },
+  {
+    "name": "Deek",
+    "path": "/MUSICIANS/D/Deek/"
+  },
+  {
+    "name": "Deetsay",
+    "path": "/MUSICIANS/D/Deetsay/"
+  },
+  {
+    "name": "Defbeat",
+    "path": "/MUSICIANS/D/Defbeat/"
+  },
+  {
+    "name": "Defilus",
+    "path": "/MUSICIANS/D/Defilus/"
+  },
+  {
+    "name": "Deizi",
+    "path": "/MUSICIANS/D/Deizi/"
+  },
+  {
+    "name": "Del_Duca_Ivan",
+    "path": "/MUSICIANS/D/Del_Duca_Ivan/"
+  },
+  {
+    "name": "Del_Priore_Fabian",
+    "path": "/MUSICIANS/D/Del_Priore_Fabian/"
+  },
+  {
+    "name": "Demon Speed",
+    "path": "/MUSICIANS/S/Speed_Demon/"
+  },
+  {
+    "name": "Demosic",
+    "path": "/MUSICIANS/D/Demosic/"
+  },
+  {
+    "name": "Demux",
+    "path": "/MUSICIANS/D/Demux/"
+  },
+  {
+    "name": "Denis Harris",
+    "path": "/MUSICIANS/H/Harris_Denis/"
+  },
+  {
+    "name": "Denithor",
+    "path": "/MUSICIANS/D/Denithor/"
+  },
+  {
+    "name": "Dente Arturo",
+    "path": "/MUSICIANS/A/Arturo_Dente/"
+  },
+  {
+    "name": "Deon",
+    "path": "/MUSICIANS/D/Deon/"
+  },
+  {
+    "name": "Derek",
+    "path": "/MUSICIANS/D/Derek/"
+  },
+  {
+    "name": "Designs Graphics",
+    "path": "/MUSICIANS/G/Graphics_Designs/"
+  },
+  {
+    "name": "Devia",
+    "path": "/MUSICIANS/D/Devia/"
+  },
+  {
+    "name": "Devil Red",
+    "path": "/MUSICIANS/R/Red_Devil/"
+  },
+  {
+    "name": "Devilock",
+    "path": "/MUSICIANS/D/Devilock/"
+  },
+  {
+    "name": "Dex-D",
+    "path": "/MUSICIANS/D/Dex-D/"
+  },
+  {
+    "name": "Dexter",
+    "path": "/MUSICIANS/D/Dexter/"
+  },
+  {
+    "name": "Dgazz",
+    "path": "/MUSICIANS/D/Dgazz/"
+  },
+  {
+    "name": "Di_Vizio_Maurizio",
+    "path": "/MUSICIANS/D/Di_Vizio_Maurizio/"
+  },
+  {
+    "name": "Diamond",
+    "path": "/MUSICIANS/D/Diamond/"
+  },
+  {
+    "name": "Digger",
+    "path": "/MUSICIANS/D/Digger/"
+  },
+  {
+    "name": "Digiblaster",
+    "path": "/MUSICIANS/D/Digiblaster/"
+  },
+  {
+    "name": "Dino",
+    "path": "/MUSICIANS/D/Dino/"
+  },
+  {
+    "name": "Dippy",
+    "path": "/MUSICIANS/D/Dippy/"
+  },
+  {
+    "name": "Dirk Bialluch",
+    "path": "/MUSICIANS/B/Bialluch_Dirk/"
+  },
+  {
+    "name": "Dissident Rupert",
+    "path": "/MUSICIANS/R/Rupert_Dissident/"
+  },
+  {
+    "name": "Divertigo",
+    "path": "/MUSICIANS/D/Divertigo/"
+  },
+  {
+    "name": "DJ",
+    "path": "/MUSICIANS/D/DJ/"
+  },
+  {
+    "name": "Dj-Ice",
+    "path": "/MUSICIANS/D/Dj-Ice/"
+  },
+  {
+    "name": "Djinn",
+    "path": "/MUSICIANS/D/Djinn/"
+  },
+  {
+    "name": "Djmaximum",
+    "path": "/MUSICIANS/D/Djmaximum/"
+  },
+  {
+    "name": "Dlx",
+    "path": "/MUSICIANS/D/Dlx/"
+  },
+  {
+    "name": "Dnz",
+    "path": "/MUSICIANS/D/Dnz/"
+  },
+  {
+    "name": "Dobromir",
+    "path": "/MUSICIANS/D/Dobromir/"
+  },
+  {
+    "name": "Dog Hot",
+    "path": "/MUSICIANS/H/Hot_Dog/"
+  },
+  {
+    "name": "Doh",
+    "path": "/MUSICIANS/D/Doh/"
+  },
+  {
+    "name": "Dokken",
+    "path": "/MUSICIANS/D/Dokken/"
+  },
+  {
+    "name": "Dokmatik",
+    "path": "/MUSICIANS/D/Dokmatik/"
+  },
+  {
+    "name": "DommoCORE64",
+    "path": "/MUSICIANS/D/DommoCORE64/"
+  },
+  {
+    "name": "Don Williams",
+    "path": "/MUSICIANS/W/Williams_Don/"
+  },
+  {
+    "name": "Donovan",
+    "path": "/MUSICIANS/D/Donovan/"
+  },
+  {
+    "name": "Doomdark",
+    "path": "/MUSICIANS/D/Doomdark/"
+  },
+  {
+    "name": "Dooshek",
+    "path": "/MUSICIANS/D/Dooshek/"
+  },
+  {
+    "name": "DOS",
+    "path": "/MUSICIANS/D/DOS/"
+  },
+  {
+    "name": "Dosoo",
+    "path": "/MUSICIANS/D/Dosoo/"
+  },
+  {
+    "name": "Douglas Dragin",
+    "path": "/MUSICIANS/D/Dragin_Douglas/"
+  },
+  {
+    "name": "Douglas Fulton",
+    "path": "/MUSICIANS/F/Fulton_Douglas/"
+  },
+  {
+    "name": "Dove Black",
+    "path": "/MUSICIANS/B/Black_Dove/"
+  },
+  {
+    "name": "Doxx",
+    "path": "/MUSICIANS/D/Doxx/"
+  },
+  {
+    "name": "Dr_Ali_and_Joker",
+    "path": "/MUSICIANS/D/Dr_Ali_and_Joker/"
+  },
+  {
+    "name": "Drake",
+    "path": "/MUSICIANS/D/Drake/"
+  },
+  {
+    "name": "DRAX",
+    "path": "/MUSICIANS/D/DRAX/"
+  },
+  {
+    "name": "Dream Dr",
+    "path": "/MUSICIANS/D/Dr_Dream/"
+  },
+  {
+    "name": "Dream Elastic",
+    "path": "/MUSICIANS/E/Elastic_Dream/"
+  },
+  {
+    "name": "Dro Aviador",
+    "path": "/MUSICIANS/A/Aviador_Dro/"
+  },
+  {
+    "name": "Drop Cabbage",
+    "path": "/MUSICIANS/C/Cabbage_Drop/"
+  },
+  {
+    "name": "Drumbeat",
+    "path": "/MUSICIANS/D/Drumbeat/"
+  },
+  {
+    "name": "Drumtex",
+    "path": "/MUSICIANS/D/Drumtex/"
+  },
+  {
+    "name": "Drutten",
+    "path": "/MUSICIANS/D/Drutten/"
+  },
+  {
+    "name": "Duck-hunter",
+    "path": "/MUSICIANS/D/Duck-hunter/"
+  },
+  {
+    "name": "Dune",
+    "path": "/MUSICIANS/D/Dune/"
+  },
+  {
+    "name": "Dunkel_Nilsen_and_Elektrond",
+    "path": "/MUSICIANS/D/Dunkel_Nilsen_and_Elektrond/"
+  },
+  {
+    "name": "Durin King",
+    "path": "/MUSICIANS/K/King_Durin/"
+  },
+  {
+    "name": "Duz",
+    "path": "/MUSICIANS/D/Duz/"
+  },
+  {
+    "name": "Dwayne Bakewell",
+    "path": "/MUSICIANS/B/Bakewell_Dwayne/"
+  },
+  {
+    "name": "Dya",
+    "path": "/MUSICIANS/D/Dya/"
+  },
+  {
+    "name": "E-Grass",
+    "path": "/MUSICIANS/E/E-Grass/"
+  },
+  {
+    "name": "Eclipse",
+    "path": "/MUSICIANS/E/Eclipse/"
+  },
+  {
+    "name": "Eco",
+    "path": "/MUSICIANS/E/Eco/"
+  },
+  {
+    "name": "Ed",
+    "path": "/MUSICIANS/E/Ed/"
+  },
+  {
+    "name": "Ed Bogas",
+    "path": "/MUSICIANS/B/Bogas_Ed/"
+  },
+  {
+    "name": "Edward Hobbs",
+    "path": "/MUSICIANS/H/Hobbs_Edward/"
+  },
+  {
+    "name": "Eivind Sommersten",
+    "path": "/MUSICIANS/B/Blues_Muz/Sommersten_Eivind/"
+  },
+  {
+    "name": "ELA",
+    "path": "/MUSICIANS/E/ELA/"
+  },
+  {
+    "name": "Electronic_Speech_Systems",
+    "path": "/MUSICIANS/E/Electronic_Speech_Systems/"
+  },
+  {
+    "name": "Elk",
+    "path": "/MUSICIANS/E/Elk/"
+  },
+  {
+    "name": "Eloquence",
+    "path": "/MUSICIANS/E/Eloquence/"
+  },
+  {
+    "name": "Emanuele Baldi",
+    "path": "/MUSICIANS/B/Baldi_Emanuele/"
+  },
+  {
+    "name": "Emarti",
+    "path": "/MUSICIANS/E/Emarti/"
+  },
+  {
+    "name": "Emax",
+    "path": "/MUSICIANS/E/Emax/"
+  },
+  {
+    "name": "Emil",
+    "path": "/MUSICIANS/E/Emil/"
+  },
+  {
+    "name": "Emu",
+    "path": "/MUSICIANS/E/Emu/"
+  },
+  {
+    "name": "Emulamer",
+    "path": "/MUSICIANS/E/Emulamer/"
+  },
+  {
+    "name": "Encore",
+    "path": "/MUSICIANS/E/Encore/"
+  },
+  {
+    "name": "Enzoottobit",
+    "path": "/MUSICIANS/E/Enzoottobit/"
+  },
+  {
+    "name": "Eprom",
+    "path": "/MUSICIANS/E/Eprom/"
+  },
+  {
+    "name": "Ere Lievonen",
+    "path": "/MUSICIANS/L/Lievonen_Ere/"
+  },
+  {
+    "name": "Eric Dobek",
+    "path": "/MUSICIANS/D/Dobek_Eric/"
+  },
+  {
+    "name": "Eric Fern",
+    "path": "/MUSICIANS/F/Fern_Eric/"
+  },
+  {
+    "name": "Eric Haas",
+    "path": "/MUSICIANS/H/Haas_Eric/"
+  },
+  {
+    "name": "Erich Koske",
+    "path": "/MUSICIANS/K/Koske_Erich/"
+  },
+  {
+    "name": "Eriksen_Allan_Kim",
+    "path": "/MUSICIANS/E/Eriksen_Allan_Kim/"
+  },
+  {
+    "name": "Error Tragic",
+    "path": "/MUSICIANS/T/Tragic_Error/"
+  },
+  {
+    "name": "Eryngi",
+    "path": "/MUSICIANS/E/Eryngi/"
+  },
+  {
+    "name": "ESM",
+    "path": "/MUSICIANS/E/ESM/"
+  },
+  {
+    "name": "Esprit",
+    "path": "/MUSICIANS/E/Esprit/"
+  },
+  {
+    "name": "Et1999cc",
+    "path": "/MUSICIANS/E/Et1999cc/"
+  },
+  {
+    "name": "Etienne Muson",
+    "path": "/MUSICIANS/M/Muson_Etienne/"
+  },
+  {
+    "name": "Evilman",
+    "path": "/MUSICIANS/E/Evilman/"
+  },
+  {
+    "name": "Evony",
+    "path": "/MUSICIANS/N/Nordic_Beat/Evony/"
+  },
+  {
+    "name": "Ewen Gillies",
+    "path": "/MUSICIANS/G/Gillies_Ewen/"
+  },
+  {
+    "name": "Excess Sentinel",
+    "path": "/MUSICIANS/S/Sentinel_Excess/"
+  },
+  {
+    "name": "Exile",
+    "path": "/MUSICIANS/E/Exile/"
+  },
+  {
+    "name": "Exolon Sharp",
+    "path": "/MUSICIANS/S/Sharp_Exolon/"
+  },
+  {
+    "name": "Extern",
+    "path": "/MUSICIANS/E/Extern/"
+  },
+  {
+    "name": "Eye",
+    "path": "/MUSICIANS/E/Eye/"
+  },
+  {
+    "name": "F3H Max",
+    "path": "/MUSICIANS/M/Max_F3H/"
+  },
+  {
+    "name": "F3R0",
+    "path": "/MUSICIANS/F/F3R0/"
+  },
+  {
+    "name": "F7sus4",
+    "path": "/MUSICIANS/F/F7sus4/"
+  },
+  {
+    "name": "Fabian Rosenschein",
+    "path": "/MUSICIANS/R/Rosenschein_Fabian/"
+  },
+  {
+    "name": "Faclaug",
+    "path": "/MUSICIANS/F/Faclaug/"
+  },
+  {
+    "name": "Factor6",
+    "path": "/MUSICIANS/F/Factor6/"
+  },
+  {
+    "name": "Fade",
+    "path": "/MUSICIANS/F/Fade/"
+  },
+  {
+    "name": "Falciparum",
+    "path": "/MUSICIANS/F/Falciparum/"
+  },
+  {
+    "name": "Falco Paul",
+    "path": "/MUSICIANS/0-9/20CC/Paul_Falco/"
+  },
+  {
+    "name": "FAME",
+    "path": "/MUSICIANS/F/FAME/"
+  },
+  {
+    "name": "Fancy",
+    "path": "/MUSICIANS/F/Fancy/"
   },
   {
     "name": "Fanta",
     "path": "/MUSICIANS/F/Fanta/"
   },
   {
+    "name": "Fantomas",
+    "path": "/MUSICIANS/F/Fantomas/"
+  },
+  {
+    "name": "Fate",
+    "path": "/MUSICIANS/F/Fate/"
+  },
+  {
+    "name": "FatFrost",
+    "path": "/MUSICIANS/F/FatFrost/"
+  },
+  {
+    "name": "Fatum Phoenix",
+    "path": "/MUSICIANS/P/Phoenix_Fatum/"
+  },
+  {
+    "name": "FCS",
+    "path": "/MUSICIANS/F/FCS/"
+  },
+  {
+    "name": "Feekzoid",
+    "path": "/MUSICIANS/F/Feekzoid/"
+  },
+  {
+    "name": "Fegolhuzz",
+    "path": "/MUSICIANS/F/Fegolhuzz/"
+  },
+  {
+    "name": "Felix Schmidt",
+    "path": "/MUSICIANS/S/Schmidt_Felix/"
+  },
+  {
+    "name": "Fellow",
+    "path": "/MUSICIANS/F/Fellow/"
+  },
+  {
+    "name": "Feniks Lyon",
+    "path": "/MUSICIANS/L/Lyon_Feniks/"
+  },
+  {
+    "name": "Ferock",
+    "path": "/MUSICIANS/F/Ferock/"
+  },
+  {
+    "name": "Ferrara",
+    "path": "/MUSICIANS/F/Ferrara/"
+  },
+  {
+    "name": "Fiemost Dr",
+    "path": "/MUSICIANS/D/Dr_Fiemost/"
+  },
+  {
+    "name": "FieserWolF",
+    "path": "/MUSICIANS/F/FieserWolF/"
+  },
+  {
+    "name": "Filth",
+    "path": "/MUSICIANS/F/Filth/"
+  },
+  {
+    "name": "Finn",
+    "path": "/MUSICIANS/F/Finn/"
+  },
+  {
+    "name": "Finnr",
+    "path": "/MUSICIANS/F/Finnr/"
+  },
+  {
+    "name": "Fire",
+    "path": "/MUSICIANS/F/Fire/"
+  },
+  {
+    "name": "Firebee",
+    "path": "/MUSICIANS/F/Firebee/"
+  },
+  {
+    "name": "Firefox",
+    "path": "/MUSICIANS/F/Firefox/"
+  },
+  {
+    "name": "Fisher King",
+    "path": "/MUSICIANS/K/King_Fisher/"
+  },
+  {
+    "name": "Flash",
+    "path": "/MUSICIANS/F/Flash/"
+  },
+  {
+    "name": "Flea",
+    "path": "/MUSICIANS/F/Flea/"
+  },
+  {
+    "name": "Flip",
+    "path": "/MUSICIANS/F/Flip/"
+  },
+  {
+    "name": "Flipside",
+    "path": "/MUSICIANS/F/Flipside/"
+  },
+  {
+    "name": "Flotsam",
+    "path": "/MUSICIANS/F/Flotsam/"
+  },
+  {
+    "name": "Floyd",
+    "path": "/MUSICIANS/F/Floyd/"
+  },
+  {
+    "name": "Flux",
+    "path": "/MUSICIANS/F/Flux/"
+  },
+  {
+    "name": "Fly_The_Vikings",
+    "path": "/MUSICIANS/F/Fly_The_Vikings/"
+  },
+  {
+    "name": "Flyt",
+    "path": "/MUSICIANS/F/Flyt/"
+  },
+  {
+    "name": "FMD",
+    "path": "/MUSICIANS/F/FMD/"
+  },
+  {
+    "name": "Fox",
+    "path": "/MUSICIANS/F/Fox/"
+  },
+  {
+    "name": "Fox The",
+    "path": "/MUSICIANS/T/The_Fox/"
+  },
+  {
+    "name": "Fozzie",
+    "path": "/MUSICIANS/F/Fozzie/"
+  },
+  {
+    "name": "Francesco Chiola",
+    "path": "/MUSICIANS/C/Chiola_Francesco/"
+  },
+  {
+    "name": "Franco Fabbri",
+    "path": "/MUSICIANS/F/Fabbri_Franco/"
+  },
+  {
+    "name": "Francois Blanchette",
+    "path": "/MUSICIANS/B/Blanchette_Francois/"
+  },
+  {
+    "name": "Francois Prijt",
+    "path": "/MUSICIANS/A/Audial_Arts/Prijt_Francois/"
+  },
+  {
+    "name": "Frank Abbing",
+    "path": "/MUSICIANS/A/Abbing_Frank/"
+  },
+  {
+    "name": "Frank Brodersen",
+    "path": "/MUSICIANS/B/Brodersen_Frank/"
+  },
+  {
+    "name": "Frank Cohen",
+    "path": "/MUSICIANS/C/Cohen_Frank/"
+  },
+  {
+    "name": "Frank Neumann",
+    "path": "/MUSICIANS/N/Neumann_Frank/"
+  },
+  {
+    "name": "Frank Schaefers",
+    "path": "/MUSICIANS/R/Rockin_Limited/Schaefers_Frank/"
+  },
+  {
+    "name": "Frank Tout",
+    "path": "/MUSICIANS/T/Tout_Frank/"
+  },
+  {
+    "name": "Frantic",
+    "path": "/MUSICIANS/F/Frantic/"
+  },
+  {
+    "name": "Freak Future",
+    "path": "/MUSICIANS/F/Future_Freak/"
+  },
+  {
     "name": "Fred Gray",
     "path": "/MUSICIANS/G/Gray_Fred/"
   },
   {
+    "name": "Fred Wuensche",
+    "path": "/MUSICIANS/W/Wuensche_Fred/"
+  },
+  {
+    "name": "Frederic Thiesse",
+    "path": "/MUSICIANS/T/Thiesse_Frederic/"
+  },
+  {
+    "name": "FrederikC1",
+    "path": "/MUSICIANS/F/FrederikC1/"
+  },
+  {
+    "name": "Fredrik",
+    "path": "/MUSICIANS/F/Fredrik/"
+  },
+  {
+    "name": "Fredrik Ademar",
+    "path": "/MUSICIANS/A/Ademar_Fredrik/"
+  },
+  {
+    "name": "Fredrik Blom",
+    "path": "/MUSICIANS/B/Blom_Fredrik/"
+  },
+  {
+    "name": "Freedom",
+    "path": "/MUSICIANS/F/Freedom/"
+  },
+  {
+    "name": "Freeze",
+    "path": "/MUSICIANS/F/Freeze/"
+  },
+  {
+    "name": "Freiburg",
+    "path": "/MUSICIANS/F/Freiburg/"
+  },
+  {
+    "name": "Freqvibez",
+    "path": "/MUSICIANS/F/Freqvibez/"
+  },
+  {
+    "name": "Fritske",
+    "path": "/MUSICIANS/F/Fritske/"
+  },
+  {
+    "name": "Froyd",
+    "path": "/MUSICIANS/F/Froyd/"
+  },
+  {
+    "name": "Fuben",
+    "path": "/MUSICIANS/F/Fuben/"
+  },
+  {
+    "name": "Fulcrum",
+    "path": "/MUSICIANS/F/Fulcrum/"
+  },
+  {
     "name": "Fun Fun",
-    "path": "/MUSICIANS/T/Troelsen_Michael/"
+    "path": "/MUSICIANS/F/Fun_Fun/"
+  },
+  {
+    "name": "Funny",
+    "path": "/MUSICIANS/F/Funny/"
+  },
+  {
+    "name": "Funute",
+    "path": "/MUSICIANS/F/Funute/"
+  },
+  {
+    "name": "Fupaboychris",
+    "path": "/MUSICIANS/F/Fupaboychris/"
+  },
+  {
+    "name": "Fuzjon",
+    "path": "/MUSICIANS/F/Fuzjon/"
+  },
+  {
+    "name": "Fuzz",
+    "path": "/MUSICIANS/F/Fuzz/"
+  },
+  {
+    "name": "G-Fellow",
+    "path": "/MUSICIANS/G/G-Fellow/"
+  },
+  {
+    "name": "Gabor Gaspar",
+    "path": "/MUSICIANS/G/Gaspar_Gabor/"
+  },
+  {
+    "name": "Gabriele Priarone",
+    "path": "/MUSICIANS/P/Priarone_Gabriele/"
+  },
+  {
+    "name": "Gaetano Chiummo",
+    "path": "/MUSICIANS/C/Chiummo_Gaetano/"
+  },
+  {
+    "name": "Galancy",
+    "path": "/MUSICIANS/G/Galancy/"
+  },
+  {
+    "name": "Galaxy",
+    "path": "/MUSICIANS/G/Galaxy/"
+  },
+  {
+    "name": "Galleon",
+    "path": "/MUSICIANS/G/Galleon/"
+  },
+  {
+    "name": "Gangstar",
+    "path": "/MUSICIANS/G/Gangstar/"
+  },
+  {
+    "name": "Ganja",
+    "path": "/MUSICIANS/G/Ganja/"
+  },
+  {
+    "name": "Gargaj",
+    "path": "/MUSICIANS/G/Gargaj/"
+  },
+  {
+    "name": "Garvalf",
+    "path": "/MUSICIANS/G/Garvalf/"
+  },
+  {
+    "name": "Gary Biasillo",
+    "path": "/MUSICIANS/B/Biasillo_Gary/"
+  },
+  {
+    "name": "Gary Bouchard",
+    "path": "/MUSICIANS/B/Bouchard_Gary/"
+  },
+  {
+    "name": "Gary Davis",
+    "path": "/MUSICIANS/D/Davis_Gary/"
+  },
+  {
+    "name": "Gary Foreman",
+    "path": "/MUSICIANS/F/Foreman_Gary/"
+  },
+  {
+    "name": "Gary Sabin",
+    "path": "/MUSICIANS/S/Sabin_Gary/"
+  },
+  {
+    "name": "Gaston",
+    "path": "/MUSICIANS/G/Gaston/"
+  },
+  {
+    "name": "Gavin Raeburn",
+    "path": "/MUSICIANS/R/Raeburn_Gavin/"
+  },
+  {
+    "name": "Gazza",
+    "path": "/MUSICIANS/G/Gazza/"
+  },
+  {
+    "name": "Gee The",
+    "path": "/MUSICIANS/T/The_Gee/"
+  },
+  {
+    "name": "Geir Tjelta",
+    "path": "/MUSICIANS/T/Tjelta_Geir/"
+  },
+  {
+    "name": "Genius",
+    "path": "/MUSICIANS/G/Genius/"
+  },
+  {
+    "name": "Geoff Follin",
+    "path": "/MUSICIANS/F/Follin_Geoff/"
+  },
+  {
+    "name": "Georg Brandt",
+    "path": "/MUSICIANS/B/Brandt_Georg/"
+  },
+  {
+    "name": "Georg Feil",
+    "path": "/MUSICIANS/F/Feil_Georg/"
+  },
+  {
+    "name": "Gerard Gourley",
+    "path": "/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/"
+  },
+  {
+    "name": "Gerard Hultink",
+    "path": "/MUSICIANS/H/Hultink_Gerard/"
+  },
+  {
+    "name": "Gero",
+    "path": "/MUSICIANS/G/Gero/"
+  },
+  {
+    "name": "Gerpsnot",
+    "path": "/MUSICIANS/G/Gerpsnot/"
+  },
+  {
+    "name": "Ghormak",
+    "path": "/MUSICIANS/G/Ghormak/"
+  },
+  {
+    "name": "GI-Joe",
+    "path": "/MUSICIANS/G/GI-Joe/"
+  },
+  {
+    "name": "Gilles Soulet",
+    "path": "/MUSICIANS/S/Soulet_Gilles/"
+  },
+  {
+    "name": "Giulio Zicchi",
+    "path": "/MUSICIANS/Z/Zicchi_Giulio/"
+  },
+  {
+    "name": "Glafouk",
+    "path": "/MUSICIANS/G/Glafouk/"
+  },
+  {
+    "name": "Glenn",
+    "path": "/MUSICIANS/G/Glenn/"
   },
   {
     "name": "Glenn Gallefoss",
-    "path": "/MUSICIANS/G/Gallefoss_Glenn_Rune/"
+    "path": "/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/"
+  },
+  {
+    "name": "Globe",
+    "path": "/MUSICIANS/G/Globe/"
+  },
+  {
+    "name": "Glover",
+    "path": "/MUSICIANS/G/Glover/"
+  },
+  {
+    "name": "Goerp",
+    "path": "/MUSICIANS/G/Goerp/"
+  },
+  {
+    "name": "Goesta Feiweier",
+    "path": "/MUSICIANS/F/Feiweier_Goesta/"
+  },
+  {
+    "name": "Gogol",
+    "path": "/MUSICIANS/G/Gogol/"
+  },
+  {
+    "name": "Goldrush",
+    "path": "/MUSICIANS/G/Goldrush/"
+  },
+  {
+    "name": "Goldsmith",
+    "path": "/MUSICIANS/G/Goldsmith/"
+  },
+  {
+    "name": "Golem",
+    "path": "/MUSICIANS/G/Golem/"
+  },
+  {
+    "name": "Gomez",
+    "path": "/MUSICIANS/G/Gomez/"
+  },
+  {
+    "name": "Goofy",
+    "path": "/MUSICIANS/G/Goofy/"
+  },
+  {
+    "name": "Gop",
+    "path": "/MUSICIANS/G/Gop/"
+  },
+  {
+    "name": "Goto80",
+    "path": "/MUSICIANS/G/Goto80/"
+  },
+  {
+    "name": "Gotoandplay",
+    "path": "/MUSICIANS/G/Gotoandplay/"
+  },
+  {
+    "name": "Gouafhg",
+    "path": "/MUSICIANS/G/Gouafhg/"
+  },
+  {
+    "name": "Graffiti Sonic",
+    "path": "/MUSICIANS/S/Sonic_Graffiti/"
+  },
+  {
+    "name": "Graham Axten",
+    "path": "/MUSICIANS/A/Axten_Graham/"
+  },
+  {
+    "name": "Graham Hansford",
+    "path": "/MUSICIANS/H/Hansford_Graham/"
+  },
+  {
+    "name": "Greatrix",
+    "path": "/MUSICIANS/G/Greatrix/"
+  },
+  {
+    "name": "Greenhorn",
+    "path": "/MUSICIANS/G/Greenhorn/"
+  },
+  {
+    "name": "Greg",
+    "path": "/MUSICIANS/G/Greg/"
+  },
+  {
+    "name": "Gregfeel",
+    "path": "/MUSICIANS/G/Gregfeel/"
+  },
+  {
+    "name": "Griff",
+    "path": "/MUSICIANS/G/Griff/"
+  },
+  {
+    "name": "Groepaz",
+    "path": "/MUSICIANS/G/Groepaz/"
+  },
+  {
+    "name": "Groms",
+    "path": "/MUSICIANS/G/Groms/"
+  },
+  {
+    "name": "Groo",
+    "path": "/MUSICIANS/G/Groo/"
+  },
+  {
+    "name": "Gruby DJ",
+    "path": "/MUSICIANS/D/DJ_Gruby/"
+  },
+  {
+    "name": "Gummibeer",
+    "path": "/MUSICIANS/G/Gummibeer/"
+  },
+  {
+    "name": "Guy Highway",
+    "path": "/MUSICIANS/H/Highway_Guy/"
+  },
+  {
+    "name": "Guy Shavitt",
+    "path": "/MUSICIANS/S/Shavitt_Guy/"
+  },
+  {
+    "name": "GuyGavin",
+    "path": "/MUSICIANS/G/GuyGavin/"
+  },
+  {
+    "name": "GWCNS",
+    "path": "/MUSICIANS/G/GWCNS/"
+  },
+  {
+    "name": "Gwildor",
+    "path": "/MUSICIANS/G/Gwildor/"
+  },
+  {
+    "name": "Gyver Mac",
+    "path": "/MUSICIANS/M/Mac_Gyver/"
+  },
+  {
+    "name": "Hairdog",
+    "path": "/MUSICIANS/H/Hairdog/"
+  },
+  {
+    "name": "Haldor",
+    "path": "/MUSICIANS/H/Haldor/"
+  },
+  {
+    "name": "Hallen",
+    "path": "/MUSICIANS/H/Hallen/"
+  },
+  {
+    "name": "Hamarejun",
+    "path": "/MUSICIANS/H/Hamarejun/"
+  },
+  {
+    "name": "Hands Bionic",
+    "path": "/MUSICIANS/B/Bionic_Hands/"
+  },
+  {
+    "name": "Hank",
+    "path": "/MUSICIANS/H/Hank/"
+  },
+  {
+    "name": "Hans Siemons",
+    "path": "/MUSICIANS/S/Siemons_Hans/"
+  },
+  {
+    "name": "Harald Poulsen",
+    "path": "/MUSICIANS/P/Poulsen_Harald/"
+  },
+  {
+    "name": "Harald Rosenfeldt",
+    "path": "/MUSICIANS/R/Rosenfeldt_Harald/"
+  },
+  {
+    "name": "Harlequin",
+    "path": "/MUSICIANS/H/Harlequin/"
+  },
+  {
+    "name": "Harold Klink",
+    "path": "/MUSICIANS/K/Klink_Harold/"
+  },
+  {
+    "name": "Harry Dirty",
+    "path": "/MUSICIANS/D/Dirty_Harry/"
+  },
+  {
+    "name": "Harry Metz",
+    "path": "/MUSICIANS/M/Metz_Harry/"
+  },
+  {
+    "name": "Harti",
+    "path": "/MUSICIANS/H/Harti/"
+  },
+  {
+    "name": "Haschpipan",
+    "path": "/MUSICIANS/H/Haschpipan/"
+  },
+  {
+    "name": "Havoc",
+    "path": "/MUSICIANS/H/Havoc/"
+  },
+  {
+    "name": "HCL",
+    "path": "/MUSICIANS/H/HCL/"
+  },
+  {
+    "name": "HeatWave",
+    "path": "/MUSICIANS/H/HeatWave/"
+  },
+  {
+    "name": "Heatwave_Harju_Mikko",
+    "path": "/MUSICIANS/H/Heatwave_Harju_Mikko/"
+  },
+  {
+    "name": "Heavy Seppo",
+    "path": "/MUSICIANS/S/Seppo_Heavy/"
+  },
+  {
+    "name": "Hein Holt",
+    "path": "/MUSICIANS/H/Holt_Hein/"
+  },
+  {
+    "name": "Heinmueck",
+    "path": "/MUSICIANS/H/Heinmueck/"
+  },
+  {
+    "name": "Henne",
+    "path": "/MUSICIANS/H/Henne/"
+  },
+  {
+    "name": "Henning Rokling",
+    "path": "/MUSICIANS/R/Rokling_Henning/"
+  },
+  {
+    "name": "Henrik Jensen",
+    "path": "/MUSICIANS/J/Jensen_Henrik/"
   },
   {
     "name": "Hermit",
     "path": "/MUSICIANS/H/Hermit/"
   },
   {
-    "name": "Holt Hein",
-    "path": "/MUSICIANS/H/Holt_Hein/"
+    "name": "Hero",
+    "path": "/MUSICIANS/H/Hero/"
   },
   {
-    "name": "Intensity",
-    "path": "/MUSICIANS/I/Intensity/"
+    "name": "Hevosenliha",
+    "path": "/MUSICIANS/H/Hevosenliha/"
   },
   {
-    "name": "JCH",
-    "path": "/MUSICIANS/J/JCH/"
+    "name": "HIC",
+    "path": "/MUSICIANS/H/HIC/"
   },
   {
-    "name": "JO",
-    "path": "/MUSICIANS/J/JO/"
+    "name": "Higgie",
+    "path": "/MUSICIANS/H/Higgie/"
+  },
+  {
+    "name": "Hithouse",
+    "path": "/MUSICIANS/H/Hithouse/"
+  },
+  {
+    "name": "HJE",
+    "path": "/MUSICIANS/H/HJE/"
+  },
+  {
+    "name": "Hobbit",
+    "path": "/MUSICIANS/H/Hobbit/"
+  },
+  {
+    "name": "Hoffman",
+    "path": "/MUSICIANS/H/Hoffman/"
+  },
+  {
+    "name": "Holger Gehrmann",
+    "path": "/MUSICIANS/G/Gehrmann_Holger/"
+  },
+  {
+    "name": "Holger Knipping",
+    "path": "/MUSICIANS/F/FAME/Knipping_Holger/"
+  },
+  {
+    "name": "Honey",
+    "path": "/MUSICIANS/H/Honey/"
+  },
+  {
+    "name": "Howard Boles",
+    "path": "/MUSICIANS/B/Boles_Howard/"
+  },
+  {
+    "name": "HTB Bad",
+    "path": "/MUSICIANS/B/Bad_HTB/"
+  },
+  {
+    "name": "HTD",
+    "path": "/MUSICIANS/H/HTD/"
+  },
+  {
+    "name": "Hucky",
+    "path": "/MUSICIANS/H/Hucky/"
+  },
+  {
+    "name": "Hudy",
+    "path": "/MUSICIANS/H/Hudy/"
+  },
+  {
+    "name": "Hugenroth_Andre_and_Frank",
+    "path": "/MUSICIANS/H/Hugenroth_Andre_and_Frank/"
+  },
+  {
+    "name": "Hukka",
+    "path": "/MUSICIANS/H/Hukka/"
+  },
+  {
+    "name": "Hydrogen",
+    "path": "/MUSICIANS/H/Hydrogen/"
+  },
+  {
+    "name": "Hyperunknown",
+    "path": "/MUSICIANS/H/Hyperunknown/"
+  },
+  {
+    "name": "Ian Crabtree",
+    "path": "/MUSICIANS/C/Crabtree_Ian/"
+  },
+  {
+    "name": "Ian Scott",
+    "path": "/MUSICIANS/S/Scott_Ian/"
+  },
+  {
+    "name": "Ice",
+    "path": "/MUSICIANS/I/Ice/"
+  },
+  {
+    "name": "Ice Soft",
+    "path": "/MUSICIANS/S/Soft_Ice/"
+  },
+  {
+    "name": "Ice-T",
+    "path": "/MUSICIANS/I/Ice-T/"
+  },
+  {
+    "name": "Iceman",
+    "path": "/MUSICIANS/I/Iceman/"
+  },
+  {
+    "name": "Icon",
+    "path": "/MUSICIANS/I/Icon/"
+  },
+  {
+    "name": "IGP",
+    "path": "/MUSICIANS/I/IGP/"
+  },
+  {
+    "name": "II Mach",
+    "path": "/MUSICIANS/M/Mach_II/"
+  },
+  {
+    "name": "II Mark",
+    "path": "/MUSICIANS/M/Mark_II/"
+  },
+  {
+    "name": "Ilkke",
+    "path": "/MUSICIANS/I/Ilkke/"
+  },
+  {
+    "name": "Ilmarque",
+    "path": "/MUSICIANS/I/Ilmarque/"
+  },
+  {
+    "name": "Image",
+    "path": "/MUSICIANS/I/Image/"
+  },
+  {
+    "name": "Imaic",
+    "path": "/MUSICIANS/I/Imaic/"
+  },
+  {
+    "name": "Imo",
+    "path": "/MUSICIANS/I/Imo/"
+  },
+  {
+    "name": "Improve",
+    "path": "/MUSICIANS/I/Improve/"
+  },
+  {
+    "name": "Inc Imagineering",
+    "path": "/MUSICIANS/I/Imagineering_Inc/"
+  },
+  {
+    "name": "Inge Pedersen",
+    "path": "/MUSICIANS/P/Pedersen_Inge/"
+  },
+  {
+    "name": "Input",
+    "path": "/MUSICIANS/I/Input/"
+  },
+  {
+    "name": "Inside",
+    "path": "/MUSICIANS/I/Inside/"
+  },
+  {
+    "name": "Insider",
+    "path": "/MUSICIANS/I/Insider/"
+  },
+  {
+    "name": "Insomniac The",
+    "path": "/MUSICIANS/T/The_Insomniac/"
+  },
+  {
+    "name": "Intense",
+    "path": "/MUSICIANS/I/Intense/"
+  },
+  {
+    "name": "Intruders Alien",
+    "path": "/MUSICIANS/A/Alien_Intruders/"
+  },
+  {
+    "name": "Invisible",
+    "path": "/MUSICIANS/I/Invisible/"
+  },
+  {
+    "name": "IRQ The",
+    "path": "/MUSICIANS/T/The_IRQ/"
+  },
+  {
+    "name": "Isildur",
+    "path": "/MUSICIANS/I/Isildur/"
+  },
+  {
+    "name": "ISM",
+    "path": "/MUSICIANS/I/ISM/"
+  },
+  {
+    "name": "Isocosa",
+    "path": "/MUSICIANS/I/Isocosa/"
+  },
+  {
+    "name": "Ispace",
+    "path": "/MUSICIANS/I/Ispace/"
+  },
+  {
+    "name": "It Ass",
+    "path": "/MUSICIANS/A/Ass_It/"
+  },
+  {
+    "name": "Ivan Venturi",
+    "path": "/MUSICIANS/V/Venturi_Ivan/"
+  },
+  {
+    "name": "Ivory",
+    "path": "/MUSICIANS/I/Ivory/"
+  },
+  {
+    "name": "J Dr",
+    "path": "/MUSICIANS/D/Dr_J/"
+  },
+  {
+    "name": "J-Up",
+    "path": "/MUSICIANS/J/J-Up/"
+  },
+  {
+    "name": "Jab",
+    "path": "/MUSICIANS/J/Jab/"
+  },
+  {
+    "name": "Jac",
+    "path": "/MUSICIANS/J/Jac/"
+  },
+  {
+    "name": "Jack-Paw-Judi",
+    "path": "/MUSICIANS/J/Jack-Paw-Judi/"
+  },
+  {
+    "name": "Jacob Surland",
+    "path": "/MUSICIANS/S/Surland_Jacob/"
+  },
+  {
+    "name": "Jadawin",
+    "path": "/MUSICIANS/J/Jadawin/"
+  },
+  {
+    "name": "Jadoone",
+    "path": "/MUSICIANS/J/Jadoone/"
+  },
+  {
+    "name": "Jakim",
+    "path": "/MUSICIANS/J/Jakim/"
+  },
+  {
+    "name": "James Hilty",
+    "path": "/MUSICIANS/H/Hilty_James/"
+  },
+  {
+    "name": "James Lisney",
+    "path": "/MUSICIANS/L/Lisney_James/"
+  },
+  {
+    "name": "James Stone",
+    "path": "/MUSICIANS/S/Stone_James/"
+  },
+  {
+    "name": "James Vogel",
+    "path": "/MUSICIANS/V/Vogel_James/"
+  },
+  {
+    "name": "James Weiler",
+    "path": "/MUSICIANS/W/Weiler_James/"
+  },
+  {
+    "name": "Jamie Howard",
+    "path": "/MUSICIANS/H/Howard_Jamie/"
   },
   {
     "name": "Jammer",
     "path": "/MUSICIANS/J/Jammer/"
   },
   {
+    "name": "Jammic",
+    "path": "/MUSICIANS/J/Jammic/"
+  },
+  {
+    "name": "Jan Albartus",
+    "path": "/MUSICIANS/A/Albartus_Jan/"
+  },
+  {
+    "name": "Jan Krolzig",
+    "path": "/MUSICIANS/K/Krolzig_Jan/"
+  },
+  {
+    "name": "Jan Zimmermann",
+    "path": "/MUSICIANS/Z/Zimmermann_Jan/"
+  },
+  {
+    "name": "Jane",
+    "path": "/MUSICIANS/J/Jane/"
+  },
+  {
+    "name": "Jangler",
+    "path": "/MUSICIANS/J/Jangler/"
+  },
+  {
+    "name": "Jani Joeli",
+    "path": "/MUSICIANS/J/Joeli_Jani/"
+  },
+  {
+    "name": "Jani Parviainen",
+    "path": "/MUSICIANS/P/Parviainen_Jani/"
+  },
+  {
+    "name": "Janne Hannula",
+    "path": "/MUSICIANS/H/Hannula_Janne/"
+  },
+  {
+    "name": "Janne Kurunsaari",
+    "path": "/MUSICIANS/K/Kurunsaari_Janne/"
+  },
+  {
+    "name": "Janusz Dabrowski",
+    "path": "/MUSICIANS/D/Dabrowski_Janusz/"
+  },
+  {
+    "name": "JAP",
+    "path": "/MUSICIANS/J/JAP/"
+  },
+  {
+    "name": "Japmaster",
+    "path": "/MUSICIANS/J/Japmaster/"
+  },
+  {
+    "name": "Jarek Antoniak",
+    "path": "/MUSICIANS/A/Antoniak_Jarek/"
+  },
+  {
+    "name": "Jason Briggs",
+    "path": "/MUSICIANS/B/Briggs_Jason/"
+  },
+  {
+    "name": "Jason Brooke",
+    "path": "/MUSICIANS/B/Brooke_Jason/"
+  },
+  {
+    "name": "Jason Morrell",
+    "path": "/MUSICIANS/M/Morrell_Jason/"
+  },
+  {
+    "name": "Jason Page",
+    "path": "/MUSICIANS/P/Page_Jason/"
+  },
+  {
+    "name": "Jason Perkins",
+    "path": "/MUSICIANS/P/Perkins_Jason/"
+  },
+  {
+    "name": "Jason Tinkler",
+    "path": "/MUSICIANS/T/Tinkler_Jason/"
+  },
+  {
+    "name": "Java",
+    "path": "/MUSICIANS/J/Java/"
+  },
+  {
+    "name": "Jay Derrett",
+    "path": "/MUSICIANS/D/Derrett_Jay/"
+  },
+  {
+    "name": "Jaymz Julian",
+    "path": "/MUSICIANS/J/Julian_Jaymz/"
+  },
+  {
+    "name": "Jaz_and_Mo",
+    "path": "/MUSICIANS/J/Jaz_and_Mo/"
+  },
+  {
+    "name": "Jazzman",
+    "path": "/MUSICIANS/J/Jazzman/"
+  },
+  {
+    "name": "JB",
+    "path": "/MUSICIANS/J/JB/"
+  },
+  {
+    "name": "JCH",
+    "path": "/MUSICIANS/J/JCH/"
+  },
+  {
     "name": "Jeff",
     "path": "/MUSICIANS/J/Jeff/"
+  },
+  {
+    "name": "Jeff Minter",
+    "path": "/MUSICIANS/M/Minter_Jeff/"
+  },
+  {
+    "name": "Jellica",
+    "path": "/MUSICIANS/J/Jellica/"
+  },
+  {
+    "name": "Jenny16",
+    "path": "/MUSICIANS/J/Jenny16/"
+  },
+  {
+    "name": "Jens Blidon",
+    "path": "/MUSICIANS/B/Blidon_Jens/"
+  },
+  {
+    "name": "Jer",
+    "path": "/MUSICIANS/J/Jer/"
+  },
+  {
+    "name": "Jeremy Hall",
+    "path": "/MUSICIANS/H/Hall_Jeremy/"
+  },
+  {
+    "name": "Jeremy Thorne",
+    "path": "/MUSICIANS/T/Thorne_Jeremy/"
+  },
+  {
+    "name": "Jericho Swathe",
+    "path": "/MUSICIANS/S/Swathe_Jericho/"
+  },
+  {
+    "name": "Jeroen Koops",
+    "path": "/MUSICIANS/K/Koops_Jeroen/"
+  },
+  {
+    "name": "Jeroen Soede",
+    "path": "/MUSICIANS/S/SoedeSoft/Soede_Jeroen/"
   },
   {
     "name": "Jeroen Tel",
     "path": "/MUSICIANS/T/Tel_Jeroen/"
   },
   {
+    "name": "Jerusalem Spider",
+    "path": "/MUSICIANS/S/Spider_Jerusalem/"
+  },
+  {
+    "name": "Jesper Kyd",
+    "path": "/MUSICIANS/K/Kyd_Jesper/"
+  },
+  {
+    "name": "Jesper Spang",
+    "path": "/MUSICIANS/S/Spang_Jesper/"
+  },
+  {
+    "name": "Jesper Thorndahl",
+    "path": "/MUSICIANS/T/Thorndahl_Jesper/"
+  },
+  {
+    "name": "Jetan",
+    "path": "/MUSICIANS/J/Jetan/"
+  },
+  {
+    "name": "JetStar1997",
+    "path": "/MUSICIANS/J/JetStar1997/"
+  },
+  {
+    "name": "JFK",
+    "path": "/MUSICIANS/J/JFK/"
+  },
+  {
+    "name": "Jim Baguley",
+    "path": "/MUSICIANS/B/Baguley_Jim/"
+  },
+  {
+    "name": "Jim Butterfield",
+    "path": "/MUSICIANS/B/Butterfield_Jim/"
+  },
+  {
+    "name": "Jim Cuomo",
+    "path": "/MUSICIANS/C/Cuomo_Jim/"
+  },
+  {
+    "name": "Jim MacKenzie",
+    "path": "/MUSICIANS/M/MacKenzie_Jim/"
+  },
+  {
+    "name": "Jim Simmons",
+    "path": "/MUSICIANS/S/Simmons_Jim/"
+  },
+  {
+    "name": "Jipe",
+    "path": "/MUSICIANS/J/Jipe/"
+  },
+  {
+    "name": "JKS",
+    "path": "/MUSICIANS/J/JKS/"
+  },
+  {
+    "name": "JLD",
+    "path": "/MUSICIANS/J/JLD/"
+  },
+  {
+    "name": "JO",
+    "path": "/MUSICIANS/J/JO/"
+  },
+  {
+    "name": "Joachim Wijnhoven",
+    "path": "/MUSICIANS/W/Wijnhoven_Joachim/"
+  },
+  {
+    "name": "Joan",
+    "path": "/MUSICIANS/J/Joan/"
+  },
+  {
+    "name": "Joe",
+    "path": "/MUSICIANS/J/Joe/"
+  },
+  {
+    "name": "Joe Ekaitis",
+    "path": "/MUSICIANS/E/Ekaitis_Joe/"
+  },
+  {
+    "name": "Joe Garrett",
+    "path": "/MUSICIANS/G/Garrett_Joe/"
+  },
+  {
+    "name": "Joe Mafia",
+    "path": "/MUSICIANS/M/Mafia_Joe/"
+  },
+  {
+    "name": "Joe Mr",
+    "path": "/MUSICIANS/M/Mr_Joe/"
+  },
+  {
+    "name": "Joel Rea",
+    "path": "/MUSICIANS/R/Rea_Joel/"
+  },
+  {
+    "name": "Joerg Rosenstiel",
+    "path": "/MUSICIANS/R/Rosenstiel_Joerg/"
+  },
+  {
+    "name": "Joerg Schaefers",
+    "path": "/MUSICIANS/R/Rockin_Limited/Schaefers_Joerg/"
+  },
+  {
+    "name": "Joerg Schliesser",
+    "path": "/MUSICIANS/S/Schliesser_Joerg/"
+  },
+  {
+    "name": "Joerg Schuette",
+    "path": "/MUSICIANS/S/Schuette_Joerg/"
+  },
+  {
+    "name": "Joerg Sieslack",
+    "path": "/MUSICIANS/S/Sieslack_Joerg/"
+  },
+  {
+    "name": "Joerg Winterstein",
+    "path": "/MUSICIANS/W/Winterstein_Joerg/"
+  },
+  {
+    "name": "Joey Latimer",
+    "path": "/MUSICIANS/L/Latimer_Joey/"
+  },
+  {
+    "name": "Johan Vessby",
+    "path": "/MUSICIANS/V/Vessby_Johan/"
+  },
+  {
+    "name": "Johann Stoeten",
+    "path": "/MUSICIANS/S/Stoeten_Johann/"
+  },
+  {
     "name": "Johannes Bjerregaard",
     "path": "/MUSICIANS/B/Bjerregaard_Johannes/"
+  },
+  {
+    "name": "Johey",
+    "path": "/MUSICIANS/J/Johey/"
+  },
+  {
+    "name": "John Ames",
+    "path": "/MUSICIANS/A/Ames_John/"
+  },
+  {
+    "name": "John Davis",
+    "path": "/MUSICIANS/D/Davis_John/"
+  },
+  {
+    "name": "John Fitzpatrick",
+    "path": "/MUSICIANS/F/Fitzpatrick_John/"
+  },
+  {
+    "name": "John Hancock",
+    "path": "/MUSICIANS/H/Hancock_John/"
+  },
+  {
+    "name": "John Keding",
+    "path": "/MUSICIANS/K/Keding_John/"
+  },
+  {
+    "name": "John Prince",
+    "path": "/MUSICIANS/P/Prince_John/"
+  },
+  {
+    "name": "John Stephenson",
+    "path": "/MUSICIANS/S/Stephenson_John/"
+  },
+  {
+    "name": "John Stormont",
+    "path": "/MUSICIANS/S/Stormont_John/"
+  },
+  {
+    "name": "John Vanderaart",
+    "path": "/MUSICIANS/V/Vanderaart_John/"
+  },
+  {
+    "name": "Johnny",
+    "path": "/MUSICIANS/J/Johnny/"
+  },
+  {
+    "name": "Joker",
+    "path": "/MUSICIANS/J/Joker/"
+  },
+  {
+    "name": "Joker Mr",
+    "path": "/MUSICIANS/M/Mr_Joker/"
+  },
+  {
+    "name": "Jon Rami",
+    "path": "/MUSICIANS/R/Rami_Jon/"
+  },
+  {
+    "name": "Jon Wells",
+    "path": "/MUSICIANS/W/Wells_Jon/"
+  },
+  {
+    "name": "Jonas Double",
+    "path": "/MUSICIANS/D/Double_Jonas/"
+  },
+  {
+    "name": "Jonas Hulten",
+    "path": "/MUSICIANS/H/Hulten_Jonas/"
   },
   {
     "name": "Jonathan Dunn",
     "path": "/MUSICIANS/D/Dunn_Jonathan/"
   },
   {
-    "name": "Jori Olkkonen",
-    "path": "/MUSICIANS/Y/Yip/"
+    "name": "Jonathan Gourd",
+    "path": "/MUSICIANS/G/Gourd_Jonathan/"
   },
   {
-    "name": "Kim Christensen",
-    "path": "/MUSICIANS/F/Future_Freak/"
+    "name": "Jones",
+    "path": "/MUSICIANS/J/Jones/"
+  },
+  {
+    "name": "Jonny",
+    "path": "/MUSICIANS/J/Jonny/"
+  },
+  {
+    "name": "Jope",
+    "path": "/MUSICIANS/J/Jope/"
+  },
+  {
+    "name": "Joseph Charnetski",
+    "path": "/MUSICIANS/C/Charnetski_Joseph/"
+  },
+  {
+    "name": "Josstintimberlake",
+    "path": "/MUSICIANS/J/Josstintimberlake/"
+  },
+  {
+    "name": "Jowlsucks",
+    "path": "/MUSICIANS/J/Jowlsucks/"
+  },
+  {
+    "name": "Jucke",
+    "path": "/MUSICIANS/J/Jucke/"
+  },
+  {
+    "name": "Juergen Paasch",
+    "path": "/MUSICIANS/P/Paasch_Juergen/"
+  },
+  {
+    "name": "Juice",
+    "path": "/MUSICIANS/J/Juice/"
+  },
+  {
+    "name": "Jupp3",
+    "path": "/MUSICIANS/J/Jupp3/"
+  },
+  {
+    "name": "Juzdie",
+    "path": "/MUSICIANS/J/Juzdie/"
+  },
+  {
+    "name": "JVD",
+    "path": "/MUSICIANS/J/JVD/"
+  },
+  {
+    "name": "K Akira",
+    "path": "/MUSICIANS/A/Akira_K/"
+  },
+  {
+    "name": "Kaos Tonal",
+    "path": "/MUSICIANS/T/Tonal_Kaos/"
+  },
+  {
+    "name": "Karateka",
+    "path": "/MUSICIANS/K/Karateka/"
+  },
+  {
+    "name": "Karl Hoernell",
+    "path": "/MUSICIANS/H/Hoernell_Karl/"
+  },
+  {
+    "name": "Karmic",
+    "path": "/MUSICIANS/K/Karmic/"
+  },
+  {
+    "name": "Kasmo",
+    "path": "/MUSICIANS/K/Kasmo/"
+  },
+  {
+    "name": "Kay Tichelmann",
+    "path": "/MUSICIANS/T/Tichelmann_Kay/"
+  },
+  {
+    "name": "Kaze",
+    "path": "/MUSICIANS/K/Kaze/"
+  },
+  {
+    "name": "KB",
+    "path": "/MUSICIANS/K/KB/"
+  },
+  {
+    "name": "KC-Lion",
+    "path": "/MUSICIANS/K/KC-Lion/"
+  },
+  {
+    "name": "Keen",
+    "path": "/MUSICIANS/K/Keen/"
+  },
+  {
+    "name": "Kees Tel",
+    "path": "/MUSICIANS/T/Tel_Kees/"
+  },
+  {
+    "name": "Kefir Wild",
+    "path": "/MUSICIANS/W/Wild_Kefir/"
+  },
+  {
+    "name": "Keith",
+    "path": "/MUSICIANS/K/Keith/"
+  },
+  {
+    "name": "Keith Tinman",
+    "path": "/MUSICIANS/T/Tinman_Keith/"
+  },
+  {
+    "name": "Keith Wood",
+    "path": "/MUSICIANS/W/Wood_Keith/"
+  },
+  {
+    "name": "Ken",
+    "path": "/MUSICIANS/K/Ken/"
+  },
+  {
+    "name": "Ken Browning",
+    "path": "/MUSICIANS/B/Browning_Ken/"
+  },
+  {
+    "name": "Ken Lagace",
+    "path": "/MUSICIANS/L/Lagace_Ken/"
+  },
+  {
+    "name": "Kendal",
+    "path": "/MUSICIANS/K/Kendal/"
+  },
+  {
+    "name": "Kenneth Arnold",
+    "path": "/MUSICIANS/A/Arnold_Kenneth/"
+  },
+  {
+    "name": "Kent Patfield",
+    "path": "/MUSICIANS/P/Patfield_Kent/"
+  },
+  {
+    "name": "Kevin Buckley",
+    "path": "/MUSICIANS/B/Buckley_Kevin/"
+  },
+  {
+    "name": "Kevin Cloud",
+    "path": "/MUSICIANS/C/Cloud_Kevin/"
+  },
+  {
+    "name": "Kevin Moughtin",
+    "path": "/MUSICIANS/M/Moughtin_Kevin/"
+  },
+  {
+    "name": "Kfaraday",
+    "path": "/MUSICIANS/K/Kfaraday/"
+  },
+  {
+    "name": "Kidd_Clark_and_Kathy",
+    "path": "/MUSICIANS/K/Kidd_Clark_and_Kathy/"
+  },
+  {
+    "name": "Killer",
+    "path": "/MUSICIANS/K/Killer/"
+  },
+  {
+    "name": "Kim Andersen",
+    "path": "/MUSICIANS/A/Andersen_Kim/"
+  },
+  {
+    "name": "Kitana",
+    "path": "/MUSICIANS/K/Kitana/"
+  },
+  {
+    "name": "Kjell Nordboe",
+    "path": "/MUSICIANS/B/Blues_Muz/Nordboe_Kjell/"
+  },
+  {
+    "name": "Klabbsock",
+    "path": "/MUSICIANS/K/Klabbsock/"
+  },
+  {
+    "name": "Klax",
+    "path": "/MUSICIANS/K/Klax/"
+  },
+  {
+    "name": "Kleeder",
+    "path": "/MUSICIANS/K/Kleeder/"
+  },
+  {
+    "name": "Klegg",
+    "path": "/MUSICIANS/K/Klegg/"
+  },
+  {
+    "name": "Knatter",
+    "path": "/MUSICIANS/K/Knatter/"
+  },
+  {
+    "name": "Knee Raw",
+    "path": "/MUSICIANS/R/Raw_Knee/"
+  },
+  {
+    "name": "Knoeki",
+    "path": "/MUSICIANS/K/Knoeki/"
+  },
+  {
+    "name": "Knoxburry Baron",
+    "path": "/MUSICIANS/B/Baron_Knoxburry/"
+  },
+  {
+    "name": "Knutsi Aleksi",
+    "path": "/MUSICIANS/A/Aleksi_Knutsi/"
+  },
+  {
+    "name": "Kohal",
+    "path": "/MUSICIANS/K/Kohal/"
+  },
+  {
+    "name": "Kompositkrut",
+    "path": "/MUSICIANS/K/Kompositkrut/"
+  },
+  {
+    "name": "Konrad Kiss",
+    "path": "/MUSICIANS/K/Kiss_Konrad/"
+  },
+  {
+    "name": "Kool Daddy",
+    "path": "/MUSICIANS/D/Daddy_Kool/"
+  },
+  {
+    "name": "koopa Franz",
+    "path": "/MUSICIANS/F/Franz_koopa/"
+  },
+  {
+    "name": "Kordiaukis",
+    "path": "/MUSICIANS/K/Kordiaukis/"
+  },
+  {
+    "name": "Kosa",
+    "path": "/MUSICIANS/K/Kosa/"
+  },
+  {
+    "name": "Koval Funky",
+    "path": "/MUSICIANS/F/Funky_Koval/"
+  },
+  {
+    "name": "Kravin",
+    "path": "/MUSICIANS/K/Kravin/"
+  },
+  {
+    "name": "Kribust",
+    "path": "/MUSICIANS/K/Kribust/"
+  },
+  {
+    "name": "Kris Hatlelid",
+    "path": "/MUSICIANS/H/Hatlelid_Kris/"
+  },
+  {
+    "name": "Kristian Roestoeen",
+    "path": "/MUSICIANS/B/Blues_Muz/Roestoeen_Kristian/"
+  },
+  {
+    "name": "Kristopher Roebuck",
+    "path": "/MUSICIANS/R/Roebuck_Kristopher/"
+  },
+  {
+    "name": "Krugi",
+    "path": "/MUSICIANS/K/Krugi/"
+  },
+  {
+    "name": "Kruthers",
+    "path": "/MUSICIANS/K/Kruthers/"
+  },
+  {
+    "name": "Krwiak",
+    "path": "/MUSICIANS/K/Krwiak/"
+  },
+  {
+    "name": "Kry",
+    "path": "/MUSICIANS/K/Kry/"
+  },
+  {
+    "name": "Ksin",
+    "path": "/MUSICIANS/K/Ksin/"
+  },
+  {
+    "name": "Kuklux",
+    "path": "/MUSICIANS/K/Kuklux/"
+  },
+  {
+    "name": "Kulor",
+    "path": "/MUSICIANS/K/Kulor/"
+  },
+  {
+    "name": "Kyle Hodgetts",
+    "path": "/MUSICIANS/H/Hodgetts_Kyle/"
+  },
+  {
+    "name": "Kyle Johnson",
+    "path": "/MUSICIANS/J/Johnson_Kyle/"
+  },
+  {
+    "name": "L Mr",
+    "path": "/MUSICIANS/M/Mr_L/"
+  },
+  {
+    "name": "LaRock Duck",
+    "path": "/MUSICIANS/D/Duck_LaRock/"
+  },
+  {
+    "name": "Lars Haard",
+    "path": "/MUSICIANS/H/Haard_Lars/"
+  },
+  {
+    "name": "Lars Hoff",
+    "path": "/MUSICIANS/P/Prosonix/Hoff_Lars/"
+  },
+  {
+    "name": "Laserboy",
+    "path": "/MUSICIANS/L/Laserboy/"
+  },
+  {
+    "name": "Laszlo Simon",
+    "path": "/MUSICIANS/S/Simon_Laszlo/"
+  },
+  {
+    "name": "Latifah",
+    "path": "/MUSICIANS/L/Latifah/"
+  },
+  {
+    "name": "Laurikka",
+    "path": "/MUSICIANS/L/Laurikka/"
   },
   {
     "name": "Laxity",
     "path": "/MUSICIANS/L/Laxity/"
   },
   {
+    "name": "LDX40",
+    "path": "/MUSICIANS/L/LDX40/"
+  },
+  {
+    "name": "Lead",
+    "path": "/MUSICIANS/L/Lead/"
+  },
+  {
+    "name": "Leaf",
+    "path": "/MUSICIANS/L/Leaf/"
+  },
+  {
+    "name": "Leffty",
+    "path": "/MUSICIANS/L/Leffty/"
+  },
+  {
+    "name": "Legend Lyon",
+    "path": "/MUSICIANS/L/Lyon_Legend/"
+  },
+  {
+    "name": "Leif Geijer",
+    "path": "/MUSICIANS/G/Geijer_Leif/"
+  },
+  {
+    "name": "Leming",
+    "path": "/MUSICIANS/L/Leming/"
+  },
+  {
+    "name": "Lester",
+    "path": "/MUSICIANS/L/Lester/"
+  },
+  {
+    "name": "Lft",
+    "path": "/MUSICIANS/L/Lft/"
+  },
+  {
+    "name": "Liket",
+    "path": "/MUSICIANS/L/Liket/"
+  },
+  {
+    "name": "Limited Rockin",
+    "path": "/MUSICIANS/R/Rockin_Limited/"
+  },
+  {
+    "name": "Linde",
+    "path": "/MUSICIANS/L/Linde/"
+  },
+  {
+    "name": "Link",
+    "path": "/MUSICIANS/L/Link/"
+  },
+  {
+    "name": "Linus",
+    "path": "/MUSICIANS/L/Linus/"
+  },
+  {
+    "name": "Lio",
+    "path": "/MUSICIANS/L/Lio/"
+  },
+  {
+    "name": "Little-Nero",
+    "path": "/MUSICIANS/L/Little-Nero/"
+  },
+  {
+    "name": "LMan",
+    "path": "/MUSICIANS/L/LMan/"
+  },
+  {
+    "name": "Locust",
+    "path": "/MUSICIANS/L/Locust/"
+  },
+  {
+    "name": "Logan",
+    "path": "/MUSICIANS/L/Logan/"
+  },
+  {
+    "name": "Lonely Mr",
+    "path": "/MUSICIANS/M/Mr_Lonely/"
+  },
+  {
+    "name": "Longhair",
+    "path": "/MUSICIANS/L/Longhair/"
+  },
+  {
+    "name": "Lord MC",
+    "path": "/MUSICIANS/M/MC_Lord/"
+  },
+  {
+    "name": "LordNikon",
+    "path": "/MUSICIANS/L/LordNikon/"
+  },
+  {
+    "name": "Los_Pat_Moritas",
+    "path": "/MUSICIANS/L/Los_Pat_Moritas/"
+  },
+  {
+    "name": "Lou Gray",
+    "path": "/MUSICIANS/G/Gray_Lou/"
+  },
+  {
+    "name": "Louie",
+    "path": "/MUSICIANS/L/Louie/"
+  },
+  {
+    "name": "Louis Ewens",
+    "path": "/MUSICIANS/E/Ewens_Louis/"
+  },
+  {
+    "name": "LSD",
+    "path": "/MUSICIANS/L/LSD/"
+  },
+  {
+    "name": "Luca",
+    "path": "/MUSICIANS/L/Luca/"
+  },
+  {
+    "name": "Luigi Recanatese",
+    "path": "/MUSICIANS/R/Recanatese_Luigi/"
+  },
+  {
+    "name": "LukHash",
+    "path": "/MUSICIANS/L/LukHash/"
+  },
+  {
+    "name": "Lula",
+    "path": "/MUSICIANS/L/Lula/"
+  },
+  {
+    "name": "Lumby Big",
+    "path": "/MUSICIANS/B/Big_Lumby/"
+  },
+  {
+    "name": "Lunatic",
+    "path": "/MUSICIANS/L/Lunatic/"
+  },
+  {
+    "name": "Lyndon Sharp",
+    "path": "/MUSICIANS/S/Sharp_Lyndon/"
+  },
+  {
+    "name": "Lynx",
+    "path": "/MUSICIANS/P/Prosonix/Lynx/"
+  },
+  {
+    "name": "M_O_T",
+    "path": "/MUSICIANS/M/M_O_T/"
+  },
+  {
+    "name": "Maak",
+    "path": "/MUSICIANS/M/Maak/"
+  },
+  {
+    "name": "Maarten Vellinga",
+    "path": "/MUSICIANS/V/Vellinga_Maarten/"
+  },
+  {
+    "name": "MAC2",
+    "path": "/MUSICIANS/M/MAC2/"
+  },
+  {
+    "name": "Macabros",
+    "path": "/MUSICIANS/M/Macabros/"
+  },
+  {
+    "name": "Mace",
+    "path": "/MUSICIANS/M/Mace/"
+  },
+  {
+    "name": "Machine Beat",
+    "path": "/MUSICIANS/B/Beat_Machine/"
+  },
+  {
+    "name": "Maci",
+    "path": "/MUSICIANS/M/Maci/"
+  },
+  {
+    "name": "Maciej Kochan",
+    "path": "/MUSICIANS/K/Kochan_Maciej/"
+  },
+  {
+    "name": "Maclaw",
+    "path": "/MUSICIANS/M/Maclaw/"
+  },
+  {
+    "name": "Macx",
+    "path": "/MUSICIANS/M/Macx/"
+  },
+  {
+    "name": "Mad Howlin",
+    "path": "/MUSICIANS/H/Howlin_Mad/"
+  },
+  {
+    "name": "Mad_Arrowsmith_Michael",
+    "path": "/MUSICIANS/M/Mad_Arrowsmith_Michael/"
+  },
+  {
+    "name": "Mad_Donne_Marcel",
+    "path": "/MUSICIANS/M/Mad_Donne_Marcel/"
+  },
+  {
+    "name": "Mad_Mader_Stephan",
+    "path": "/MUSICIANS/M/Mad_Mader_Stephan/"
+  },
+  {
+    "name": "Mad-Max",
+    "path": "/MUSICIANS/M/Mad-Max/"
+  },
+  {
+    "name": "Madaco",
+    "path": "/MUSICIANS/M/Madaco/"
+  },
+  {
+    "name": "Madhacker",
+    "path": "/MUSICIANS/M/Madhacker/"
+  },
+  {
+    "name": "Madmax",
+    "path": "/MUSICIANS/M/Madmax/"
+  },
+  {
+    "name": "Maduplec",
+    "path": "/MUSICIANS/M/Maduplec/"
+  },
+  {
+    "name": "Magnar",
+    "path": "/MUSICIANS/M/Magnar/"
+  },
+  {
     "name": "Mahoney",
     "path": "/MUSICIANS/M/Mahoney/"
+  },
+  {
+    "name": "Majaniemi",
+    "path": "/MUSICIANS/M/Majaniemi/"
+  },
+  {
+    "name": "Maktone",
+    "path": "/MUSICIANS/M/Maktone/"
+  },
+  {
+    "name": "Mamba",
+    "path": "/MUSICIANS/M/Mamba/"
+  },
+  {
+    "name": "Man Magic",
+    "path": "/MUSICIANS/M/Magic_Man/"
+  },
+  {
+    "name": "Manex",
+    "path": "/MUSICIANS/M/Manex/"
+  },
+  {
+    "name": "Manganoid",
+    "path": "/MUSICIANS/M/Manganoid/"
+  },
+  {
+    "name": "Maniac",
+    "path": "/MUSICIANS/M/Maniac/"
+  },
+  {
+    "name": "Maniac Metal",
+    "path": "/MUSICIANS/M/Metal_Maniac/"
+  },
+  {
+    "name": "Manical",
+    "path": "/MUSICIANS/M/Manical/"
+  },
+  {
+    "name": "Manik",
+    "path": "/MUSICIANS/M/Manik/"
+  },
+  {
+    "name": "Mankeli",
+    "path": "/MUSICIANS/M/Mankeli/"
+  },
+  {
+    "name": "Manta Ray",
+    "path": "/MUSICIANS/R/Ray_Manta/"
+  },
+  {
+    "name": "Manuel Mueller",
+    "path": "/MUSICIANS/M/Mueller_Manuel/"
+  },
+  {
+    "name": "Marc",
+    "path": "/MUSICIANS/M/Marc/"
+  },
+  {
+    "name": "Marc Francois",
+    "path": "/MUSICIANS/F/Francois_Marc/"
+  },
+  {
+    "name": "Marc Liedtke",
+    "path": "/MUSICIANS/L/Liedtke_Marc/"
+  },
+  {
+    "name": "Marcello Giombini",
+    "path": "/MUSICIANS/G/Giombini_Marcello/"
+  },
+  {
+    "name": "Marco Scheepers",
+    "path": "/MUSICIANS/S/Scheepers_Marco/"
+  },
+  {
+    "name": "Marcus Charleville",
+    "path": "/MUSICIANS/C/Charleville_Marcus/"
+  },
+  {
+    "name": "Marcus Rousseau",
+    "path": "/MUSICIANS/R/Rousseau_Marcus/"
+  },
+  {
+    "name": "Marcy",
+    "path": "/MUSICIANS/M/Marcy/"
+  },
+  {
+    "name": "Mare",
+    "path": "/MUSICIANS/M/Mare/"
+  },
+  {
+    "name": "Mario Kriwanek",
+    "path": "/MUSICIANS/K/Kriwanek_Mario/"
+  },
+  {
+    "name": "Mario Morra",
+    "path": "/MUSICIANS/M/Morra_Mario/"
+  },
+  {
+    "name": "Mario Oropesa",
+    "path": "/MUSICIANS/O/Oropesa_Mario/"
+  },
+  {
+    "name": "Mario64",
+    "path": "/MUSICIANS/M/Mario64/"
+  },
+  {
+    "name": "Mark Clements",
+    "path": "/MUSICIANS/C/Clements_Mark/"
   },
   {
     "name": "Mark Cooksey",
     "path": "/MUSICIANS/C/Cooksey_Mark/"
   },
   {
+    "name": "Mark Darin",
+    "path": "/MUSICIANS/D/Darin_Mark/"
+  },
+  {
+    "name": "Mark Enzo",
+    "path": "/MUSICIANS/E/Enzo_Mark/"
+  },
+  {
+    "name": "Mark Hammond",
+    "path": "/MUSICIANS/H/Hammond_Mark/"
+  },
+  {
+    "name": "Mark Harrison",
+    "path": "/MUSICIANS/H/Harrison_Mark/"
+  },
+  {
+    "name": "Mark Ross",
+    "path": "/MUSICIANS/R/Ross_Mark/"
+  },
+  {
+    "name": "Mark Tait",
+    "path": "/MUSICIANS/T/Tait_Mark/"
+  },
+  {
+    "name": "Mark Trotter",
+    "path": "/MUSICIANS/T/Trotter_Mark/"
+  },
+  {
+    "name": "Mark Wilson",
+    "path": "/MUSICIANS/W/Wilson_Mark/"
+  },
+  {
+    "name": "Markus Mueller",
+    "path": "/MUSICIANS/M/Mueller_Markus/"
+  },
+  {
+    "name": "Markus Schneider",
+    "path": "/MUSICIANS/S/Schneider_Markus/"
+  },
+  {
+    "name": "Markus Siebold",
+    "path": "/MUSICIANS/S/Siebold_Markus/"
+  },
+  {
+    "name": "Markus Weber",
+    "path": "/MUSICIANS/W/Weber_Markus/"
+  },
+  {
+    "name": "Martens",
+    "path": "/MUSICIANS/M/Martens/"
+  },
+  {
+    "name": "Martijn Schutten",
+    "path": "/MUSICIANS/S/Schutten_Martijn/"
+  },
+  {
+    "name": "Martin Demsky",
+    "path": "/MUSICIANS/D/Demsky_Martin/"
+  },
+  {
     "name": "Martin Galway",
     "path": "/MUSICIANS/G/Galway_Martin/"
+  },
+  {
+    "name": "Martin Piper",
+    "path": "/MUSICIANS/P/Piper_Martin/"
+  },
+  {
+    "name": "Martin Thomson",
+    "path": "/MUSICIANS/T/Thomson_Martin/"
   },
   {
     "name": "Martin Walker",
     "path": "/MUSICIANS/W/Walker_Martin/"
   },
   {
+    "name": "Martin Wheeler",
+    "path": "/MUSICIANS/W/Wheeler_Martin/"
+  },
+  {
+    "name": "Martinland",
+    "path": "/MUSICIANS/M/Martinland/"
+  },
+  {
+    "name": "Massiv_Dansk_Invasion",
+    "path": "/MUSICIANS/M/Massiv_Dansk_Invasion/"
+  },
+  {
+    "name": "Mat64",
+    "path": "/MUSICIANS/M/Mat64/"
+  },
+  {
+    "name": "Mateus",
+    "path": "/MUSICIANS/M/Mateus/"
+  },
+  {
+    "name": "Matrix",
+    "path": "/MUSICIANS/N/Nordic_Beat/Matrix/"
+  },
+  {
+    "name": "Matrix",
+    "path": "/MUSICIANS/M/Matrix/"
+  },
+  {
+    "name": "Matt",
+    "path": "/MUSICIANS/M/Matt/"
+  },
+  {
+    "name": "Matt Furniss",
+    "path": "/MUSICIANS/F/Furniss_Matt/"
+  },
+  {
     "name": "Matt Gray",
     "path": "/MUSICIANS/G/Gray_Matt/"
+  },
+  {
+    "name": "Matthew Cannon",
+    "path": "/MUSICIANS/C/Cannon_Matthew/"
+  },
+  {
+    "name": "Matthias Deutsch",
+    "path": "/MUSICIANS/D/Deutsch_Matthias/"
+  },
+  {
+    "name": "Matthias Henckell",
+    "path": "/MUSICIANS/H/Henckell_Matthias/"
+  },
+  {
+    "name": "Matthias Hillebrand",
+    "path": "/MUSICIANS/H/Hillebrand_Matthias/"
+  },
+  {
+    "name": "Matthias Steffens",
+    "path": "/MUSICIANS/S/Steffens_Matthias/"
+  },
+  {
+    "name": "Matthias Weber",
+    "path": "/MUSICIANS/W/Weber_Matthias/"
+  },
+  {
+    "name": "Maxx",
+    "path": "/MUSICIANS/M/Maxx/"
+  },
+  {
+    "name": "Maze",
+    "path": "/MUSICIANS/M/Maze/"
+  },
+  {
+    "name": "MC",
+    "path": "/MUSICIANS/M/MC/"
+  },
+  {
+    "name": "MCA",
+    "path": "/MUSICIANS/M/MCA/"
+  },
+  {
+    "name": "McBarn",
+    "path": "/MUSICIANS/M/McBarn/"
+  },
+  {
+    "name": "Mcee",
+    "path": "/MUSICIANS/M/Mcee/"
+  },
+  {
+    "name": "MCH",
+    "path": "/MUSICIANS/M/MCH/"
+  },
+  {
+    "name": "Medron Alias",
+    "path": "/MUSICIANS/A/Alias_Medron/"
+  },
+  {
+    "name": "Medvurst",
+    "path": "/MUSICIANS/M/Medvurst/"
+  },
+  {
+    "name": "Mega9man",
+    "path": "/MUSICIANS/M/Mega9man/"
+  },
+  {
+    "name": "MegaSparky",
+    "path": "/MUSICIANS/M/MegaSparky/"
+  },
+  {
+    "name": "Megmyx",
+    "path": "/MUSICIANS/M/Megmyx/"
+  },
+  {
+    "name": "Mehdi Safavy",
+    "path": "/MUSICIANS/S/Safavy_Mehdi/"
+  },
+  {
+    "name": "Mephisto",
+    "path": "/MUSICIANS/M/Mephisto/"
+  },
+  {
+    "name": "Mercury",
+    "path": "/MUSICIANS/M/Mercury/"
+  },
+  {
+    "name": "Merlin",
+    "path": "/MUSICIANS/M/Merlin/"
   },
   {
     "name": "Mermaid",
     "path": "/MUSICIANS/M/Mermaid/"
   },
   {
+    "name": "Merman",
+    "path": "/MUSICIANS/M/Merman/"
+  },
+  {
+    "name": "Messiah",
+    "path": "/MUSICIANS/M/Messiah/"
+  },
+  {
+    "name": "Met",
+    "path": "/MUSICIANS/M/Met/"
+  },
+  {
     "name": "Metal",
     "path": "/MUSICIANS/M/Metal/"
+  },
+  {
+    "name": "Metro",
+    "path": "/MUSICIANS/M/Metro/"
+  },
+  {
+    "name": "MHD",
+    "path": "/MUSICIANS/M/MHD/"
+  },
+  {
+    "name": "Mibri",
+    "path": "/MUSICIANS/M/Mibri/"
+  },
+  {
+    "name": "Mice",
+    "path": "/MUSICIANS/M/Mice/"
+  },
+  {
+    "name": "Michael Colin",
+    "path": "/MUSICIANS/C/Colin_Michael/"
+  },
+  {
+    "name": "Michael Detert",
+    "path": "/MUSICIANS/D/Detert_Michael/"
+  },
+  {
+    "name": "Michael Greenlee",
+    "path": "/MUSICIANS/G/Greenlee_Michael/"
+  },
+  {
+    "name": "Michael Hendriks",
+    "path": "/MUSICIANS/F/FAME/Hendriks_Michael/"
+  },
+  {
+    "name": "Michael Schubert",
+    "path": "/MUSICIANS/S/Schubert_Michael/"
+  },
+  {
+    "name": "Michael Simon",
+    "path": "/MUSICIANS/S/Simon_Michael/"
+  },
+  {
+    "name": "Michael Smith",
+    "path": "/MUSICIANS/S/Smith_Michael/"
+  },
+  {
+    "name": "Michael Weber",
+    "path": "/MUSICIANS/W/Weber_Michael/"
+  },
+  {
+    "name": "Michael Winterberg",
+    "path": "/MUSICIANS/W/Winterberg_Michael/"
+  },
+  {
+    "name": "Michal Hoffmann",
+    "path": "/MUSICIANS/H/Hoffmann_Michal/"
+  },
+  {
+    "name": "Michiel Soede",
+    "path": "/MUSICIANS/S/SoedeSoft/Soede_Michiel/"
+  },
+  {
+    "name": "Micronix",
+    "path": "/MUSICIANS/M/Micronix/"
+  },
+  {
+    "name": "Midas",
+    "path": "/MUSICIANS/M/Midas/"
+  },
+  {
+    "name": "Mike",
+    "path": "/MUSICIANS/M/Mike/"
+  },
+  {
+    "name": "Mike Richmond",
+    "path": "/MUSICIANS/R/Richmond_Mike/"
+  },
+  {
+    "name": "Mindcooler",
+    "path": "/MUSICIANS/M/Mindcooler/"
+  },
+  {
+    "name": "Mindflow",
+    "path": "/MUSICIANS/M/Mindflow/"
+  },
+  {
+    "name": "Miron Schmidt",
+    "path": "/MUSICIANS/S/Schmidt_Miron/"
+  },
+  {
+    "name": "Mis",
+    "path": "/MUSICIANS/M/Mis/"
+  },
+  {
+    "name": "Misfit",
+    "path": "/MUSICIANS/M/Misfit/"
+  },
+  {
+    "name": "Mitch",
+    "path": "/MUSICIANS/M/Mitch_and_Dane/Mitch/"
+  },
+  {
+    "name": "Mitch_and_Dane",
+    "path": "/MUSICIANS/M/Mitch_and_Dane/"
+  },
+  {
+    "name": "Mixer",
+    "path": "/MUSICIANS/M/Mixer/"
+  },
+  {
+    "name": "Miztluren",
+    "path": "/MUSICIANS/M/Miztluren/"
+  },
+  {
+    "name": "ML",
+    "path": "/MUSICIANS/M/ML/"
+  },
+  {
+    "name": "Moby",
+    "path": "/MUSICIANS/M/Moby/"
+  },
+  {
+    "name": "Moellpauk",
+    "path": "/MUSICIANS/M/Moellpauk/"
+  },
+  {
+    "name": "Moh",
+    "path": "/MUSICIANS/M/Moh/"
+  },
+  {
+    "name": "Moldvix",
+    "path": "/MUSICIANS/M/Moldvix/"
+  },
+  {
+    "name": "Monk",
+    "path": "/MUSICIANS/M/Monk/"
+  },
+  {
+    "name": "Monkey Smart",
+    "path": "/MUSICIANS/S/Smart_Monkey/"
+  },
+  {
+    "name": "Monopoly",
+    "path": "/MUSICIANS/M/Monopoly/"
+  },
+  {
+    "name": "Moog",
+    "path": "/MUSICIANS/M/Moog/"
+  },
+  {
+    "name": "Moon",
+    "path": "/MUSICIANS/M/Moon/"
+  },
+  {
+    "name": "Moppe",
+    "path": "/MUSICIANS/M/Moppe/"
+  },
+  {
+    "name": "Moraff",
+    "path": "/MUSICIANS/M/Moraff/"
+  },
+  {
+    "name": "Morten Salthe",
+    "path": "/MUSICIANS/S/Salthe_Morten/"
+  },
+  {
+    "name": "MotionRide",
+    "path": "/MUSICIANS/M/MotionRide/"
+  },
+  {
+    "name": "Mouse Mr",
+    "path": "/MUSICIANS/M/Mr_Mouse/"
+  },
+  {
+    "name": "MovieMovies1",
+    "path": "/MUSICIANS/M/MovieMovies1/"
+  },
+  {
+    "name": "Mozes Emotional",
+    "path": "/MUSICIANS/E/Emotional_Mozes/"
+  },
+  {
+    "name": "MRG",
+    "path": "/MUSICIANS/M/MRG/"
+  },
+  {
+    "name": "MRT",
+    "path": "/MUSICIANS/M/MRT/"
+  },
+  {
+    "name": "MSB",
+    "path": "/MUSICIANS/M/MSB/"
+  },
+  {
+    "name": "MSK",
+    "path": "/MUSICIANS/M/MSK/"
+  },
+  {
+    "name": "Muhmi",
+    "path": "/MUSICIANS/M/Muhmi/"
+  },
+  {
+    "name": "Mule",
+    "path": "/MUSICIANS/M/Mule/"
+  },
+  {
+    "name": "Mummy The",
+    "path": "/MUSICIANS/T/The_Mummy/"
+  },
+  {
+    "name": "Murderer Mass",
+    "path": "/MUSICIANS/M/Mass_Murderer/"
+  },
+  {
+    "name": "Mushroom_and_Pickle",
+    "path": "/MUSICIANS/M/Mushroom_and_Pickle/"
+  },
+  {
+    "name": "Music Clever",
+    "path": "/MUSICIANS/C/Clever_Music/"
+  },
+  {
+    "name": "Musicman",
+    "path": "/MUSICIANS/M/Musicman/"
+  },
+  {
+    "name": "Musikdusche",
+    "path": "/MUSICIANS/M/Musikdusche/"
+  },
+  {
+    "name": "Mutetus",
+    "path": "/MUSICIANS/M/Mutetus/"
+  },
+  {
+    "name": "Muz Blues",
+    "path": "/MUSICIANS/B/Blues_Muz/"
+  },
+  {
+    "name": "Mythus",
+    "path": "/MUSICIANS/M/Mythus/"
+  },
+  {
+    "name": "Nadira",
+    "path": "/MUSICIANS/N/TMR/Nadira/"
+  },
+  {
+    "name": "Nantco Bakker",
+    "path": "/MUSICIANS/B/Bakker_Nantco/"
+  },
+  {
+    "name": "Narciso",
+    "path": "/MUSICIANS/N/Narciso/"
+  },
+  {
+    "name": "Nata",
+    "path": "/MUSICIANS/N/Nata/"
+  },
+  {
+    "name": "Naveed Khugiani",
+    "path": "/MUSICIANS/K/Khugiani_Naveed/"
   },
   {
     "name": "Ne7",
     "path": "/MUSICIANS/N/Ne7/"
   },
   {
+    "name": "Nebula",
+    "path": "/MUSICIANS/N/Nebula/"
+  },
+  {
+    "name": "Necrophobic",
+    "path": "/MUSICIANS/N/Necrophobic/"
+  },
+  {
+    "name": "NecroPolo",
+    "path": "/MUSICIANS/N/NecroPolo/"
+  },
+  {
+    "name": "Neil Baldwin",
+    "path": "/MUSICIANS/B/Baldwin_Neil/"
+  },
+  {
     "name": "Neil Brennan",
     "path": "/MUSICIANS/B/Brennan_Neil/"
+  },
+  {
+    "name": "Neil Crossley",
+    "path": "/MUSICIANS/C/Crossley_Neil/"
+  },
+  {
+    "name": "Neil Higgins",
+    "path": "/MUSICIANS/H/Higgins_Neil/"
+  },
+  {
+    "name": "Neil Scales",
+    "path": "/MUSICIANS/S/Scales_Neil/"
+  },
+  {
+    "name": "Nelson",
+    "path": "/MUSICIANS/N/Nelson/"
+  },
+  {
+    "name": "Neptune",
+    "path": "/MUSICIANS/N/Neptune/"
+  },
+  {
+    "name": "Newton",
+    "path": "/MUSICIANS/N/Newton/"
+  },
+  {
+    "name": "Nice",
+    "path": "/MUSICIANS/N/Nice/"
+  },
+  {
+    "name": "Nick Jones",
+    "path": "/MUSICIANS/J/Jones_Nick/"
   },
   {
     "name": "Nick Scarim",
     "path": "/MUSICIANS/S/Scarim_Nick/"
   },
   {
-    "name": "PVCF",
-    "path": "/MUSICIANS/P/PVCF/"
+    "name": "Nick Sherman",
+    "path": "/MUSICIANS/S/Sherman_Nick/"
+  },
+  {
+    "name": "Nick Williams",
+    "path": "/MUSICIANS/W/Williams_Nick/"
+  },
+  {
+    "name": "Nigel Grieve",
+    "path": "/MUSICIANS/G/Grieve_Nigel/"
+  },
+  {
+    "name": "Nightbeat",
+    "path": "/MUSICIANS/N/Nightbeat/"
+  },
+  {
+    "name": "Nightbreed",
+    "path": "/MUSICIANS/N/Nightbreed/"
+  },
+  {
+    "name": "Nightlord",
+    "path": "/MUSICIANS/N/Nightlord/"
+  },
+  {
+    "name": "Nightwork",
+    "path": "/MUSICIANS/N/Nightwork/"
+  },
+  {
+    "name": "Nine Jean",
+    "path": "/MUSICIANS/J/Jean_Nine/"
+  },
+  {
+    "name": "Ninja",
+    "path": "/MUSICIANS/N/Ninja/"
+  },
+  {
+    "name": "NioByte",
+    "path": "/MUSICIANS/N/NioByte/"
+  },
+  {
+    "name": "Nitrofurano",
+    "path": "/MUSICIANS/N/Nitrofurano/"
+  },
+  {
+    "name": "Nizze",
+    "path": "/MUSICIANS/N/Nizze/"
+  },
+  {
+    "name": "NM156",
+    "path": "/MUSICIANS/N/NM156/"
+  },
+  {
+    "name": "No-XS",
+    "path": "/MUSICIANS/N/No-XS/"
+  },
+  {
+    "name": "Noah",
+    "path": "/MUSICIANS/N/Noah/"
+  },
+  {
+    "name": "Nobody",
+    "path": "/MUSICIANS/N/Nobody/"
+  },
+  {
+    "name": "Noise Line",
+    "path": "/MUSICIANS/L/Line_Noise/"
+  },
+  {
+    "name": "Noise_Janota_Jaroslaw",
+    "path": "/MUSICIANS/N/Noise_Janota_Jaroslaw/"
+  },
+  {
+    "name": "Noise_of_SID",
+    "path": "/MUSICIANS/N/Noise_of_SID/"
+  },
+  {
+    "name": "Noise_of_Victory",
+    "path": "/MUSICIANS/N/Noise_of_Victory/"
+  },
+  {
+    "name": "Noise_The_Pollution",
+    "path": "/MUSICIANS/N/Noise_The_Pollution/"
+  },
+  {
+    "name": "Nonplusultra Mr",
+    "path": "/MUSICIANS/M/Mr_Nonplusultra/"
+  },
+  {
+    "name": "Nordischsound",
+    "path": "/MUSICIANS/N/Nordischsound/"
+  },
+  {
+    "name": "Noro",
+    "path": "/MUSICIANS/N/Noro/"
+  },
+  {
+    "name": "Norvax",
+    "path": "/MUSICIANS/N/Norvax/"
+  },
+  {
+    "name": "Nula",
+    "path": "/MUSICIANS/N/Nula/"
+  },
+  {
+    "name": "Null1024",
+    "path": "/MUSICIANS/N/Null1024/"
+  },
+  {
+    "name": "Nutcase",
+    "path": "/MUSICIANS/N/Nutcase/"
+  },
+  {
+    "name": "NVitia",
+    "path": "/MUSICIANS/N/NVitia/"
+  },
+  {
+    "name": "OCA",
+    "path": "/MUSICIANS/O/OCA/"
+  },
+  {
+    "name": "Ocean",
+    "path": "/MUSICIANS/O/Ocean/"
+  },
+  {
+    "name": "Odi",
+    "path": "/MUSICIANS/O/Odi/"
+  },
+  {
+    "name": "Odkin",
+    "path": "/MUSICIANS/O/Odkin/"
+  },
+  {
+    "name": "Odo",
+    "path": "/MUSICIANS/O/Odo/"
+  },
+  {
+    "name": "Odysseus",
+    "path": "/MUSICIANS/O/Odysseus/"
+  },
+  {
+    "name": "Oedipus",
+    "path": "/MUSICIANS/O/Oedipus/"
+  },
+  {
+    "name": "Oeie_Karl_Bjoernar",
+    "path": "/MUSICIANS/O/Oeie_Karl_Bjoernar/"
+  },
+  {
+    "name": "Oeyvind Jergan",
+    "path": "/MUSICIANS/J/Jergan_Oeyvind/"
+  },
+  {
+    "name": "Offence Burp",
+    "path": "/MUSICIANS/B/Burp_Offence/"
+  },
+  {
+    "name": "Okieh",
+    "path": "/MUSICIANS/O/Okieh/"
+  },
+  {
+    "name": "Ola Zandelin",
+    "path": "/MUSICIANS/Z/Zandelin_Ola/"
+  },
+  {
+    "name": "Olav Moerkrid",
+    "path": "/MUSICIANS/M/Moerkrid_Olav/"
+  },
+  {
+    "name": "Oldskool Ozzy",
+    "path": "/MUSICIANS/O/Ozzy_Oldskool/"
+  },
+  {
+    "name": "Oleg Nikitin",
+    "path": "/MUSICIANS/N/Nikitin_Oleg/"
+  },
+  {
+    "name": "Oliver Benedens",
+    "path": "/MUSICIANS/B/Benedens_Oliver/"
+  },
+  {
+    "name": "Oliver Daudey",
+    "path": "/MUSICIANS/D/Daudey_Oliver/"
+  },
+  {
+    "name": "Oliver Gaspar",
+    "path": "/MUSICIANS/G/Gaspar_Oliver/"
+  },
+  {
+    "name": "Oliver Kirwa",
+    "path": "/MUSICIANS/K/Kirwa_Oliver/"
+  },
+  {
+    "name": "Oliver Klaewer",
+    "path": "/MUSICIANS/K/Klaewer_Oliver/"
+  },
+  {
+    "name": "Olly Mc",
+    "path": "/MUSICIANS/M/Mc_Olly/"
+  },
+  {
+    "name": "Olsen",
+    "path": "/MUSICIANS/O/Olsen/"
+  },
+  {
+    "name": "OminPigeonMaster",
+    "path": "/MUSICIANS/O/OminPigeonMaster/"
+  },
+  {
+    "name": "Omoroca",
+    "path": "/MUSICIANS/O/Omoroca/"
+  },
+  {
+    "name": "On Gas",
+    "path": "/MUSICIANS/G/Gas_On/"
+  },
+  {
+    "name": "One Player",
+    "path": "/MUSICIANS/P/Player_One/"
+  },
+  {
+    "name": "Onebitman",
+    "path": "/MUSICIANS/O/Onebitman/"
+  },
+  {
+    "name": "Onosendai",
+    "path": "/MUSICIANS/O/Onosendai/"
+  },
+  {
+    "name": "OPM",
+    "path": "/MUSICIANS/O/OPM/"
+  },
+  {
+    "name": "Orc",
+    "path": "/MUSICIANS/O/Orc/"
+  },
+  {
+    "name": "Orcan",
+    "path": "/MUSICIANS/O/Orcan/"
+  },
+  {
+    "name": "Oreal L",
+    "path": "/MUSICIANS/L/L_Oreal/"
+  },
+  {
+    "name": "Oskar Toernros",
+    "path": "/MUSICIANS/T/Toernros_Oskar/"
+  },
+  {
+    "name": "Owen Crowley",
+    "path": "/MUSICIANS/C/Crowley_Owen/"
+  },
+  {
+    "name": "Owl Johnny",
+    "path": "/MUSICIANS/J/Johnny_Owl/"
+  },
+  {
+    "name": "Oxygen",
+    "path": "/MUSICIANS/O/Oxygen/"
+  },
+  {
+    "name": "Oxygen Max",
+    "path": "/MUSICIANS/M/Max_Oxygen/"
+  },
+  {
+    "name": "Oxygen Wizard",
+    "path": "/MUSICIANS/W/Wizard_Oxygen/"
+  },
+  {
+    "name": "Oxyron Dave",
+    "path": "/MUSICIANS/D/Dave_Oxyron/"
+  },
+  {
+    "name": "Ozone",
+    "path": "/MUSICIANS/O/Ozone/"
+  },
+  {
+    "name": "Ozzy",
+    "path": "/MUSICIANS/O/Ozzy/"
+  },
+  {
+    "name": "P E",
+    "path": "/MUSICIANS/E/E_P/"
+  },
+  {
+    "name": "Pablo Toledo",
+    "path": "/MUSICIANS/T/Toledo_Pablo/"
+  },
+  {
+    "name": "Pac",
+    "path": "/MUSICIANS/P/Pac/"
+  },
+  {
+    "name": "Paco",
+    "path": "/MUSICIANS/P/Paco/"
+  },
+  {
+    "name": "Page",
+    "path": "/MUSICIANS/P/Page/"
+  },
+  {
+    "name": "Pajda",
+    "path": "/MUSICIANS/P/Pajda/"
+  },
+  {
+    "name": "Paolo Galimberti",
+    "path": "/MUSICIANS/G/Galimberti_Paolo/"
+  },
+  {
+    "name": "Paolo Predonzani",
+    "path": "/MUSICIANS/P/Predonzani_Paolo/"
+  },
+  {
+    "name": "Paradroid",
+    "path": "/MUSICIANS/P/Paradroid/"
+  },
+  {
+    "name": "Parson",
+    "path": "/MUSICIANS/P/Parson/"
+  },
+  {
+    "name": "Pasthor",
+    "path": "/MUSICIANS/P/Pasthor/"
+  },
+  {
+    "name": "Patrick Becher",
+    "path": "/MUSICIANS/B/Becher_Patrick/"
+  },
+  {
+    "name": "Patrick Peters",
+    "path": "/MUSICIANS/A/Audial_Arts/Peters_Patrick/"
+  },
+  {
+    "name": "Paul Bellamy",
+    "path": "/MUSICIANS/B/Bellamy_Paul/"
+  },
+  {
+    "name": "Paul Butler",
+    "path": "/MUSICIANS/B/Butler_Paul/"
+  },
+  {
+    "name": "Paul Clansey",
+    "path": "/MUSICIANS/C/Clansey_Paul/"
+  },
+  {
+    "name": "Paul Hesford",
+    "path": "/MUSICIANS/H/Hesford_Paul/"
+  },
+  {
+    "name": "Paul Higginbottom",
+    "path": "/MUSICIANS/H/Higginbottom_Paul/"
+  },
+  {
+    "name": "Paul Hodgson",
+    "path": "/MUSICIANS/H/Hodgson_Paul/"
+  },
+  {
+    "name": "Paul Kleimeyer",
+    "path": "/MUSICIANS/K/Kleimeyer_Paul/"
+  },
+  {
+    "name": "Paul Kubiszyn",
+    "path": "/MUSICIANS/K/Kubiszyn_Paul/"
+  },
+  {
+    "name": "Paul Mudra",
+    "path": "/MUSICIANS/M/Mudra_Paul/"
+  },
+  {
+    "name": "Paul Norman",
+    "path": "/MUSICIANS/N/Norman_Paul/"
+  },
+  {
+    "name": "Paul Summers",
+    "path": "/MUSICIANS/S/Summers_Paul/"
+  },
+  {
+    "name": "Paul Tankard",
+    "path": "/MUSICIANS/T/Tankard_Paul/"
+  },
+  {
+    "name": "Paul Tonge",
+    "path": "/MUSICIANS/T/Tonge_Paul/"
+  },
+  {
+    "name": "PCH",
+    "path": "/MUSICIANS/P/PCH/"
+  },
+  {
+    "name": "Peabrain",
+    "path": "/MUSICIANS/P/Peabrain/"
+  },
+  {
+    "name": "Peacemaker",
+    "path": "/MUSICIANS/P/Peacemaker/"
+  },
+  {
+    "name": "Pece",
+    "path": "/MUSICIANS/P/Pece/"
+  },
+  {
+    "name": "Peet",
+    "path": "/MUSICIANS/P/Peet/"
+  },
+  {
+    "name": "Pegasus",
+    "path": "/MUSICIANS/P/Pegasus/"
+  },
+  {
+    "name": "Pegmode",
+    "path": "/MUSICIANS/P/Pegmode/"
+  },
+  {
+    "name": "Pen Pro",
+    "path": "/MUSICIANS/P/Pro_Pen/"
+  },
+  {
+    "name": "Pepsi",
+    "path": "/MUSICIANS/P/Pepsi/"
+  },
+  {
+    "name": "Per Almered",
+    "path": "/MUSICIANS/A/Almered_Per/"
+  },
+  {
+    "name": "Percy",
+    "path": "/MUSICIANS/P/Percy/"
+  },
+  {
+    "name": "Perdita",
+    "path": "/MUSICIANS/P/Perdita/"
+  },
+  {
+    "name": "Pernet",
+    "path": "/MUSICIANS/P/Pernet/"
+  },
+  {
+    "name": "Perplex",
+    "path": "/MUSICIANS/P/Perplex/"
+  },
+  {
+    "name": "Pet",
+    "path": "/MUSICIANS/P/Pet/"
+  },
+  {
+    "name": "Pet_Shop_Boy",
+    "path": "/MUSICIANS/P/Pet_Shop_Boy/"
+  },
+  {
+    "name": "Peter Bergstrand",
+    "path": "/MUSICIANS/B/Bergstrand_Peter/"
   },
   {
     "name": "Peter Clarke",
     "path": "/MUSICIANS/C/Clarke_Peter/"
   },
   {
+    "name": "Peter Gantar",
+    "path": "/MUSICIANS/G/Gantar_Peter/"
+  },
+  {
+    "name": "Peter Karlsson",
+    "path": "/MUSICIANS/K/Karlsson_Peter/"
+  },
+  {
+    "name": "Peter McBride",
+    "path": "/MUSICIANS/M/McBride_Peter/"
+  },
+  {
+    "name": "Peter Sanden",
+    "path": "/MUSICIANS/S/Sanden_Peter/"
+  },
+  {
+    "name": "Peter Therkildsen",
+    "path": "/MUSICIANS/T/Therkildsen_Peter/"
+  },
+  {
+    "name": "Peter Thierolf",
+    "path": "/MUSICIANS/T/Thierolf_Peter/"
+  },
+  {
+    "name": "Pettersen_Ole_Marius",
+    "path": "/MUSICIANS/P/Prosonix/Pettersen_Ole_Marius/"
+  },
+  {
+    "name": "Pezac",
+    "path": "/MUSICIANS/P/Pezac/"
+  },
+  {
+    "name": "PFK",
+    "path": "/MUSICIANS/P/PFK/"
+  },
+  {
+    "name": "Phase",
+    "path": "/MUSICIANS/P/Phase/"
+  },
+  {
+    "name": "Phil Stone",
+    "path": "/MUSICIANS/S/Stone_Phil/"
+  },
+  {
+    "name": "Phiz Mr",
+    "path": "/MUSICIANS/M/Mr_Phiz/"
+  },
+  {
+    "name": "Phobos",
+    "path": "/MUSICIANS/P/Phobos/"
+  },
+  {
+    "name": "Phreakis",
+    "path": "/MUSICIANS/P/Phreakis/"
+  },
+  {
+    "name": "Phyton",
+    "path": "/MUSICIANS/P/Phyton/"
+  },
+  {
+    "name": "Pi Pater",
+    "path": "/MUSICIANS/P/Pater_Pi/"
+  },
+  {
+    "name": "Picrard",
+    "path": "/MUSICIANS/P/Picrard/"
+  },
+  {
+    "name": "Pier",
+    "path": "/MUSICIANS/P/Pier/"
+  },
+  {
+    "name": "Pierre Conus",
+    "path": "/MUSICIANS/C/Conus_Pierre/"
+  },
+  {
+    "name": "Pierre Sarratou",
+    "path": "/MUSICIANS/S/Sarratou_Pierre/"
+  },
+  {
+    "name": "Pievspie",
+    "path": "/MUSICIANS/P/Pievspie/"
+  },
+  {
+    "name": "Pilot",
+    "path": "/MUSICIANS/P/Pilot/"
+  },
+  {
+    "name": "Pina",
+    "path": "/MUSICIANS/P/Pina/"
+  },
+  {
+    "name": "Pingo",
+    "path": "/MUSICIANS/P/Pingo/"
+  },
+  {
+    "name": "Pinky",
+    "path": "/MUSICIANS/P/Pinky/"
+  },
+  {
+    "name": "Pinocchio",
+    "path": "/MUSICIANS/P/Pinocchio/"
+  },
+  {
+    "name": "Piotr Dr",
+    "path": "/MUSICIANS/D/Dr_Piotr/"
+  },
+  {
+    "name": "Plastic",
+    "path": "/MUSICIANS/P/Plastic/"
+  },
+  {
+    "name": "PM",
+    "path": "/MUSICIANS/P/PM/"
+  },
+  {
+    "name": "Poet",
+    "path": "/MUSICIANS/P/Poet/"
+  },
+  {
+    "name": "PoloBreath",
+    "path": "/MUSICIANS/P/PoloBreath/"
+  },
+  {
+    "name": "Polonus",
+    "path": "/MUSICIANS/P/Polonus/"
+  },
+  {
+    "name": "Pontonius",
+    "path": "/MUSICIANS/P/Pontonius/"
+  },
+  {
+    "name": "Praiser",
+    "path": "/MUSICIANS/P/Praiser/"
+  },
+  {
+    "name": "Preben Vindholmen",
+    "path": "/MUSICIANS/V/Vindholmen_Preben/"
+  },
+  {
+    "name": "Prestune",
+    "path": "/MUSICIANS/P/Prestune/"
+  },
+  {
+    "name": "PRI",
+    "path": "/MUSICIANS/P/PRI/"
+  },
+  {
+    "name": "Prime",
+    "path": "/MUSICIANS/P/Prime/"
+  },
+  {
+    "name": "Prince",
+    "path": "/MUSICIANS/P/Prince/"
+  },
+  {
+    "name": "Productions Harmony",
+    "path": "/MUSICIANS/H/Harmony_Productions/"
+  },
+  {
     "name": "Prosonix",
     "path": "/MUSICIANS/P/Prosonix/"
   },
   {
-    "name": "Randall",
-    "path": "/MUSICIANS/R/Randall/"
+    "name": "Proton",
+    "path": "/MUSICIANS/P/Proton/"
+  },
+  {
+    "name": "Prowler64",
+    "path": "/MUSICIANS/P/Prowler64/"
+  },
+  {
+    "name": "Proxxon",
+    "path": "/MUSICIANS/P/Proxxon/"
+  },
+  {
+    "name": "PSC64",
+    "path": "/MUSICIANS/P/PSC64/"
+  },
+  {
+    "name": "PseudoGrafx",
+    "path": "/MUSICIANS/P/PseudoGrafx/"
+  },
+  {
+    "name": "PST",
+    "path": "/MUSICIANS/P/PST/"
+  },
+  {
+    "name": "Psych858o",
+    "path": "/MUSICIANS/P/Psych858o/"
+  },
+  {
+    "name": "Psylicium",
+    "path": "/MUSICIANS/P/Psylicium/"
+  },
+  {
+    "name": "Pudva",
+    "path": "/MUSICIANS/P/Pudva/"
+  },
+  {
+    "name": "Pulse Nitro",
+    "path": "/MUSICIANS/N/Nitro_Pulse/"
+  },
+  {
+    "name": "Puma",
+    "path": "/MUSICIANS/P/Puma/"
+  },
+  {
+    "name": "Puterman",
+    "path": "/MUSICIANS/P/Puterman/"
+  },
+  {
+    "name": "PVCF",
+    "path": "/MUSICIANS/P/PVCF/"
+  },
+  {
+    "name": "PVL",
+    "path": "/MUSICIANS/P/PVL/"
+  },
+  {
+    "name": "Python",
+    "path": "/MUSICIANS/P/Python/"
+  },
+  {
+    "name": "Q-Man",
+    "path": "/MUSICIANS/Q/Q-Man/"
+  },
+  {
+    "name": "Qdor",
+    "path": "/MUSICIANS/Q/Qdor/"
+  },
+  {
+    "name": "Quan",
+    "path": "/MUSICIANS/N/Nordic_Beat/Quan/"
+  },
+  {
+    "name": "Quirby64",
+    "path": "/MUSICIANS/Q/Quirby64/"
+  },
+  {
+    "name": "R Keays",
+    "path": "/MUSICIANS/K/Keays_R/"
+  },
+  {
+    "name": "R Love",
+    "path": "/MUSICIANS/L/Love_R/"
+  },
+  {
+    "name": "R1sc",
+    "path": "/MUSICIANS/R/R1sc/"
+  },
+  {
+    "name": "Rabbi",
+    "path": "/MUSICIANS/R/Rabbi/"
+  },
+  {
+    "name": "Radiantx",
+    "path": "/MUSICIANS/R/Radiantx/"
+  },
+  {
+    "name": "Radical Mac",
+    "path": "/MUSICIANS/M/Mac_Radical/"
+  },
+  {
+    "name": "Radon",
+    "path": "/MUSICIANS/R/Radon/"
+  },
+  {
+    "name": "Raf",
+    "path": "/MUSICIANS/R/Raf/"
+  },
+  {
+    "name": "Raffi",
+    "path": "/MUSICIANS/R/Raffi/"
+  },
+  {
+    "name": "Rage",
+    "path": "/MUSICIANS/R/Rage/"
+  },
+  {
+    "name": "Ramiro Vaca",
+    "path": "/MUSICIANS/V/Vaca_Ramiro/"
+  },
+  {
+    "name": "Ramjam",
+    "path": "/MUSICIANS/R/Ramjam/"
+  },
+  {
+    "name": "Ramos",
+    "path": "/MUSICIANS/R/Ramos/"
+  },
+  {
+    "name": "Randy",
+    "path": "/MUSICIANS/R/Randy/"
+  },
+  {
+    "name": "Rap",
+    "path": "/MUSICIANS/R/Rap/"
+  },
+  {
+    "name": "Rashka",
+    "path": "/MUSICIANS/R/Rashka/"
+  },
+  {
+    "name": "Rasmus Sellberg",
+    "path": "/MUSICIANS/S/Sellberg_Rasmus/"
+  },
+  {
+    "name": "Rat Bad",
+    "path": "/MUSICIANS/B/Bad_Rat/"
+  },
+  {
+    "name": "Ratpoison",
+    "path": "/MUSICIANS/R/Ratpoison/"
+  },
+  {
+    "name": "Raveguru",
+    "path": "/MUSICIANS/R/Raveguru/"
+  },
+  {
+    "name": "Ray",
+    "path": "/MUSICIANS/R/Ray/"
+  },
+  {
+    "name": "Rayden",
+    "path": "/MUSICIANS/R/Rayden/"
+  },
+  {
+    "name": "Raze",
+    "path": "/MUSICIANS/R/Raze/"
+  },
+  {
+    "name": "Razy",
+    "path": "/MUSICIANS/R/Razy/"
+  },
+  {
+    "name": "Rea",
+    "path": "/MUSICIANS/R/Rea/"
+  },
+  {
+    "name": "Reason",
+    "path": "/MUSICIANS/R/Reason/"
+  },
+  {
+    "name": "Rebb",
+    "path": "/MUSICIANS/R/Rebb/"
+  },
+  {
+    "name": "Red_Duijckaerts_Roger",
+    "path": "/MUSICIANS/R/Red_Duijckaerts_Roger/"
+  },
+  {
+    "name": "Red_Kimmel_Jeroen",
+    "path": "/MUSICIANS/R/Red_Kimmel_Jeroen/"
+  },
+  {
+    "name": "Redcrab",
+    "path": "/MUSICIANS/R/Redcrab/"
+  },
+  {
+    "name": "Reed",
+    "path": "/MUSICIANS/R/Reed/"
+  },
+  {
+    "name": "Rei8bit",
+    "path": "/MUSICIANS/R/Rei8bit/"
+  },
+  {
+    "name": "Reinier",
+    "path": "/MUSICIANS/R/Reinier/"
+  },
+  {
+    "name": "Reiter",
+    "path": "/MUSICIANS/R/Reiter/"
+  },
+  {
+    "name": "Reitz_Jennifer_Diane",
+    "path": "/MUSICIANS/R/Reitz_Jennifer_Diane/"
+  },
+  {
+    "name": "Remarque",
+    "path": "/MUSICIANS/R/Remarque/"
+  },
+  {
+    "name": "Remo",
+    "path": "/MUSICIANS/R/Remo/"
+  },
+  {
+    "name": "Remorhaz",
+    "path": "/MUSICIANS/R/Remorhaz/"
+  },
+  {
+    "name": "Replay",
+    "path": "/MUSICIANS/R/Replay/"
+  },
+  {
+    "name": "Reproach Beyond",
+    "path": "/MUSICIANS/B/Beyond_Reproach/"
+  },
+  {
+    "name": "Rerrah",
+    "path": "/MUSICIANS/R/Rerrah/"
+  },
+  {
+    "name": "Response",
+    "path": "/MUSICIANS/R/Response/"
+  },
+  {
+    "name": "Retro64",
+    "path": "/MUSICIANS/R/Retro64/"
+  },
+  {
+    "name": "RetroGL",
+    "path": "/MUSICIANS/R/RetroGL/"
+  },
+  {
+    "name": "Reverb",
+    "path": "/MUSICIANS/R/Reverb/"
   },
   {
     "name": "Reyn Ouwehand",
     "path": "/MUSICIANS/O/Ouwehand_Reyn/"
   },
   {
+    "name": "Rhodan",
+    "path": "/MUSICIANS/R/Rhodan/"
+  },
+  {
+    "name": "Rich Worthley",
+    "path": "/MUSICIANS/W/Worthley_Rich/"
+  },
+  {
+    "name": "Richard Bayliss",
+    "path": "/MUSICIANS/B/Bayliss_Richard/"
+  },
+  {
     "name": "Richard Joseph",
     "path": "/MUSICIANS/J/Joseph_Richard/"
+  },
+  {
+    "name": "Richard Nygaard",
+    "path": "/MUSICIANS/N/Nygaard_Richard/"
+  },
+  {
+    "name": "Richard Sanden",
+    "path": "/MUSICIANS/S/Sanden_Richard/"
+  },
+  {
+    "name": "Rick Cardinali",
+    "path": "/MUSICIANS/C/Cardinali_Rick/"
+  },
+  {
+    "name": "Rick Sterling",
+    "path": "/MUSICIANS/S/Sterling_Rick/"
+  },
+  {
+    "name": "Rico",
+    "path": "/MUSICIANS/R/Rico/"
+  },
+  {
+    "name": "Ridiculous_Voodoo_Virgo",
+    "path": "/MUSICIANS/R/Ridiculous_Voodoo_Virgo/"
+  },
+  {
+    "name": "Rio",
+    "path": "/MUSICIANS/R/Rio/"
+  },
+  {
+    "name": "Riot",
+    "path": "/MUSICIANS/R/Riot/"
   },
   {
     "name": "Rob Hubbard",
     "path": "/MUSICIANS/H/Hubbard_Rob/"
   },
   {
-    "name": "SounDemon",
-    "path": "/MUSICIANS/S/SounDemon/"
+    "name": "Robert Bonifacio",
+    "path": "/MUSICIANS/B/Bonifacio_Robert/"
+  },
+  {
+    "name": "Robert Westgate",
+    "path": "/MUSICIANS/W/Westgate_Robert/"
+  },
+  {
+    "name": "Robric",
+    "path": "/MUSICIANS/R/Robric/"
+  },
+  {
+    "name": "Rock",
+    "path": "/MUSICIANS/R/Rock/"
+  },
+  {
+    "name": "Rock Captain",
+    "path": "/MUSICIANS/C/Captain_Rock/"
+  },
+  {
+    "name": "Rockerboy",
+    "path": "/MUSICIANS/R/Rockerboy/"
+  },
+  {
+    "name": "Rockstar",
+    "path": "/MUSICIANS/R/Rockstar/"
+  },
+  {
+    "name": "Rodney",
+    "path": "/MUSICIANS/R/Rodney/"
+  },
+  {
+    "name": "Rodney Balai",
+    "path": "/MUSICIANS/A/Audial_Arts/Balai_Rodney/"
+  },
+  {
+    "name": "Roel Bosch",
+    "path": "/MUSICIANS/B/Bosch_Roel/"
+  },
+  {
+    "name": "Roel Noorman",
+    "path": "/MUSICIANS/N/Noorman_Roel/"
+  },
+  {
+    "name": "Roger Svensson",
+    "path": "/MUSICIANS/S/Svensson_Roger/"
+  },
+  {
+    "name": "Rolemusic",
+    "path": "/MUSICIANS/R/Rolemusic/"
+  },
+  {
+    "name": "Roly",
+    "path": "/MUSICIANS/R/Roly/"
+  },
+  {
+    "name": "ROM Ronny",
+    "path": "/MUSICIANS/R/Ronny_ROM/"
+  },
+  {
+    "name": "Ron Coffen",
+    "path": "/MUSICIANS/C/Coffen_Ron/"
+  },
+  {
+    "name": "Ronald Mayer",
+    "path": "/MUSICIANS/M/Mayer_Ronald/"
+  },
+  {
+    "name": "Ronny Nilsen",
+    "path": "/MUSICIANS/N/Nilsen_Ronny/"
+  },
+  {
+    "name": "Ronny Pasch",
+    "path": "/MUSICIANS/A/Audial_Arts/Pasch_Ronny/"
+  },
+  {
+    "name": "Rorschach",
+    "path": "/MUSICIANS/R/Rorschach/"
+  },
+  {
+    "name": "Rosenbaum_Thorsten_and_Thomas",
+    "path": "/MUSICIANS/R/Rosenbaum_Thorsten_and_Thomas/"
+  },
+  {
+    "name": "Rox Dr",
+    "path": "/MUSICIANS/D/Dr_Rox/"
+  },
+  {
+    "name": "Royzex Lizard",
+    "path": "/MUSICIANS/L/Lizard_Royzex/"
+  },
+  {
+    "name": "RSS",
+    "path": "/MUSICIANS/R/RSS/"
+  },
+  {
+    "name": "Rudolf Stember",
+    "path": "/MUSICIANS/S/Stember_Rudolf/"
+  },
+  {
+    "name": "Ruffian",
+    "path": "/MUSICIANS/R/Ruffian/"
+  },
+  {
+    "name": "Rule3 Helios",
+    "path": "/MUSICIANS/H/Helios_Rule3/"
+  },
+  {
+    "name": "Rura",
+    "path": "/MUSICIANS/R/Rura/"
+  },
+  {
+    "name": "Russell Black",
+    "path": "/MUSICIANS/B/Black_Russell/"
+  },
+  {
+    "name": "Russell Lieblich",
+    "path": "/MUSICIANS/L/Lieblich_Russell/"
+  },
+  {
+    "name": "Rusty46",
+    "path": "/MUSICIANS/R/Rusty46/"
+  },
+  {
+    "name": "Ruuvari",
+    "path": "/MUSICIANS/R/Ruuvari/"
+  },
+  {
+    "name": "Rygar",
+    "path": "/MUSICIANS/R/Rygar/"
+  },
+  {
+    "name": "Ryo Kawasaki",
+    "path": "/MUSICIANS/K/Kawasaki_Ryo/"
+  },
+  {
+    "name": "Rytone",
+    "path": "/MUSICIANS/R/Rytone/"
+  },
+  {
+    "name": "Sabre",
+    "path": "/MUSICIANS/S/Sabre/"
+  },
+  {
+    "name": "Sack",
+    "path": "/MUSICIANS/S/Sack/"
+  },
+  {
+    "name": "Sad",
+    "path": "/MUSICIANS/S/Sad/"
+  },
+  {
+    "name": "Sage",
+    "path": "/MUSICIANS/S/Sage/"
+  },
+  {
+    "name": "Saimo",
+    "path": "/MUSICIANS/S/Saimo/"
+  },
+  {
+    "name": "Sam",
+    "path": "/MUSICIANS/S/Sam/"
+  },
+  {
+    "name": "Sam Roads",
+    "path": "/MUSICIANS/R/Roads_Sam/"
+  },
+  {
+    "name": "Samael",
+    "path": "/MUSICIANS/S/Samael/"
+  },
+  {
+    "name": "Sammy",
+    "path": "/MUSICIANS/S/Sammy/"
+  },
+  {
+    "name": "Samplr",
+    "path": "/MUSICIANS/S/Samplr/"
+  },
+  {
+    "name": "Sampox",
+    "path": "/MUSICIANS/S/Sampox/"
+  },
+  {
+    "name": "Sandman",
+    "path": "/MUSICIANS/S/Sandman/"
+  },
+  {
+    "name": "Sane",
+    "path": "/MUSICIANS/S/Sane/"
+  },
+  {
+    "name": "Sanyo",
+    "path": "/MUSICIANS/S/Sanyo/"
+  },
+  {
+    "name": "Sascha Nagie",
+    "path": "/MUSICIANS/N/Nagie_Sascha/"
+  },
+  {
+    "name": "Saul Cross",
+    "path": "/MUSICIANS/C/Cross_Saul/"
+  },
+  {
+    "name": "Sauron",
+    "path": "/MUSICIANS/S/Sauron/"
+  },
+  {
+    "name": "Sax",
+    "path": "/MUSICIANS/S/Sax/"
+  },
+  {
+    "name": "Saxxon",
+    "path": "/MUSICIANS/S/Saxxon/"
+  },
+  {
+    "name": "Scan",
+    "path": "/MUSICIANS/S/Scan/"
+  },
+  {
+    "name": "Scandor",
+    "path": "/MUSICIANS/S/Scandor/"
+  },
+  {
+    "name": "Scanpjucka",
+    "path": "/MUSICIANS/S/Scanpjucka/"
+  },
+  {
+    "name": "Scarlet",
+    "path": "/MUSICIANS/S/Scarlet/"
+  },
+  {
+    "name": "Scarzix",
+    "path": "/MUSICIANS/S/Scarzix/"
+  },
+  {
+    "name": "School",
+    "path": "/MUSICIANS/S/School/"
+  },
+  {
+    "name": "Scientist Mad",
+    "path": "/MUSICIANS/M/Mad_Scientist/"
+  },
+  {
+    "name": "Scorpio",
+    "path": "/MUSICIANS/S/Scorpio/"
+  },
+  {
+    "name": "Scorpion",
+    "path": "/MUSICIANS/S/Scorpion/"
+  },
+  {
+    "name": "Scortia",
+    "path": "/MUSICIANS/S/Scortia/"
+  },
+  {
+    "name": "Scout",
+    "path": "/MUSICIANS/S/Scout/"
+  },
+  {
+    "name": "Scrap",
+    "path": "/MUSICIANS/S/Scrap/"
+  },
+  {
+    "name": "Scroll",
+    "path": "/MUSICIANS/S/Scroll/"
+  },
+  {
+    "name": "Sean",
+    "path": "/MUSICIANS/S/Sean/"
+  },
+  {
+    "name": "Sean Connolly",
+    "path": "/MUSICIANS/C/Connolly_Sean/"
+  },
+  {
+    "name": "Sebastian Bjoernerud",
+    "path": "/MUSICIANS/B/Bjoernerud_Sebastian/"
+  },
+  {
+    "name": "Sebuko",
+    "path": "/MUSICIANS/S/Sebuko/"
+  },
+  {
+    "name": "Secret Miss",
+    "path": "/MUSICIANS/M/Miss_Secret/"
+  },
+  {
+    "name": "Secret Top",
+    "path": "/MUSICIANS/T/Top_Secret/"
+  },
+  {
+    "name": "Sequencer",
+    "path": "/MUSICIANS/S/Sequencer/"
+  },
+  {
+    "name": "SFR",
+    "path": "/MUSICIANS/S/SFR/"
+  },
+  {
+    "name": "Sgw32",
+    "path": "/MUSICIANS/S/Sgw32/"
+  },
+  {
+    "name": "Shade",
+    "path": "/MUSICIANS/S/Shade/"
+  },
+  {
+    "name": "Shadow Deathangels",
+    "path": "/MUSICIANS/D/Deathangels_Shadow/"
+  },
+  {
+    "name": "Shapie",
+    "path": "/MUSICIANS/S/Shapie/"
+  },
+  {
+    "name": "Shark",
+    "path": "/MUSICIANS/S/Shark/"
+  },
+  {
+    "name": "Sharks Thor",
+    "path": "/MUSICIANS/T/Thor_Sharks/"
+  },
+  {
+    "name": "Sharp",
+    "path": "/MUSICIANS/S/Sharp/"
+  },
+  {
+    "name": "Shaun Southern",
+    "path": "/MUSICIANS/S/Southern_Shaun/"
+  },
+  {
+    "name": "Shiru",
+    "path": "/MUSICIANS/S/Shiru/"
+  },
+  {
+    "name": "Shock",
+    "path": "/MUSICIANS/S/Shock/"
+  },
+  {
+    "name": "Shogoon",
+    "path": "/MUSICIANS/S/Shogoon/"
+  },
+  {
+    "name": "Shogun",
+    "path": "/MUSICIANS/S/Shogun/"
+  },
+  {
+    "name": "Shroom",
+    "path": "/MUSICIANS/S/Shroom/"
+  },
+  {
+    "name": "Shy",
+    "path": "/MUSICIANS/S/Shy/"
+  },
+  {
+    "name": "SID Little",
+    "path": "/MUSICIANS/L/Little_SID/"
+  },
+  {
+    "name": "SID Lord",
+    "path": "/MUSICIANS/L/Lord_SID/"
+  },
+  {
+    "name": "SID Mr",
+    "path": "/MUSICIANS/M/Mr_SID/"
+  },
+  {
+    "name": "Sid_The_Ripper",
+    "path": "/MUSICIANS/S/Sid_The_Ripper/"
+  },
+  {
+    "name": "Sid_United_Artists",
+    "path": "/MUSICIANS/S/Sid_United_Artists/"
+  },
+  {
+    "name": "Sidder",
+    "path": "/MUSICIANS/S/Sidder/"
+  },
+  {
+    "name": "Sidnify Dave",
+    "path": "/MUSICIANS/D/Dave_Sidnify/"
+  },
+  {
+    "name": "SIDwave",
+    "path": "/MUSICIANS/S/SIDwave/"
+  },
+  {
+    "name": "SigmaZeven",
+    "path": "/MUSICIANS/S/SigmaZeven/"
+  },
+  {
+    "name": "Signor",
+    "path": "/MUSICIANS/S/Signor/"
+  },
+  {
+    "name": "Silas Warner",
+    "path": "/MUSICIANS/W/Warner_Silas/"
+  },
+  {
+    "name": "Silc",
+    "path": "/MUSICIANS/S/Silc/"
+  },
+  {
+    "name": "Silence Dr",
+    "path": "/MUSICIANS/D/Dr_Silence/"
+  },
+  {
+    "name": "Silence Fly",
+    "path": "/MUSICIANS/F/Fly_Silence/"
+  },
+  {
+    "name": "Silpheed",
+    "path": "/MUSICIANS/S/Silpheed/"
+  },
+  {
+    "name": "SilverFox",
+    "path": "/MUSICIANS/S/SilverFox/"
+  },
+  {
+    "name": "Silverware Mr",
+    "path": "/MUSICIANS/M/Mr_Silverware/"
+  },
+  {
+    "name": "Simon Pick",
+    "path": "/MUSICIANS/P/Pick_Simon/"
+  },
+  {
+    "name": "Sinc-X",
+    "path": "/MUSICIANS/S/Sinc-X/"
+  },
+  {
+    "name": "Sir",
+    "path": "/MUSICIANS/S/Sir/"
+  },
+  {
+    "name": "Six",
+    "path": "/MUSICIANS/S/Six/"
+  },
+  {
+    "name": "Skam",
+    "path": "/MUSICIANS/S/Skam/"
+  },
+  {
+    "name": "Skrjablin",
+    "path": "/MUSICIANS/S/Skrjablin/"
+  },
+  {
+    "name": "Skuggemannen",
+    "path": "/MUSICIANS/S/Skuggemannen/"
+  },
+  {
+    "name": "Skull",
+    "path": "/MUSICIANS/S/Skull/"
+  },
+  {
+    "name": "Sky MC",
+    "path": "/MUSICIANS/M/MC_Sky/"
+  },
+  {
+    "name": "Skyffel",
+    "path": "/MUSICIANS/S/Skyffel/"
+  },
+  {
+    "name": "SkylarZYX",
+    "path": "/MUSICIANS/S/SkylarZYX/"
+  },
+  {
+    "name": "Skyrunner",
+    "path": "/MUSICIANS/S/Skyrunner/"
+  },
+  {
+    "name": "Skysurfer",
+    "path": "/MUSICIANS/S/Skysurfer/"
+  },
+  {
+    "name": "Slash",
+    "path": "/MUSICIANS/S/Slash/"
+  },
+  {
+    "name": "Slave Rail",
+    "path": "/MUSICIANS/R/Rail_Slave/"
+  },
+  {
+    "name": "Slaxx",
+    "path": "/MUSICIANS/S/Slaxx/"
+  },
+  {
+    "name": "Slayer",
+    "path": "/MUSICIANS/S/Slayer/"
+  },
+  {
+    "name": "Slaygon",
+    "path": "/MUSICIANS/S/Slaygon/"
+  },
+  {
+    "name": "Slaze",
+    "path": "/MUSICIANS/S/Slaze/"
+  },
+  {
+    "name": "SLC",
+    "path": "/MUSICIANS/S/SLC/"
+  },
+  {
+    "name": "Sleep",
+    "path": "/MUSICIANS/S/Sleep/"
+  },
+  {
+    "name": "Sleipner",
+    "path": "/MUSICIANS/S/Sleipner/"
+  },
+  {
+    "name": "Slide_Gorissen_Udo",
+    "path": "/MUSICIANS/S/Slide_Gorissen_Udo/"
+  },
+  {
+    "name": "Slimex",
+    "path": "/MUSICIANS/S/Slimex/"
+  },
+  {
+    "name": "SLO",
+    "path": "/MUSICIANS/S/SLO/"
+  },
+  {
+    "name": "Slumgud",
+    "path": "/MUSICIANS/S/Slumgud/"
+  },
+  {
+    "name": "Slyspy",
+    "path": "/MUSICIANS/S/Slyspy/"
+  },
+  {
+    "name": "SMB",
+    "path": "/MUSICIANS/S/SMB/"
+  },
+  {
+    "name": "SMC",
+    "path": "/MUSICIANS/S/SMC/"
+  },
+  {
+    "name": "Snabel",
+    "path": "/MUSICIANS/S/Snabel/"
+  },
+  {
+    "name": "Sniper",
+    "path": "/MUSICIANS/S/Sniper/"
+  },
+  {
+    "name": "Snork",
+    "path": "/MUSICIANS/S/Snork/"
+  },
+  {
+    "name": "Snowball",
+    "path": "/MUSICIANS/S/Snowball/"
+  },
+  {
+    "name": "SoedeSoft",
+    "path": "/MUSICIANS/S/SoedeSoft/"
+  },
+  {
+    "name": "Soft Alkie",
+    "path": "/MUSICIANS/A/Alkie_Soft/"
+  },
+  {
+    "name": "Soft Kozaki",
+    "path": "/MUSICIANS/K/Kozaki_Soft/"
+  },
+  {
+    "name": "Softcopy 4753",
+    "path": "/MUSICIANS/0-9/4753_Softcopy/"
+  },
+  {
+    "name": "Sonic",
+    "path": "/MUSICIANS/S/Sonic/"
+  },
+  {
+    "name": "Sonix",
+    "path": "/MUSICIANS/S/Sonix/"
+  },
+  {
+    "name": "Sonki",
+    "path": "/MUSICIANS/S/Sonki/"
+  },
+  {
+    "name": "Sony",
+    "path": "/MUSICIANS/S/Sony/"
+  },
+  {
+    "name": "Sorex",
+    "path": "/MUSICIANS/S/Sorex/"
+  },
+  {
+    "name": "SOS",
+    "path": "/MUSICIANS/S/SOS/"
+  },
+  {
+    "name": "Sound Texx",
+    "path": "/MUSICIANS/T/Texx_Sound/"
+  },
+  {
+    "name": "SounDemoN",
+    "path": "/MUSICIANS/S/SounDemoN/"
+  },
+  {
+    "name": "SoundLogic",
+    "path": "/MUSICIANS/S/SoundLogic/"
+  },
+  {
+    "name": "Source_SoftRunner_Group",
+    "path": "/MUSICIANS/S/Source_SoftRunner_Group/"
+  },
+  {
+    "name": "Source_The_Software_House",
+    "path": "/MUSICIANS/S/Source_The_Software_House/"
+  },
+  {
+    "name": "Soya",
+    "path": "/MUSICIANS/S/Soya/"
+  },
+  {
+    "name": "Space DJ",
+    "path": "/MUSICIANS/D/DJ_Space/"
+  },
+  {
+    "name": "Spandex",
+    "path": "/MUSICIANS/S/Spandex/"
+  },
+  {
+    "name": "Speedball",
+    "path": "/MUSICIANS/S/Speedball/"
+  },
+  {
+    "name": "Speedcracker",
+    "path": "/MUSICIANS/S/Speedcracker/"
+  },
+  {
+    "name": "Spiikki",
+    "path": "/MUSICIANS/S/Spiikki/"
+  },
+  {
+    "name": "Spike",
+    "path": "/MUSICIANS/S/Spike/"
+  },
+  {
+    "name": "Spiked-maniac",
+    "path": "/MUSICIANS/S/Spiked-maniac/"
+  },
+  {
+    "name": "Spino2006",
+    "path": "/MUSICIANS/S/Spino2006/"
+  },
+  {
+    "name": "Spinosa",
+    "path": "/MUSICIANS/S/Spinosa/"
+  },
+  {
+    "name": "Spratt",
+    "path": "/MUSICIANS/S/Spratt/"
+  },
+  {
+    "name": "Square",
+    "path": "/MUSICIANS/S/Square/"
+  },
+  {
+    "name": "SquareWave",
+    "path": "/MUSICIANS/S/SquareWave/"
+  },
+  {
+    "name": "SRB2er",
+    "path": "/MUSICIANS/S/SRB2er/"
+  },
+  {
+    "name": "Sta64",
+    "path": "/MUSICIANS/S/Sta64/"
+  },
+  {
+    "name": "Starlost",
+    "path": "/MUSICIANS/S/Starlost/"
+  },
+  {
+    "name": "Static",
+    "path": "/MUSICIANS/S/Static/"
+  },
+  {
+    "name": "Stax",
+    "path": "/MUSICIANS/S/Stax/"
+  },
+  {
+    "name": "Steek",
+    "path": "/MUSICIANS/S/Steek/"
+  },
+  {
+    "name": "Steel",
+    "path": "/MUSICIANS/S/Steel/"
+  },
+  {
+    "name": "Steel Stainless",
+    "path": "/MUSICIANS/S/Stainless_Steel/"
+  },
+  {
+    "name": "Stefan Hartwig",
+    "path": "/MUSICIANS/H/Hartwig_Stefan/"
+  },
+  {
+    "name": "Stefan Siegert",
+    "path": "/MUSICIANS/S/Siegert_Stefan/"
+  },
+  {
+    "name": "Stefan Weinert",
+    "path": "/MUSICIANS/W/Weinert_Stefan/"
+  },
+  {
+    "name": "Stefano Palmonari",
+    "path": "/MUSICIANS/P/Palmonari_Stefano/"
+  },
+  {
+    "name": "Stefano Tognon",
+    "path": "/MUSICIANS/T/Tognon_Stefano/"
+  },
+  {
+    "name": "Steffen Wagner",
+    "path": "/MUSICIANS/W/Wagner_Steffen/"
+  },
+  {
+    "name": "Stein Pedersen",
+    "path": "/MUSICIANS/P/Prosonix/Pedersen_Stein/"
+  },
+  {
+    "name": "Stello Doussis",
+    "path": "/MUSICIANS/D/Doussis_Stello/"
+  },
+  {
+    "name": "Stenija",
+    "path": "/MUSICIANS/S/Stenija/"
+  },
+  {
+    "name": "Stephen Biggs",
+    "path": "/MUSICIANS/B/Biggs_Stephen/"
+  },
+  {
+    "name": "Stephen Legg",
+    "path": "/MUSICIANS/L/Legg_Stephen/"
+  },
+  {
+    "name": "Steppe",
+    "path": "/MUSICIANS/S/Steppe/"
+  },
+  {
+    "name": "Stepz",
+    "path": "/MUSICIANS/S/Stepz/"
+  },
+  {
+    "name": "Steve Bak",
+    "path": "/MUSICIANS/B/Bak_Steve/"
+  },
+  {
+    "name": "Steve Barrett",
+    "path": "/MUSICIANS/B/Barrett_Steve/"
+  },
+  {
+    "name": "Steve Cunningham",
+    "path": "/MUSICIANS/C/Cunningham_Steve/"
+  },
+  {
+    "name": "Steve Day",
+    "path": "/MUSICIANS/D/Day_Steve/"
+  },
+  {
+    "name": "Steve Hogg",
+    "path": "/MUSICIANS/H/Hogg_Steve/"
+  },
+  {
+    "name": "Steve Lee",
+    "path": "/MUSICIANS/L/Lee_Steve/"
+  },
+  {
+    "name": "Steve Rowlands",
+    "path": "/MUSICIANS/R/Rowlands_Steve/"
   },
   {
     "name": "Steve Turner",
     "path": "/MUSICIANS/T/Turner_Steve/"
   },
   {
+    "name": "Steve Wood",
+    "path": "/MUSICIANS/W/Wood_Steve/"
+  },
+  {
+    "name": "Steven Baumrucker",
+    "path": "/MUSICIANS/B/Baumrucker_Steven/"
+  },
+  {
+    "name": "Stice",
+    "path": "/MUSICIANS/S/Stice/"
+  },
+  {
+    "name": "Stinsen",
+    "path": "/MUSICIANS/S/Stinsen/"
+  },
+  {
+    "name": "Stix",
+    "path": "/MUSICIANS/S/Stix/"
+  },
+  {
+    "name": "Stoff",
+    "path": "/MUSICIANS/S/Stoff/"
+  },
+  {
+    "name": "Storm",
+    "path": "/MUSICIANS/S/Storm/"
+  },
+  {
+    "name": "STP_Sound_System",
+    "path": "/MUSICIANS/S/STP_Sound_System/"
+  },
+  {
+    "name": "String",
+    "path": "/MUSICIANS/S/String/"
+  },
+  {
+    "name": "Stryyker",
+    "path": "/MUSICIANS/S/Stryyker/"
+  },
+  {
+    "name": "Stuart McDowell",
+    "path": "/MUSICIANS/M/McDowell_Stuart/"
+  },
+  {
+    "name": "Stuart Taylor",
+    "path": "/MUSICIANS/T/Taylor_Stuart/"
+  },
+  {
+    "name": "Styer Van",
+    "path": "/MUSICIANS/V/Van_Styer/"
+  },
+  {
+    "name": "Success Sphere",
+    "path": "/MUSICIANS/S/Sphere_Success/"
+  },
+  {
+    "name": "Super",
+    "path": "/MUSICIANS/S/Super/"
+  },
+  {
+    "name": "Surfcroc",
+    "path": "/MUSICIANS/S/Surfcroc/"
+  },
+  {
+    "name": "Surgeon",
+    "path": "/MUSICIANS/S/Surgeon/"
+  },
+  {
+    "name": "Surtax",
+    "path": "/MUSICIANS/S/Surtax/"
+  },
+  {
+    "name": "Susanne",
+    "path": "/MUSICIANS/S/Susanne/"
+  },
+  {
+    "name": "Sven Schluenzen",
+    "path": "/MUSICIANS/S/Schluenzen_Sven/"
+  },
+  {
+    "name": "Swallow",
+    "path": "/MUSICIANS/S/Swallow/"
+  },
+  {
+    "name": "Swayze",
+    "path": "/MUSICIANS/S/Swayze/"
+  },
+  {
+    "name": "Syboxez",
+    "path": "/MUSICIANS/S/Syboxez/"
+  },
+  {
+    "name": "Sychamis",
+    "path": "/MUSICIANS/S/Sychamis/"
+  },
+  {
+    "name": "Sync No",
+    "path": "/MUSICIANS/N/No_Sync/"
+  },
+  {
+    "name": "Syndicate The",
+    "path": "/MUSICIANS/T/The_Syndicate/"
+  },
+  {
+    "name": "Syndrom The",
+    "path": "/MUSICIANS/T/The_Syndrom/"
+  },
+  {
+    "name": "Synnon Sid",
+    "path": "/MUSICIANS/S/Sid_Synnon/"
+  },
+  {
+    "name": "Syntech",
+    "path": "/MUSICIANS/S/Syntech/"
+  },
+  {
+    "name": "System Music",
+    "path": "/MUSICIANS/M/Music_System/"
+  },
+  {
+    "name": "Szachista",
+    "path": "/MUSICIANS/S/Szachista/"
+  },
+  {
+    "name": "Tadpole",
+    "path": "/MUSICIANS/T/Tadpole/"
+  },
+  {
+    "name": "Taki",
+    "path": "/MUSICIANS/T/Taki/"
+  },
+  {
+    "name": "Tamanegi-itame",
+    "path": "/MUSICIANS/T/Tamanegi-itame/"
+  },
+  {
+    "name": "Tango",
+    "path": "/MUSICIANS/T/Tango/"
+  },
+  {
+    "name": "Tape",
+    "path": "/MUSICIANS/T/Tape/"
+  },
+  {
+    "name": "Target",
+    "path": "/MUSICIANS/T/Target/"
+  },
+  {
+    "name": "Taurus",
+    "path": "/MUSICIANS/T/Taurus/"
+  },
+  {
+    "name": "Taxim",
+    "path": "/MUSICIANS/T/Taxim/"
+  },
+  {
+    "name": "TBB",
+    "path": "/MUSICIANS/T/TBB/"
+  },
+  {
+    "name": "TC",
+    "path": "/MUSICIANS/T/TC/"
+  },
+  {
+    "name": "TCC",
+    "path": "/MUSICIANS/T/TCC/"
+  },
+  {
+    "name": "TDC Zeus",
+    "path": "/MUSICIANS/Z/Zeus_TDC/"
+  },
+  {
+    "name": "TDS",
+    "path": "/MUSICIANS/T/TDS/"
+  },
+  {
+    "name": "Team DJ",
+    "path": "/MUSICIANS/D/DJ_Team/"
+  },
+  {
+    "name": "Teapot Tonal",
+    "path": "/MUSICIANS/T/Tonal_Teapot/"
+  },
+  {
+    "name": "Technotron",
+    "path": "/MUSICIANS/T/Technotron/"
+  },
+  {
+    "name": "Teel",
+    "path": "/MUSICIANS/T/Teel/"
+  },
+  {
+    "name": "Teffx",
+    "path": "/MUSICIANS/T/Teffx/"
+  },
+  {
+    "name": "TEK Mac",
+    "path": "/MUSICIANS/M/Mac_TEK/"
+  },
+  {
+    "name": "Televicious",
+    "path": "/MUSICIANS/T/Televicious/"
+  },
+  {
+    "name": "Tempest",
+    "path": "/MUSICIANS/T/Tempest/"
+  },
+  {
+    "name": "Tenner",
+    "path": "/MUSICIANS/T/Tenner/"
+  },
+  {
+    "name": "Tennisers",
+    "path": "/MUSICIANS/T/Tennisers/"
+  },
+  {
+    "name": "Terric",
+    "path": "/MUSICIANS/T/Terric/"
+  },
+  {
+    "name": "Terrorz Dr",
+    "path": "/MUSICIANS/D/Dr_Terrorz/"
+  },
+  {
+    "name": "Terry Walker",
+    "path": "/MUSICIANS/W/Walker_Terry/"
+  },
+  {
+    "name": "Tex",
+    "path": "/MUSICIANS/T/Tex/"
+  },
+  {
+    "name": "TGM",
+    "path": "/MUSICIANS/T/TGM/"
+  },
+  {
+    "name": "THCM",
+    "path": "/MUSICIANS/T/THCM/"
+  },
+  {
+    "name": "The_Big_Dada",
+    "path": "/MUSICIANS/T/The_Big_Dada/"
+  },
+  {
+    "name": "The_Blue_Ninja",
+    "path": "/MUSICIANS/T/The_Blue_Ninja/"
+  },
+  {
+    "name": "The_Dream_Maker",
+    "path": "/MUSICIANS/T/The_Dream_Maker/"
+  },
+  {
+    "name": "The_Dungeon_Master",
+    "path": "/MUSICIANS/T/The_Dungeon_Master/"
+  },
+  {
+    "name": "The_Dynamic_Junk",
+    "path": "/MUSICIANS/T/The_Dynamic_Junk/"
+  },
+  {
+    "name": "The_Flying_Dutchman",
+    "path": "/MUSICIANS/T/The_Flying_Dutchman/"
+  },
+  {
+    "name": "The_Future_Cracker",
+    "path": "/MUSICIANS/T/The_Future_Cracker/"
+  },
+  {
+    "name": "The_Golden_Dragon",
+    "path": "/MUSICIANS/T/The_Golden_Dragon/"
+  },
+  {
+    "name": "The_Great_Flash",
+    "path": "/MUSICIANS/T/The_Great_Flash/"
+  },
+  {
+    "name": "The_Invincible_Cracker",
+    "path": "/MUSICIANS/T/The_Invincible_Cracker/"
+  },
+  {
+    "name": "The_Italian_Stallion",
+    "path": "/MUSICIANS/T/The_Italian_Stallion/"
+  },
+  {
+    "name": "The_Last_Dragon",
+    "path": "/MUSICIANS/T/The_Last_Dragon/"
+  },
+  {
+    "name": "The_Mad_Axeman",
+    "path": "/MUSICIANS/T/The_Mad_Axeman/"
+  },
+  {
+    "name": "The_Magic_Man",
+    "path": "/MUSICIANS/T/The_Magic_Man/"
+  },
+  {
+    "name": "The_Magical_Garfield",
+    "path": "/MUSICIANS/T/The_Magical_Garfield/"
+  },
+  {
+    "name": "The_Mighty_Bulldozer",
+    "path": "/MUSICIANS/T/The_Mighty_Bulldozer/"
+  },
+  {
+    "name": "The_Noise_Art",
+    "path": "/MUSICIANS/T/The_Noise_Art/"
+  },
+  {
+    "name": "The_Power_Terminator",
+    "path": "/MUSICIANS/T/The_Power_Terminator/"
+  },
+  {
+    "name": "The_Rotary_Iron",
+    "path": "/MUSICIANS/T/The_Rotary_Iron/"
+  },
+  {
+    "name": "The_Tea_Drinker",
+    "path": "/MUSICIANS/T/The_Tea_Drinker/"
+  },
+  {
+    "name": "The_Unknown_Cracker",
+    "path": "/MUSICIANS/T/The_Unknown_Cracker/"
+  },
+  {
+    "name": "The_Wise_Man",
+    "path": "/MUSICIANS/T/The_Wise_Man/"
+  },
+  {
+    "name": "TheDuccinator",
+    "path": "/MUSICIANS/T/TheDuccinator/"
+  },
+  {
+    "name": "Theel",
+    "path": "/MUSICIANS/T/Theel/"
+  },
+  {
+    "name": "TheFatman",
+    "path": "/MUSICIANS/T/TheFatman/"
+  },
+  {
+    "name": "TheK",
+    "path": "/MUSICIANS/T/TheK/"
+  },
+  {
+    "name": "TheRyk",
+    "path": "/MUSICIANS/T/TheRyk/"
+  },
+  {
+    "name": "Thomas Detert",
+    "path": "/MUSICIANS/D/Detert_Thomas/"
+  },
+  {
+    "name": "Thomas Goesmann",
+    "path": "/MUSICIANS/G/Goesmann_Thomas/"
+  },
+  {
+    "name": "Thomas Kolbe",
+    "path": "/MUSICIANS/K/Kolbe_Thomas/"
+  },
+  {
+    "name": "Thomas Kraetzig",
+    "path": "/MUSICIANS/K/Kraetzig_Thomas/"
+  },
+  {
+    "name": "Thomas Levine",
+    "path": "/MUSICIANS/L/Levine_Thomas/"
+  },
+  {
+    "name": "Thomas Saltkjelvik",
+    "path": "/MUSICIANS/S/Saltkjelvik_Thomas/"
+  },
+  {
+    "name": "Thorsten Klose",
+    "path": "/MUSICIANS/K/Klose_Thorsten/"
+  },
+  {
+    "name": "Thorsten Koytka",
+    "path": "/MUSICIANS/K/Koytka_Thorsten/"
+  },
+  {
+    "name": "Tie Herr",
+    "path": "/MUSICIANS/H/Herr_Tie/"
+  },
+  {
+    "name": "Tiger Jade",
+    "path": "/MUSICIANS/J/Jade_Tiger/"
+  },
+  {
     "name": "Tim Follin",
     "path": "/MUSICIANS/F/Follin_Tim/"
+  },
+  {
+    "name": "Tim Kleinert",
+    "path": "/MUSICIANS/K/Kleinert_Tim/"
+  },
+  {
+    "name": "Time Sid",
+    "path": "/MUSICIANS/S/Sid_Time/"
+  },
+  {
+    "name": "Timo Peichl",
+    "path": "/MUSICIANS/P/Peichl_Timo/"
+  },
+  {
+    "name": "Timoc",
+    "path": "/MUSICIANS/T/Timoc/"
+  },
+  {
+    "name": "Tinnitus",
+    "path": "/MUSICIANS/T/Tinnitus/"
+  },
+  {
+    "name": "Tips",
+    "path": "/MUSICIANS/T/Tips/"
+  },
+  {
+    "name": "TJ-Soft_and_Giffer_Int",
+    "path": "/MUSICIANS/T/TJ-Soft_and_Giffer_Int/"
+  },
+  {
+    "name": "Tjagvad",
+    "path": "/MUSICIANS/T/Tjagvad/"
+  },
+  {
+    "name": "TLF",
+    "path": "/MUSICIANS/T/TLF/"
+  },
+  {
+    "name": "TLR",
+    "path": "/MUSICIANS/T/TLR/"
+  },
+  {
+    "name": "TMR",
+    "path": "/MUSICIANS/T/TMR/"
+  },
+  {
+    "name": "TN",
+    "path": "/MUSICIANS/T/TN/"
+  },
+  {
+    "name": "Toaster",
+    "path": "/MUSICIANS/T/Toaster/"
+  },
+  {
+    "name": "Tobias Herre",
+    "path": "/MUSICIANS/H/Herre_Tobias/"
+  },
+  {
+    "name": "Tobias Salomonsson",
+    "path": "/MUSICIANS/S/Salomonsson_Tobias/"
+  },
+  {
+    "name": "Tobikomi",
+    "path": "/MUSICIANS/T/Tobikomi/"
+  },
+  {
+    "name": "Toggle",
+    "path": "/MUSICIANS/T/Toggle/"
+  },
+  {
+    "name": "Tom Snyder",
+    "path": "/MUSICIANS/S/Snyder_Tom/"
+  },
+  {
+    "name": "Tomace",
+    "path": "/MUSICIANS/T/Tomace/"
+  },
+  {
+    "name": "Tomaes",
+    "path": "/MUSICIANS/T/Tomaes/"
   },
   {
     "name": "Tomas Danko",
     "path": "/MUSICIANS/D/Danko_Tomas/"
   },
   {
+    "name": "Tomcat",
+    "path": "/MUSICIANS/T/Tomcat/"
+  },
+  {
+    "name": "Tomi Malinen",
+    "path": "/MUSICIANS/M/Malinen_Tomi/"
+  },
+  {
+    "name": "Tommi Joutsiniemi",
+    "path": "/MUSICIANS/J/Joutsiniemi_Tommi/"
+  },
+  {
+    "name": "Tommy",
+    "path": "/MUSICIANS/T/Tommy/"
+  },
+  {
+    "name": "Tommy Dunbar",
+    "path": "/MUSICIANS/D/Dunbar_Tommy/"
+  },
+  {
+    "name": "Toni Luode",
+    "path": "/MUSICIANS/L/Luode_Toni/"
+  },
+  {
+    "name": "Tonid",
+    "path": "/MUSICIANS/T/Tonid/"
+  },
+  {
+    "name": "Tonka",
+    "path": "/MUSICIANS/T/Tonka/"
+  },
+  {
+    "name": "Tony DJ",
+    "path": "/MUSICIANS/D/DJ_Tony/"
+  },
+  {
+    "name": "Tony Gibson",
+    "path": "/MUSICIANS/G/Gibson_Tony/"
+  },
+  {
+    "name": "Tony Kelly",
+    "path": "/MUSICIANS/K/Kelly_Tony/"
+  },
+  {
+    "name": "Tony Williams",
+    "path": "/MUSICIANS/W/Williams_Tony/"
+  },
+  {
+    "name": "Topaz",
+    "path": "/MUSICIANS/T/Topaz/"
+  },
+  {
+    "name": "Topo El",
+    "path": "/MUSICIANS/E/El_Topo/"
+  },
+  {
+    "name": "Topshelf",
+    "path": "/MUSICIANS/T/Topshelf/"
+  },
+  {
+    "name": "Tork_and_Torky",
+    "path": "/MUSICIANS/T/Tork_and_Torky/"
+  },
+  {
+    "name": "Torvi",
+    "path": "/MUSICIANS/T/Torvi/"
+  },
+  {
+    "name": "Touldie",
+    "path": "/MUSICIANS/T/Touldie/"
+  },
+  {
+    "name": "Tovarisch Svetlana",
+    "path": "/MUSICIANS/S/Svetlana_Tovarisch/"
+  },
+  {
+    "name": "Towers Bobbi",
+    "path": "/MUSICIANS/B/Bobbi_Towers/"
+  },
+  {
+    "name": "Toy",
+    "path": "/MUSICIANS/T/Toy/"
+  },
+  {
+    "name": "TPF Yoda",
+    "path": "/MUSICIANS/Y/Yoda_TPF/"
+  },
+  {
+    "name": "Tracker",
+    "path": "/MUSICIANS/T/Tracker/"
+  },
+  {
+    "name": "Trans",
+    "path": "/MUSICIANS/T/Trans/"
+  },
+  {
+    "name": "Trap",
+    "path": "/MUSICIANS/T/Trap/"
+  },
+  {
+    "name": "Trays",
+    "path": "/MUSICIANS/T/Trays/"
+  },
+  {
+    "name": "Triace",
+    "path": "/MUSICIANS/T/Triace/"
+  },
+  {
+    "name": "Trident",
+    "path": "/MUSICIANS/T/Trident/"
+  },
+  {
+    "name": "TristEndo",
+    "path": "/MUSICIANS/T/TristEndo/"
+  },
+  {
+    "name": "Trompkins",
+    "path": "/MUSICIANS/T/Tinnitus/Trompkins/"
+  },
+  {
+    "name": "Tromster",
+    "path": "/MUSICIANS/T/Tromster/"
+  },
+  {
+    "name": "Tron_Beekveld_Erwin",
+    "path": "/MUSICIANS/T/Tron_Beekveld_Erwin/"
+  },
+  {
+    "name": "Tron_Olsson_Mikael",
+    "path": "/MUSICIANS/T/Tron_Olsson_Mikael/"
+  },
+  {
+    "name": "Trond Lindanger",
+    "path": "/MUSICIANS/L/Lindanger_Trond/"
+  },
+  {
+    "name": "Tronix Phoenix",
+    "path": "/MUSICIANS/P/Phoenix_Tronix/"
+  },
+  {
+    "name": "Tronix Psycho",
+    "path": "/MUSICIANS/P/Psycho_Tronix/"
+  },
+  {
+    "name": "Trugoy",
+    "path": "/MUSICIANS/T/Trugoy/"
+  },
+  {
+    "name": "Trurl",
+    "path": "/MUSICIANS/T/Trurl/"
+  },
+  {
+    "name": "TSM",
+    "path": "/MUSICIANS/T/TSM/"
+  },
+  {
+    "name": "Tuff Street",
+    "path": "/MUSICIANS/S/Street_Tuff/"
+  },
+  {
+    "name": "TUGCS Mac",
+    "path": "/MUSICIANS/M/Mac_TUGCS/"
+  },
+  {
+    "name": "Turk Black",
+    "path": "/MUSICIANS/B/Black_Turk/"
+  },
+  {
+    "name": "Turtle",
+    "path": "/MUSICIANS/T/Turtle/"
+  },
+  {
+    "name": "TUT Wizard",
+    "path": "/MUSICIANS/W/Wizard_TUT/"
+  },
+  {
+    "name": "Twang Mortimer",
+    "path": "/MUSICIANS/M/Mortimer_Twang/"
+  },
+  {
+    "name": "Twilight",
+    "path": "/MUSICIANS/T/Twilight/"
+  },
+  {
+    "name": "Twin-Man",
+    "path": "/MUSICIANS/T/Twin-Man/"
+  },
+  {
+    "name": "Twoflower",
+    "path": "/MUSICIANS/T/Twoflower/"
+  },
+  {
+    "name": "Twynn",
+    "path": "/MUSICIANS/T/Twynn/"
+  },
+  {
+    "name": "Uctumi",
+    "path": "/MUSICIANS/U/Uctumi/"
+  },
+  {
+    "name": "Ufo-Soft",
+    "path": "/MUSICIANS/U/Ufo-Soft/"
+  },
+  {
+    "name": "Ukimenustah",
+    "path": "/MUSICIANS/U/Ukimenustah/"
+  },
+  {
+    "name": "Ulf Tidstrand",
+    "path": "/MUSICIANS/T/Tidstrand_Ulf/"
+  },
+  {
+    "name": "Ulrich Muehl",
+    "path": "/MUSICIANS/M/Muehl_Ulrich/"
+  },
+  {
+    "name": "Ultrasyd",
+    "path": "/MUSICIANS/U/Ultrasyd/"
+  },
+  {
+    "name": "Ulysses",
+    "path": "/MUSICIANS/U/Ulysses/"
+  },
+  {
+    "name": "Uneksija",
+    "path": "/MUSICIANS/U/Uneksija/"
+  },
+  {
+    "name": "unreleased",
+    "path": "/MUSICIANS/L/Link/unreleased/"
+  },
+  {
+    "name": "Urs Heckmann",
+    "path": "/MUSICIANS/H/Heckmann_Urs/"
+  },
+  {
+    "name": "Uzzy",
+    "path": "/MUSICIANS/U/Uzzy/"
+  },
+  {
+    "name": "V D",
+    "path": "/MUSICIANS/D/D_V/"
+  },
+  {
+    "name": "V-12",
+    "path": "/MUSICIANS/V/V-12/"
+  },
+  {
+    "name": "V0yager",
+    "path": "/MUSICIANS/V/V0yager/"
+  },
+  {
+    "name": "Vai",
+    "path": "/MUSICIANS/V/Vai/"
+  },
+  {
+    "name": "Valentine",
+    "path": "/MUSICIANS/V/Valentine/"
+  },
+  {
+    "name": "van_den_Beuken_Ron",
+    "path": "/MUSICIANS/V/van_den_Beuken_Ron/"
+  },
+  {
+    "name": "van_Orsouw_Eric",
+    "path": "/MUSICIANS/V/van_Orsouw_Eric/"
+  },
+  {
+    "name": "van_Riemsdijk_Dick",
+    "path": "/MUSICIANS/V/van_Riemsdijk_Dick/"
+  },
+  {
+    "name": "van_Santen_Edwin",
+    "path": "/MUSICIANS/0-9/20CC/van_Santen_Edwin/"
+  },
+  {
+    "name": "Vandahlia",
+    "path": "/MUSICIANS/V/Vandahlia/"
+  },
+  {
+    "name": "Vans",
+    "path": "/MUSICIANS/V/Vans/"
+  },
+  {
+    "name": "Vaz",
+    "path": "/MUSICIANS/V/Vaz/"
+  },
+  {
+    "name": "Vector Dr",
+    "path": "/MUSICIANS/D/Dr_Vector/"
+  },
+  {
+    "name": "Vedder",
+    "path": "/MUSICIANS/V/Vedder/"
+  },
+  {
+    "name": "Vegard",
+    "path": "/MUSICIANS/V/Vegard/"
+  },
+  {
+    "name": "Vegeta",
+    "path": "/MUSICIANS/V/Vegeta/"
+  },
+  {
+    "name": "Venom",
+    "path": "/MUSICIANS/V/Venom/"
+  },
+  {
+    "name": "Vent",
+    "path": "/MUSICIANS/V/Vent/"
+  },
+  {
+    "name": "Venus Mr",
+    "path": "/MUSICIANS/M/Mr_Venus/"
+  },
+  {
+    "name": "Verdict",
+    "path": "/MUSICIANS/V/Verdict/"
+  },
+  {
+    "name": "Vic",
+    "path": "/MUSICIANS/V/Vic/"
+  },
+  {
+    "name": "Vic Berry",
+    "path": "/MUSICIANS/B/Berry_Vic/"
+  },
+  {
+    "name": "Vincent Merken",
+    "path": "/MUSICIANS/M/Merken_Vincent/"
+  },
+  {
+    "name": "Vincent Voois",
+    "path": "/MUSICIANS/V/Voois_Vincent/"
+  },
+  {
     "name": "Vincenzo",
     "path": "/MUSICIANS/V/Vincenzo/"
+  },
+  {
+    "name": "Vintaque",
+    "path": "/MUSICIANS/V/Vintaque/"
+  },
+  {
+    "name": "Vinzz",
+    "path": "/MUSICIANS/V/Vinzz/"
+  },
+  {
+    "name": "Viper",
+    "path": "/MUSICIANS/V/Viper/"
+  },
+  {
+    "name": "Viralbox",
+    "path": "/MUSICIANS/V/Viralbox/"
+  },
+  {
+    "name": "Visac",
+    "path": "/MUSICIANS/V/Visac/"
+  },
+  {
+    "name": "Vivid Nick",
+    "path": "/MUSICIANS/N/Nick_Vivid/"
+  },
+  {
+    "name": "Viznut",
+    "path": "/MUSICIANS/V/Viznut/"
+  },
+  {
+    "name": "Vizz",
+    "path": "/MUSICIANS/V/Vizz/"
+  },
+  {
+    "name": "Voice Dr",
+    "path": "/MUSICIANS/D/Dr_Voice/"
+  },
+  {
+    "name": "Volker Struebing",
+    "path": "/MUSICIANS/S/Struebing_Volker/"
+  },
+  {
+    "name": "Vox Pinov",
+    "path": "/MUSICIANS/P/Pinov_Vox/"
+  },
+  {
+    "name": "Vulgarik",
+    "path": "/MUSICIANS/V/Vulgarik/"
+  },
+  {
+    "name": "W-46",
+    "path": "/MUSICIANS/W/W-46/"
+  },
+  {
+    "name": "Wacek",
+    "path": "/MUSICIANS/W/Wacek/"
   },
   {
     "name": "Wally Beben",
     "path": "/MUSICIANS/B/Beben_Wally/"
   },
   {
+    "name": "Walsh Brandon",
+    "path": "/MUSICIANS/B/Brandon_Walsh/"
+  },
+  {
+    "name": "Walt",
+    "path": "/MUSICIANS/W/Walt/"
+  },
+  {
+    "name": "Ward Selles",
+    "path": "/MUSICIANS/S/Selles_Ward/"
+  },
+  {
+    "name": "Warlock",
+    "path": "/MUSICIANS/W/Warlock/"
+  },
+  {
+    "name": "Warlord",
+    "path": "/MUSICIANS/W/Warlord/"
+  },
+  {
+    "name": "Warnock",
+    "path": "/MUSICIANS/W/Warnock/"
+  },
+  {
+    "name": "Warp Mr",
+    "path": "/MUSICIANS/M/Mr_Warp/"
+  },
+  {
+    "name": "Warrior",
+    "path": "/MUSICIANS/W/Warrior/"
+  },
+  {
+    "name": "Warrior The",
+    "path": "/MUSICIANS/T/The_Warrior/"
+  },
+  {
+    "name": "Watchman",
+    "path": "/MUSICIANS/W/Watchman/"
+  },
+  {
+    "name": "Wayne",
+    "path": "/MUSICIANS/W/Wayne/"
+  },
+  {
+    "name": "Wayne Pace",
+    "path": "/MUSICIANS/P/Pace_Wayne/"
+  },
+  {
+    "name": "Waz",
+    "path": "/MUSICIANS/W/Waz/"
+  },
+  {
+    "name": "Wedge",
+    "path": "/MUSICIANS/W/Wedge/"
+  },
+  {
+    "name": "Welli",
+    "path": "/MUSICIANS/W/Welli/"
+  },
+  {
+    "name": "Werner",
+    "path": "/MUSICIANS/W/Werner/"
+  },
+  {
+    "name": "Wertstahl",
+    "path": "/MUSICIANS/W/Wertstahl/"
+  },
+  {
+    "name": "WG",
+    "path": "/MUSICIANS/W/WG/"
+  },
+  {
+    "name": "Whiplash",
+    "path": "/MUSICIANS/W/Whiplash/"
+  },
+  {
+    "name": "Whisper Mc",
+    "path": "/MUSICIANS/M/Mc_Whisper/"
+  },
+  {
+    "name": "Whistle The",
+    "path": "/MUSICIANS/T/The_Whistle/"
+  },
+  {
+    "name": "Whizz",
+    "path": "/MUSICIANS/W/Whizz/"
+  },
+  {
+    "name": "Widding_Roy_Johan",
+    "path": "/MUSICIANS/W/Widding_Roy_Johan/"
+  },
+  {
+    "name": "Wide",
+    "path": "/MUSICIANS/W/Wide/"
+  },
+  {
+    "name": "Wig Mr",
+    "path": "/MUSICIANS/M/Mr_Wig/"
+  },
+  {
+    "name": "Wiklund",
+    "path": "/MUSICIANS/W/Wiklund/"
+  },
+  {
+    "name": "Wil",
+    "path": "/MUSICIANS/W/Wil/"
+  },
+  {
+    "name": "Willi",
+    "path": "/MUSICIANS/W/Willi/"
+  },
+  {
+    "name": "William Fong",
+    "path": "/MUSICIANS/F/Fong_William/"
+  },
+  {
+    "name": "William Mataga",
+    "path": "/MUSICIANS/M/Mataga_William/"
+  },
+  {
+    "name": "William Shockley",
+    "path": "/MUSICIANS/S/Shockley_William/"
+  },
+  {
+    "name": "Willox",
+    "path": "/MUSICIANS/W/Willox/"
+  },
+  {
+    "name": "Wisdom",
+    "path": "/MUSICIANS/W/Wisdom/"
+  },
+  {
+    "name": "Wiz",
+    "path": "/MUSICIANS/W/Wiz/"
+  },
+  {
+    "name": "Wiz-Art",
+    "path": "/MUSICIANS/W/Wiz-Art/"
+  },
+  {
+    "name": "Wodnik",
+    "path": "/MUSICIANS/W/Wodnik/"
+  },
+  {
+    "name": "Wolfgang",
+    "path": "/MUSICIANS/W/Wolfgang/"
+  },
+  {
+    "name": "Wolfgang Bochar",
+    "path": "/MUSICIANS/B/Bochar_Wolfgang/"
+  },
+  {
+    "name": "Wolk",
+    "path": "/MUSICIANS/W/Wolk/"
+  },
+  {
+    "name": "Worktunes",
+    "path": "/MUSICIANS/D/DRAX/Worktunes/"
+  },
+  {
+    "name": "WORR",
+    "path": "/MUSICIANS/W/WORR/"
+  },
+  {
+    "name": "Wotnau",
+    "path": "/MUSICIANS/W/Wotnau/"
+  },
+  {
+    "name": "WOW Alien",
+    "path": "/MUSICIANS/A/Alien_WOW/"
+  },
+  {
+    "name": "Wuiti",
+    "path": "/MUSICIANS/W/Wuiti/"
+  },
+  {
+    "name": "Wyndex",
+    "path": "/MUSICIANS/W/Wyndex/"
+  },
+  {
+    "name": "X Racer",
+    "path": "/MUSICIANS/R/Racer_X/"
+  },
+  {
+    "name": "X-Byte",
+    "path": "/MUSICIANS/X/X-Byte/"
+  },
+  {
+    "name": "X-Jammer",
+    "path": "/MUSICIANS/X/X-Jammer/"
+  },
+  {
+    "name": "X-Radical",
+    "path": "/MUSICIANS/X/X-Radical/"
+  },
+  {
+    "name": "Xai",
+    "path": "/MUSICIANS/X/Xai/"
+  },
+  {
+    "name": "Xayne",
+    "path": "/MUSICIANS/B/Beat_Machine/Xayne/"
+  },
+  {
+    "name": "Xeno_Micro_Soft",
+    "path": "/MUSICIANS/X/Xeno_Micro_Soft/"
+  },
+  {
+    "name": "XII Karl",
+    "path": "/MUSICIANS/K/Karl_XII/"
+  },
+  {
+    "name": "Xiny6581",
+    "path": "/MUSICIANS/X/Xiny6581/"
+  },
+  {
+    "name": "Xonic_the_Fox",
+    "path": "/MUSICIANS/X/Xonic_the_Fox/"
+  },
+  {
+    "name": "XPO",
+    "path": "/MUSICIANS/X/XPO/"
+  },
+  {
+    "name": "Xtense",
+    "path": "/MUSICIANS/X/Xtense/"
+  },
+  {
+    "name": "Yaemon",
+    "path": "/MUSICIANS/Y/Yaemon/"
+  },
+  {
+    "name": "Yankee",
+    "path": "/MUSICIANS/Y/Yankee/"
+  },
+  {
+    "name": "Yaruni",
+    "path": "/MUSICIANS/Y/Yaruni/"
+  },
+  {
+    "name": "Yattaman",
+    "path": "/MUSICIANS/Y/Yattaman/"
+  },
+  {
+    "name": "Yavin",
+    "path": "/MUSICIANS/H/HeatWave/Yavin/"
+  },
+  {
+    "name": "Yazz",
+    "path": "/MUSICIANS/Y/Yazz/"
+  },
+  {
+    "name": "Yip",
+    "path": "/MUSICIANS/Y/Yip/"
+  },
+  {
+    "name": "Yoda_The_Team",
+    "path": "/MUSICIANS/Y/Yoda_The_Team/"
+  },
+  {
+    "name": "Yoko",
+    "path": "/MUSICIANS/Y/Yoko/"
+  },
+  {
+    "name": "Yoshi",
+    "path": "/MUSICIANS/Y/Yoshi/"
+  },
+  {
+    "name": "youtH",
+    "path": "/MUSICIANS/H/HeatWave/youtH/"
+  },
+  {
+    "name": "YQN",
+    "path": "/MUSICIANS/Y/YQN/"
+  },
+  {
+    "name": "Ysyry",
+    "path": "/MUSICIANS/Y/Ysyry/"
+  },
+  {
+    "name": "Yulk",
+    "path": "/MUSICIANS/Y/Yulk/"
+  },
+  {
+    "name": "Yuro",
+    "path": "/MUSICIANS/Y/Yuro/"
+  },
+  {
+    "name": "Yzi",
+    "path": "/MUSICIANS/Y/Yzi/"
+  },
+  {
     "name": "Zabutom",
     "path": "/MUSICIANS/Z/Zabutom/"
   },
   {
-    "name": "goto80",
-    "path": "/MUSICIANS/G/goto80/"
+    "name": "Zagor",
+    "path": "/MUSICIANS/Z/Zagor/"
+  },
+  {
+    "name": "Zak Mc",
+    "path": "/MUSICIANS/M/Mc_Zak/"
+  },
+  {
+    "name": "Zapac",
+    "path": "/MUSICIANS/Z/Zapac/"
+  },
+  {
+    "name": "Zardax",
+    "path": "/MUSICIANS/Z/Zardax/"
+  },
+  {
+    "name": "Zax Imperial",
+    "path": "/MUSICIANS/I/Imperial_Zax/"
+  },
+  {
+    "name": "Zbyti",
+    "path": "/MUSICIANS/Z/Zbyti/"
+  },
+  {
+    "name": "Zeb",
+    "path": "/MUSICIANS/Z/Zeb/"
+  },
+  {
+    "name": "ZeHa",
+    "path": "/MUSICIANS/Z/ZeHa/"
+  },
+  {
+    "name": "Zenox",
+    "path": "/MUSICIANS/Z/Zenox/"
+  },
+  {
+    "name": "Zerozillion",
+    "path": "/MUSICIANS/O/Onebitman/Zerozillion/"
+  },
+  {
+    "name": "Zeta",
+    "path": "/MUSICIANS/Z/Zeta/"
+  },
+  {
+    "name": "Zeux",
+    "path": "/MUSICIANS/Z/Zeux/"
+  },
+  {
+    "name": "Ziphoid",
+    "path": "/MUSICIANS/Z/Ziphoid/"
+  },
+  {
+    "name": "Zipper",
+    "path": "/MUSICIANS/Z/Zipper/"
+  },
+  {
+    "name": "Zirco",
+    "path": "/MUSICIANS/Z/Zirco/"
+  },
+  {
+    "name": "Zirias",
+    "path": "/MUSICIANS/Z/Zirias/"
+  },
+  {
+    "name": "Zizyphus",
+    "path": "/MUSICIANS/Z/Zizyphus/"
+  },
+  {
+    "name": "Zlew",
+    "path": "/MUSICIANS/Z/Zlew/"
+  },
+  {
+    "name": "Zmolk",
+    "path": "/MUSICIANS/Z/Zmolk/"
+  },
+  {
+    "name": "Zoci-Joe",
+    "path": "/MUSICIANS/Z/Zoci-Joe/"
+  },
+  {
+    "name": "Zod",
+    "path": "/MUSICIANS/Z/Zod/"
+  },
+  {
+    "name": "Zombie",
+    "path": "/MUSICIANS/Z/Zombie/"
+  },
+  {
+    "name": "Zonix",
+    "path": "/MUSICIANS/Z/Zonix/"
+  },
+  {
+    "name": "Zonzo",
+    "path": "/MUSICIANS/Z/Zonzo/"
+  },
+  {
+    "name": "Zool",
+    "path": "/MUSICIANS/Z/Zool/"
+  },
+  {
+    "name": "Zool Fantastic",
+    "path": "/MUSICIANS/F/Fantastic_Zool/"
+  },
+  {
+    "name": "Zoolex",
+    "path": "/MUSICIANS/Z/Zoolex/"
+  },
+  {
+    "name": "Zoom Dr",
+    "path": "/MUSICIANS/D/Dr_Zoom/"
+  },
+  {
+    "name": "Zorro",
+    "path": "/MUSICIANS/Z/Zorro/"
+  },
+  {
+    "name": "Zradce",
+    "path": "/MUSICIANS/Z/Zradce/"
+  },
+  {
+    "name": "Zsolt Koloncsak",
+    "path": "/MUSICIANS/K/Koloncsak_Zsolt/"
+  },
+  {
+    "name": "Zyborg",
+    "path": "/MUSICIANS/Z/Zyborg/"
+  },
+  {
+    "name": "Zynthaxx",
+    "path": "/MUSICIANS/Z/Zynthaxx/"
+  },
+  {
+    "name": "Zyron",
+    "path": "/MUSICIANS/Z/Zyron/"
+  },
+  {
+    "name": "Zzap69",
+    "path": "/MUSICIANS/Z/Zzap69/"
+  },
+  {
+    "name": "ZZR",
+    "path": "/MUSICIANS/Z/ZZR/"
   }
 ]

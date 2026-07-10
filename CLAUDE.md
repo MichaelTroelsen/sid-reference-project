@@ -29,8 +29,13 @@ picture; this file is quick orientation for a fresh session.
   DeepSID database export" below), which has the same per-file `player`
   field the broken endpoint would have returned, just from a dated
   snapshot instead of live. `build-html.js` still falls back further to
-  HVSC's STIL.txt (filename/title/artist only, no player field) for
-  anything outside the dump's coverage.
+  HVSC's STIL.txt (filename/title/artist, no player field) for anything
+  outside the dump's coverage. STIL.txt's free-text `COMMENT` field
+  (song notes, `stil.json`'s `comment` per file) is a separate lookup
+  cross-referenced by filename onto *every* file regardless of source —
+  DeepSID has no equivalent field at all, so this isn't a fallback, it's
+  additive (~6,500 of ~55,000 files gained one). Shown as a collapsible
+  "song info" toggle on the Files tab and each composer card.
 - **The DeepSID database export**: `scripts/import-deepsid-dump.js`
   reads a local copy of DeepSID's own published database dump
   (github.com/Chordian/deepsid README's "Setting up for offline use"
@@ -53,7 +58,16 @@ picture; this file is quick orientation for a fresh session.
   all carrying the same data at once, and a per-file `url` string was
   being pre-built and stored instead of reconstructed from data already
   present. Fixed down to ~8-9MB (still large, but usable) — see git
-  history if this creeps back up after future changes.
+  history if this creeps back up after future changes. Now ~9-10MB after
+  also cross-referencing STIL.txt's `COMMENT` field onto ~6,500 files
+  (see the STIL.txt line below). That same fix (deleting `composer.folder`
+  after deriving `composer.files`) silently broke every composer card's
+  file count/expand toggle in `templates/index.html.template` — its
+  `fileList()`/`buildFileRow()` were reading the now-deleted `.folder`
+  and always got zero. Not caught until this file was touched again
+  during the STIL `COMMENT` work; fixed to read `.files` instead. Lesson:
+  when a data field is deleted server-side, grep the template for every
+  reader of it, not just the ones the current task touches.
 - Text fetched from HVSC (`www.hvsc.c64.org`) is ISO-8859-1, not UTF-8 —
   `fetch()`'s `.text()` decodes as UTF-8 regardless of the response's
   actual charset and silently corrupts every accented character.

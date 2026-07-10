@@ -17,9 +17,11 @@
  *   STIL.txt — the Sid Tune Information List, per-file metadata (title,
  *   artist, free-text comments) for the whole collection. Cached raw
  *   (data/hvsc/STIL.txt, ~3.6MB) and the /MUSICIANS/ subset (16,435 of
- *   its ~18,650 records) parsed into data/hvsc/stil.json — title/artist
- *   only, comments deliberately dropped (long community-written prose,
- *   not needed for a file listing). This exists because DeepSID's own
+ *   its ~18,650 records) parsed into data/hvsc/stil.json — title/artist/
+ *   comment, scoped to each file's default subtune only (a comment tied
+ *   to an alternate subtune, e.g. "(#2) Same as <other file>", is not
+ *   captured — same rule title/artist already followed). This exists
+ *   because DeepSID's own
  *   ?file=/?folder= endpoints (the normal source of per-composer file
  *   lists) can go down — STIL.txt is a second, independent source for
  *   the same filename/title/artist facts, so build-html.js can fall
@@ -143,20 +145,22 @@ function parseMusiciansTxt(text) {
 }
 
 /**
- * Parses the /MUSICIANS/ subset of STIL.txt into { folderPath: [{file, title, artist, subtunes}] }.
+ * Parses the /MUSICIANS/ subset of STIL.txt into { folderPath: [{file, title, artist, comment, subtunes}] }.
  *
  * Record format (blank-line separated):
  *   /MUSICIANS/C/Cadaver/Aces_High.sid
  *     TITLE: Aces High [from Powerslave]
  *    ARTIST: Iron Maiden
+ *   COMMENT: Some free-text note, possibly wrapped onto indented
+ *            continuation lines like this one.
  *
- * A file can have multiple subtunes with their own title/artist, marked
- * by a "(#N)" line. Fields before the first "(#2)"-or-higher marker are
- * the default (this also covers the common case of a lone "(#1)" marker,
- * which still describes the main/default tune, not an alternate one).
- * COMMENT fields are intentionally not captured — free-text community
- * commentary, not needed for a filename/title/artist listing, and often
- * long enough that keeping it would bloat the cache for no display use.
+ * A file can have multiple subtunes with their own title/artist/comment,
+ * marked by a "(#N)" line. Fields before the first "(#2)"-or-higher marker
+ * are the default (this also covers the common case of a lone "(#1)"
+ * marker, which still describes the main/default tune, not an alternate
+ * one) — comment capture follows the exact same default-subtune-only rule
+ * already used for title/artist, so a comment scoped to subtune #2 (e.g.
+ * "Same as <other file>") isn't misattributed to the file's main entry.
  */
 function parseStilTxt(text) {
   const lines = text.split(/\r?\n/);
@@ -165,9 +169,11 @@ function parseStilTxt(text) {
   let folder = null;
   let maxSubtune = 1;
   let blocked = false;
+  let inComment = false;
 
   function flush() {
-    if (captured && (captured.title || captured.artist)) {
+    if (captured && (captured.title || captured.artist || captured.comment)) {
+      if (captured.comment) captured.comment = captured.comment.trim();
       byFolder[folder] = byFolder[folder] || [];
       byFolder[folder].push(captured);
     }
@@ -181,9 +187,10 @@ function parseStilTxt(text) {
       const fullPath = pathMatch[1];
       const slashIdx = fullPath.lastIndexOf('/');
       folder = fullPath.slice(0, slashIdx + 1);
-      captured = { file: fullPath.slice(slashIdx + 1), title: null, artist: null, subtunes: 1 };
+      captured = { file: fullPath.slice(slashIdx + 1), title: null, artist: null, comment: null, subtunes: 1 };
       maxSubtune = 1;
       blocked = false;
+      inComment = false;
       continue;
     }
     if (!captured) continue; // not inside a /MUSICIANS/ record — skip until the next one
@@ -195,6 +202,7 @@ function parseStilTxt(text) {
       if (n > maxSubtune) maxSubtune = n;
       captured.subtunes = maxSubtune;
       if (n >= 2) blocked = true;
+      inComment = false;
       continue;
     }
     if (blocked) continue; // fields belong to an alternate subtune, not the default
@@ -204,7 +212,26 @@ function parseStilTxt(text) {
       const [, field, value] = fieldMatch;
       if (field === 'TITLE' && !captured.title) captured.title = value;
       if (field === 'ARTIST' && !captured.artist) captured.artist = value;
+      inComment = false;
+      continue;
     }
+
+    const commentMatch = trimmed.match(/^COMMENT:\s?(.*)$/);
+    if (commentMatch) {
+      if (!captured.comment) {
+        captured.comment = commentMatch[1];
+        inComment = true;
+      } else {
+        inComment = false; // a second COMMENT: block for this subtune — keep the first, ignore the rest
+      }
+      continue;
+    }
+
+    if (inComment && /^\s+\S/.test(line)) {
+      captured.comment += ' ' + trimmed; // wrapped continuation line
+      continue;
+    }
+    inComment = false;
   }
   flush();
   return byFolder;

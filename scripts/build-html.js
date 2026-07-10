@@ -49,6 +49,16 @@ function buildFileList(composer, stilByFolder) {
     ? composer.folder
     : Object.values(composer.folder || {}).filter((v) => v && typeof v === 'object' && v.name);
 
+  // STIL.txt's free-text COMMENT field is an independent per-file source
+  // that DeepSID doesn't have at all — cross-referenced by filename onto
+  // *every* file regardless of which source (DeepSID vs STIL fallback)
+  // supplied its title/artist/player, not just STIL-fallback files, since
+  // those are only ~28 of ~55,000 files. `comment` is omitted entirely
+  // (not left as null) when absent — at ~55,000 files, `"comment":null`
+  // on every record would be ~900KB of pure repetition for no display use.
+  const stilFiles = stilByFolder[composer.path] || [];
+  const stilByFilename = new Map(stilFiles.map((f) => [f.file, f]));
+
   // `url` is deliberately not stored per file — every file's DeepSID
   // link is just `?file=<composer.path><filename>`, so the template
   // reconstructs it client-side from data it already has (composer.path
@@ -59,23 +69,25 @@ function buildFileList(composer, stilByFolder) {
   if (real.length) {
     return real.map((f) => {
       const filename = (f.collection_path || '').split('/').pop() || f.name || '(untitled)';
+      const comment = stilByFilename.get(filename)?.comment;
       return {
         file: filename,
         title: f.name || filename,
         artist: f.author || null,
         player: f.player || null,
         source: 'deepsid',
+        ...(comment ? { comment } : {}),
       };
     });
   }
 
-  const stilFiles = stilByFolder[composer.path] || [];
   return stilFiles.map((f) => ({
     file: f.file,
     title: f.title || f.file,
     artist: f.artist || null,
     player: null,
     source: 'stil',
+    ...(f.comment ? { comment: f.comment } : {}),
   }));
 }
 

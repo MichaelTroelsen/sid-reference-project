@@ -85,7 +85,7 @@ data/
     Musicians.txt          — raw HVSC download, ISO-8859-1 decoded correctly (gitignored)
     musicians.json          — parsed {handle, realName, group, country}[] (gitignored)
     STIL.txt                — raw HVSC download (gitignored)
-    stil.json                — /MUSICIANS/ subset parsed to {folder: [{file, title, artist, subtunes}]} (gitignored)
+    stil.json                — /MUSICIANS/ subset parsed to {folder: [{file, title, artist, comment, subtunes}]} (gitignored)
 
 templates/
   index.html.template    — the actual UI (CSS/JS), reads window.SID_DATA
@@ -253,8 +253,13 @@ and the **Files** tab lists all of them in one place across every
 composer. `build-html.js` computes each composer's file list once,
 preferring DeepSID's own `folder` field (from `?file=<composer>/`,
 including each file's free-text `player` field) and falling back to
-HVSC's own `STIL.txt` (filename/title/artist only — see "Two sources
-for file listings" below) when DeepSID's isn't available. Either way,
+HVSC's own `STIL.txt` (filename/title/artist only — see "Three sources
+for file listings" below) when DeepSID's isn't available. STIL.txt's
+free-text `COMMENT` field (community song notes) is a separate,
+independent lookup — cross-referenced by filename onto *every* file
+regardless of which source supplied its title/artist/player, since
+DeepSID has no equivalent field at all. Shown as a collapsible "song
+info" toggle wherever present (~6,500 of ~55,000 files). Either way,
 a file's `player` string is matched against the players/editors
 database's `title` field with version numbers stripped (so
 `"GoatTracker 2.62"` matches a title like `"GoatTracker v2.x"`).
@@ -311,11 +316,12 @@ are legitimately unknown (lost to history) rather than un-filled-in.
   (`data/deepsid-dump/meta.json` records the HVSC/CGSC version), not
   live data. Composers added to HVSC after that snapshot won't appear
   until the export is re-downloaded and re-imported.
-- The generated page is correspondingly large now — about 8-9MB for
-  ~1,900 composers and ~55,000 files, down from an initial 42MB before
-  a few redundant-data fixes (duplicate file records embedded three
-  times over; see git history). Still large enough that a low-end
-  device or slow connection will notice.
+- The generated page is correspondingly large now — about 9-10MB for
+  ~1,900 composers and ~55,000 files (including STIL.txt's per-file
+  `COMMENT` text, cross-referenced onto ~6,500 of them), down from an
+  initial 42MB before a few redundant-data fixes (duplicate file records
+  embedded three times over; see git history). Still large enough that a
+  low-end device or slow connection will notice.
 - DeepSID's `developer`/`docs`/`source_code` player fields sometimes
   contain pre-formatted HTML (an embedded `<a>` link) and sometimes
   plain description text ("Included in archive") — the template renders

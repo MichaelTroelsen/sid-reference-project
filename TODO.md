@@ -62,11 +62,26 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       all-or-nothing check, not per-product). Still text matching over a
       free-text field, though — not a real identifier join, since DeepSID
       doesn't expose one.
-- [ ] **Parse STIL.txt's `COMMENT` field.** Deliberately skipped when
-      building `stil.json` — free-text community commentary, useful for
-      a "song info" detail view but not needed for the file listing this
-      was built for. Would need per-file storage (not just title/artist)
-      given comments can be long.
+- [x] ~~Parse STIL.txt's `COMMENT` field.~~ Done — `fetch-hvsc-docs.js`'s
+      `parseStilTxt()` now captures multi-line `COMMENT` blocks (same
+      default-subtune-only rule as title/artist, so a comment scoped to
+      an alternate subtune isn't misattributed). `build-html.js` cross-
+      references it by filename onto *every* file regardless of source
+      (DeepSID dump vs STIL fallback) — 6,548 of 55,223 DeepSID-sourced
+      files gained a real comment this way, not just the tiny STIL-
+      fallback subset. Shown as a collapsible "song info" toggle on the
+      Files tab and each composer card's file list. Adds ~900KB to
+      `output/index.html` (8.7MB → 9.6MB), in line with the size estimate
+      given before building this.
+      - **Bonus fix found while wiring this up**: composer cards had been
+        showing "0 SIDs" for every composer since the DeepSID database
+        export import — `build-html.js` deletes `composer.folder` after
+        deriving `composer.files` (the 42MB page-size fix), but the
+        template's `fileList()`/`buildFileRow()` were never updated to
+        read `composer.files` instead and were silently reading the now-
+        absent `composer.folder`. Fixed; verified via sandbox that 1892
+        of 1902 composers now show their real file count (only 10
+        genuinely have zero).
 - [x] ~~Player screenshot thumbnails~~ Done, via a different source than
       first assumed — `scripts/fetch-player-media.js` pulls a real
       screenshot from CSDb's `type=release` endpoint (same csdb_id

@@ -260,9 +260,7 @@ function render(tab){
 }
 
 function fileList(c){
-  return Array.isArray(c.folder)
-    ? c.folder
-    : Object.values(c.folder || {}).filter(v => v && typeof v === 'object' && v.name);
+  return c.files || [];
 }
 
 function cleanNotable(s){
@@ -292,27 +290,22 @@ function matchPlayer(filePlayer, players){
     return pn && pn.length >= 3 && (pn.includes(norm) || norm.includes(pn));
   }) || null;
 }
-function fileUrl(f){
-  if (!f.collection_path) return null;
-  const clean = f.collection_path.replace(/^_High Voltage SID Collection\//, '');
-  return `https://deepsid.chordian.net/?file=${clean}`;
-}
-
 const FILE_LIST_CAP = 50;
 
-function buildFileRow(f, players){
-  const url = fileUrl(f);
-  const label = f.name || f.collection_path || '(untitled)';
+function buildFileRow(f, players, composerPath){
+  const url = (composerPath && f.file) ? `https://deepsid.chordian.net/?file=${composerPath.replace(/^\//,'')}${f.file}` : null;
+  const label = f.title || f.file || '(untitled)';
   const nameEl = url
     ? `<a class="file-name" href="${url}" target="_blank">${label}</a>`
     : `<span class="file-name">${label}</span>`;
+  const commentEl = f.comment ? `<div><button class="cnote-btn" onclick="toggleFiles(this)">▸ song info</button><div class="mp-desc" style="display:none;max-width:420px">${f.comment}</div></div>` : '';
   const playerText = (f.player || '').trim();
-  if (!playerText) return `<div class="file-row">${nameEl}<span class="tag">unidentified player</span></div>`;
+  if (!playerText) return `<div class="file-row">${nameEl}<span class="tag">unidentified player</span></div>${commentEl}`;
   const match = matchPlayer(playerText, players);
   const playerEl = match
     ? `<span class="tag" title="Linked to players/editors: ${match.title}">${playerText}</span>`
     : `<span class="tag" title="No match found in players/editors database">${playerText}</span>`;
-  return `<div class="file-row">${nameEl}${playerEl}</div>`;
+  return `<div class="file-row">${nameEl}${playerEl}</div>${commentEl}`;
 }
 
 function toggleFiles(btn){
@@ -345,7 +338,7 @@ function buildComposerCard(c){
     verifyBadge = `<span class="tag ok" title="Matches HVSC Musicians.txt: ${c.hvsc.country || 'no country listed'}">✓ HVSC verified</span>`;
   }
 
-  const fileRows = files.slice(0, FILE_LIST_CAP).map(f => buildFileRow(f, players)).join('');
+  const fileRows = files.slice(0, FILE_LIST_CAP).map(f => buildFileRow(f, players, c.path)).join('');
   const fileMore = files.length > FILE_LIST_CAP
     ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${files.length - FILE_LIST_CAP} more — see DeepSID</span></div>`
     : '';
@@ -545,7 +538,7 @@ function renderFiles(grid){
       : `<span class="cnote">${f.source === 'stil' ? 'unknown — STIL has no player data' : 'not identified'}</span>`;
     return `<tr>
       <td><a href="#" onclick="jumpToComposer('${f.composer.replace(/'/g,"\\'")}');return false;" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--cyan);text-decoration:none">${f.composer}</a></td>
-      <td style="font-size:.75rem">${f.title || f.file}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}</td>
+      <td style="font-size:.75rem">${f.title || f.file}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}${f.comment ? `<div><button class="cnote-btn" onclick="toggleFiles(this)">▸ song info</button><div class="mp-desc" style="display:none;max-width:520px">${f.comment}</div></div>` : ''}</td>
       <td>${playerCell}</td>
       <td><span class="tag">${f.source}</span></td>
       <td>${deepsidFileUrl(f) ? `<a class="dslink" href="${deepsidFileUrl(f)}" target="_blank">▶</a>` : ''}</td>

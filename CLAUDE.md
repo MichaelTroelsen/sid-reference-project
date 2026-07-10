@@ -82,13 +82,26 @@ picture; this file is quick orientation for a fresh session.
   aggregates each composer's already-cached `csdb.groups` client-side;
   737 groups have 2+ cached composers once the full CSDb re-enrichment
   landed, up from effectively unviewable when only 47 composers had CSDb
-  data), and Insights (three aggregate bar charts, all client-side, no
-  new fetch: composer activity by year 1983–2026 — chronological, not
-  ranked, since the point is the shape over time; scene roles from CSDb;
-  most prolific composers by cached file count. Shares a new `barChart()`
-  helper with the Countries tab, which was refactored to use it too.
-  Excludes one known composer-identity edge case, `unreleased` — see
-  TODO.md).
+  data), and Insights (six aggregate stats, all reading from data already
+  in the payload except one small server-side addition — see below):
+  composer activity by year 1983–2026 (chronological, not ranked, since
+  the point is the shape over time); scene roles from CSDb; most prolific
+  composers by cached file count, with a concentration note (top 50 made
+  25% of all files); covers-vs-originals from STIL.txt's "[from X]" tag
+  (`stilCoverStats` in the payload, computed once server-side in
+  `build-html.js` — not worth threading the raw STIL title text through
+  every file just for a single aggregate); group mobility (composers in
+  3+ groups). Shares a new `barChart()` helper with the Countries tab,
+  which was refactored to use it too. Excludes one known composer-
+  identity edge case, `unreleased` — see TODO.md.
+- **Number formatting**: `Number.prototype.toLocaleString()` with no
+  locale argument uses the *visitor's browser locale* — this dev
+  environment defaults to `en-DK`, which renders "14.043" (period as the
+  thousands separator) instead of "14,043". Found this only after
+  actually printing a multi-thousand number in a sandbox check, not from
+  a `node --check` syntax pass. Always call the template's `fmtNum(n)`
+  helper (forces `'en-US'`) for any count shown to the user — never call
+  `.toLocaleString()` directly.
 - Clicking a player card (Players tab or a matched tag on the Files tab)
   opens a dedicated full-page detail view (`renderPlayerPage()`) —
   title/byline/download link, screenshot, then Package/Features/Player/

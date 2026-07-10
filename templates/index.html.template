@@ -189,6 +189,16 @@ const FLAGS = {
   'United States':'🇺🇸','USA':'🇺🇸'
 };
 function flagFor(country){ return FLAGS[(country||'').trim()] || '🌐'; }
+
+// Plain Number.prototype.toLocaleString() without an explicit locale
+// argument uses the *visitor's own browser locale* — found while building
+// the Insights tab: this dev environment defaults to en-DK, which uses
+// "." as the thousands separator ("14.043"), not "," ("14,043"). That's
+// backwards from what an English-language page's readers would expect,
+// and it'd vary visitor to visitor on a page meant to be shared. Forcing
+// 'en-US' everywhere a count is formatted keeps it consistent regardless
+// of who's viewing it.
+function fmtNum(n){ return n.toLocaleString('en-US'); }
 function imgFallback(el, flag){
   const div = document.createElement('div');
   div.className = 'flag';
@@ -475,7 +485,7 @@ function renderPlayers(grid){
     const usage = usageCounts.get(p.title) || 0;
     const idx = allPlayers.indexOf(p);
     const tags = [
-      usage ? `<span class="tag ok">${usage.toLocaleString()} file${usage === 1 ? '' : 's'}</span>` : '',
+      usage ? `<span class="tag ok">${fmtNum(usage)} file${usage === 1 ? '' : 's'}</span>` : '',
       sibCount > 0 ? `<span class="tag">+${sibCount} sibling tool${sibCount === 1 ? '' : 's'}</span>` : '',
     ].filter(Boolean).join('');
     return `<div class="card player-card" onclick="renderPlayerPage(${idx})">
@@ -646,7 +656,7 @@ function barChart(entries, opts){
   return entries.map(([name, n]) => `<div class="bar-row">
     <span class="bar-label">${labelFn(name)}</span>
     <div class="bar-track"><div class="bar-fill" style="width:${(n / max * 100).toFixed(1)}%;background:${color}"></div></div>
-    <div class="bar-num">${n.toLocaleString()}</div>
+    <div class="bar-num">${fmtNum(n)}</div>
   </div>`).join('');
 }
 
@@ -850,6 +860,7 @@ function renderGroups(grid){
 
 const INSIGHTS_ROLE_CAP = 15;
 const INSIGHTS_PROLIFIC_CAP = 20;
+const INSIGHTS_MOBILITY_CAP = 15;
 
 // "unreleased" is excluded — a known, isolated composer-identity quirk
 // from the DeepSID database import: /MUSICIANS/L/Link/unreleased/ is a
@@ -889,6 +900,17 @@ function computeMostProlific(composers, limit){
     .slice(0, limit);
 }
 
+// How many distinct groups each CSDb-enriched composer has belonged to —
+// a proxy for "scene mobility": moving between crews over a career versus
+// staying with one. Reuses composer.csdb.groups, already in the payload.
+function computeGroupMobility(composers, limit){
+  return composers
+    .map((c) => [c.name, ((c.csdb && c.csdb.groups) || []).length])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+}
+
 function renderInsights(grid){
   grid.style.gridTemplateColumns = '1fr';
   const composers = window.SID_DATA.composers || [];
@@ -916,20 +938,48 @@ function renderInsights(grid){
   }).length;
 
   const prolific = computeMostProlific(composers, INSIGHTS_PROLIFIC_CAP);
+  const allFileCounts = computeMostProlific(composers, Infinity);
+  const top50Total = allFileCounts.slice(0, 50).reduce((s, [, n]) => s + n, 0);
+  const grandTotal = allFileCounts.reduce((s, [, n]) => s + n, 0);
+  const top50Share = grandTotal ? Math.round((100 * top50Total) / grandTotal) : 0;
+
+  const mobility = computeGroupMobility(composers, INSIGHTS_MOBILITY_CAP);
+  const mobileTotal = composers.filter((c) => ((c.csdb && c.csdb.groups) || []).length >= 3).length;
+  const csdbTotal = composers.filter((c) => c.csdb).length;
+
+  const stil = window.SID_DATA.stilCoverStats || { total: 0, covers: 0 };
+  const coverPct = stil.total ? Math.round((100 * stil.covers) / stil.total) : 0;
+  const originals = stil.total - stil.covers;
 
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">
     <div class="sl">Composer activity by year (${yearEntries.length} years, ${yearEntries[0]?.[0] || '?'}–${yearEntries[yearEntries.length - 1]?.[0] || '?'})</div>
-    <div class="sn" style="margin-bottom:.75rem">This isn't a purely historical archive — ${recentTotal.toLocaleString()} composers were active
-      2023–2026 alone, versus ${eightiesTotal.toLocaleString()} across the entire 1983–1989 era the C64 originally shipped in.</div>
+    <div class="sn" style="margin-bottom:.75rem">This isn't a purely historical archive — ${fmtNum(recentTotal)} composers were active
+      2023–2026 alone, versus ${fmtNum(eightiesTotal)} across the entire 1983–1989 era the C64 originally shipped in.</div>
     ${barChart(yearEntries, { color: 'var(--amber)' })}
 
     <div class="sl">Scene roles credited on CSDb (top ${roleShown.length} of ${roleEntries.length})</div>
-    <div class="sn" style="margin-bottom:.75rem">${multiRoleTotal.toLocaleString()} of ${musicianTotal.toLocaleString()} CSDb-credited composers
+    <div class="sn" style="margin-bottom:.75rem">${fmtNum(multiRoleTotal)} of ${fmtNum(musicianTotal)} CSDb-credited composers
       are credited for more than just music — coding, graphics, swapping, and cracking all show up.</div>
     ${barChart(roleShown, { color: 'var(--green)' })}
 
     <div class="sl">Most prolific composers, by cached SID file count (top ${prolific.length})</div>
+    <div class="sn" style="margin-bottom:.75rem">The top 50 composers (${allFileCounts.length ? (50 / allFileCounts.length * 100).toFixed(1) : 0}% of everyone with a
+      file) made ${fmtNum(top50Total)} of ${fmtNum(grandTotal)} files — ${top50Share}% of the whole collection.
+      Median composer has far fewer: a long tail, not an even spread.</div>
     ${barChart(prolific, { color: 'var(--cyan)', labelFn: (name) => `<a href="#" onclick="jumpToComposer('${name.replace(/'/g, "\\'")}');return false;" style="color:inherit;text-decoration:none">${name}</a>` })}
+
+    <div class="sl">Covers vs. originals, where documented</div>
+    <div class="sn" style="margin-bottom:.75rem">HVSC's STIL.txt tags a tune with "[from X]" when it's an adaptation of
+      existing music (movie/TV themes, pop songs, other games) — DeepSID's own data doesn't track this at all.
+      Of the ${fmtNum(stil.total)} files with STIL documentation (about ${allFiles().length ? Math.round(100 * stil.total / allFiles().length) : 0}%
+      of the full collection — STIL doesn't document everything), ${coverPct}% are explicit covers/adaptations, not
+      original compositions.</div>
+    ${barChart([['Covers / adaptations', stil.covers], ['Original compositions', originals]], { color: 'var(--red)' })}
+
+    <div class="sl">Most group-affiliated composers (top ${mobility.length})</div>
+    <div class="sn" style="margin-bottom:.75rem">${fmtNum(mobileTotal)} of ${fmtNum(csdbTotal)} CSDb-enriched composers belonged to
+      3 or more different groups over their career — the scene was highly mobile, not siloed into one crew for life.</div>
+    ${barChart(mobility, { color: 'var(--amber)', labelFn: (name) => `<a href="#" onclick="jumpToComposer('${name.replace(/'/g, "\\'")}');return false;" style="color:inherit;text-decoration:none">${name}</a>` })}
   </div>`;
 }
 

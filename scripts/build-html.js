@@ -34,6 +34,26 @@ function loadStilByFolder() {
   return readJSON(STIL_PATH)?.byFolder ?? {};
 }
 
+// STIL.txt titles a cover/adaptation with a "[from X]" suffix (e.g. "Dallas
+// Theme [from the TV series]") — DeepSID's own `name` field never carries
+// this (checked: 0 of 55,223 DeepSID-sourced file names match the pattern),
+// so it's only measurable across the STIL-documented subset of the
+// collection, not the whole thing. A one-time aggregate, not a per-file
+// field — nothing needs this title text after the count, so it isn't
+// worth threading through composer.files just for this.
+function computeStilCoverStats(stilByFolder) {
+  let total = 0;
+  let covers = 0;
+  Object.values(stilByFolder).forEach((entries) => {
+    entries.forEach((f) => {
+      if (!f.title) return;
+      total++;
+      if (/\[from /i.test(f.title)) covers++;
+    });
+  });
+  return { total, covers };
+}
+
 /**
  * A composer's real per-file listing comes from DeepSID's ?file= endpoint
  * (composer.folder) — but that endpoint has been unreliable (see
@@ -171,6 +191,7 @@ async function main() {
   const files = composers.flatMap((c) => c.files.map((f) => ({ ...f, composer: c.name, composerPath: c.path })));
   const filesFromDeepsid = files.filter((f) => f.source === 'deepsid').length;
   const filesFromStil = files.filter((f) => f.source === 'stil').length;
+  const stilCoverStats = computeStilCoverStats(loadStilByFolder());
 
   console.log(`  composers: ${composers.length}`);
   console.log(`  players/editors: ${players?.count ?? 0}`);
@@ -179,6 +200,7 @@ async function main() {
   console.log(`  composers matched against HVSC Musicians.txt: ${composers.filter((c) => c.hvsc).length}`);
   console.log(`  country mismatches vs HVSC: ${composers.filter((c) => c.hvsc?.countryMismatch).length}`);
   console.log(`  total files indexed: ${files.length} (${filesFromDeepsid} from DeepSID, ${filesFromStil} from HVSC STIL fallback)`);
+  console.log(`  STIL-documented covers/adaptations: ${stilCoverStats.covers} of ${stilCoverStats.total}`);
 
   if (!fs.existsSync(TEMPLATE_PATH)) {
     console.error(`\nTemplate not found: ${TEMPLATE_PATH}`);
@@ -193,6 +215,7 @@ async function main() {
     composers,
     players: playerList,
     gaps: gaps?.gaps ?? [],
+    stilCoverStats,
     // Deliberately not embedding a flattened `files` array here — every
     // composer already carries its own `files`, and duplicating all
     // ~55,000 records again at the top level roughly doubled the

@@ -174,6 +174,36 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
         it's isolated, 1 of 1,902, so excluding it from this one chart
         (`INSIGHTS_EXCLUDED_COMPOSERS`) is the right scope, not a fix to
         `import-deepsid-dump.js`'s identity derivation itself.
+- [x] ~~Add three more Insights charts: covers-vs-originals, prolific-
+      composer concentration, group mobility.~~ Done.
+      - **Covers vs. originals**: `computeStilCoverStats()` in
+        `build-html.js` scans `stil.json` for STIL.txt's "[from X]" cover
+        tag (DeepSID's own data has zero of these — checked). 7,126 of
+        12,038 STIL-titled files (59%) are explicit covers/adaptations —
+        movie/TV themes, pop songs, other games — not original
+        compositions. Only measurable for the ~22% of the collection STIL
+        actually documents; framed with that caveat, not overclaimed as
+        the whole collection's ratio. A one-time aggregate added to the
+        payload (`stilCoverStats`), not threaded through every file —
+        nothing else needs the raw STIL title text.
+      - **Concentration**: added a note to the existing "most prolific"
+        chart — top 50 composers (2.6% of everyone with a file) made 25%
+        of all 55,225 files.
+      - **Group mobility**: new `computeGroupMobility()` chart — 967 of
+        1,609 CSDb-enriched composers belonged to 3+ different groups
+        over their career ("Metal" tops out at 18). Reuses the same
+        `composer.csdb.groups` data as the Scene Groups tab.
+      - **Real bug found and fixed while building this**: plain
+        `Number.prototype.toLocaleString()` with no locale argument uses
+        the *visitor's own browser locale* — this dev environment
+        defaults to `en-DK`, which renders "14.043" (period as thousands
+        separator), not "14,043". Backwards from what an English-language
+        page's readers expect, and it'd vary visitor to visitor. Added a
+        `fmtNum()` helper (forces `'en-US'`) and swapped every count-
+        formatting call site onto it, including one from an earlier
+        commit (`renderPlayers()`'s "N files" badge) that had the same
+        latent bug — it hadn't been visually verified with a real
+        multi-thousand number until this pass caught it.
 - [ ] **Suggestions coverage is intentionally conservative.** Re-measured
       after the DeepSID database export expanded composer coverage:
       **97 of 240 gaps** now have a `suggestion` field (was 15 of 127 —

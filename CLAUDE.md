@@ -100,6 +100,58 @@ picture; this file is quick orientation for a fresh session.
   guess: "Rob_Hubbard" turned out to be spread across 51 different
   composers (only 28% by Rob Hubbard himself), suggesting his player
   routine was reused/adapted by others.
+- **SIDId enrichment fills in the inferred players' missing specs.**
+  `scripts/import-sidid.js` (parser in `scripts/lib/sidid.js`) reads
+  `deepsid_dl/sidid.nfo` — the SIDId project's player index that ships in
+  DeepSID's offline bundle — into `data/sidid.json` (`byTag`: raw player
+  tag → `{name, author, released, reference, comment}`). Like
+  `import-deepsid-dump.js` it's a one-time local import (a dated snapshot,
+  `meta.parsedAt`), not in `npm run all`; `build-html.js` embeds `byTag`
+  as `window.SID_DATA.sidid` if present. The template's `lookupSidid()`
+  resolves a raw tag to a SIDId entry using the *same* matching tiers as
+  `matchPlayer()` (exact tag → version-intact strict → version-stripped
+  loose, the two normalized tiers unambiguous-only), and
+  `deriveSyntheticPlayers()` attaches the result to each inferred player
+  as `player.sidid` (plus `developer`/`start_year` from author/released,
+  so it shows on the card and sorts by year). This gave 247 of the 496
+  inferred players real author/name/year/reference and, for 66 entries, a
+  playback-*technique* comment (e.g. Mahoney's 8-bit-via-volume-register
+  trick) — ~45,300 of ~55,000 files (82%) now resolve to a SIDId entry.
+  Shown as a "🔎 SIDId database" spec box on the inferred player's detail
+  page (`renderPlayerPage()`), styled like a curated player's spec table.
+  Curated players (which keep their authoritative DeepSID specs) get a
+  smaller "🔎 SIDId note" box too, via `lookupSididByTitle()` — but ONLY
+  the additive playback-technique COMMENT (11 of 129 match a comment: e.g.
+  VoiceTracker "based on the Music Assembler player", SoundMonitor's 1986
+  type-in-listing origin), never overriding developer/name/specs. A bare
+  SIDId *reference* with no comment is suppressed (it would just duplicate
+  the CSDb download link already in the header).
+  **Encoding landmine**: `sidid.nfo` is ISO-8859-1, not UTF-8 (accented
+  author names) — `import-sidid.js` decodes via `.toString('latin1')`,
+  same trap as the HVSC docs; don't swap to a UTF-8 read. `player_type`
+  from the DeepSID dump is deliberately NOT carried into the payload — it
+  is the constant string "Normal built-in" on all 55,223 files (zero
+  information, ~1.6MB of pure repetition); see `build-html.js`'s
+  `buildFileList`.
+- **The SID Files tab is a grouped, filterable grid** (`renderFiles()`).
+  Every file is grouped under its composer (collapsible group headers,
+  collapsed by default; a filter that narrows to ≤25 composers
+  auto-expands them, `AUTO_EXPAND_GROUPS`); expanding builds a sortable
+  columnar table (File/Title/Player/Sub/Source/Links, capped at
+  `FILES_PER_GROUP_CAP=400` rows per composer). Three independent
+  narrowing controls, none resetting the others: the shared search box
+  ("find", across composer/title/artist/player/filename), a row of facet
+  filters (`fileFacets`: source, player-identification state incl.
+  curated/inferred, has-song-info, a specific tool — the tool list built
+  from resolved player titles), and per-column sort (`fileColSort`,
+  toggled by clicking a column header — files sort *within* each group;
+  the shared sort dropdown orders the *groups*). All this tab-specific
+  state resets on tab switch (handled in `render()`, alongside the
+  `currentSort` reset). `resolveTag()` memoizes `matchPlayer()` per
+  distinct tag so filtering/sorting 55k files never re-resolves. Two
+  extra per-file attributes were added to the payload for the grid's
+  columns: `subtunes` (omitted when 1) and `csdbId` (CSDb release link) —
+  both omit-when-default, same repetition-avoidance as `comment`.
 - The generated page has six data-driven tabs beyond Composers/Gaps:
   Players/Editors, SID Files (every file across every composer, linked
   to its player where identifiable), Countries, Player Families

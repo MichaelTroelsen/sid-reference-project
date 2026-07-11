@@ -27,6 +27,7 @@ const PLAYERS_PATH = path.join(ROOT, 'data', 'players.json');
 const PLAYER_MEDIA_PATH = path.join(ROOT, 'data', 'csdb', 'players.json');
 const GAPS_PATH = path.join(ROOT, 'data', 'gaps-report.json');
 const STIL_PATH = path.join(ROOT, 'data', 'hvsc', 'stil.json');
+const SIDID_PATH = path.join(ROOT, 'data', 'sidid.json');
 const TEMPLATE_PATH = path.join(ROOT, 'templates', 'index.html.template');
 const OUTPUT_PATH = path.join(ROOT, 'output', 'index.html');
 
@@ -90,16 +91,26 @@ function buildFileList(composer, stilByFolder) {
   // At ~55,000 files (after the DeepSID database dump import expanded
   // composer coverage from 56 to ~1900), that was ~1.9MB of pure
   // repetition in the generated page.
+  // `subtunes` and `csdb_id` are additive per-file attributes for the Files
+  // tab's grid — both omitted when absent/default (subtunes === 1, no
+  // csdb_id) rather than stored as 1/null on every record, same repetition-
+  // avoidance reasoning as `comment` above. `player_type` is deliberately
+  // NOT carried: it is the constant string "Normal built-in" on all ~55,000
+  // files (verified across the whole collection), so it holds zero
+  // information and would add ~1.6MB of pure repetition — don't add it back.
   if (real.length) {
     return real.map((f) => {
       const filename = (f.collection_path || '').split('/').pop() || f.name || '(untitled)';
       const comment = stilByFilename.get(filename)?.comment;
+      const subtunes = parseInt(f.subtunes, 10) || 1;
       return {
         file: filename,
         title: f.name || filename,
         artist: f.author || null,
         player: f.player || null,
         source: 'deepsid',
+        ...(subtunes > 1 ? { subtunes } : {}),
+        ...(f.csdb_id ? { csdbId: f.csdb_id } : {}),
         ...(comment ? { comment } : {}),
       };
     });
@@ -218,6 +229,12 @@ async function main() {
   const filesFromDeepsid = files.filter((f) => f.source === 'deepsid').length;
   const filesFromStil = files.filter((f) => f.source === 'stil').length;
   const stilCoverStats = computeStilCoverStats(loadStilByFolder());
+  // SIDId's player database (scripts/import-sidid.js) — keyed by raw player
+  // tag, the same tags the template's inferred players are derived from, so
+  // the enrichment (author/name/year/reference/technique comment) happens
+  // client-side in deriveSyntheticPlayers() where those synthetic entries
+  // are built. Just passed straight through here. {} if not imported.
+  const sidid = readJSON(SIDID_PATH)?.byTag ?? {};
 
   console.log(`  composers: ${composers.length}`);
   console.log(`  players/editors: ${players?.count ?? 0}`);
@@ -227,6 +244,7 @@ async function main() {
   console.log(`  country mismatches vs HVSC: ${composers.filter((c) => c.hvsc?.countryMismatch).length}`);
   console.log(`  total files indexed: ${files.length} (${filesFromDeepsid} from DeepSID, ${filesFromStil} from HVSC STIL fallback)`);
   console.log(`  STIL-documented covers/adaptations: ${stilCoverStats.covers} of ${stilCoverStats.total}`);
+  console.log(`  SIDId player entries loaded: ${Object.keys(sidid).length}`);
   console.log(`  files with 2+ subtunes: ${subtuneStats.multi} of ${subtuneStats.total} (max: ${subtuneStats.max?.subtunes ?? 0} in "${subtuneStats.max?.file ?? '?'}" by ${subtuneStats.max?.composer ?? '?'})`);
 
   if (!fs.existsSync(TEMPLATE_PATH)) {
@@ -244,6 +262,7 @@ async function main() {
     gaps: gaps?.gaps ?? [],
     stilCoverStats,
     subtuneStats,
+    sidid,
     // Deliberately not embedding a flattened `files` array here — every
     // composer already carries its own `files`, and duplicating all
     // ~55,000 records again at the top level roughly doubled the

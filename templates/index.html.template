@@ -942,7 +942,11 @@ function fileGroups(){
 // Distinct resolved tools actually present on files, for the "by tool"
 // facet select — sorted A–Z (case-insensitive) so a specific tool is easy
 // to find in the dropdown (the file count still rides along in the label).
+// A leading "?" (SIDId's marker for an unidentified/uncertain author) is
+// stripped from the sort key only, so e.g. "?Edge" files under E instead of
+// clustering all the "?"-prefixed tags at the top — the label keeps its "?".
 let _toolListCache = null;
+function toolSortKey(title){ return title.replace(/^\?+\s*/, ''); }
 function toolList(){
   if (_toolListCache) return _toolListCache;
   const counts = new Map();
@@ -952,7 +956,7 @@ function toolList(){
     const title = m ? m.title : f.player;
     counts.set(title, (counts.get(title) || 0) + 1);
   });
-  _toolListCache = [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' }));
+  _toolListCache = [...counts.entries()].sort((a, b) => toolSortKey(a[0]).localeCompare(toolSortKey(b[0]), undefined, { sensitivity: 'base' }));
   return _toolListCache;
 }
 

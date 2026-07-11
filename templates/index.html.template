@@ -940,7 +940,8 @@ function fileGroups(){
 }
 
 // Distinct resolved tools actually present on files, for the "by tool"
-// facet select — most-used first.
+// facet select — sorted A–Z (case-insensitive) so a specific tool is easy
+// to find in the dropdown (the file count still rides along in the label).
 let _toolListCache = null;
 function toolList(){
   if (_toolListCache) return _toolListCache;
@@ -951,7 +952,7 @@ function toolList(){
     const title = m ? m.title : f.player;
     counts.set(title, (counts.get(title) || 0) + 1);
   });
-  _toolListCache = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  _toolListCache = [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: 'base' }));
   return _toolListCache;
 }
 
@@ -1004,7 +1005,7 @@ function filesToolbar(shownFiles, groupCount){
   const toolOpts = [['', `Any tool (${fmtNum(tools.length)})`]].concat(tools.map(([title, n]) => [title, `${title} (${fmtNum(n)})`]));
   return `<div class="ftools">
     ${facetSelect('source', 'Source', [['', 'All'], ['deepsid', 'DeepSID'], ['stil', 'HVSC STIL']])}
-    ${facetSelect('ident', 'Player', [['', 'All'], ['has', 'Has a player'], ['none', 'No player'], ['curated', 'Curated only'], ['inferred', 'Inferred only']])}
+    ${facetSelect('ident', 'Player', [['', 'All'], ['curated', 'Curated only'], ['has', 'Has a player'], ['inferred', 'Inferred only'], ['none', 'No player']])}
     ${facetSelect('info', 'Song info', [['', 'All'], ['yes', 'Has song info']])}
     ${facetSelect('tool', 'Tool', toolOpts)}
     <span class="ftools-count">${fmtNum(shownFiles)} files · ${fmtNum(groupCount)} composers</span>

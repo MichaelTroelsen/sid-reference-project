@@ -7,6 +7,7 @@ node_modules/
 data/composers/*.json
 data/players.json
 data/gaps-report.json
+data/sidid.json
 data/composer-list-full.json
 data/csdb/*.json
 data/hvsc/

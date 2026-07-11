@@ -81,6 +81,25 @@ h1 em{color:var(--cyan);font-style:normal;}
 .mp-tbl th{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:.4rem .8rem;border-bottom:1px solid var(--border);text-align:left;}
 .mp-tbl td{padding:.5rem .8rem;border-bottom:1px solid rgba(37,37,80,.4);font-size:.76rem;vertical-align:top;}
 .mp-tbl tr:hover td{background:rgba(34,204,221,.03);}
+.mp-tbl th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+.mp-tbl th.sortable:hover{color:var(--tab);}
+.mp-tbl th.sortable.on{color:var(--tab);}
+/* Files tab: facet toolbar + collapsible per-composer groups */
+.ftools{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;padding:.2rem 0 1rem;border-bottom:1px solid var(--border);margin-bottom:.7rem;}
+.ffilter{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:.4rem;}
+.ffilter select{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:.32rem .5rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.75rem;text-transform:none;letter-spacing:0;outline:none;cursor:pointer;max-width:230px;}
+.ffilter select:focus{border-color:var(--tab);}
+.ftools-count{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--dim);white-space:nowrap;}
+.fgrp{border:1px solid var(--border);border-radius:5px;margin-bottom:.4rem;overflow:hidden;}
+.fgrp-h{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;cursor:pointer;background:var(--card-bg);user-select:none;}
+.fgrp-h:hover{background:rgba(34,204,221,.05);}
+.fgrp-caret{color:var(--tab);font-size:.7rem;width:.8rem;flex:none;}
+.fgrp-name{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--cyan);}
+.fgrp-meta{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--dim);}
+.fgrp-jump{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--dim);text-decoration:none;white-space:nowrap;}
+.fgrp-jump:hover{color:var(--tab);}
+.fgrp-body{overflow-x:auto;}
+.ftbl td{vertical-align:top;}
 .mp-title{font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--text);}
 .mp-desc{font-size:.7rem;color:var(--dim);margin-top:.15rem;max-width:420px;}
 .mp-links a{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--cyan);text-decoration:none;margin-right:.5rem;white-space:nowrap;}
@@ -229,10 +248,11 @@ const TABS = [
     {value:'year-asc',      label:'Oldest first'},
     {value:'inferred-only', label:'Inferred only (most used first)'},
   ]},
-  {id:'files',     label:'SID Files',          desc:'Every known SID file across all composers, linked to its player where identifiable.', sorts:[
+  {id:'files',     label:'SID Files',          desc:'Every known SID file, grouped by composer. Expand a composer for a sortable grid of its files; narrow with the find box, the facet filters, or by clicking a column header.', sorts:[
     {value:'composer-asc', label:'Composer (A–Z)'},
-    {value:'title-asc',    label:'Title (A–Z)'},
-    {value:'player-asc',   label:'Player (A–Z)'},
+    {value:'composer-desc',label:'Composer (Z–A)'},
+    {value:'files-desc',   label:'Most files first'},
+    {value:'files-asc',    label:'Fewest files first'},
   ]},
   {id:'countries', label:'Countries',          desc:'Composer count by country, derived from fetched profile data.'},
   {id:'families',  label:'Player Families',    desc:'Players/editors grouped by developer, plus known import/derivation links between tools.'},
@@ -296,6 +316,14 @@ function render(tab){
   // option, both re-render the same tab and must not stomp on the choice
   // the user just made).
   if (tabChanged) currentSort = (meta.sorts && meta.sorts[0]) ? meta.sorts[0].value : '';
+  // The Files tab keeps its own facet/column-sort/expansion state (below);
+  // like currentSort, it resets only on an actual switch onto the tab, never
+  // on a filter keystroke or sort change that just re-renders the same tab.
+  if (tabChanged && tab === 'files') {
+    fileFacets.source = fileFacets.ident = fileFacets.info = fileFacets.tool = '';
+    fileColSort = { col: 'title', dir: 'asc' };
+    _expandedComposers.clear();
+  }
   const sortSelect = document.getElementById('sort-select');
   if (meta.sorts && meta.sorts.length) {
     sortSelect.style.display = '';
@@ -385,6 +413,62 @@ function matchPlayer(filePlayer, players){
   return looseMatches.length === 1 ? looseMatches[0] : null;
 }
 
+// ── SIDId ENRICHMENT ─────────────────────────────────────────────────────
+// window.SID_DATA.sidid maps raw player tags → {name,author,released,
+// reference,comment} from the SIDId database (scripts/import-sidid.js).
+// This is the only spec source for the inferred players — DeepSID's own
+// curated database has nothing for them. Tag matching mirrors matchPlayer()
+// exactly: exact tag first, then a version-intact strict norm, then the
+// version-stripped loose norm — and the two normalized tiers resolve only
+// when unambiguous (a collision nulls the key), never guessing an identity
+// from an ambiguous partial. Covers ~83% of all files' tags in practice.
+let _sididIndex = null;
+function buildSididIndex(){
+  const byTag = window.SID_DATA.sidid || {};
+  const strict = new Map();
+  const loose = new Map();
+  const add = (map, key, entry) => {
+    if (!key || key.length < 3) return;
+    if (map.has(key) && map.get(key) !== entry) map.set(key, null); // collision → ambiguous
+    else if (!map.has(key)) map.set(key, entry);
+  };
+  Object.keys(byTag).forEach((tag) => {
+    const entry = byTag[tag];
+    add(strict, normalizePlayerNameStrict(tag), entry);
+    add(loose, normalizePlayerName(tag), entry);
+  });
+  _sididIndex = { byTag, strict, loose };
+}
+function lookupSidid(rawTag){
+  if (!rawTag) return null;
+  if (!_sididIndex) buildSididIndex();
+  const { byTag, strict, loose } = _sididIndex;
+  if (byTag[rawTag]) return byTag[rawTag];                    // exact tag
+  const s = strict.get(normalizePlayerNameStrict(rawTag));    // version-intact
+  if (s) return s;
+  return loose.get(normalizePlayerName(rawTag)) || null;      // version-stripped, unambiguous only
+}
+// Same resolution, but keyed off a curated player's free-text title (which
+// carries a version suffix DeepSID's tags don't, e.g. "GoatTracker v2.x")
+// rather than a raw file tag. Used only to graft SIDId's additive bits (the
+// playback-technique comment, an extra reference) onto curated players —
+// never to override their authoritative DeepSID specs.
+function lookupSididByTitle(title){
+  if (!title) return null;
+  if (!_sididIndex) buildSididIndex();
+  const { byTag, strict, loose } = _sididIndex;
+  if (byTag[title]) return byTag[title];
+  const s = strict.get(normalizePlayerNameStrict(title));
+  if (s) return s;
+  return loose.get(normalizePlayerName(title)) || null;
+}
+// Pull the leading 4-digit year out of a SIDId "RELEASED" line (e.g.
+// "1989 Hitech Studio Designs" → "1989") for the player's start_year.
+function sididYear(released){
+  const m = /\b(19|20)\d{2}\b/.exec(released || '');
+  return m ? m[0] : null;
+}
+
 // DeepSID's own `?players` database (129 entries) is curated — real specs,
 // developer credit, platform. But individual SID files' free-text `player`
 // field names 605 distinct raw strings, and 496 of those never made it into
@@ -414,11 +498,20 @@ function deriveSyntheticPlayers(files, knownPlayers){
   const synthetic = [];
   rawCounts.forEach((count, tag) => {
     if (matchPlayer(tag, knownPlayers)) return; // already covered by a real, curated entry
+    // SIDId often has the author/name/year DeepSID's curated DB never wrote
+    // up for this tag — surface it as the inferred player's developer/year
+    // (so it shows on the card and sorts by year) and keep the full record
+    // (incl. the technique comment) under `sidid` for the detail page.
+    const sid = lookupSidid(tag);
     synthetic.push({
       title: cleanRawPlayerTag(tag),
-      developer: null, platform: null, start_year: null, end_year: null,
+      developer: (sid && sid.author) || null,
+      platform: null,
+      start_year: (sid && sididYear(sid.released)) || null,
+      end_year: null,
       description: null, screenshot: null, csdb_id: null,
       inferred: true, rawTag: tag,
+      sidid: sid || null,
     });
   });
   return synthetic;
@@ -621,7 +714,7 @@ function renderPlayers(grid){
     return `<div class="card player-card" onclick="renderPlayerPage(${idx})">
       <div class="card-top">
         <div class="flag">🎚</div>
-        <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.inferred ? 'Inferred from file data' : (p.developer || 'Unknown developer')}</div></div>
+        <div class="nb"><div class="mn">${p.title || '(untitled)'}</div><div class="mh">${p.inferred ? (p.developer ? `${p.developer} · inferred` : 'Inferred from file data') : (p.developer || 'Unknown developer')}</div></div>
       </div>
       <div class="meta"><span>${p.platform || 'Unknown platform'}</span><span class="dot">·</span><span>${years}</span></div>
       ${tags ? `<div class="tags">${tags}</div>` : ''}
@@ -728,6 +821,39 @@ function renderPlayerPage(index){
     }
   }
 
+  // SIDId (sidid.nfo) is the one spec source for inferred players — render
+  // whatever of full-name/author/year/reference/technique it carries, in the
+  // same table style as a curated player's spec box.
+  const sid = p.inferred ? p.sidid : null;
+  const sididRows = sid ? [
+    ['Full name', sid.name],
+    ['Author', sid.author],
+    ['Released', sid.released],
+    ['Reference', sid.reference ? `<a class="dslink" href="${sid.reference}" target="_blank">${sid.reference.replace(/^https?:\/\//, '')}</a>` : ''],
+    ['Technique', sid.comment],
+  ].filter(([, v]) => v && String(v).trim()).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('') : '';
+  const sididBox = sididRows
+    ? `<table class="pinfo" style="margin-bottom:1.25rem"><tr class="sec sec-package"><td colspan="2">🔎 SIDId database (sidid.nfo)</td></tr>${sididRows}</table>`
+    : '';
+
+  // Curated players keep their authoritative DeepSID specs — SIDId only
+  // grafts on its playback-technique note (and a reference, when it's a
+  // different link than the download shown above) where it has one. Never
+  // overrides the curated developer/name/specs. ~11 of the 129 curated
+  // players gain a technique note this way (e.g. "based on the Music
+  // Assembler player", a type-in-listing origin).
+  // Gated on an actual technique comment — a bare SIDId reference would just
+  // duplicate the CSDb download link already in the header, so those don't
+  // earn a box; the reference rides along as a supporting row when a comment
+  // is present.
+  const curSid = p.inferred ? null : lookupSididByTitle(p.title);
+  const curatedTechBox = (curSid && curSid.comment)
+    ? `<table class="pinfo" style="margin-top:1.25rem"><tr class="sec sec-player"><td colspan="2">🔎 SIDId note</td></tr>` +
+      `<tr><td>Technique</td><td>${curSid.comment}</td></tr>` +
+      (curSid.reference && curSid.reference !== csdbUrl ? `<tr><td>Reference</td><td><a class="dslink" href="${curSid.reference}" target="_blank">${curSid.reference.replace(/^https?:\/\//, '')}</a></td></tr>` : '') +
+      `</table>`
+    : '';
+
   document.getElementById('search-bar').style.display = 'none';
   document.getElementById('cat-header').style.display = 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
@@ -740,15 +866,19 @@ function renderPlayerPage(index){
       <div class="pp-title">${p.title || '(untitled)'}</div>
       ${csdbUrl ? `<div>Download: <a class="dslink" href="${csdbUrl}" target="_blank">CSDb</a></div>` : ''}
     </div>
-    <div class="pp-byline">${p.inferred ? 'Inferred from file data — not in DeepSID\'s own players database' : `${years} by ${p.developer || 'unknown'}`}</div>
+    <div class="pp-byline">${p.inferred
+      ? (sid && sid.author ? `${p.start_year ? p.start_year + ' · ' : ''}${sid.author} · inferred` : 'Inferred from file data — not in DeepSID\'s own players database')
+      : `${years} by ${p.developer || 'unknown'}`}</div>
     ${p.description ? `<div class="bio" style="margin-bottom:1.25rem">${p.description}</div>` : ''}
-    ${p.inferred ? `<div class="sn" style="margin-bottom:1.25rem">This player was seen on ${used.length} SID file${used.length === 1 ? '' : 's'} (raw tag:
-      <code>${p.rawTag}</code>) but DeepSID's own curated players/editors database doesn't have an entry for it, so there's no
-      developer, platform, or spec info to show — just the files that used it, below. ${composerHint}</div>` : `
+    ${p.inferred ? `${sididBox}<div class="sn" style="margin-bottom:1.25rem">This player was seen on ${used.length} SID file${used.length === 1 ? '' : 's'} (raw tag:
+      <code>${p.rawTag}</code>). ${sid
+        ? 'The spec box above is from the SIDId database — DeepSID\'s own curated players/editors database has no entry for this tag.'
+        : 'DeepSID\'s own curated players/editors database has no entry for it, and SIDId doesn\'t either, so there\'s no developer, platform, or spec info to show — just the files that used it, below.'} ${composerHint}</div>` : `
     <div class="pp-cols">
       <div>${p.screenshot ? `<img class="pp-shot" src="${p.screenshot}" alt="${p.title} screenshot" loading="lazy" onerror="this.remove()">` : ''}</div>
       <div>${infoBox}</div>
     </div>`}
+    ${curatedTechBox}
     <div style="margin-top:1.5rem">
       ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags" style="margin-bottom:1.25rem">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
       <div class="sl">Composers/files using this player (${used.length})</div>
@@ -762,51 +892,216 @@ function closePlayerPage(){
   render('players');
 }
 
-const FILES_TAB_CAP = 500;
+// ── SID FILES TAB (grouped grid) ─────────────────────────────────────────
+// Every SID file, grouped under its composer, each group a sortable columnar
+// grid. Three independent controls narrow the ~55,000 files: the shared
+// search box ("find", across composer/title/artist/player/filename), a row
+// of faceted filters (source, player-identification state, has-song-info, a
+// specific tool), and per-column sort (click a column header). The shared
+// sort dropdown orders the composer groups themselves. Files render lazily —
+// only expanded composers build their table — so a whole-collection render
+// stays cheap even at ~1,895 groups.
+const FILES_PER_GROUP_CAP = 400;   // rows built per expanded composer
+const AUTO_EXPAND_GROUPS = 25;     // a filter that narrows to <= this many
+                                   // composers auto-expands all of them
 
-function renderFiles(grid){
-  grid.style.gridTemplateColumns = '1fr';
-  let list = allFiles();
-  if (currentFilter) {
-    list = list.filter(f =>
-      f.composer.toLowerCase().includes(currentFilter) ||
-      (f.title||'').toLowerCase().includes(currentFilter) ||
-      (f.player||'').toLowerCase().includes(currentFilter)
-    );
-  }
-  list = [...list].sort((a, b) => {
-    if (currentSort === 'title-asc') return (a.title || a.file || '').localeCompare(b.title || b.file || '');
-    // Unmatched-player files ('￿' sorts after every real string) fall
-    // to the end instead of clumping at the top under an empty string.
-    if (currentSort === 'player-asc') return (a.player || '￿').localeCompare(b.player || '￿');
-    return a.composer.localeCompare(b.composer) || (a.title || a.file || '').localeCompare(b.title || b.file || ''); // composer-asc, and the default
+// State specific to this tab (reset on tab switch in render(), not carried
+// between visits) — the counterpart to the shared currentFilter/currentSort.
+const fileFacets = { source: '', ident: '', info: '', tool: '' };
+let fileColSort = { col: 'title', dir: 'asc' };
+const _expandedComposers = new Set();
+
+// matchPlayer() is O(players); memoize per distinct raw tag (~605 of them)
+// so filtering/sorting 55,000 files never re-resolves the same tag twice.
+// Built lazily, so it runs after synthetic players are merged (see bottom).
+let _tagMatchCache = null;
+function resolveTag(tag){
+  if (!tag) return null;
+  if (!_tagMatchCache) _tagMatchCache = new Map();
+  if (_tagMatchCache.has(tag)) return _tagMatchCache.get(tag);
+  const m = matchPlayer(tag, window.SID_DATA.players || []);
+  _tagMatchCache.set(tag, m);
+  return m;
+}
+
+// allFiles() re-flattened into per-composer groups (files stay contiguous
+// in the order allFiles() yields them). Cached like allFiles() itself.
+let _fileGroupsCache = null;
+function fileGroups(){
+  if (_fileGroupsCache) return _fileGroupsCache;
+  const map = new Map();
+  allFiles().forEach((f) => {
+    let g = map.get(f.composer);
+    if (!g) { g = { composer: f.composer, composerPath: f.composerPath, files: [] }; map.set(f.composer, g); }
+    g.files.push(f);
   });
-  document.getElementById('search-count').textContent = `${list.length} shown`;
-  if (list.length === 0) {
-    grid.innerHTML = emptyState('No file data cached yet.', 'node scripts/fetch-composers.js');
-    return;
+  _fileGroupsCache = [...map.values()];
+  return _fileGroupsCache;
+}
+
+// Distinct resolved tools actually present on files, for the "by tool"
+// facet select — most-used first.
+let _toolListCache = null;
+function toolList(){
+  if (_toolListCache) return _toolListCache;
+  const counts = new Map();
+  allFiles().forEach((f) => {
+    if (!f.player) return;
+    const m = resolveTag(f.player);
+    const title = m ? m.title : f.player;
+    counts.set(title, (counts.get(title) || 0) + 1);
+  });
+  _toolListCache = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return _toolListCache;
+}
+
+function fileMatchesFilters(f){
+  if (currentFilter) {
+    const hay = (f.composer + ' ' + (f.title || '') + ' ' + (f.artist || '') + ' ' + (f.player || '') + ' ' + (f.file || '')).toLowerCase();
+    if (!hay.includes(currentFilter)) return false;
   }
+  if (fileFacets.source && f.source !== fileFacets.source) return false;
+  if (fileFacets.info === 'yes' && !f.comment) return false;
+  if (fileFacets.ident || fileFacets.tool) {
+    const m = f.player ? resolveTag(f.player) : null;
+    if (fileFacets.ident === 'has' && !f.player) return false;
+    if (fileFacets.ident === 'none' && f.player) return false;
+    if (fileFacets.ident === 'curated' && !(m && !m.inferred)) return false;
+    if (fileFacets.ident === 'inferred' && !(m && m.inferred)) return false;
+    if (fileFacets.tool) {
+      const title = m ? m.title : (f.player || null);
+      if (title !== fileFacets.tool) return false;
+    }
+  }
+  return true;
+}
+
+function sortFilesInGroup(files){
+  const { col, dir } = fileColSort;
+  const mul = dir === 'desc' ? -1 : 1;
+  const keyOf = (f) => {
+    if (col === 'file') return (f.file || '').toLowerCase();
+    if (col === 'player') return (f.player || '￿').toLowerCase();
+    if (col === 'subtunes') return f.subtunes || 1;
+    if (col === 'source') return f.source || '';
+    return (f.title || f.file || '').toLowerCase(); // title (default)
+  };
+  return [...files].sort((a, b) => {
+    const ka = keyOf(a), kb = keyOf(b);
+    if (ka < kb) return -1 * mul;
+    if (ka > kb) return 1 * mul;
+    return (a.title || a.file || '').localeCompare(b.title || b.file || ''); // stable tiebreak
+  });
+}
+
+function facetSelect(key, label, options){
+  const opts = options.map(([v, l]) => `<option value="${v.replace(/"/g, '&quot;')}"${fileFacets[key] === v ? ' selected' : ''}>${l}</option>`).join('');
+  return `<label class="ffilter">${label}<select onchange="setFileFacet('${key}',this.value)">${opts}</select></label>`;
+}
+
+function filesToolbar(shownFiles, groupCount){
+  const tools = toolList();
+  const toolOpts = [['', `Any tool (${fmtNum(tools.length)})`]].concat(tools.map(([title, n]) => [title, `${title} (${fmtNum(n)})`]));
+  return `<div class="ftools">
+    ${facetSelect('source', 'Source', [['', 'All'], ['deepsid', 'DeepSID'], ['stil', 'HVSC STIL']])}
+    ${facetSelect('ident', 'Player', [['', 'All'], ['has', 'Has a player'], ['none', 'No player'], ['curated', 'Curated only'], ['inferred', 'Inferred only']])}
+    ${facetSelect('info', 'Song info', [['', 'All'], ['yes', 'Has song info']])}
+    ${facetSelect('tool', 'Tool', toolOpts)}
+    <span class="ftools-count">${fmtNum(shownFiles)} files · ${fmtNum(groupCount)} composers</span>
+  </div>`;
+}
+
+function colHeader(col, label){
+  const active = fileColSort.col === col;
+  const caret = active ? (fileColSort.dir === 'asc' ? ' ▲' : ' ▼') : '';
+  return `<th class="sortable${active ? ' on' : ''}" onclick="setFileColSort('${col}')">${label}${caret}</th>`;
+}
+
+function buildFilesTable(g){
   const players = window.SID_DATA.players || [];
-  const rows = list.slice(0, FILES_TAB_CAP).map(f => {
-    const match = f.player ? matchPlayer(f.player, players) : null;
+  const files = sortFilesInGroup(g._filtered);
+  const rows = files.slice(0, FILES_PER_GROUP_CAP).map((f) => {
+    const match = f.player ? resolveTag(f.player) : null;
     const matchIdx = match ? players.indexOf(match) : -1;
     const playerCell = f.player
       ? (match
-          ? `<span class="tag ok" style="cursor:pointer" title="Matched: ${match.title} — click for full specs" onclick="renderPlayerPage(${matchIdx})">${f.player}</span>`
+          ? `<span class="tag ok" style="cursor:pointer" title="${match.inferred ? 'Inferred' : 'Curated'}: ${match.title} — click for details" onclick="renderPlayerPage(${matchIdx})">${f.player}</span>`
           : `<span class="tag" title="No match in players/editors database">${f.player}</span>`)
-      : `<span class="cnote">${f.source === 'stil' ? 'unknown — STIL has no player data' : 'not identified'}</span>`;
+      : `<span class="cnote">${f.source === 'stil' ? 'unknown (STIL)' : 'not identified'}</span>`;
+    const ds = deepsidFileUrl(f);
+    const csdb = f.csdbId ? `https://csdb.dk/release/?id=${f.csdbId}` : null;
+    const links = `${ds ? `<a class="dslink" href="${ds}" target="_blank" title="Play on DeepSID">▶</a>` : ''}${csdb ? ` <a class="dslink" href="${csdb}" target="_blank" title="CSDb release">CSDb</a>` : ''}`;
+    const info = f.comment ? `<div><button class="cnote-btn" onclick="toggleFiles(this)">▸ song info</button><div class="mp-desc" style="display:none;max-width:520px">${f.comment}</div></div>` : '';
     return `<tr>
-      <td><a href="#" onclick="jumpToComposer('${f.composer.replace(/'/g,"\\'")}');return false;" style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--cyan);text-decoration:none">${f.composer}</a></td>
-      <td style="font-size:.75rem">${f.title || f.file}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}${f.comment ? `<div><button class="cnote-btn" onclick="toggleFiles(this)">▸ song info</button><div class="mp-desc" style="display:none;max-width:520px">${f.comment}</div></div>` : ''}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:.72rem;white-space:nowrap">${f.file || ''}</td>
+      <td style="font-size:.75rem">${f.title || f.file || ''}${f.artist ? `<div class="mp-desc">by ${f.artist}</div>` : ''}${info}</td>
       <td>${playerCell}</td>
+      <td style="text-align:center;font-size:.72rem">${f.subtunes || ''}</td>
       <td><span class="tag">${f.source}</span></td>
-      <td>${deepsidFileUrl(f) ? `<a class="dslink" href="${deepsidFileUrl(f)}" target="_blank">▶</a>` : ''}</td>
+      <td style="white-space:nowrap">${links}</td>
     </tr>`;
   }).join('');
-  const more = list.length > FILES_TAB_CAP
-    ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${list.length-FILES_TAB_CAP} more — refine your search to narrow this down.</p>`
+  const more = files.length > FILES_PER_GROUP_CAP
+    ? `<tr><td colspan="6" style="color:var(--dim);font-size:.72rem">+${fmtNum(files.length - FILES_PER_GROUP_CAP)} more in this composer — narrow with find/filters</td></tr>`
     : '';
-  grid.innerHTML = `<div class="fw"><table class="mp-tbl"><thead><tr><th>Composer</th><th>File</th><th>Player</th><th>Source</th><th></th></tr></thead><tbody>${rows}</tbody></table>${more}</div>`;
+  return `<table class="mp-tbl ftbl"><thead><tr>
+    ${colHeader('file', 'File')}${colHeader('title', 'Title')}${colHeader('player', 'Player')}${colHeader('subtunes', 'Sub')}${colHeader('source', 'Source')}<th>Links</th>
+  </tr></thead><tbody>${rows}${more}</tbody></table>`;
+}
+
+function setFileFacet(key, value){ fileFacets[key] = value; render('files'); }
+function setFileColSort(col){
+  if (fileColSort.col === col) fileColSort.dir = fileColSort.dir === 'asc' ? 'desc' : 'asc';
+  else fileColSort = { col, dir: col === 'subtunes' ? 'desc' : 'asc' };
+  render('files');
+}
+function toggleComposerGroup(name){
+  if (_expandedComposers.has(name)) _expandedComposers.delete(name);
+  else _expandedComposers.add(name);
+  render('files');
+}
+
+function renderFiles(grid){
+  grid.style.gridTemplateColumns = '1fr';
+  // Filter every file; keep only composers that still have at least one.
+  const groups = [];
+  let shownFiles = 0;
+  fileGroups().forEach((g) => {
+    const filtered = g.files.filter(fileMatchesFilters);
+    if (!filtered.length) return;
+    g._filtered = filtered;
+    shownFiles += filtered.length;
+    groups.push(g);
+  });
+  // Group (composer) order comes from the shared sort dropdown.
+  groups.sort((a, b) => {
+    if (currentSort === 'composer-desc') return b.composer.localeCompare(a.composer);
+    if (currentSort === 'files-desc') return b._filtered.length - a._filtered.length || a.composer.localeCompare(b.composer);
+    if (currentSort === 'files-asc') return a._filtered.length - b._filtered.length || a.composer.localeCompare(b.composer);
+    return a.composer.localeCompare(b.composer); // composer-asc, default
+  });
+  document.getElementById('search-count').textContent = `${fmtNum(shownFiles)} shown`;
+
+  const anyNarrowing = currentFilter || fileFacets.source || fileFacets.ident || fileFacets.info || fileFacets.tool;
+  const autoExpand = anyNarrowing && groups.length <= AUTO_EXPAND_GROUPS;
+  const toolbar = filesToolbar(shownFiles, groups.length);
+  if (groups.length === 0) {
+    grid.innerHTML = `<div class="fw">${toolbar}${emptyState(allFiles().length ? 'No files match the current find/filters.' : 'No file data cached yet.', allFiles().length ? '' : 'node scripts/fetch-composers.js')}</div>`;
+    return;
+  }
+  const body = groups.map((g) => {
+    const open = autoExpand || _expandedComposers.has(g.composer);
+    const distinctTools = new Set(g._filtered.map((f) => (f.player ? (resolveTag(f.player)?.title || f.player) : null)).filter(Boolean)).size;
+    const esc = g.composer.replace(/'/g, "\\'");
+    const head = `<div class="fgrp-h" onclick="toggleComposerGroup('${esc}')">
+      <span class="fgrp-caret">${open ? '▾' : '▸'}</span>
+      <span class="fgrp-name">${g.composer}</span>
+      <span class="fgrp-meta">${fmtNum(g._filtered.length)} file${g._filtered.length === 1 ? '' : 's'} · ${fmtNum(distinctTools)} tool${distinctTools === 1 ? '' : 's'}</span>
+      <a class="fgrp-jump" href="#" onclick="event.stopPropagation();jumpToComposer('${esc}');return false;" title="Go to composer card">card ↗</a>
+    </div>`;
+    return `<div class="fgrp">${head}${open ? `<div class="fgrp-body">${buildFilesTable(g)}</div>` : ''}</div>`;
+  }).join('');
+  grid.innerHTML = `<div class="fw">${toolbar}${body}</div>`;
 }
 
 // Shared horizontal bar-chart renderer — entries is already-sorted

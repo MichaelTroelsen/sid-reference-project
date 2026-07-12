@@ -49,7 +49,9 @@
     "SIDM2's own explicit architecture comparison (Laxity NP21 vs JCH NP20) rates nearly every table 'Different' or 'Unknown': instrument table location/size, filter table entry size (3 vs 4 bytes), wave table (documented for Laxity, undocumented for NP20), arpeggio table shape, sequence storage (embedded-in-code for Laxity vs separate-data for NP20 — the one deliberately-designed similarity), sequence pointer layout, and player state location. Only the pulse table is called 'Similar' (both 4 bytes/entry).",
     "The root architectural split, per SIDM2: 'Laxity integrates sequences with player code; JCH separates sequences as data.' This is presented as the reason cross-format conversion fails even though the two players share a documented historical relationship (JCH reverse-engineered Laxity's earlier player in June 1988, then started coding NewPlayer on 1 July 1988) — 2+ years of independent evolution since then broke any format compatibility despite the shared ancestry.",
     "SIDM2 treats NP20 as low-priority/deprecated: its own recommendation is to keep the NP20 driver code as unused infrastructure and mark any Laxity-family conversion through it as experimental — 'not the focus of recent work; the production path is native Laxity NP21.'",
-    "docs/players/NP20.md explicitly calls NP20 'the predecessor family to Laxity's NP21' — i.e. SIDM2's frame of reference is Laxity-NP21-as-current, NP20-as-the-older-lineage-it's-compared-against, not the reverse."
+    "docs/players/NP20.md explicitly calls NP20 'the predecessor family to Laxity's NP21' — i.e. SIDM2's frame of reference is Laxity-NP21-as-current, NP20-as-the-older-lineage-it's-compared-against, not the reverse.",
+    "SIDM2's own SF2-driver-family comparison (tdz-c64-knowledge doc 7f75330d7a4d, found 2026-07-12) gives an estimated memory footprint for the NP20 SF2 driver template: code 5376 bytes + data 2048 bytes. It also notes a THIRD accuracy figure alongside the two already flagged above: SIDM2's own 'limitations report' optimistically lists an 'expected 95%' for NP20 conversions, while the measured project figure stays 70-90% — three different NP20-accuracy numbers now on record (95% optimistic-estimate, 70-90% measured-SF2-import, 1-8% Laxity-to-NP20-driver-conversion) — do not average or conflate any of them, they answer different questions.",
+    "Same source: NP20 driver template supports wave/pulse/filter/arpeggio/instrument/sequence tables but 'effects support is limited/not supported' — consistent with, and slightly more specific than, this card's existing note that no dedicated effect/command table is documented."
   ],
   "sources": [
     "SIDM2:docs/players/NP20.md",
@@ -58,7 +60,8 @@
     "SIDM2:sidm2/driver_selector.py (PLAYER_REGISTRY entry, fuzzy-match rule)",
     "SIDM2:sidm2/driver11_section_injectors.py (SF2-side 8-column instrument row, code-confirmed)",
     "SIDM2:docs/reference/ACCURACY_MATRIX.md",
-    "SIDM2:docs/reference/SF2_FORMAT_SPEC.md (native import formats, 'all conversions target Driver 11')"
+    "SIDM2:docs/reference/SF2_FORMAT_SPEC.md (native import formats, 'all conversions target Driver 11')",
+    "tdz-c64-knowledge:doc 7f75330d7a4d 'SID Factory II Driver Family Comparison' (NP20-driver subsection: memory footprint, table support, the 95%-optimistic-vs-70-90%-measured distinction) — cross-checked 2026-07-12"
   ]
 }
 ```

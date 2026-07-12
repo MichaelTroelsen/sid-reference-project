@@ -219,10 +219,14 @@ async function main() {
   const { composers, subtuneStats } = loadAllComposers();
   const players = readJSON(PLAYERS_PATH);
   const gaps = readJSON(GAPS_PATH);
+  // CSDb release data (fetch-player-media.js), keyed by CSDb release ID —
+  // screenshot + the richer credits/date/releasedBy/download fields.
   const playerMedia = readJSON(PLAYER_MEDIA_PATH) || {};
   const playerList = (players?.players ?? []).map((p) => {
     const media = p.csdb_id ? playerMedia[String(p.csdb_id)] : null;
-    return { ...p, screenshot: media?.screenshot ?? null };
+    // `csdbRelease` carries the full set for the detail page; `screenshot`
+    // stays a top-level field since existing template code reads it directly.
+    return { ...p, screenshot: media?.screenshot ?? null, csdbRelease: media ?? null };
   });
 
   const files = composers.flatMap((c) => c.files.map((f) => ({ ...f, composer: c.name, composerPath: c.path })));
@@ -235,6 +239,14 @@ async function main() {
   // client-side in deriveSyntheticPlayers() where those synthetic entries
   // are built. Just passed straight through here. {} if not imported.
   const sidid = readJSON(SIDID_PATH)?.byTag ?? {};
+  // Graft CSDb release data (credits/date/releasedBy/download) onto any SIDId
+  // entry whose `reference` is a CSDb release we fetched — this is how an
+  // *inferred* player (built client-side from its tag's SIDId entry) picks
+  // up real CSDb data without embedding the whole media map for it.
+  Object.values(sidid).forEach((entry) => {
+    const m = entry.reference && String(entry.reference).match(/csdb\.dk\/release\/\?id=(\d+)/i);
+    if (m && playerMedia[m[1]]) entry.csdbRelease = playerMedia[m[1]];
+  });
 
   console.log(`  composers: ${composers.length}`);
   console.log(`  players/editors: ${players?.count ?? 0}`);

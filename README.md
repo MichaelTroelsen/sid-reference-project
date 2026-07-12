@@ -6,9 +6,11 @@
 Fetches composer, player, and editor data live from the [DeepSID](https://deepsid.chordian.net/)
 API into local JSON, builds a browsable HTML reference page from that JSON,
 and cross-references everything to find documentation gaps worth reporting
-back to DeepSID upstream. Three independent sources enrich and verify that
+back to DeepSID upstream. Several independent sources enrich and verify that
 data further: [CSDb](https://csdb.dk/) (scener bios, group history, release
-screenshots), HVSC's own `Musicians.txt`/`STIL.txt` (community-verified
+screenshots + credits/dates for players), SIDId's `sidid.nfo` player database
+(author/name/technique for players DeepSID never wrote up, shipped in DeepSID's
+offline bundle), HVSC's own `Musicians.txt`/`STIL.txt` (community-verified
 handle/country list and per-file titles), and DeepSID's own published
 database export (github.com/Chordian/deepsid's README — a dated snapshot
 covering the full ~1,900 HVSC composers and ~55,000 files, not just the
@@ -62,9 +64,12 @@ scripts/
   fetch-composers.js     — pulls profile + folder for each seed composer
   fetch-players.js       — pulls the entire players/editors database
   fetch-csdb.js           — enriches cached composers with CSDb scener data
-  fetch-player-media.js   — pulls a screenshot + homepage link per player from CSDb
+  fetch-player-media.js   — pulls CSDb release data per player (screenshot, credits,
+                            release date, releasing group, download) — curated
+                            players and SIDId-referenced releases for inferred ones
   fetch-hvsc-docs.js      — pulls + parses HVSC's Musicians.txt, caches STIL.txt raw
   import-deepsid-dump.js — one-time import of DeepSID's own database export (see below)
+  import-sidid.js        — one-time import of SIDId's sidid.nfo player database
   find-gaps.js           — cross-references everything, flags missing data
   build-html.js          — injects data/*.json into the HTML template
 
@@ -76,8 +81,10 @@ data/
   players.json            — full players/editors cache (gitignored)
   gaps-report.json        — machine-readable gap analysis (gitignored)
   csdb/*.json              — one CSDb scener cache file per enriched composer,
-                             plus players.json (screenshot/website per player,
-                             keyed by csdb_id) (gitignored)
+                             plus players.json (CSDb release data — screenshot,
+                             credits, date, group, download — keyed by release id)
+                             (gitignored)
+  sidid.json               — SIDId player database, parsed from sidid.nfo (gitignored)
   deepsid-dump/
     meta.json               — when the dump was imported, which HVSC/CGSC
                                version it's from (gitignored)

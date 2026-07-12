@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sidm2-siddump": {
+      "command": "python",
+      "args": ["C:/Users/mit/claude/c64server/SIDM2/mcp-siddump/server.py"]
+    }
+  }
+}

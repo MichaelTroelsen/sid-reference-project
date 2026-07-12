@@ -74,9 +74,9 @@ earlier "OldPlayer".
   produced them. Editor v2 → NewPlayer V5–V17; editor v3 → V18–V20 (+ Laxity
   V21). Keep the two straight.
 - **Versions are distinct players.** V9…V20 each appear as their own tag in the
-  file data (and rank among the most-used tools overall). Document a specific
-  version as a sub-card (`jch-newplayer-v20.md`) with concrete `memory`/`entry`
-  and link it here.
+  file data (and rank among the most-used tools overall). [`jch-newplayer-v20.md`](jch-newplayer-v20.md)
+  is now that sub-card — still mostly `TODO`, since SIDM2 only has an
+  external, never-disassembled spec for NP20, not its own RE work.
 - **Hub of a lineage.** This is the graph's root for the track-system family —
   most edges point *toward* it, not away.
 

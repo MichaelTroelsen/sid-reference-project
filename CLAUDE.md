@@ -152,6 +152,12 @@ picture; this file is quick orientation for a fresh session.
   extra per-file attributes were added to the payload for the grid's
   columns: `subtunes` (omitted when 1) and `csdbId` (CSDb release link) —
   both omit-when-default, same repetition-avoidance as `comment`.
+- There's also a static **Sources** tab (`renderSources()`, `DATA_SOURCES`)
+  — viewer-facing provenance listing the external services this reference is
+  built from, with links (DeepSID API, the DeepSID database export, SIDId,
+  CSDb webservice, HVSC). It hides the search/sort bar (no filtering to do)
+  and points at `docs/SOURCES.md` for the full per-file data manifest. Keep
+  the two in sync when a data source is added or changed.
 - The generated page has six data-driven tabs beyond Composers/Gaps:
   Players/Editors, SID Files (every file across every composer, linked
   to its player where identifiable), Countries, Player Families
@@ -286,6 +292,23 @@ picture; this file is quick orientation for a fresh session.
   upstream without review.
 - See `docs/SIDM2-INTEGRATION.md` for the (currently manual) connection
   to the SIDM2 disassembly project.
+
+## Player knowledge base (`knowledge/`)
+
+A separate, git-versioned store of reverse-engineering knowledge about SID
+players (disassembly facts, SF2 driver notes), so the next player starts from
+accumulated knowledge rather than a blank disassembler. Design is deliberate
+(see `knowledge/README.md`): **markdown cards are the source of truth**
+(`knowledge/players/<id>.md`, one fenced ```json facts block + prose), the
+**graph is derived** (`knowledge/build-graph.js` → `knowledge/graph.json`,
+gitignored, `npm run knowledge:graph`), MCP is the eventual *access* layer
+(not built yet), and `mcp-c64` is the *verification* loop (a card is only
+`status: verified` once its reconstruction assembles+runs). It is NOT a
+trained model and NOT a graph-DB-as-source-of-truth. Unknown facts are
+`"TODO: ..."` strings — never guess a memory map. `knowledge/playbooks/`
+holds the reusable procedures (e.g. `disassemble-a-player.md`). Seeded with
+one worked card (`sid-factory-ii.md`) built from real cached DeepSID/SIDId
+data; `sid-factory` and `jch-newplayer` are flagged as the next cards to add.
 
 ## Testing without network access
 

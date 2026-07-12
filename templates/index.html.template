@@ -261,7 +261,8 @@ const TABS = [
   {id:'gaps',      label:'Documentation Gaps', desc:'Sparse fields flagged by find-gaps.js — candidates for reporting upstream.', sorts:[
     {value:'type-asc',     label:'Type'},
     {value:'composer-asc', label:'Composer (A–Z)'},
-  ]}
+  ]},
+  {id:'sources',   label:'Sources',           desc:'Where all the data comes from — the free, community-maintained services and files this reference is built from (metadata only, never the SID audio).'}
 ];
 
 let currentTab = 'composers';
@@ -342,6 +343,7 @@ function render(tab){
   if (tab === 'groups') return renderGroups(grid);
   if (tab === 'insights') return renderInsights(grid);
   if (tab === 'gaps') return renderGaps(grid);
+  if (tab === 'sources') return renderSources(grid);
 }
 
 function fileList(c){
@@ -1685,6 +1687,53 @@ function renderGaps(grid){
   </div>`).join('');
   const more = list.length > 300 ? `<p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">+${list.length-300} more — see docs/GAPS_REPORT.md</p>` : '';
   grid.innerHTML = `<div class="fw" style="padding-top:1.5rem">${items}${more}</div>`;
+}
+
+// Viewer-facing provenance — the external sources this reference is built
+// from, with links. The full per-file data manifest lives in docs/SOURCES.md
+// (dev-facing); this is the human-readable "where did this come from" view.
+const DATA_SOURCES = [
+  { name: 'DeepSID API', url: 'https://deepsid.chordian.net/api/v1.php',
+    blurb: 'The primary source — DeepSID\'s players/editors database and composer profiles.',
+    rows: [['?players', 'Full players/editors database (129 curated)'], ['?profile=', 'Composer bio, country, dates, photo'], ['?file= / ?folder=', 'Per-file listings (often offline — the database export below fills in)']] },
+  { name: 'DeepSID database export', url: 'https://github.com/Chordian/deepsid',
+    blurb: 'DeepSID\'s own published offline snapshot — seeds the full ~1,895 composers and ~55,000 files, and the per-file player tags. A dated snapshot, imported once.',
+    rows: [] },
+  { name: 'SIDId (sidid.nfo)', url: 'https://csdb.dk/',
+    blurb: 'The player-identification database (ships inside the DeepSID offline bundle). Author, proper name, release year, and playback-technique notes for the players DeepSID never wrote up — this is what fills in the "inferred" players.',
+    rows: [] },
+  { name: 'CSDb webservice', url: 'https://csdb.dk/webservice/',
+    blurb: 'The Commodore 64 Scene Database — scener bios and group history for composers, and real release data for players.',
+    rows: [['type=scener', 'Composer bios, group memberships, scene roles'], ['type=release', 'Player screenshot, credits (who coded it), release date, group, download']] },
+  { name: 'High Voltage SID Collection (HVSC)', url: 'https://www.hvsc.c64.org/',
+    blurb: 'Community-verified documentation — metadata only, never the copyrighted SID audio.',
+    rows: [['Musicians.txt', 'Verified handle / real name / group / country'], ['STIL.txt', 'Per-file titles/artists and free-text song notes']] },
+];
+
+function renderSources(grid){
+  document.getElementById('search-bar').style.display = 'none'; // no filter/sort here
+  grid.style.gridTemplateColumns = '1fr';
+  const blocks = DATA_SOURCES.map((s) => {
+    const rows = s.rows.length
+      ? `<table class="pinfo" style="margin-top:.6rem">${s.rows.map(([k, v]) => `<tr><td style="white-space:nowrap">${k}</td><td>${v}</td></tr>`).join('')}</table>`
+      : '';
+    const link = s.url
+      ? `<a class="dslink" href="${s.url}" target="_blank" rel="noopener">${s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')} ↗</a>`
+      : '';
+    return `<div class="fgrp" style="padding:.9rem 1rem">
+      <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap">
+        <span class="fgrp-name" style="font-size:.95rem">${s.name}</span>
+        ${link}
+      </div>
+      <div class="sn" style="margin-top:.4rem">${s.blurb}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+  grid.innerHTML = `<div class="fw" style="padding-top:1.5rem;max-width:900px">
+    <p class="sn" style="margin-bottom:1.25rem">Everything here is built from free, community-maintained sources — <strong>metadata only, never the copyrighted SID audio</strong>. All data is cached locally and fetched politely (1 request / 400&nbsp;ms). The full source &amp; data-file manifest is in <code>docs/SOURCES.md</code> in the repository.</p>
+    ${blocks}
+    <p class="sn" style="margin-top:1.25rem">Documentation gaps found along the way are meant to be reported back upstream at <a class="dslink" href="https://github.com/Chordian/deepsid/issues" target="_blank" rel="noopener">github.com/Chordian/deepsid/issues ↗</a>.</p>
+  </div>`;
 }
 
 function jumpToComposer(name){

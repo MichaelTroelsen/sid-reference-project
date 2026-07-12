@@ -16,6 +16,9 @@ database export (github.com/Chordian/deepsid's README — a dated snapshot
 covering the full ~1,900 HVSC composers and ~55,000 files, not just the
 curated seed — see "The DeepSID database export" below).
 
+**For the complete list of sources, endpoints, and every data file — with
+links — see [`docs/SOURCES.md`](docs/SOURCES.md).**
+
 This replaces an earlier version of this project that was a single
 hand-curated HTML file with all data hardcoded inline — preserved at
 [`docs/legacy/sid_reference.html`](docs/legacy/sid_reference.html) as a

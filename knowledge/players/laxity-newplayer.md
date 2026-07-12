@@ -25,10 +25,10 @@
   "data_format": {
     "order_list": "3-byte events (note, instrument, command). $FF = loop (next byte = loop target position). Transpose = bytes >= $80 (value - $A0 = signed semitones). $FE = stop.",
     "patterns": "sequences integrated with player code (NOT separated as pure data — a key incompatibility with JCH NP20)",
-    "instruments": "8 bytes/entry, native table $1A6B-$1AAB (8 instruments). Two field orderings documented (author/JCH-source vs SIDM2 disassembly) — see quirks.",
-    "wavetable": "2 bytes/tick (note-offset + waveform), split arrays (not interleaved). Markers: $7F jump-to-index, $7E stop/hold, $80 special base-note recalc ('Hubbard slide'), $80+ absolute note.",
-    "pulsetable": "4 bytes/entry, Y*4 indexed: settings ($FF=keep), count, duration(bit0-6)+direction(bit7), next-entry (absolute index). Arp table $1A8B-$1ACB (16x4, cyclic signed semitones, $7F end).",
-    "filtertable": "4 bytes/entry: value ($FF=keep), count, duration, next-entry (absolute index). FIRST entry = alternative/break speeds. Cutoff is 12-bit, divided by 16 before SID write."
+    "instruments": "8 bytes/entry, native table $1A6B-$1AAB (8 instruments). Two field orderings documented (author/JCH-source vs SIDM2 disassembly) — see quirks. SIDM2-disassembly ordering (offsets 0-7, from a decoded hex dump of 'Stinsen's Last Night of '89'): AD, SR, Wave-table-ptr, Pulse-table-ptr, Filter-table-ptr, Arpeggio-table-ptr, Flags, Vibrato/other.",
+    "wavetable": "2 bytes/tick (note-offset + waveform), split arrays (not interleaved). Markers: $7F jump-to-index, $7E stop/hold, $80 special base-note recalc ('Hubbard slide'), $80+ absolute note. ADDRESS CONFLICT (see quirks): the fuller SIDM2 disassembly reference gives waveforms at $18DA + note-offsets at $190C in one section, but $1914 (note-offsets) + $1934 (waveforms) in that SAME document's own memory-map table — a self-contradiction within one source, not just cross-document disagreement.",
+    "pulsetable": "CORRECTED (was wrongly summarized as a single 4-byte-stride table in an earlier pass — see quirks): THREE separate parallel byte arrays, not one interleaved table. Pulse-high/delta-high at $193E (bit7: 1=absolute set, 0=delta-add), pulse-low/delta-low at $1957, duration+loop-point at $1970 — all walked with the SAME index Y (direct Y-indexing into each array, not Y*4). Arp table is separate: $1A8B-$1ACB (16x4, cyclic signed semitones, $7F end).",
+    "filtertable": "CORRECTED (see quirks): THREE separate parallel byte arrays. Filter-high+resonance at $1989 (bit7: 1=absolute-set — bits4-6=resonance, bits0-3=cutoff-high-nibble; 0=delta-add to cutoff-high), filter-low at $19A3, duration+voice-routing at $19BD (bits4-7=voice routing bitmask, bits0-3=duration/loop-point) — all same-Y indexed. Cutoff = (high_nibble<<8)|low_byte, 12-bit, divided by 16 before the SID write ($D415 cutoff-high-3-bits/$D416 cutoff-low-8-bits)."
   },
   "effects": {
     "encoding": "Native command table $1ADB-$1B9B: 64 commands x 3 bytes (type, param1, param2), $7F = end-of-table. Order-list command byte = 'super-command' nibble layout below.",
@@ -63,14 +63,18 @@
     "Two documented instrument field orderings exist (author/JCH-source order vs SIDM2 disassembly order) — check which a given tool/file uses.",
     "'Laxity hard restart' adapted from Laxity's own 1989 player; SIDM2 also records the claim that JCH NewPlayer was reverse-engineered FROM Laxity's player in 1988 (lineage is tangled — noted, not asserted as an edge).",
     "Driver family SIDM2 tracks under this path: Stinsen/Beast/Angular, DRAX (Colorama/Delicate/Dreams/Omniphunk), 2000 A.D., Wizax, Zetrex.",
-    "This card's own entry.play was wrong for over a session's worth of history ($10A1 instead of $1006) until a local verification pass caught it — a reminder that even a card sourced from SIDM2's best-documented player can carry a transcription error. Always spot-check entry points against a real file's PSID header when in doubt, not just against prose documentation."
+    "This card's own entry.play was wrong for over a session's worth of history ($10A1 instead of $1006) until a local verification pass caught it — a reminder that even a card sourced from SIDM2's best-documented player can carry a transcription error. Always spot-check entry points against a real file's PSID header when in doubt, not just against prose documentation.",
+    "The $10A1 error's likely origin, found while cross-checking the fuller SIDM2 disassembly reference (tdz-c64-knowledge doc 1c4ad8d0c81f, the ingested STINSENS_PLAYER_DISASSEMBLY.md): that document's own memory-map table lists the play routine as a RANGE, '$1006-$10A0 | Play routine entry point' — reading the end of a range as if it were a second, separate entry point (off by one, $10A0+1) is a very plausible way the wrong $10A1 got into this card originally.",
+    "That same reference document has a CONFIRMED byte-level error of its own, independent of the range-misreading above: its annotated init-routine disassembly shows garbled/non-opcode bytes for $1000-$1006 (e.g. 'BPL $104F' as a branch target that doesn't match its own listed relative-offset math, a stray '.byte $9B' mid-stream) — inconsistent with the clean 'JMP Label_88 / JMP Label_89' pair this session's SIDwinder-based verification actually found there. Everything from $1007 onward in that document's listing appears to be the correct CODE shifted by a consistent +1 byte in its address labels (its 'LDA #$00' at its labeled '$1007' matches this card's verified $1006 exactly, opcode-for-opcode). Treat that document's exact address labels in the $1000-$1010 region as off-by-one; the table/routine addresses further into the file ($18xx-$1Bxx range) are not known to share this specific defect, but were not independently re-verified either.",
+    "UNRESOLVED CONTRADICTION with the stinsen-newplayer.md card: that reference document is disassembled from the exact same source file ('Stinsen's Last Night of '89') this card's own facts are seeded from, yet stinsen-newplayer.md documents a COLUMN-MAJOR instrument table at $1808 (AD)/$181C (SR) for that file — a completely different address and shape than this card's $1A6B-$1AAB 8-byte-row-major table for the SAME file. Both are SIDM2-sourced (this card from STINSENS_PLAYER_DISASSEMBLY.md directly; stinsen-newplayer.md from separate SIDM2 'cluster detector' memory notes). Not resolved here — could mean one research effort has an error, or the two tables serve genuinely different purposes (e.g. a native table vs. an SF2-editor-only shadow structure) — flagged on both cards rather than guessed at."
   ],
   "sources": [
     "SIDM2:G5/21.g5_Final.txt (author's original source + format spec)",
     "SIDM2:docs/reference/STINSENS_PLAYER_DISASSEMBLY.md (reverse-engineered disassembly: memory map, ZP, tables, command table)",
     "SIDM2:docs/reference/LAXITY_DRIVER_TECHNICAL_REFERENCE.md (SF2-driver relocated map; accuracy report)",
     "SIDM2:docs/reference/CONVERSION_STRATEGY.md, docs/players/LAXITY.md, docs/players/NP20.md, KNOWLEDGE_CONSOLIDATION_NP20_RESEARCH.md",
-    "sidid:Laxity_NewPlayer_V21 (author Laxity, released 2006, csdb release 26563)"
+    "sidid:Laxity_NewPlayer_V21 (author Laxity, released 2006, csdb release 26563)",
+    "tdz-c64-knowledge:doc 1c4ad8d0c81f 'Laxity NewPlayer v21 Disassembly Reference (SIDM2)' — a fuller, hex-dump-and-read-routine-annotated ingestion of the same STINSENS_PLAYER_DISASSEMBLY.md source; cross-checked against this card 2026-07-12, source of the pulse/filter table corrections above and the entry.play off-by-one explanation."
   ]
 }
 ```
@@ -144,6 +148,16 @@ claim; those still rest on SIDM2's own analysis, not on independent
 reconstruction here. If a future edit touches those fields specifically,
 treat them as no more solid than an `in-progress` card until re-checked the
 same way.
+
+**2026-07-12 cross-check against a fuller copy of the same primary source**
+(tdz-c64-knowledge doc `1c4ad8d0c81f`) corrected the `pulsetable`/`filtertable`
+fields (they were wrongly summarized as a single 4-byte-stride table; the
+actual structure is three parallel byte arrays) and explained the likely
+origin of the `entry.play` bug this card's verification pass caught earlier.
+It also surfaced a still-unresolved contradiction with `stinsen-newplayer.md`
+over the instrument table's address/shape for the identical source file — see
+`quirks`. None of this changes `status`: the corrected fields are still
+textual analysis, not independently re-traced.
 
 ## Sources
 

@@ -778,6 +778,29 @@ function buildPlayerInfoTable(p){
   return `<table class="pinfo">${rows}</table>`;
 }
 
+// Real CSDb release data (fetch-player-media.js) — credits (who coded it),
+// release date, releasing group, download link. The additive, high-value
+// bit is the credits: DeepSID's ?players API never carried who made a tool.
+// Curated players read `p.csdbRelease`; inferred players read
+// `p.sidid.csdbRelease` (grafted on in build-html via the SIDId reference).
+// Same "pinfo" table style as the spec box.
+function csdbReleaseBox(rel){
+  if (!rel) return '';
+  const rows = [];
+  if (rel.credits && rel.credits.length) {
+    const names = rel.credits
+      .map((c) => `${c.handle || `scener #${c.handleId}`}${c.type ? ` <span style="color:var(--dim)">(${c.type})</span>` : ''}`)
+      .join(', ');
+    rows.push(['Credits', names]);
+  }
+  if (rel.releasedBy) rows.push(['Released by', rel.releasedBy]);
+  if (rel.releaseDate) rows.push(['Release date', rel.releaseDate]);
+  if (rel.type) rows.push(['CSDb type', rel.type]);
+  if (rel.download) rows.push(['Download', `<a class="dslink" href="${rel.download}" target="_blank">CSDb${rel.downloads ? ` · ${fmtNum(rel.downloads)} downloads` : ''}</a>`]);
+  if (!rows.length) return '';
+  return `<table class="pinfo" style="margin-top:1.25rem"><tr class="sec sec-features"><td colspan="2">🗃 CSDb release</td></tr>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>`;
+}
+
 function renderPlayerPage(index){
   const players = window.SID_DATA.players || [];
   const p = players[index];
@@ -792,10 +815,35 @@ function renderPlayerPage(index){
   const devKey = stripTags(p.developer) || '(unknown developer)';
   const siblings = ((families[devKey] && families[devKey].titles) || []).filter(t => t !== p.title);
   const used = filesForPlayer(p, files, players);
-  const usedRows = used.slice(0, 40).map(f =>
-    `<div class="file-row"><a class="file-name" href="${deepsidFileUrl(f) || '#'}" target="_blank">${f.composer} — ${f.title || f.file}</a></div>`
-  ).join('');
-  const usedMore = used.length > 40 ? `<div class="file-row"><span class="file-name" style="color:var(--dim)">+${used.length-40} more</span></div>` : '';
+  // Group the files that use this player by composer and render each with the
+  // same grid the SID Files tab uses (grouped, collapsible, lazily built on
+  // open). Groups are ordered most-prolific-user first. When only a few
+  // composers used it (<= AUTO_EXPAND_GROUPS) they open by default; otherwise
+  // they stay collapsed so a heavily-used tool (e.g. GoatTracker, ~370
+  // composers / 8,000+ files) doesn't build thousands of rows up front.
+  _playerUsedGroups = (() => {
+    const map = new Map();
+    used.forEach((f) => {
+      let g = map.get(f.composer);
+      if (!g) { g = { composer: f.composer, composerPath: f.composerPath, files: [] }; map.set(f.composer, g); }
+      g.files.push(f);
+    });
+    return [...map.values()].sort((a, b) => b.files.length - a.files.length || a.composer.localeCompare(b.composer));
+  })();
+  const autoOpenUsed = _playerUsedGroups.length <= AUTO_EXPAND_GROUPS;
+  const usedGroupsHtml = _playerUsedGroups.map((g, i) => {
+    const esc = g.composer.replace(/'/g, "\\'");
+    const head = `<div class="fgrp-h" onclick="togglePlayerGroup(this)">
+      <span class="fgrp-caret">${autoOpenUsed ? '▾' : '▸'}</span>
+      <span class="fgrp-name">${g.composer}</span>
+      <span class="fgrp-meta">${fmtNum(g.files.length)} file${g.files.length === 1 ? '' : 's'}</span>
+      <a class="fgrp-jump" href="#" onclick="event.stopPropagation();jumpToComposer('${esc}');return false;" title="Go to composer card">card ↗</a>
+    </div>`;
+    const body = autoOpenUsed
+      ? `<div class="fgrp-body" data-gi="${i}" data-built="1" style="display:block">${buildFilesTablePlain(g.files)}</div>`
+      : `<div class="fgrp-body" data-gi="${i}" style="display:none"></div>`;
+    return `<div class="fgrp">${head}${body}</div>`;
+  }).join('');
 
   // Research aid for inferred players (there's no spec data to show, so
   // this is the next best thing): how concentrated is usage among
@@ -854,6 +902,10 @@ function renderPlayerPage(index){
       `</table>`
     : '';
 
+  // Real CSDb release data — curated players carry it directly; inferred
+  // players get it via their SIDId entry (grafted in build-html).
+  const releaseBox = csdbReleaseBox(p.inferred ? (sid && sid.csdbRelease) : p.csdbRelease);
+
   document.getElementById('search-bar').style.display = 'none';
   document.getElementById('cat-header').style.display = 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
@@ -879,11 +931,11 @@ function renderPlayerPage(index){
       <div>${infoBox}</div>
     </div>`}
     ${curatedTechBox}
+    ${releaseBox}
     <div style="margin-top:1.5rem">
       ${siblings.length ? `<div class="sl">Same developer (${siblings.length})</div><div class="tags" style="margin-bottom:1.25rem">${siblings.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
-      <div class="sl">Composers/files using this player (${used.length})</div>
-      ${usedRows || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}
-      ${usedMore}
+      <div class="sl">Composers/files using this player (${fmtNum(used.length)} file${used.length === 1 ? '' : 's'} across ${fmtNum(_playerUsedGroups.length)} composer${_playerUsedGroups.length === 1 ? '' : 's'})</div>
+      ${usedGroupsHtml || '<p style="color:var(--dim);font-size:.75rem">No files currently link to this player by name — check the Files tab for unmatched entries.</p>'}
     </div>
   </div>`;
 }
@@ -1022,9 +1074,12 @@ function colHeader(col, label){
   return `<th class="sortable${active ? ' on' : ''}" onclick="setFileColSort('${col}')">${label}${caret}</th>`;
 }
 
-function buildFilesTable(g){
+// The <tbody> rows for a file grid — shared by the Files tab's sortable
+// table and the player detail page's plain one, so both render an identical
+// File/Title/Player/Sub/Source/Links row. `moreNote` tails the "+N more"
+// overflow row (capped at FILES_PER_GROUP_CAP per group).
+function filesTableBody(files, moreNote){
   const players = window.SID_DATA.players || [];
-  const files = sortFilesInGroup(g._filtered);
   const rows = files.slice(0, FILES_PER_GROUP_CAP).map((f) => {
     const match = f.player ? resolveTag(f.player) : null;
     const matchIdx = match ? players.indexOf(match) : -1;
@@ -1047,11 +1102,27 @@ function buildFilesTable(g){
     </tr>`;
   }).join('');
   const more = files.length > FILES_PER_GROUP_CAP
-    ? `<tr><td colspan="6" style="color:var(--dim);font-size:.72rem">+${fmtNum(files.length - FILES_PER_GROUP_CAP)} more in this composer — narrow with find/filters</td></tr>`
+    ? `<tr><td colspan="6" style="color:var(--dim);font-size:.72rem">+${fmtNum(files.length - FILES_PER_GROUP_CAP)} more ${moreNote || ''}</td></tr>`
     : '';
+  return rows + more;
+}
+
+function buildFilesTable(g){
+  const files = sortFilesInGroup(g._filtered);
   return `<table class="mp-tbl ftbl"><thead><tr>
     ${colHeader('file', 'File')}${colHeader('title', 'Title')}${colHeader('player', 'Player')}${colHeader('subtunes', 'Sub')}${colHeader('source', 'Source')}<th>Links</th>
-  </tr></thead><tbody>${rows}${more}</tbody></table>`;
+  </tr></thead><tbody>${filesTableBody(files, 'in this composer — narrow with find/filters')}</tbody></table>`;
+}
+
+// Non-interactive variant (plain headers, fixed title-asc order) for use
+// OUTSIDE the Files tab — e.g. the player detail page's usage listing, where
+// clickable column headers would wrongly call setFileColSort → render('files')
+// and yank the user off the player page onto the Files tab.
+function buildFilesTablePlain(files){
+  const sorted = [...files].sort((a, b) => (a.title || a.file || '').toLowerCase().localeCompare((b.title || b.file || '').toLowerCase()));
+  return `<table class="mp-tbl ftbl"><thead><tr>
+    <th>File</th><th>Title</th><th>Player</th><th>Sub</th><th>Source</th><th>Links</th>
+  </tr></thead><tbody>${filesTableBody(sorted, 'by this composer')}</tbody></table>`;
 }
 
 function setFileFacet(key, value){ fileFacets[key] = value; render('files'); }
@@ -1064,6 +1135,24 @@ function toggleComposerGroup(name){
   if (_expandedComposers.has(name)) _expandedComposers.delete(name);
   else _expandedComposers.add(name);
   render('files');
+}
+
+// The player detail page reuses this same grouped grid to list usage, but
+// its groups can't re-render via render('files') to expand (that would
+// switch tabs), so they toggle in place and lazily build their table on
+// first open. `_playerUsedGroups` is stashed by renderPlayerPage so the
+// toggle can find a group's files by index without re-deriving anything.
+let _playerUsedGroups = null;
+function togglePlayerGroup(headEl){
+  const wrap = headEl.nextElementSibling;
+  const open = wrap.style.display !== 'none';
+  if (!open && !wrap.dataset.built) {
+    wrap.innerHTML = buildFilesTablePlain(_playerUsedGroups[+wrap.dataset.gi].files);
+    wrap.dataset.built = '1';
+  }
+  wrap.style.display = open ? 'none' : 'block';
+  const caret = headEl.querySelector('.fgrp-caret');
+  if (caret) caret.textContent = open ? '▸' : '▾';
 }
 
 function renderFiles(grid){

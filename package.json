@@ -1,6 +1,6 @@
 {
   "name": "sid-reference-project",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fetches SID composer/player/editor data from the DeepSID API into local JSON, builds a browsable HTML reference from it, and finds documentation gaps to report back upstream.",
   "private": true,
   "engines": {

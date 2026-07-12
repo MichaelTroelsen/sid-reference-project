@@ -214,6 +214,34 @@ picture; this file is quick orientation for a fresh session.
   CSDb's `type=release` endpoint (`scripts/fetch-player-media.js`) since
   DeepSID's own players page has no equivalent API field and is a
   JS-rendered SPA with no predictable image URL.
+- **Richer CSDb release data on the player detail page.**
+  `fetch-player-media.js` no longer keeps only the screenshot from CSDb's
+  `type=release` response — it also extracts **credits** (who actually
+  coded the tool — the genuinely new field, since DeepSID's `?players`
+  API never had it), release date, releasing group, CSDb type, and a
+  download link (+ download count), keyed by CSDb release ID in
+  `data/csdb/players.json`. It fetches two ID sets: every curated player's
+  `csdb_id` **and** every SIDId `reference` that points at a CSDb release
+  (so *inferred* players get it too — 244 releases fetched, 226 with
+  credits). `build-html.js` attaches this as `player.csdbRelease` on
+  curated players and grafts it onto each SIDId entry (so an inferred
+  player reads `p.sidid.csdbRelease`); the template's `csdbReleaseBox()`
+  shows it as a "🗃 CSDb release" table (122 curated + 95 inferred players
+  currently have one). The output shape changed, so entries cached by the
+  old (screenshot-only) shape are re-fetched automatically — an entry
+  missing the `credits` key is treated as stale (no `--refresh` needed).
+- The **SID Files tab's grouped grid is reused on the player detail page**
+  for the "Composers/files using this player" listing (`renderPlayerPage()`):
+  the flat capped list of 40 was replaced with the files grouped by
+  composer (most-prolific-user first), each a collapsible header opening
+  the same columnar table (`buildFilesTablePlain()` — a non-sortable
+  variant, since the Files-tab column headers call `render('files')` and
+  would yank the user off the player page). Groups auto-open when ≤
+  `AUTO_EXPAND_GROUPS` composers used the tool; otherwise collapsed and
+  built lazily on click (`togglePlayerGroup()` / `_playerUsedGroups`) so a
+  tool used by hundreds of composers doesn't build thousands of rows up
+  front. The Files tab's own `buildFilesTable()` and this share
+  `filesTableBody()` for identical rows.
 - `find-gaps.js` adds a `suggestion` field to a gap when a candidate fix
   exists in CSDb or HVSC — composer country/realname/group from an
   unambiguous HVSC Musicians.txt match (`lib/hvsc.js`'s `findHvscMatch`/

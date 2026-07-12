@@ -7,7 +7,7 @@
   "aliases": ["Laxity_NewPlayer", "Laxity_NewPlayer_V21", "Vibrants/Laxity", "256bytes/Laxity", "NP21"],
   "authors": ["Thomas Egeskov Petersen (Laxity) / Vibrants"],
   "released": "2005",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 player routine",
   "csdb_release": 26563,
 
@@ -18,7 +18,7 @@
   },
   "entry": {
     "init": "$1000 (A = subtune number, 0-based)",
-    "play": "$10A1 (called 50x/s PAL). Tempo counter $1783, tempo table $1A1E+ with $7F wrap marker; multispeed supported."
+    "play": "$1006 (called 50x/s PAL) — CORRECTED from a previously-documented $10A1, which was wrong (see Verification: confirmed against both the real PSID header and a local disassemble/reassemble/trace round-trip). $10A1 falls mid-routine inside the play code, not at its entry. Tempo counter $1783, tempo table $1A1E+ with $7F wrap marker; multispeed supported."
   },
   "speed": "1x + multispeed (tempo-table driven). SIDM2 note: tempo detection may be imperfect; SF2-driver export is single-subtune.",
 
@@ -62,7 +62,8 @@
     "SIDM2's own docs disagree on native table addresses (e.g. wave table $18DA/$1914; the disassembly vs NP20-research docs differ). Treat the addresses here as leads, confirm per file.",
     "Two documented instrument field orderings exist (author/JCH-source order vs SIDM2 disassembly order) — check which a given tool/file uses.",
     "'Laxity hard restart' adapted from Laxity's own 1989 player; SIDM2 also records the claim that JCH NewPlayer was reverse-engineered FROM Laxity's player in 1988 (lineage is tangled — noted, not asserted as an edge).",
-    "Driver family SIDM2 tracks under this path: Stinsen/Beast/Angular, DRAX (Colorama/Delicate/Dreams/Omniphunk), 2000 A.D., Wizax, Zetrex."
+    "Driver family SIDM2 tracks under this path: Stinsen/Beast/Angular, DRAX (Colorama/Delicate/Dreams/Omniphunk), 2000 A.D., Wizax, Zetrex.",
+    "This card's own entry.play was wrong for over a session's worth of history ($10A1 instead of $1006) until a local verification pass caught it — a reminder that even a card sourced from SIDM2's best-documented player can carry a transcription error. Always spot-check entry points against a real file's PSID header when in doubt, not just against prose documentation."
   ],
   "sources": [
     "SIDM2:G5/21.g5_Final.txt (author's original source + format spec)",
@@ -109,13 +110,40 @@ The SF2-driver relocated map (player at `$0E00`, offset −$0200) is in
 
 ## Verification
 
-**High external confidence, not yet re-run here.** SIDM2 reports **99.93% frame
-accuracy**, **100% success on 286 real Laxity SID files**, and exact
-register-write matches, validated by siddump comparison against VICE playback
-(`LAXITY_DRIVER_TECHNICAL_REFERENCE.md`). Filter accuracy is now reported at
-100% (Stinsen-verified) after an earlier 0%. Kept `status: in-progress` per this
-KB's rule (verified = assembled+run through `mcp-c64` *here*) — the natural next
-step is a siddump/register-trace re-run once `mcp-c64` can capture SID writes.
+**Locally re-run and confirmed, `status: verified`.** Method: SIDM2's
+`drivers/laxity/laxity_player_disassembly.asm` — a SIDwinder disassembly of
+the real `Stinsens_Last_Night_of_89.sid` binary, Kick-Assembler-syntax —
+was mechanically translated to 64tass syntax (`//` → `;` comments, `.const X
+= Y` → `X = Y`; no logic changes) and assembled with 64tass (the same
+assembler `mcp-c64` wraps — invoked directly via its CLI this session, since
+the `mcp-c64` MCP connection available here had no `ASSEMBLER` configured;
+see `work_remaining` in `whats-next.md` for that config gap). The resulting
+`.prg` was traced with the new `sidm2-siddump` MCP server's tracer
+(`sidm2-sid-trace.exe`, wrapping SIDM2's `zig64`-based cycle-accurate
+emulator) for 50 PAL frames (1 second) using `init=$1000, play=$1006`, and
+diffed byte-for-byte against a trace of the ORIGINAL `.sid` file's bytes
+(extracted independently from its own PSID header, same tracer, same
+frame count). **Result: the two 334-line register-write traces are
+identical except for the input filename echoed in each log's first line** —
+every `(frame, cycle, register, old_val, new_val)` write matches exactly
+over the full second of real playback.
+
+This directly caught the `entry.play` error documented above ($10A1 was
+never a valid entry — it's an instruction address mid-way through the play
+routine that starts at $1006) and secondarily corroborates the
+`data_format.instruments` table's claimed location ($1A6B-$1AAB): that
+region is confirmed to be a raw `.byte` data block in the disassembly,
+consistent with a table living there (not independently decoded field-by-field
+here, just confirmed to be data at the right address).
+
+**Scope honestly stated**: this verifies entry points, load address, and
+overall behavioral fidelity for one real file's first second of playback —
+it does NOT independently re-derive or spot-check the effect command table,
+wave/pulse/filter field semantics, or the "two instrument field orderings"
+claim; those still rest on SIDM2's own analysis, not on independent
+reconstruction here. If a future edit touches those fields specifically,
+treat them as no more solid than an `in-progress` card until re-checked the
+same way.
 
 ## Sources
 

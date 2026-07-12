@@ -17,9 +17,14 @@ It's a layered/hybrid design (see the discussion that produced it):
    *derivation DAG* (SF2 ← predecessors; JCH NewPlayer V1→V20; shared
    routines; shared effect encodings) — relationship queries a flat grep
    can't answer.
-3. **Access via MCP** (later) — point the reference "memory"/knowledge-graph
-   MCP server (or a thin custom one) at `graph.json` + the cards so an agent
-   can query mid-task. Not built yet; the files work standalone until then.
+3. **Access via MCP** — the `tdz-c64-knowledge` server (already built,
+   separately, for general C64 documentation search) is wired in and the
+   cards are ingested into it (`add_document` per card, tagged
+   `sid-player-kb` + the card's id) so an agent can search/query them
+   mid-task via its FTS5/semantic search tools. The cards themselves
+   remain the source of truth — `tdz-c64-knowledge` is a queryable index
+   over them, not a replacement; re-ingest a card (same `add_document`
+   call) after editing it, the same way `graph.json` is regenerated.
 4. **Verification via `mcp-c64`** (the c64 MCP already available) — a player
    card is only `status: verified` once its reconstructed init/play has been
    assembled and run to confirm the facts. This KB is unusually testable;

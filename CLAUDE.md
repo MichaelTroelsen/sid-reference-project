@@ -301,14 +301,25 @@ accumulated knowledge rather than a blank disassembler. Design is deliberate
 (see `knowledge/README.md`): **markdown cards are the source of truth**
 (`knowledge/players/<id>.md`, one fenced ```json facts block + prose), the
 **graph is derived** (`knowledge/build-graph.js` → `knowledge/graph.json`,
-gitignored, `npm run knowledge:graph`), MCP is the eventual *access* layer
-(not built yet), and `mcp-c64` is the *verification* loop (a card is only
+gitignored, `npm run knowledge:graph`), the `tdz-c64-knowledge` MCP server
+(a pre-existing general C64 documentation search server, not built for this
+project) is the *access* layer — all 5 cards are ingested into it via
+`add_document`, tagged `sid-player-kb` + the card's id, so it's searchable
+mid-task through its FTS5/semantic search tools; re-ingest a card after
+editing it, same as regenerating `graph.json` — and `mcp-c64` is the
+*verification* loop (a card is only
 `status: verified` once its reconstruction assembles+runs). It is NOT a
 trained model and NOT a graph-DB-as-source-of-truth. Unknown facts are
 `"TODO: ..."` strings — never guess a memory map. `knowledge/playbooks/`
-holds the reusable procedures (e.g. `disassemble-a-player.md`). Seeded with
-one worked card (`sid-factory-ii.md`) built from real cached DeepSID/SIDId
-data; `sid-factory` and `jch-newplayer` are flagged as the next cards to add.
+holds the reusable procedures (e.g. `disassemble-a-player.md`). Currently 5
+connected cards (SF2/SF1/JCH NewPlayer/JCH OldPlayer/Laxity NewPlayer). The
+disassembly-derived fields (memory map, ZP, entry points, effect encodings)
+are sourced from the **SIDM2 project** (`c64server/SIDM2` — reverse-engineers
+Laxity-family SID players into SF2; the `laxity-newplayer.md` card is seeded
+from its disassembly + author source, externally validated at ~99.93% frame
+accuracy). See `docs/SIDM2-INTEGRATION.md`. A card only becomes
+`status: verified` once re-run through `mcp-c64` here (which needs a SID
+register-write/siddump trace tool it doesn't have yet).
 
 ## Testing without network access
 

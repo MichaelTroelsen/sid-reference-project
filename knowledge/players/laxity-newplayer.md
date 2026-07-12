@@ -31,7 +31,7 @@
     "filtertable": "CORRECTED (see quirks): THREE separate parallel byte arrays. Filter-high+resonance at $1989 (bit7: 1=absolute-set — bits4-6=resonance, bits0-3=cutoff-high-nibble; 0=delta-add to cutoff-high), filter-low at $19A3, duration+voice-routing at $19BD (bits4-7=voice routing bitmask, bits0-3=duration/loop-point) — all same-Y indexed. Cutoff = (high_nibble<<8)|low_byte, 12-bit, divided by 16 before the SID write ($D415 cutoff-high-3-bits/$D416 cutoff-low-8-bits)."
   },
   "effects": {
-    "encoding": "Native command table $1ADB-$1B9B: 64 commands x 3 bytes (type, param1, param2), $7F = end-of-table. Order-list command byte = 'super-command' nibble layout below.",
+    "encoding": "TWO layers, which this card previously conflated (see Verification, 2026-07-12). (1) COMPOSER/EDITOR source format — the 'super-command' nibble layout in `commands` below ($0x slide up ... $f0 volume), from the author's G5/21.g5_Final.txt format spec; NOT independently verified at runtime. (2) RUNTIME binary format, independently re-derived from the proven-faithful disassembly: a sequence-stream command byte is $C0+, masked AND #$3F to a 6-bit command index; that indexes a TYPE array whose low nibble (AND #$0F) is an effect type 0-15, dispatched via a 16-entry self-modifying offset table at $1761. The runtime command table is THREE PARALLEL ARRAYS — type[] $1875, param1[] $1896, param2[] $18B7 (DataBlock_6 $16A1 + $1D4/$1F5/$216), <=33 entries — NOT the '$1ADB-$1B9B, 64x3 interleaved' claimed here before ($1ADB is actually sequence data). The $7F terminator is the SEQUENCE stream's, not this table's.",
     "commands": {
       "$0x yy": "slide up, speed $xyy (one-shot)",
       "$2x yy": "slide down (one-shot)",
@@ -158,6 +158,27 @@ It also surfaced a still-unresolved contradiction with `stinsen-newplayer.md`
 over the instrument table's address/shape for the identical source file — see
 `quirks`. None of this changes `status`: the corrected fields are still
 textual analysis, not independently re-traced.
+
+**2026-07-12 effect-command-table re-derivation** (from reading the
+proven-faithful disassembly's actual dispatch code, `$10C9`-`$121F` and
+`$1202`-`$12B8`): the runtime command handling was independently traced.
+A sequence-stream control byte `>= $C0` is a command index (masked `AND
+#$3F`); it looks up a **type array at `$1875`** (low nibble = effect type
+0-15), which dispatches through a 16-entry self-modifying offset table at
+`$1761`; params come from two **parallel arrays** at `$1896` (param1) and
+`$18B7` (param2), stride `$21`=33. This **corrects the `effects.encoding`
+runtime claim**: the real command table is three parallel arrays (type/
+param1/param2), `<=`33 entries, at `$1875/$1896/$18B7` — NOT "64 commands
+x 3 interleaved bytes at `$1ADB-$1B9B`" (`$1ADB` is sequence data). It also
+established that the `commands` super-command list ($0x/$2x/$6x/…) is the
+**composer/editor SOURCE format**, a different layer from this runtime
+binary — the card had conflated the two. **Scope**: this verifies the
+command-table *structure and location*; it does NOT decode all 16 runtime
+effect-type handlers into named effects (slide/vibrato/portamento) or
+trace-confirm the individual super-command semantics — those remain
+SOURCE-format documentation only. `status` stays `verified` (entry points
++ behavioral round-trip already met that bar); this is an additive
+correction, not a regression.
 
 ## Sources
 

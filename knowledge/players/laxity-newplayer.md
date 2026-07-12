@@ -83,7 +83,13 @@ scratch in 2005 as a rewrite of JCH's NewPlayer system, keeping the table
 layout of v20.g4. It is the classic native player behind [SID Factory](sid-factory.md)'s
 Laxity-family output and shares the "contiguous sequence stacking" lineage with
 [JCH NewPlayer](jch-newplayer.md) — though, importantly, with an incompatible
-sequence architecture.
+sequence architecture. Several NP21 forks now have their own stub cards:
+[Stinsen](stinsen-newplayer.md), [Beast/Angular](beast-angular-newplayer.md),
+and [DRAX](drax-newplayer.md); three earlier, pre-NP21 Vibrants-era players —
+[2000 A.D.](vibrants-2000ad.md), [Wizax-A](wizax-a.md), and
+[Zetrex/YP](zetrex-yp.md) — are documented too, though SIDM2 treats their
+code lineage back to Laxity's own player as an unconfirmed attribution, not a
+verified fact (see each card's `edges`).
 
 ## Quirks & gotchas
 

@@ -18,7 +18,7 @@
   },
   "entry": {
     "init": "Canonical/template build: $1000 (derived from the aux-vector convention above: $0FFB + 5 = $1000). Real address is pack-time-configurable per exported file, so treat $1000 as the SIDM2-template value, not a hardware constant. SIDM2's format-spec doc also notes exported PRGs are commonly run via 'SYS 4093' ($0FFD) on a stock template.",
-    "play": "Not independently confirmed by SIDM2 (same caveat as init — SIDM2 packs data, it hasn't disassembled the call sites). By format convention it is called once per frame after init; multispeed is driven by the Tempo table, not a separate play-rate. NOTE (added when this card was imported into sid-reference-project): SIDM2's separate native-driver-authoring methodology document states stock Driver 11's $1000/$1003 are actually STUBS that set a command flag at $16CC, with the real per-frame dispatcher at $1006 — naive headless init+play tracing at $1000/$1003 fails for exactly this reason. Not yet cross-checked against this card's own facts; flagged as a lead, not asserted here."
+    "play": "$1006 — the real per-frame dispatcher, LOCALLY TRACE-CONFIRMED 2026-07-12 (see Verification). Stock Driver 11 has a THREE-vector stub header: $1000 = JMP $15E4 (init), $1003 = JMP $15ED (which does LDA #$40 / STA $16CC / RTS — a flag-setter), $1006 = LDA #$00 / BIT $16CC / BMI... (reads that flag and runs the per-frame update). $16CC is a command-FLAG byte, not a routine (it holds $40=RTI). Tracing the real stock file for 50 PAL frames: play=$1006 -> 193 register writes (real playback); play=$1003 or $16CC -> ZERO writes. A stock export's PSID header declares play=$16CC (the flag address), so a naive 'JSR the PSID play vector' headless trace yields silence — the stock driver is IRQ-driven; a headless tracer must call $1006. This CONFIRMS SIDM2's native-driver-authoring methodology doc (previously flagged here as an unverified lead) and supersedes the earlier '$1003 / called once per frame after init' convention text. Multispeed is Tempo-table driven, not a separate play-rate."
   },
   "speed": "50Hz PAL / 60Hz NTSC, frame-driven. Per-song speed comes from a Tempo table: value = frames-per-row ($02-$FE), $7F XX = wrap to row XX, $00 = terminator for shorter chains (e.g. `02 03 7F 00` = alternating 2/3 for a shuffle feel). Driver 11.04+ adds a per-command note-event delay (the command's 'T' nibble 0-f becomes a tick delay).",
   "data_format": {
@@ -64,7 +64,7 @@
     "Point releases 11.00-11.05 change the command/HR-table semantics (fret-slide command added in 11.01 then REMOVED in 11.05; pulse/tempo/volume commands only from 11.02; HR table shrinks 16->8 rows in 11.05) — a given SF2's exact command meaning depends on which point-version driver .prg it references (`bin/drivers/sf2driver11_0X.prg` in SIDM2's tooling).",
     "Arpeggio only applies to wave-table rows whose note-offset column is exactly $00 — a documented gotcha, not a bug, when a wave program's transpose column is nonzero.",
     "SF2's own optimizer (F6 -> Optimize) can renumber instruments/commands on pack — a diff between two exports of 'the same' song can be a pure renumbering, not a content change.",
-    "Entry-point caveat added on import into this repo: a separate SIDM2 document (its native-driver-authoring methodology) states stock Driver 11's $1000/$1003 are stub jumps that set a flag at $16CC, with $1006 being the real per-frame dispatcher — contradicting this card's own 'entry.play not independently confirmed' framing with a specific claim. Not reconciled; flagged rather than silently merged, since this card's own author (SIDM2) explicitly said it hadn't disassembled Driver 11's call sites when this card was written."
+    "RESOLVED 2026-07-12 by local tracing (was: an unreconciled entry-point contradiction). SIDM2's native-driver-authoring methodology doc — stock Driver 11's $1000/$1003 are stub jumps and $1006 is the real per-frame dispatcher — is CONFIRMED. Traced the real stock file (SIDSF2player/Driver 11 Test - Arpeggio.sid) with sidm2-sid-trace: $1000=JMP $15E4 (init), $1003=JMP $15ED (LDA #$40 / STA $16CC / RTS, sets the flag), $1006=the dispatcher (LDA #$00 / BIT $16CC / ... reads it); play=$1006 gave 193 writes over 50 frames, play=$1003 and $16CC gave zero. $16CC is a command-flag byte, not code. The stock driver is IRQ-driven, so its PSID play=$16CC vector is a flag address, not a callable routine — headless tracers must call $1006, not the PSID play vector."
   ],
   "sources": [
     "SIDM2:docs/players/DRIVER11.md",
@@ -95,7 +95,20 @@ SIDM2 has not disassembled Driver 11's own 6502 code — it treats Driver 11 as 
 
 ## Verification
 
-**Not yet assembled/run through `mcp-c64` here** (this KB's rule: "verified" means confirmed in *this* environment), so `status: in-progress` is kept deliberately. External confidence is nonetheless high and load-bearing for SIDM2: Driver 11 is SIDM2's flagship **output** format — SF2-exported SID files convert back through Driver 11 at **100%** fidelity (a lossless round-trip), and it is also SIDM2's documented **safe default** for any unidentified player. Because the whole editor+driver family's source is public (`github.com/chordian/sidfactory2`, GPL), this is one of the rare cases where facts can be directly cross-checked against real source rather than inferred from binary behavior — a natural next verification step once `mcp-c64` can assemble/run the driver directly.
+**Entry points and playback behavior are now LOCALLY TRACE-CONFIRMED (2026-07-12); the data-format sub-fields are not, so `status: in-progress` is kept.**
+
+Method: traced the real stock-template file `SIDM2:SIDSF2player/Driver 11 Test - Arpeggio.sid` (PSID load $0000 / init $1000 / play $16CC) with the `sidm2-siddump` tracer (`sidm2-sid-trace.exe`, zig64-based — the same tool the `sidm2-siddump` MCP server wraps, proven live via the MCP surface this session on the laxity card) for 50 PAL frames, probing candidate play addresses.
+
+Result — the three-vector stub header and IRQ-driven design were confirmed by execution:
+- `play=$1006` → **193 register writes** (correct 3-voice playback: ADSR envelopes, gate on/off, arpeggio frequency stepping).
+- `play=$1003` → 0 writes (`$1003` is `JMP $15ED`, which does `LDA #$40 / STA $16CC / RTS` — a flag-setter).
+- `play=$16CC` → 0 writes (`$16CC` is a command-*flag* byte the init/stub write and `$1006` reads, not a routine; it holds `$40`=RTI).
+
+This resolves the card's previously-flagged entry-point contradiction in favour of SIDM2's methodology doc (`$1000/$1003` stubs, real dispatcher `$1006`) — see `entry.play` and `quirks`.
+
+**Scope, stated honestly**: this confirms the entry vectors and that the stock driver produces correct playback — it does NOT independently verify the table offsets (`$0903/$0A03/…`), the column-major instrument layout, or the command-table semantics; those still rest on SIDM2's format-spec + packer code, not on independent reconstruction here.
+
+**Why there is no full reassemble-and-diff round-trip (unlike the laxity card):** SIDwinder's disassembly of this file (`Driver 11 Test - Arpeggio_original_sidwinder.asm`) is **lossy at the stub/dispatcher header** — it renders `$1003-$10FF` as a zero `.byte` block (`$1000` reassembles to `4C E4 15 00 00 00 …`), dropping the real `$1003` stub and `$1006` dispatcher (`… 4C ED 15 A9 00 2C CC 16 …` in the original). Reassembled and traced at `$1006` it produces 0 writes, so it cannot serve as the register-identical reconstruction the laxity SIDwinder disassembly could. The confirmations above therefore come from tracing the **real original binary directly**, not a reassembled copy. A true round-trip would need a complete disassembly or the GPL source at `github.com/chordian/sidfactory2`.
 
 ## Sources
 

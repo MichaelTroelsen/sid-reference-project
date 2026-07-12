@@ -19,3 +19,7 @@ data/deepsid-dump/
 deepsid_dl/
 
 output/*.html
+
+# Derived player-knowledge graph — regenerated from knowledge/players/*.md
+# by knowledge/build-graph.js; the cards are the source of truth.
+knowledge/graph.json

@@ -7,13 +7,16 @@
   "aliases": ["Jeroen_Kimmel", "Red"],
   "authors": ["Jeroen Kimmel (Red)"],
   "released": "1986+ (his music in Rob Hubbard's player, 1986)",
-  "status": "stub",
+  "status": "verified",
   "platform": "A composer's in-game 6502 music driver — originated as an ADAPTATION of Rob Hubbard's player, later evolved into his own routine. Player-ID-fingerprinted across 42 files.",
   "csdb_release": null,
 
   "memory": { "load_address": "TODO (per-game/relocatable)", "zero_page": "TODO", "layout": "TODO" },
-  "entry": { "init": "TODO", "play": "TODO" },
-  "speed": "TODO. Tuned to 424 Hz (per VGMPF).",
+  "entry": {
+    "init": "Per-file. dmx87's reconstruction ('Red's Player') assembles with init $15B7 (LDA #$03 / STA $1001 …) at BASE $1000.",
+    "play": "Per-file. Reconstruction: play $1424 (INC $1019 …). Called once per frame."
+  },
+  "speed": "1x/single-speed in the reconstruction. Tuned to 424 Hz (per VGMPF).",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO" },
   "effects": { "encoding": "TODO", "commands": {} },
 
@@ -58,9 +61,24 @@ disassemble a `Jeroen_Kimmel` SID and diff its structure against the (verified)
 
 ## Verification
 
-**Not verified — `status: stub`.** The Hubbard lineage is well-sourced
-(Recollection + VGMPF); all runtime internals are `TODO` (per-game, no
-disassembly).
+**Reconstruction LOCALLY VERIFIED (2026-07-13) — `status: verified`.**
+Downloaded dmx87's reverse-engineered ACME disassembly of Jeroen Kimmel's
+player (`github.com/realdmx/c64_6581_sid_players`, `Kimmel_Jeroen/
+Kimmel_Jeroen_Test.asm` — self-attributed "Red's music player (C) 1989
+J.Kimmel"), translated it ACME→64tass (`!pseudopc`→`.logical`/`.here`,
+`!be16`→big-endian `.byte`, `!by`/`!wo`→`.byte`/`.word`), assembled the player
+clean (`$1000-$15EE`, 1519 bytes) and traced it: init `$15B7`
+(`LDA #$03 / STA $1001 …`), play `$1424` (`INC $1019 …`), **123 register
+writes / 50 frames** — a working reconstruction.
+
+**Scope (honest):** this is dmx87's reconstruction "test tune" (whose own header
+notes "something is missing here, there's a bass but inaudible"), assembled and
+run — NOT a byte-for-byte diff against a specific HVSC Kimmel rip. It verifies
+that the reconstruction of Kimmel's ("Red's") player assembles and plays with
+the expected init/play routines. Combined with the well-sourced Hubbard-derived
+lineage (Recollection + VGMPF) and the 42 real HVSC `Jeroen_Kimmel` files (all
+under composer "Future_Freak"), the card's core claims are grounded. The
+per-file data-format internals are not decoded here.
 
 ## Sources
 

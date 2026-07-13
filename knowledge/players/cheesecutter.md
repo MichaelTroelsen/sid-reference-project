@@ -7,7 +7,7 @@
   "aliases": ["CheeseCutter_2.x", "CCUTTER", "CC"],
   "authors": ["Timo Taipalus (abaddon) / Triad"],
   "released": "2011 (v0.4.0); developed 2009-2017",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Cross-platform editor (D language, GPL) + native C64 6502 replay (ACME asm) embedded in exports",
   "csdb_release": 102245,
 
@@ -92,13 +92,24 @@ productive for both.
 
 ## Verification
 
-**Not verified locally — `status: stub`.** Facts are read from the public
-GPL player source (`player_v4.acme`) and the cached SIDId entry, not from a
-local assemble/trace pass. The derivation claim is quoted verbatim from the
-source header, not inferred. Because the source is public and the lineage is
-to an already-verified card, this is a strong candidate for promotion once
-its replay is assembled and traced through `sidm2-siddump`. Exact opcode
-table, full ZP/memory map, and precise first-release date are `TODO`.
+**Source-confirmed + playback confirmed (2026-07-13) — `status: in-progress`.**
+Two independent checks:
+1. **Facts confirmed against the real GPL player source** (`src/c64/player_v4.acme`,
+   downloaded): `BASEADDRESS = $1000`, `ZREG = $fb`, `INSNO = 48`, the
+   instrument-table enum layout (`INS_AD/SR/HR/4/FLTP/PULSP/7/ARP` as
+   `n * INSNO` column offsets), `MULTISPEED`/`CIA_VALUE = $4cc7`, and the
+   header's verbatim lineage `;;; Based on JCH NP 21.G4 by Laxity/VIB` — all
+   match this card.
+2. **Playback confirmed:** traced a real HVSC CheeseCutter `.sid`
+   (`A/Abaddon/Ants.sid`) with `sidm2-sid-trace`: load `$1000` (= BASEADDRESS),
+   init `$1000`, play `$1003`, 122 register writes / 50 frames.
+
+**Why not `verified`:** `player_v4.acme` is the REPLAY only — with
+`EXPORT=FALSE` it carries descriptor tables but no song data, so assembling it
+standalone won't produce a playable tune (the CheeseCutter tracker injects the
+song at export). A byte-diff `verified` would need the D-language tracker to
+export a `.sid`, which isn't run here. The exact effect-opcode table and full
+ZP map remain `TODO`.
 
 ## Sources
 

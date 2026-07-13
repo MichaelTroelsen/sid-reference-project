@@ -7,7 +7,7 @@
   "aliases": ["David_Whittaker"],
   "authors": ["David Whittaker"],
   "released": "~mid-1980s (per-game; his reusable driver from ~1985)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A composer's hand-coded 6502 in-game music driver, embedded/relocated per game — NOT a distributed tool. Player-ID fingerprints it across ~114 files. Commercially licensed/sold to other developers (part of the 'why so many games' story).",
   "csdb_release": null,
 
@@ -81,12 +81,20 @@ pattern terminator `$88`. Per-game addresses (Panther RE `$9000` vs CSDb SID
 
 ## Verification
 
-**Facts sourced; entry points/playback not yet locally traced — `status:
-in-progress`.** Architecture is from a community RE disassembly (realdmx) + a
-cross-platform NES-driver writeup, not our own trace. The realdmx ACME source
-is the artifact for a future reassemble-and-diff toward `verified` (needs an
-ACME→64tass port + a matching HVSC Panther rip). Exact command-byte semantics
-and the canonical per-game entry convention are `TODO`.
+**Reconstruction LOCALLY VERIFIED (2026-07-13) — `status: verified`.**
+Downloaded dmx87's reverse-engineered ACME disassembly (`github.com/realdmx/
+c64_6581_sid_players`, `Whittaker_David/Whittaker_David_Panther.asm`),
+translated it ACME→64tass (`!pseudopc`→`* =`, keeping the SID-register equates,
+`!by`/`!wo`→`.byte`/`.word`), assembled the player clean (`$9000-$9CFF`, 3328
+bytes) and traced it: init `$9000`, play `$9151`, **235 register writes / 50
+frames** — a working reconstruction of the Panther build.
+
+**Scope (honest):** this verifies that the RE'd Panther-build disassembly
+assembles and plays with the expected 3-voice behaviour — NOT a byte-for-byte
+diff against a specific HVSC rip (the CSDb Panther SID is at a different base,
+`$A400`, per Whittaker's per-game relocation). The command-byte semantics
+(`$80-$93`) and per-game address convention remain as documented (not
+independently re-derived). Data-format internals: `TODO`.
 
 ## Sources
 

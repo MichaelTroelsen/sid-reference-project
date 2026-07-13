@@ -7,7 +7,7 @@
   "aliases": ["GMC/Superiors", "GMC", "Game Music Creator"],
   "authors": ["Brian (Balázs Farkas) / Graffity", "Jay (co-code)"],
   "released": "1990 (V1.0, 8 Dec 1990)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor + replay (Graffity). Closed scene tool.",
   "csdb_release": 7268,
 
@@ -82,7 +82,7 @@ is the promising path (both by Brian/Graffity, "similar elements").
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, year, and the DMC lineage are
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC GMC `.sid` (load $1000, init $18EA, play $14EA, 231 register writes / 50 frames) — the replay runs; entry addresses are per-file. Author, year, and the DMC lineage are
 CSDb/SIDId/TND64-sourced; every runtime field is `TODO`.
 
 ## Sources

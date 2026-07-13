@@ -7,7 +7,7 @@
   "aliases": ["FutureComposer_V1.0", "FutureComposer_V3.x", "FutureComposer_V4_Packed", "FC"],
   "authors": ["Maniacs of Noise (replay driver — Charles Deenen / Jeroen Tel)", "Finnish Gold (editor)"],
   "released": "1988 (V1.0, 20 Jun 1988); V4.1+ 1990",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 editor (Finnish Gold) wrapping a Maniacs of Noise replay driver. NOT the same program as the Amiga 'Future Composer'.",
   "csdb_release": 10604,
 
@@ -86,7 +86,7 @@ FC `.sid` and trace it via `sidm2-siddump`.
 
 ## Verification
 
-**Not verified — `status: stub`.** Identity/history are CSDb+VGMPF-sourced;
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC FutureComposer `.sid` (load $1800, init $1800, play $1806, 387 register writes / 50 frames) — the C64 driver runs; entry addresses are per-file. Identity/history are CSDb+VGMPF-sourced;
 every runtime field is `TODO`. Even the authorship of the editor is unresolved
 (flagged, not guessed).
 

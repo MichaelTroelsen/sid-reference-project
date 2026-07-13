@@ -7,7 +7,7 @@
   "aliases": ["TFX"],
   "authors": ["Ray (Area Team / Unreal)"],
   "released": "1995 (V1.0, Unreal); V1.2 1996",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor (the .prg/.d64 embeds a playroutine). Closed; binaries only.",
   "csdb_release": 110111,
 
@@ -80,7 +80,7 @@ the editor `.prg` is the route to memory/format facts.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, releasing group, and versions are
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC TFX `.sid` (load $1000, init $1000, play $1003, 296 register writes / 50 frames) — the replay runs; entry per-file. Author, releasing group, and versions are
 CSDb/SIDId-sourced; all runtime fields, the acronym, and lineage are `TODO`.
 
 ## Sources

@@ -7,7 +7,7 @@
   "aliases": ["Geir_Tjelta/SIDDuzz'It", "SIDDuzz'It", "SID Duzz It", "SDI"],
   "authors": ["Geir Tjelta (GT)", "Glenn Rune Gallefoss (GRG / 6R6)"],
   "released": "1992 (origin); modern line to v2.1.7 (2014)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64/C128 tracker (3 channels + a 4th control channel). Modern v2.1 on SourceForge (license/6510-source status unclear); original 1992 editor closed.",
   "csdb_release": 7175,
 
@@ -88,7 +88,7 @@ representative SDI `.sid` and trace via `sidm2-siddump`.
 
 ## Verification
 
-**Not verified — `status: stub`.** Identity, authors, year, scene, and the
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC SIDDuzz'It `.sid` (load $0FFF, init $0FFF, play $1003, 370 register writes / 50 frames) — the replay runs; entry per-file. Identity, authors, year, scene, and the
 documented table capacities are sourced; the byte-level memory map / ZP /
 init-play / effect encoding are `TODO`.
 

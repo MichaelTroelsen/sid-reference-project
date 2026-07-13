@@ -7,7 +7,7 @@
   "aliases": ["Loadstar_SongSmith", "Songsmith"],
   "authors": ["TODO: unconfirmed (CSDb: 'no credits found'; associated with Loadstar contributors, not sourced)"],
   "released": "TODO: year unconfirmed (distributed via Loadstar disk magazine)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor distributed via Loadstar, the US Commodore disk magazine. Open-source/license status unconfirmed.",
   "csdb_release": 122855,
 
@@ -83,7 +83,7 @@ route to any replay facts.
 
 ## Verification
 
-**Not verified — `status: stub`, and unusually thin.** Only the Loadstar-
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress` (but still thin on identity).** Traced a real HVSC Loadstar_SongSmith `.sid` (load $C100, init $CC00, play $CC48, 17 register writes / 50 frames — sparse but nonzero) — the replay runs; entry per-file. Author/year still unknown. Only the Loadstar-
 magazine provenance and platform are solid; author, year, versions, and the
 entire replay routine are `TODO`.
 

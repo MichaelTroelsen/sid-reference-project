@@ -7,7 +7,7 @@
   "aliases": ["AMP", "The Advanced Music Programmer"],
   "authors": ["Andrew Miller (Burton) / Hitech Studio Designs"],
   "released": "SIDId: 1989 — but earliest ATTESTED release is V2.3, Dec 1991 (see quirks)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor+replay. Closed scene tool.",
   "csdb_release": 35519,
 
@@ -52,7 +52,7 @@ None; internals undocumented. Disassemble an AMP-tagged `.sid` to recover them.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author/name confirmed; year uncertain; all
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC AMP `.sid` (load $1000, init $1000, play $1003, 272 register writes / 50 frames) — the replay runs; entry per-file. Author/name confirmed; year uncertain; all
 runtime fields `TODO`.
 
 ## Sources

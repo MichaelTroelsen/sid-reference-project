@@ -22,7 +22,7 @@
   "quirks": [
     "The 'Prosonix' tag = the Prosonix Music Editor (also listed as 'SteinTronic'), code+music by Stein Pedersen, 1988. SIDId comment: 'Used by several people within the Prosonix music group' — so it marks the group's shared in-house system, not a single composer's personal routine. Usage matches: 131 files across just 4 composers (Stein Pedersen, Lars Hoff, Lynx, Ole Marius Pettersen — the Prosonix members).",
     "Prosonix is a Norwegian C64 music group (CSDb group #810, Demozoo #1251). Minor date discrepancy: SIDId/Demozoo say the group formed 1988; CSDb group #810 says est. 1989 — the editor is dated 1988.",
-    "REPO CACHE BUG (worth fixing): data/csdb/prosonix.json holds a stale/mismatched scener record ('Peter Steiner', Germany) under csdbId 810 — but csdbId 810 is the Norwegian GROUP Prosonix, not a person.",
+    "REPO CACHE BUG (FIXED 2026-07-13): data/csdb/prosonix.json used to hold a mismatched scener record ('Peter Steiner', Germany) — because DeepSID's csdb_id 810 for this 'composer' is actually a CSDb GROUP id, and CSDb's scener/group id namespaces collide (Handle 810 = Peter Steiner; Group 810 = Prosonix). fetch-csdb.js blindly called getScener on every csdb_id. Fix: it now name-checks the returned Handle against the composer and, on mismatch, falls back to getGroup, storing the group record ({isGroup:true, group}) only when the group name matches; build-html.js's summarizeCsdb skips isGroup entries (no false person-level enrichment). The cache now correctly resolves to the Norwegian Prosonix music group (BaseCountry Norway, FoundYear 1989).",
     "Stein Pedersen later authored the separate modern SIDdecompiler (2017/2019) — a different tool, not this replay.",
     "Replay internals all UNKNOWN — TODO."
   ],

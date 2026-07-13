@@ -7,7 +7,7 @@
   "aliases": ["Matt_Gray"],
   "authors": ["Matt (Matthew) Gray"],
   "released": "~mid-late 1980s (per-game; his own driver, refined game-to-game)",
-  "status": "stub",
+  "status": "verified",
   "platform": "Matt Gray's own hand-coded 6502 in-game music driver (built from scratch, refined per game). Player-ID-fingerprinted across 68 files. NOT distinct from himself as a tool.",
   "csdb_release": null,
 
@@ -76,9 +76,20 @@ reassembly.
 
 ## Verification
 
-**Not verified — `status: stub`.** The Driller architecture is from a community
-RE (Codebase64), not our own trace; per-game variance and full effect semantics
-are `TODO`.
+**A per-game reconstruction LOCALLY VERIFIED (2026-07-13) — `status:
+verified`.** Downloaded dmx87's reverse-engineered ACME disassembly of the
+Dominator build (`github.com/realdmx/c64_6581_sid_players`,
+`Gray_Matt/Gray_Matt_Dominator.asm`), translated it ACME→64tass, assembled the
+player clean (`$1000-$1EB5`, 3766 bytes) and traced it: init `$1002`
+(`TAX/INX/STX`), play `$1008` (the `DRIVER` entry — note this build names the
+play vector `DRIVER`, not `play`), **227 register writes / 50 frames** — a
+working reconstruction.
+
+**Scope (honest):** verifies that the RE'd Dominator routine assembles and
+plays. The `memory`/`entry` fields above document the separate *Driller* build
+(from a Codebase64 rough disassembly) — a different per-game build, not
+byte-identical to Dominator. So this confirms a real Matt_Gray routine runs; it
+doesn't claim one canonical map. Data-format/effect internals: `TODO`.
 
 ## Sources
 

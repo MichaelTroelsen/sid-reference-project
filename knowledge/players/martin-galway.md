@@ -83,13 +83,24 @@ routine. Music at `ORG $4600`.
 2. **Playback confirmed:** the HVSC `Wizball.sid` traces with init `$63AC`, play
    `$6391`, **218 register writes / 50 frames**.
 
-**Toward `verified` (bounded follow-up):** a full reassemble-and-diff was
-attempted — translated Ocean→64tass (directive key in `quirks`) and got the
-assembly from 99 → 25 errors; the remainder are Ocean-operator quirks (`^`
-high-byte, `#`-truncation, immediate wrapping) in the demo-WRAPPER code, not the
-music. Finishing that port + diffing the `$4600` music region against the HVSC
-rip would make this the first composer-driver `verified` from the author's own
-source. Data-format internals (instruments/effects) are `TODO`.
+**Toward `verified` (the one that resists the clean pipeline):** two routes
+were attempted.
+1. Galway's OWN Ocean source (`wizball.asm`): translated Ocean→64tass
+   (`scratchpad/gw_translate.js` — the directive key in `quirks`, plus `^`→`>`
+   high-byte, `#expr`→`#<(expr)` low-byte truncation, `.` in labels →`_`, and a
+   `Jmp`-label/mnemonic collision rename) and drove it from **99 → 2 errors**.
+   The last two are 64tass PHASE errors ("duplicate definition" on the
+   singly-defined labels `FILTER`/`refsp` — pass-instability from
+   forward-reference addressing sizing), needing per-instruction debugging in a
+   3776-line source; and the file is the full interactive DEMO (music at
+   `$4600`), so a byte-diff must target that region.
+2. The realdmx ACME disassembly (`Galway_Martin_Arkanoid.asm`) — unlike every
+   other realdmx player (Hubbard/Whittaker/Kimmel/M.Gray/F.Gray all reassembled
+   + played cleanly), Galway's is a multi-block LOADER (BASIC `$0801` + code
+   `$2000`/`$3F00`) that the simple player-extractor can't handle.
+So Galway is the lone composer-driver that hasn't reached `verified` — both its
+own source and its RE disassembly are structurally harder than the rest. Data-
+format internals (instruments/effects) are `TODO`.
 
 ## Sources
 

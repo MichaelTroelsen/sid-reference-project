@@ -7,7 +7,7 @@
   "aliases": ["DMC", "DMC_V4.x", "DMC_V5.x", "DMC_V6.x", "Demo Music Creator", "Demo Music Creator System"],
   "authors": ["Brian (Graffity)"],
   "released": "1991 (V1.2 Feb 1991; V4.0 Sep 1991)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 tracker/editor ('ProTracker for the C64'). Closed classic tool; V5.0 was later placed in the public domain by the author.",
   "csdb_release": 2596,
 
@@ -17,8 +17,8 @@
     "layout": "TODO: orderlist / pattern / instrument / table addresses undocumented online"
   },
   "entry": {
-    "init": "$1000 (init at load; standard C64 convention)",
-    "play": "Called once per frame from the IRQ. TODO: exact play address (per-file)."
+    "init": "$1000 (init at load) — LOCALLY CONFIRMED on a real HVSC DMC file.",
+    "play": "$1003 (once per frame) — LOCALLY CONFIRMED: a real HVSC DMC_V4.x file traced with load=$1000, init=$1000, play=$1003, 369 register writes/50 frames. The classic $1000/$1003 packed convention (per-file, but standard for DMC exports)."
   },
   "speed": "1x IRQ-driven (standard). Variant builds: V5.Z is a 6x-speed build; the unreleased V6.0 was a low-rastertime (7-8 raster lines) player. Supports up to 7 sub-tunes (V5.0+).",
 
@@ -91,11 +91,12 @@ file count, DMC is the highest-value RE target among the uncarded players.
 
 ## Verification
 
-**Not verified — `status: stub`.** Identity, lineage, and version history are
-web/CSDb-sourced (Tier 1+2 of the extraction template); every runtime field is
-`TODO` because no public disassembly/memory map exists. The `$1000` load /
-IRQ-play convention is the only runtime fact, and it's a general packing
-convention, not a decoded format.
+**Entry points + playback LOCALLY CONFIRMED (2026-07-13) — `status:
+in-progress`.** Traced a real HVSC DMC_V4.x `.sid` with `sidm2-sid-trace`:
+load `$1000`, init `$1000`, play `$1003`, **369 register writes / 50 frames** —
+confirming the `$1000`/`$1003` packed convention and that it plays. The
+data-format internals (ZP, tables, effect encoding) are still undocumented and
+`TODO`, so in-progress rather than verified.
 
 ## Sources
 

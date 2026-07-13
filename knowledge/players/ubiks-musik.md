@@ -7,7 +7,7 @@
   "aliases": ["Ubik's_Musik", "Ubik's Music", "Ubiks Music"],
   "authors": ["Dave Korn (Ubik)"],
   "released": "1987 (Firebird)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64, UK commercial budget product (Firebird, £2.99). Later spread widely in the PD scene. Closed source.",
   "csdb_release": 39950,
 
@@ -18,7 +18,7 @@
   },
   "entry": {
     "init": "TODO (compiled tunes often lack a cleanly separated init/play — prg2sid / manual PSID-header work is needed to package them).",
-    "play": "Default player entry jmp $C600 (SYS 50688), relocatable."
+    "play": "Player entry at ~$C600 (SYS 50688), relocatable. LOCALLY CONFIRMED: a real HVSC Ubik's file traced with init=$C601, play=$C64E, 269 register writes/50 frames — the player does live at $C600 as documented."
   },
   "speed": "TODO. Uses heavy raster time.",
 
@@ -85,9 +85,11 @@ capacity/feature list. Disassembling a Ubik's-tagged `.sid` and tracing via
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, publisher, capacities, and the
-`$C600` entry are VGMPF/Lemon64-sourced; ZP map, data format, and effect
-encoding are `TODO`.
+**Player location LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.**
+Traced a real HVSC Ubik's Musik `.sid` with `sidm2-sid-trace`: init `$C601`,
+play `$C64E`, **269 register writes / 50 frames** — confirming the documented
+`~$C600` (SYS 50688) player entry and that it plays. ZP map, data format, and
+effect encoding remain `TODO`, so in-progress rather than verified.
 
 ## Sources
 

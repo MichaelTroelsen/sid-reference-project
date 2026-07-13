@@ -36,15 +36,15 @@
   },
 
   "edges": {
-    "derives_from": [],
-    "successor_of": [],
+    "derives_from": ["gmc"],
+    "successor_of": ["gmc"],
     "shares_routine_with": [],
     "same_effect_encoding_as": []
   },
 
   "quirks": [
     "The single most-used player in the collection without a card (10,491 files across 365 composers). Full name 'Demo Music Creator System' (CSDb release titles). Author is the handle 'Brian' of the Hungarian group Graffity (also seen as 'Baliszoft'). SIDId gives the real name 'Balázs Farkas' — recorded but NOT independently confirmed by other sources; treat the legal name as unverified.",
-    "LINEAGE: DMC is the improved successor to GMC (Game Music Creator), the same author's earlier tool (GMC has its own tag/files here — 'GMC/Superiors' — not yet carded). Not wired as a graph edge until GMC is carded.",
+    "LINEAGE: DMC is the improved successor to GMC (Game Music Creator), the same author's earlier tool (now carded as [[gmc]]) — wired here as derives_from / successor_of gmc. A CSDb comment on the GMC release even says 'they should have called this DMC V1.0'.",
     "Uses the modern 'testbit' hard-restart technique (a shared TECHNIQUE with JCH NewPlayer, not shared code) — noted here, not asserted as an edge.",
     "Version tangle (all one lineage, but confusingly numbered): V2.1, V4.0, V5.0/5.0+ (Creamd/C64.SK community build), V5.1/5.4, V5.Z (6x speed), V7.0/7.1beta (Unreal — actually a modified V4). V6.0 EXISTS but was never publicly released (editor by Syndrom/TIA, player by Brian). A separate player 'SYNC' is sometimes mislabeled 'DMC V6'.",
     "Runtime data format is genuinely undocumented online — fill by disassembly (via the sidm2-siddump / mcp-c64 loop), not by guessing."

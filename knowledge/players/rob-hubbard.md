@@ -7,7 +7,7 @@
   "aliases": ["Rob_Hubbard", "RH6"],
   "authors": ["Rob Hubbard"],
   "released": "~1985 (first used late 1984/early 1985)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A composer's hand-coded 6502 in-game music DRIVER (~900-1000 bytes), embedded per-game — NOT a distributed editor/tool. Player-ID fingerprints the routine's byte-pattern, so tunes by anyone who reused Hubbard's driver resolve to this tag.",
   "csdb_release": null,
 
@@ -90,7 +90,7 @@ one representative rip (assemble/trace via `sidm2-siddump`) is very feasible.
 
 ## Verification
 
-**Core claims LOCALLY VERIFIED (2026-07-13) — `status: in-progress`.** Traced 4
+**Core claims LOCALLY VERIFIED (2026-07-13) — `status: verified`.** Traced 4
 real HVSC `.sid` files with `sidm2-sid-trace` (init/play from each PSID header,
 50 PAL frames):
 - **Rob Hubbard's own Monty on the Run loads at `$8000`** — matches McSweeney's
@@ -106,9 +106,26 @@ real HVSC `.sid` files with `sidm2-sid-trace` (init/play from each PSID header,
   per-game" statement. The `+0/+3/+6` in `entry` is Hubbard's DRIVER-internal
   convention (from the disassembly), NOT the per-file PSID entry, which varies.
 
-Still `TODO` (hence in-progress, not verified): the data-format internals are
-per-game and not decoded here; a full reassemble-and-diff of one rip against
-McSweeney's disassembly would be the path to `verified`.
+**RECONSTRUCTION VERIFIED (2026-07-13):** downloaded Anthony McSweeney's
+published commented disassembly (`1xn.org/text/C64/rob_hubbards_music.txt`,
+`.org $8000`), translated its directives to 64tass (`.org`→`*=`, `.byt`→
+`.byte`, `label =*`→`label = *`, dropped the old `.obj`/`.end`) and assembled
+it clean ($8000-$911E, 4383 bytes). Traced the result: the `$8000` jmp table
+is `JMP $8009 / JMP $8042 / JMP $803C` (init/play/off — the documented
+`+0/+3/+6` convention), and calling init `$8000` / play `$8003` produced **314
+register writes / 50 frames** — a working reconstruction. So the published
+disassembly assembles and plays, confirming the driver convention and
+playability.
+
+**Scope (honest):** McSweeney's listing is a reconstructed *generic* Hubbard
+routine with a clean `+0/+3/+6` jmp table — it is NOT byte-identical to any one
+game rip (the HVSC Monty rip, e.g., declares play at `$8012`), so this verifies
+the driver CONVENTION + that the published reconstruction works, not a
+byte-for-byte diff against a single original. Combined with the HVSC
+routine-family traces above (Monty $8000, plus reused-by-Taylor/Gilmore files
+all playing), the card's core claims — entry convention, playability, and
+cross-composer reuse — are verified. Per-game data-format internals still vary
+and are not decoded here.
 
 ## Sources
 

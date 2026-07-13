@@ -7,7 +7,7 @@
   "aliases": ["Music_Assembler", "Music-Assembler", "MA"],
   "authors": ["Marco Swagerman (MC)", "Oscar Giesen (OPM)"],
   "released": "1989 (V1.0, Feb 1989; developed Nov 1987 – Feb 1989)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 SID tool by The Dutch USA-Team. Closed classic tool (no source/license located).",
   "csdb_release": 94388,
 
@@ -89,7 +89,7 @@ starting point for an RE pass (then assemble + trace via `sidm2-siddump`).
 
 ## Verification
 
-**Not verified — `status: stub`.** Identity, lineage, and history are
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Music_Assembler `.sid` (load $C000, init $C048, play $C021, 163 register writes / 50 frames) — the replay runs; entry addresses are per-file. Identity, lineage, and history are
 web/CSDb-sourced; every runtime field is `TODO` (no public C64 memory map).
 
 ## Sources

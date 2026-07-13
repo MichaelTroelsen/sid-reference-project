@@ -7,7 +7,7 @@
   "aliases": ["SoedeSoft/Soundmaster_V1.0", "SoedeSoft/Soundmaster_V3.1", "SoedeSoft/Soundmaster_V3.2", "SoedeSound Editor"],
   "authors": ["Jeroen Soede (driver/player)", "Michiel Soede (editor)"],
   "released": "1988 (V1.0); V3.0-V3.2 1988-1989",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor+player by the Soede brothers (SoedeSoft label). Closed scene tool.",
   "csdb_release": 117095,
 
@@ -83,7 +83,7 @@ the format fields.
 
 ## Verification
 
-**Not verified — `status: stub`.** Authorship (Jeroen/Michiel), label, and
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC SoedeSoft/Soundmaster `.sid` (load $1000, init $1029, play $1106, 120 register writes / 50 frames) — the replay runs; entry addresses are per-file. Authorship (Jeroen/Michiel), label, and
 version history are VGMPF/CSDb-sourced; all runtime fields `TODO`.
 
 ## Sources

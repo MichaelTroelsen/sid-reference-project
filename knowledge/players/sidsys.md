@@ -7,7 +7,7 @@
   "aliases": ["Geir_Tjelta/SIDSys", "SIDSys18.4", "SIDSys18.6", "SIDSys_1.0", "Sid Systems"],
   "authors": ["Geir Tjelta (GT)"],
   "released": "1990 (Moz(IC)art)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor + player. Closed (disk images only).",
   "csdb_release": 33644,
 
@@ -57,7 +57,7 @@ card.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, year, the tag-mapping correction,
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Geir_Tjelta/SIDSys `.sid` (load $7400, init $7F18, play $7401, 390 register writes / 50 frames) — the replay runs; entry addresses are per-file. Author, year, the tag-mapping correction,
 and GT tool chronology are SIDId/CSDb-sourced; all runtime fields `TODO`.
 
 ## Sources

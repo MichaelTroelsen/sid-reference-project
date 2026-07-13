@@ -7,7 +7,7 @@
   "aliases": ["Master_Composer", "Master Composer"],
   "authors": ["Paul Kleimeyer"],
   "released": "1983 (written); ~1984 (published, Access Software Inc.)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64, early US COMMERCIAL boxed product (Access Software). Closed source.",
   "csdb_release": 128699,
 
@@ -86,7 +86,7 @@ the replay's in-memory format.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, publisher, year, feature set, and
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Master_Composer `.sid` (load $7580, init $7580, play $7587, 12 register writes / 50 frames — sparse but nonzero) — the relocatable driver runs; entry addresses are per-file. Author, publisher, year, feature set, and
 succession history are VGMPF/SIDId-sourced; all runtime fields `TODO`.
 
 ## Sources

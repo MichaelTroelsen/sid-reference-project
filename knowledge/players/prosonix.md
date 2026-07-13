@@ -7,7 +7,7 @@
   "aliases": ["Prosonix", "Prosonix Music Editor", "SteinTronic"],
   "authors": ["Stein Pedersen"],
   "released": "1988 (Prosonix)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor + bundled replay routine, used within the Norwegian group Prosonix. Closed (D64 binary only).",
   "csdb_release": 179618,
 
@@ -54,7 +54,7 @@ None; internals undocumented. Disassemble a Prosonix `.sid` or the D64 editor.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, year, group, and shared-tool nature
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Prosonix `.sid` (load $E000, init $E000, play $E009, 46 register writes / 50 frames) — the replay runs; entry addresses are per-file. Author, year, group, and shared-tool nature
 confirmed; all runtime fields `TODO`.
 
 ## Sources

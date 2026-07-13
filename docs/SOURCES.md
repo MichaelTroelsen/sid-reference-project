@@ -50,6 +50,12 @@ Composer thumbnails/brand images referenced from profiles:
   (`deepsid_dl/sidid.nfo`, gitignored). This is the SIDId project's
   human-readable index that maps a raw player tag → NAME / AUTHOR / RELEASED /
   REFERENCE / COMMENT (playback technique).
+- **Identification tool:** the player tags themselves are produced by scanning
+  each SID file's bytes against a signature database. The modern scanner is
+  **Player-ID** by Wilfred Bos (<https://github.com/WilfredC64/player-id>, MIT,
+  Rust; uses a `sidid.cfg` signature file), the successor to Cadaver's original
+  **SIDId** (<https://github.com/cadaver/sidid>). `sidid.nfo` is that database's
+  human-readable index.
 - **Encoding:** ISO-8859-1 (not UTF-8).
 - **Importer:** `scripts/import-sidid.js` (parser: `scripts/lib/sidid.js`)
 - **Produces:** `data/sidid.json`. Fills in author/name/year/reference/

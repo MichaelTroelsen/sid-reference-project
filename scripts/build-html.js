@@ -139,6 +139,11 @@ function buildFileList(composer, stilByFolder) {
  * for the rest).
  */
 function summarizeCsdb(entry) {
+  // A few "composers" are actually CSDb groups (see fetch-csdb.js's group
+  // fallback) — they carry `isGroup`/`group` instead of a `scener`. They have
+  // no person-level country/roles to show, so skip enrichment rather than
+  // surface a mismatched person's data.
+  if (entry && entry.isGroup) return null;
   const handle = entry && entry.scener && entry.scener.Handle;
   if (!handle) return null;
   const scener = handle.Scener || {};

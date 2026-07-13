@@ -7,7 +7,7 @@
   "aliases": ["Rob_Hubbard", "RH6"],
   "authors": ["Rob Hubbard"],
   "released": "~1985 (first used late 1984/early 1985)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "A composer's hand-coded 6502 in-game music DRIVER (~900-1000 bytes), embedded per-game — NOT a distributed editor/tool. Player-ID fingerprints the routine's byte-pattern, so tunes by anyone who reused Hubbard's driver resolve to this tag.",
   "csdb_release": null,
 
@@ -90,9 +90,25 @@ one representative rip (assemble/trace via `sidm2-siddump`) is very feasible.
 
 ## Verification
 
-**Not verified locally — `status: stub`.** The reuse story, entry-point
-convention (`+0/+3/+6`), and signature techniques are well-sourced (McSweeney,
-VGMPF); the data-format internals are per-game and `TODO`.
+**Core claims LOCALLY VERIFIED (2026-07-13) — `status: in-progress`.** Traced 4
+real HVSC `.sid` files with `sidm2-sid-trace` (init/play from each PSID header,
+50 PAL frames):
+- **Rob Hubbard's own Monty on the Run loads at `$8000`** — matches McSweeney's
+  commented disassembly. Plays (354 register writes). Commando (load $5000) also
+  plays (374 writes).
+- **The routine-family reuse is CONFIRMED empirically**: `Double_Dragon_3` by
+  Andy Taylor (load $0800) and `New_Tune_1` by Adam Gilmore (load $8000) — both
+  by *different composers* yet tagged `Rob_Hubbard` — both play (87 / 271
+  writes). This is direct evidence for the card's central "routine used by ~50
+  other composers" insight.
+- **PSID play vectors vary per rip** ($8012/+$12 for Monty & Commando; $8006/+$6
+  for Gilmore; $1E00 for Taylor) — confirming the "no fixed memory map,
+  per-game" statement. The `+0/+3/+6` in `entry` is Hubbard's DRIVER-internal
+  convention (from the disassembly), NOT the per-file PSID entry, which varies.
+
+Still `TODO` (hence in-progress, not verified): the data-format internals are
+per-game and not decoded here; a full reassemble-and-diff of one rip against
+McSweeney's disassembly would be the path to `verified`.
 
 ## Sources
 

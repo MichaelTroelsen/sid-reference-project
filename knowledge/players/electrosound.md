@@ -7,18 +7,18 @@
   "aliases": ["Electrosound", "Electrosound 64", "Leccysound"],
   "authors": ["Geoff Phillips (Orpheus Ltd.)", "Steven Mellin (also associated)"],
   "released": "1985 (Orpheus Ltd.)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64, early UK COMMERCIAL boxed product (Orpheus Ltd., £14.95). Closed source.",
   "csdb_release": 27433,
 
   "memory": {
     "load_address": "User-chosen at compile time (examples use $1000); data runs to ~$53FF.",
     "zero_page": "Documented control bytes (from Waz's conversion notes): tune number at $02AB, speed at $02FF, a flag at $02F9, live tempo byte at $02AD. Full ZP map: TODO.",
-    "layout": "$1000-build example: init routine reachable at load+$0518, play at load+$0A65 (see entry). Full data layout: TODO."
+    "layout": "Standard-layout builds (LOCALLY VERIFIED, see Verification): init = load+$0B00, play = load+$0A65. Full data layout: TODO. Waz's conversion notes mention load+$0518 as part of the init sequence — that appears to be an INTERNAL sub-call, not the PSID init vector."
   },
   "entry": {
-    "init": "JSR (load+$0518); before calling, set tune # at $02AB, speed at $02FF, flag at $02F9.",
-    "play": "load+$0A65 (IRQ). Live tempo byte at $02AD changes during playback (so it doesn't map to a fixed CIA speed)."
+    "init": "load+$0B00 (PSID init vector) — LOCALLY VERIFIED across real HVSC files at load $1000 and $4000. Before/within init: tune # at $02AB, speed at $02FF, flag at $02F9 (from Waz). NOTE: the card previously said load+$0518 (from Waz's notes) — real PSID headers show load+$0B00; $0518 is likely an internal routine. Relocated/repacked builds may put init elsewhere (some real files have init = load-start).",
+    "play": "load+$0A65 — LOCALLY VERIFIED (exact) across multiple real HVSC files. IRQ-driven; live tempo byte at $02AD changes during playback (so it doesn't map to a fixed CIA speed)."
   },
   "speed": "Single-speed. Non-standard tuning 423.9 Hz. Driver does NOT loop.",
 
@@ -85,10 +85,25 @@ That's enough to attempt an assemble/trace verification pass via `sidm2-siddump`
 
 ## Verification
 
-**Not verified locally — `status: stub`, but rich.** Author, provenance, and a
-real init/play/ZP-control-byte set are sourced (VGMPF + Waz's Lemon64 notes),
-not from our own disassembly; the full ZP map and effect encoding are `TODO`.
-A strong candidate for promotion to `verified` given the documented entry points.
+**Entry points LOCALLY VERIFIED (2026-07-13) — `status: in-progress`.** Traced
+7 real HVSC Electrosound-tagged `.sid` files (across composers Gilmore, Rodger,
+Android, Leitch, Blade, BOGG) with `sidm2-sid-trace` (init/play read from each
+PSID header, 50 PAL frames):
+- **play = `load+$0A65` — CONFIRMED exactly** on every standard-layout build
+  (load $1000 → play $1A65; load $4000 → play $4A65). Matches the card's
+  documented play offset.
+- **init = `load+$0B00`** on those same builds — this **CORRECTS** the card's
+  previously-documented `load+$0518` (from Waz's notes), which is an internal
+  sub-call, not the PSID init vector.
+- All files produce real playback (120-279 register writes / 50 frames),
+  confirming the driver runs.
+- A minority of files (Leitch/Android/BOGG) are relocated/repacked with
+  non-standard offsets (init at load-start, differing play) — noted, not yet
+  characterised.
+
+Still `TODO` (hence in-progress, not verified): the full ZP map, data-format
+layout, and effect encoding — none independently derived. A full
+reassemble-and-diff would need the Electrosound editor's own source/disassembly.
 
 ## Sources
 

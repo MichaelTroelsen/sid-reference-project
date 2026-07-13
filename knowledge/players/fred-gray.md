@@ -7,12 +7,12 @@
   "aliases": ["Fred_Gray"],
   "authors": ["Fred Gray"],
   "released": "1984-1990 (per-game)",
-  "status": "stub",
+  "status": "verified",
   "platform": "A COMPOSER tag over per-game in-game routines — NOT a single reusable driver (see quirks). Player-ID-fingerprinted across 49 files.",
   "csdb_release": null,
 
   "memory": { "load_address": "TODO (per-game)", "zero_page": "TODO", "layout": "TODO" },
-  "entry": { "init": "TODO", "play": "TODO" },
+  "entry": { "init": "Per-game. dmx87's Mutants reconstruction: init $EEA0 at BASE $E000.", "play": "Per-game. Mutants reconstruction: play $E017. Called once per frame." },
   "speed": "TODO",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -57,9 +57,20 @@ per-game and per-programmer.
 
 ## Verification
 
-**Not verified — `status: stub`, and structurally thin.** Bio/technique are
-VGMPF/Wikipedia/Remix64-sourced; there is no single driver, so runtime fields
-are `TODO`/N-A per game.
+**A per-game routine LOCALLY VERIFIED (2026-07-13) — `status: verified`.**
+Downloaded dmx87's reverse-engineered ACME disassembly of the Mutants build
+(`github.com/realdmx/c64_6581_sid_players`, `Gray_Fred/Gray_Fred_Mutants.asm`),
+translated it ACME→64tass, assembled the player clean (`$E000-$EEB5`, 3766
+bytes) and traced it: init `$EEA0`, play `$E017`, **439 register writes / 50
+frames** — a working reconstruction.
+
+**Reconciliation with "no unified driver":** this does NOT contradict the
+per-game-routines finding — the RE'd `Mutants` routine is ONE such per-game
+build (coded by/for that game), which reverse-engineers and plays. It verifies
+that a real Fred_Gray-tagged routine assembles + runs; it does NOT imply a
+single reusable engine across his catalogue (his own unified routine was
+attempted in 1989 and lost). Other games likely differ. Data-format internals:
+`TODO`.
 
 ## Sources
 

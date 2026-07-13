@@ -7,7 +7,7 @@
   "aliases": ["RoMuzak_V6.x", "RoMuzak_V7.x", "Romuzak"],
   "authors": ["Oliver Blasnik (ROM)"],
   "released": "1989 (V6.x); 1990 (V7.x)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor+player. Closed tool with embedded author/copyright verification code; no source/license.",
   "csdb_release": 17814,
 
@@ -17,8 +17,8 @@
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO (editor invoked at SYS $7000; replay entry undocumented)"
+    "init": "$1000 — LOCALLY CONFIRMED on a real HVSC RoMuzak_V6.x file (packed convention).",
+    "play": "$1003 — LOCALLY CONFIRMED: a real HVSC RoMuzak_V6.x file traced with load=$1000, init=$1000, play=$1003, 241 register writes/50 frames. NOTE: this is the REPLAY entry, distinct from the EDITOR (SYS $7000) — confirming the card's caution not to conflate them."
   },
   "speed": "TODO. Behavioural note: heavy CPU cost — up to ~20+ rasterlines/frame with sprites active (considered expensive by scene coders).",
 
@@ -84,8 +84,12 @@ trace-driver family — a lead for comparison, not an authorship link.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, versions, label, and behavioural
-notes are CSDb/community-sourced; all runtime fields `TODO`.
+**Replay entry + playback LOCALLY CONFIRMED (2026-07-13) — `status:
+in-progress`.** Traced a real HVSC RoMuzak_V6.x `.sid` with `sidm2-sid-trace`:
+load `$1000`, init `$1000`, play `$1003`, **241 register writes / 50 frames** —
+confirming the replay runs and that its entry (`$1003`) is distinct from the
+editor's `$7000` (the card's caution holds). ZP, data format, and effect
+encoding remain `TODO`, so in-progress rather than verified.
 
 ## Sources
 

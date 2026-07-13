@@ -47,7 +47,8 @@
     "Same team (DUSAT: OPM=Oscar Giesen code, MC=Marco Swagerman music) later made Music Assembler (1989) — MA is a separate/successor product, NOT a Rock Monitor version.",
     "DUSAT original version line: Rockmonitor II (id 20664, 11 Apr 1987), III (id 33038), IV (id 20676, Jul 1987), V5 (id 10632, May 1988; '100%' fix id 122393). Many third-party cracks/hacks exist (V5.3, V6, V7 by other groups) — NOT DUSAT releases. The tags RockMon2-5.1 map onto this II-V5 line (a '5.1' is likely a minor/cracked build).",
     "Replay internals (memory map, ZP, init/play, data format, effect set, digi-drum playback mechanics) all UNKNOWN publicly. As a SoundMonitor derivative, its core is EXPECTED to resemble SoundMonitor's routine — TODO: verify by disassembly + comparison.",
-    "647 files across 156 composers — a broadly adopted tool (wide composer spread, unlike the concentrated Polish/Norwegian editors in this batch)."
+    "647 files across 156 composers — a broadly adopted tool (wide composer spread, unlike the concentrated Polish/Norwegian editors in this batch).",
+    "VERIFICATION LIMITATION (2026-07-13): a traced HVSC RockMon file is an RSID (IRQ-driven; PSID play address = $0000), so a headless init+play trace can't drive it (0 writes when play is called directly). Verifying RockMon needs IRQ-servicing emulation, not a direct play call — noted for anyone attempting a trace pass."
   ],
   "sources": [
     "CSDb Rockmonitor II (1987, first DUSAT release): https://csdb.dk/release/?id=20664",

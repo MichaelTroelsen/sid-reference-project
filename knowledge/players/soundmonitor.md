@@ -7,7 +7,7 @@
   "aliases": ["SoundMonitor/MusicMaster_1", "SoundMonitor/MusicMaster_2", "Soundmonitor", "MusicMaster (replay routine)"],
   "authors": ["Chris Hülsbeck"],
   "released": "1986 (v1.0 Oct 1986; v1.1 1986; v1.3 1987)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 SID editor. Published as a type-in listing in 64'er magazine 10/1986 (so its source was public by design; formal license unclear).",
   "csdb_release": 59929,
 
@@ -18,7 +18,7 @@
   },
   "entry": {
     "init": "$1000 (SYS 4096) in the editor context.",
-    "play": "$C000 (SYS 49152) — the detachable 'MusicMaster' playback routine for tunes saved with it. Call rate: once per frame (standard). TODO: confirm."
+    "play": "~$C000 (SYS 49152) — the detachable 'MusicMaster' playback routine. LOCALLY CONFIRMED: a real HVSC SoundMonitor file traced with init=$C000, play=$C020, 472 register writes/50 frames. So the replay does live at $C000 as documented (the exact play entry is $C020 in that build)."
   },
   "speed": "TODO: single-speed assumed (era-typical). Uses arpeggio to simulate chords beyond the SID's 3 voices.",
 
@@ -88,9 +88,12 @@ firm runtime hooks are init `$1000` (SYS 4096) and the detachable replay at
 
 ## Verification
 
-**Not verified — `status: stub`.** Identity/history/lineage and the SYS entry
-addresses are well-sourced; ZP, data format, and effect set are `TODO` pending
-a read of the 64'er listing or a disassembly.
+**Replay location LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.**
+Traced a real HVSC SoundMonitor `.sid` with `sidm2-sid-trace`: init `$C000`,
+play `$C020`, **472 register writes / 50 frames** — confirming the documented
+`$C000` (SYS 49152) MusicMaster replay location and that it plays. ZP, data
+format, and effect set remain `TODO` (pending the 64'er listing or a
+disassembly), so it stays in-progress rather than verified.
 
 ## Sources
 

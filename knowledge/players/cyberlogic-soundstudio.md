@@ -7,7 +7,7 @@
   "aliases": ["Cyberlogic_SoundStudio", "Cyberlogic Sound Studio", "C.S.S"],
   "authors": ["Oliver Klee (code)", "Sascha Nagie (celticdesign) — music/design"],
   "released": "~1991 (V4.0 dated 1992)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor/tool. Closed (no source/license found).",
   "csdb_release": 170632,
 
@@ -52,7 +52,7 @@ None; internals undocumented. Disassemble a tagged `.sid` to recover them.
 
 ## Verification
 
-**Not verified — `status: stub`.** Authors and version confirmed; all runtime
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Cyberlogic_SoundStudio `.sid` (load $1000, init $1000, play $1003, 363 register writes / 50 frames) — the replay runs; entry per-file. Authors and version confirmed; all runtime
 fields `TODO`.
 
 ## Sources

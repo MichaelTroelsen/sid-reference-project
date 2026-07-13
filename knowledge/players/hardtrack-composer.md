@@ -7,7 +7,7 @@
   "aliases": ["HardTrack_Composer", "Hardtrack Composer"],
   "authors": ["Miłosz Ignatowski (Longhair) — player code", "Brush — co-coded the tool"],
   "released": "1992 (V1.0, Elysium)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music editor (ships as a .PRG editor). Closed classic tool; no source/license located.",
   "csdb_release": 74928,
 
@@ -82,7 +82,7 @@ header, traced via `sidm2-siddump`) are the routes to real facts.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, year (1992, corrected), scene, and
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC HardTrack_Composer `.sid` (load $1000, init $1000, play $1003, 326 register writes / 50 frames) — the replay runs (standard packed convention; entry per-file). Author, year (1992, corrected), scene, and
 version outline are CSDb/SIDId-sourced; all runtime fields are `TODO`.
 
 ## Sources

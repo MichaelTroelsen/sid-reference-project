@@ -7,7 +7,7 @@
   "aliases": ["Digitalizer_V2.x", "Digitalizer_V3.0", "Digitalizer"],
   "authors": ["Olav Mørkrid (Omega Supreme) / Panoramic Designs"],
   "released": "1989 (V2.x); 1992 (V3.0)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music player/editor. Closed scene tool.",
   "csdb_release": 33646,
 
@@ -82,7 +82,7 @@ Digitalizer `.sid`.
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, scene, and version history are
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Digitalizer_V2.x `.sid` (load $1000, init $1003, play $1006, 289 register writes / 50 frames) — the replay runs; entry per-file. Author, scene, and version history are
 SIDId/CSDb-sourced; all runtime fields `TODO`.
 
 ## Sources

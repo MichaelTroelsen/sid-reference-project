@@ -7,7 +7,7 @@
   "aliases": ["X-Ample", "X-Ample Music Player", "XAP"],
   "authors": ["Helge Kozieleck & Markus Schneider (routine)", "Joachim Fräder (editor)", "Mario van Zeist (CPU optimizations)"],
   "released": "~1986-1988 (developed for Thomas Detert; no dated tool release found)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 in-house replay routine used by composer Thomas Detert (of the German group X-Ample Architectures) — NOT a publicly released standalone editor.",
   "csdb_release": null,
 
@@ -84,7 +84,7 @@ X-Ample vs his other routines.
 
 ## Verification
 
-**Not verified — `status: stub`.** Authorship, group, and origin are
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC X-Ample `.sid` (load $1000, init $1000, play $1003, 247 register writes / 50 frames) — the replay runs; entry per-file. Authorship, group, and origin are
 interview-sourced (Recollection, Remix64); all runtime fields are `TODO`.
 
 ## Sources

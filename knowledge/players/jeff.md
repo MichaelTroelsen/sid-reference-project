@@ -7,7 +7,7 @@
   "aliases": ["Jeff", "Music Editor V2.0", "Jeff/Airwalk", "Jeff/BullSID", "Jeff/FLT", "Jeff/XLarge", "X-SID"],
   "authors": ["Søren Lund (Jeff)"],
   "released": "1996 (Music Editor V2.0, Cyberzound Productions)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 in-house music editor + integrated playroutine by the composer Jeff. Closed; never officially released (leaked/circulated).",
   "csdb_release": 122334,
 
@@ -56,7 +56,7 @@ None; internals undocumented. Disassemble a Jeff-tagged `.sid` to recover them
 
 ## Verification
 
-**Not verified — `status: stub`.** Author, editor, groups, and independence
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Jeff `.sid` (load $0FD8, init $0FD8, play $0FEA, 126 register writes / 50 frames) — the replay runs; entry per-file. Author, editor, groups, and independence
 from JCH/Laxity are sourced; all runtime fields `TODO`.
 
 ## Sources

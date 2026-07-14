@@ -4,9 +4,9 @@
 {
   "id": "jch-newplayer",
   "name": "JCH NewPlayer",
-  "aliases": ["JCH_NewPlayer", "NewPlayer", "NP", "JCH NewPlayer V5-V20"],
+  "aliases": ["JCH_NewPlayer", "NewPlayer", "NP", "JCH NewPlayer V5-V20", "JCH_NewPlayer_V1", "JCH_NewPlayer_V2", "JCH_NewPlayer_V4"],
   "authors": ["Jens-Christian Huus (JCH)"],
-  "released": "1988",
+  "released": "1988 (July 1988: pre-editor V1-V4 development phase; January 1989: v05.02, the first editor-paired version)",
   "status": "in-progress",
   "platform": "Native C64 (runtime player; authored with the JCH Editor)",
   "csdb_release": 14037,
@@ -43,6 +43,7 @@
   },
 
   "quirks": [
+    "PRE-EDITOR V1-V4 PHASE, CONFIRMED via JCH's own blog (a first-party source, 'Chordian' being his later handle): per his own computer-timeline post, he 'started coding the first versions of NewPlayer (no editor yet)' in JULY 1988 — genuinely hand-authored, with no tracker/editor tool existing yet. The editor v1 series (test tunes only, no sequences) followed in November 1988, and the FIRST editor-paired, effectively 'released' version was NewPlayer v05.02 in January 1989. So V1-V4 (7 files under the tag 'JCH_NewPlayer_V1', all composed by JCH himself) are genuinely earlier, pre-tooling development versions — not merely an earlier release date guess, a precisely dated (~Jul-Dec 1988) predecessor phase to the V5+ line this card already documents. 'Beatbassie' (one of the traced V1 files, released 8 Aug 1988 per CSDb/Demozoo) falls squarely inside this window, consistent with being genuine V1-generation material. No CSDb release exists for V1-V4 as a standalone product (unlike the V18-V20/editor-era releases) — consistent with these being informal, pre-editor, hand-typed versions never packaged as a tool.",
     "This is the RUNTIME PLAYER; the authoring front-end is the JCH Editor (curated 'JCH Editor v2.x' 1988-90 and 'v3.x' 1990-91). Editor v2 shipped NewPlayer V5-V17; editor v3 shipped V18-V20 (+ Laxity NP V21).",
     "Versioned family: each 'JCH_NewPlayer_Vn' (V9..V20 seen in the file data) is a distinct tag — treat a specific version as its own sub-card once disassembled, linked here.",
     "ORIGIN of the 'contiguous sequence stacking' track system later adopted by X-SID, SID Factory (I/II) and the NewPlayer forks.",
@@ -52,7 +53,10 @@
   "sources": [
     "deepsid:players.json — 'JCH Editor v2.x' (used for NewPlayer V5-V17) and 'JCH Editor v3.x' (used for NP V18-V20 + Laxity NP V21)",
     "sidid:JCH_NewPlayer (author JCH, csdb release 14037); JCH_OldPlayer, JCH_Protracker also by JCH",
-    "csdb:release/14037 — 'JCH Editor V3.04 20G4', 1991, released by Vibrants, Code by JCH"
+    "csdb:release/14037 — 'JCH Editor V3.04 20G4', 1991, released by Vibrants, Code by JCH",
+    "JCH's own blog / computer timeline (first-party source for the pre-editor V1-V4 phase, Jul 1988-Jan 1989): https://blog.chordian.net/computer-timeline/",
+    "CSDb/Demozoo — Beatbassie (8 Aug 1988, solo JCH credit, a traced V1-era file): https://demozoo.org/productions/tagged/jch-player/",
+    "Local dataset: 7 files tagged JCH_NewPlayer_V1, 1 composer (JCH himself)"
   ]
 }
 ```

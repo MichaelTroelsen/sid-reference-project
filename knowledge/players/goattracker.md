@@ -65,6 +65,7 @@
     "One concrete (and easy-to-overstate) link to the carded families: GoatTracker V2.68's changelog says the 'SID register write order was tweaked to resemble JCH NewPlayer 21' — this is register-WRITE-ORDER only, not a format or code lineage. Do not draw a derivation edge from it.",
     "The exported replay is relocatable and its unused code is stripped per song, so there is no single fixed memory map — addresses/features vary per exported file and per chosen replay variant (buffered/sfx/ghostregs/etc.).",
     "GTUltra (by jpage8580) is a heavily modified fork of GoatTracker Stereo 2.76 — a separate tool that may tag differently.",
+    "Lasse Öörni (Cadaver) ALSO has a second, separately-carded C64 driver in this KB — [[cadaver-musicdriver]] (tag `Cadaver_Musicdriver_10`), a lean, compact IN-GAME playback routine (per his own tools.html page, a 'MiniPlayer'/'MiniPlayer2' family) used in his own Covert Bitops games (Metal Warrior 3), technically distinct from GoatTracker's own editor-integrated player — confirmed via SIDId's raw signature file, which tracks the two as separate byte-pattern signatures, and via the absence of any `Cadaver_Musicdriver` entry in `sidid.nfo` (only GoatTracker itself is documented there under his name).",
     "Bundles third-party code: reSID (Dag Lem), Exomizer2 crossassembler (Magnus Lind), HardSID 4U support (Tõli Sándor)."
   ],
   "sources": [

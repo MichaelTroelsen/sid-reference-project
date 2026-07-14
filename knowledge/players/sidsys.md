@@ -4,7 +4,7 @@
 {
   "id": "sidsys",
   "name": "SID Systems (Geir Tjelta)",
-  "aliases": ["Geir_Tjelta/SIDSys", "SIDSys18.4", "SIDSys18.6", "SIDSys_1.0", "Sid Systems"],
+  "aliases": ["Geir_Tjelta/SIDSys", "Geir_Tjelta/SIDSys18.4", "Geir_Tjelta/SIDSys18.6", "Geir_Tjelta/SIDSys_1.0", "SIDSys18.4", "SIDSys18.6", "SIDSys_1.0", "Sid Systems"],
   "authors": ["Geir Tjelta (GT)"],
   "released": "1990 (Moz(IC)art)",
   "status": "in-progress",

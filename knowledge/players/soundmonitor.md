@@ -4,7 +4,7 @@
 {
   "id": "soundmonitor",
   "name": "SoundMonitor",
-  "aliases": ["SoundMonitor/MusicMaster_1", "SoundMonitor/MusicMaster_2", "Soundmonitor", "MusicMaster (replay routine)"],
+  "aliases": ["SoundMonitor/MusicMaster_1", "SoundMonitor/MusicMaster_2", "SoundMonitor/MusicMaster_TMM", "SoundMonitor/DrumMaker2", "SoundMonitor/BeatBox/KarlXII", "SoundMonitor/Karl_XII", "SoundMonitor/Syndicate/BB", "SoundMonitor/Digitronix", "SoundMonitor/ReD_Packed", "Soundmonitor", "MusicMaster (replay routine)"],
   "authors": ["Chris Hülsbeck"],
   "released": "1986 (v1.0 Oct 1986; v1.1 1986; v1.3 1987)",
   "status": "in-progress",
@@ -43,6 +43,7 @@
   },
 
   "quirks": [
+    "SEVEN MORE 'SoundMonitor/*' VARIANT TAGS CLAIMED AS ALIASES (2026-07-16), 345 files: /DrumMaker2 (176), /BeatBox/KarlXII (74), /Syndicate/BB (38), /Digitronix (24), /Karl_XII (23), /ReD_Packed (6), /MusicMaster_TMM (4). These read as UNCARDED purely because this card hadn't claimed them, while it already claimed /MusicMaster_1 and /MusicMaster_2 — the identical 'SoundMonitor/<variant>' shape. BE PRECISE ABOUT WHAT THIS CLAIMS: it asserts THIS CARD IS THE RIGHT CARD FOR THOSE TAGS (they are SoundMonitor sub-signatures), NOT that the distinctions are understood. WHAT DrumMaker2, BeatBox, Syndicate/BB, Digitronix or ReD_Packed ACTUALLY DENOTE IS UNDOCUMENTED — variant packers, drum add-ons, or per-group builds are all plausible; none is established. Nothing in the KB mentions any of them. TODO if anyone cares to look.",
     "'MusicMaster' is NOT a separate rival tool — it is SoundMonitor's own detachable replay routine (Hülsbeck wrote the MusicMaster playback routine before the editor; songs saved with it play independently). The DeepSID tag 'SoundMonitor/MusicMaster' lumps one engine + its detachable player. CAUTION: there is an UNRELATED 1983 'MusicMaster' (Chris Metcalf & Marc Sugiyama, Compute! #37) — do not conflate.",
     "HISTORICALLY LOAD-BEARING: SoundMonitor is the acknowledged ancestor of the tracker paradigm — Karsten Obarski used it on the C64 and reused its layout for the Amiga Ultimate Soundtracker (1987), adding samples and a 4th channel. German Wikipedia calls it 'gewissermaßen den Ursprung' of tracker software. (Cross-platform lineage — not wired as a C64 graph edge.)",
     "Published as a 64'er magazine type-in listing (10/1986, 'Listing des Monats'), originating from a 64'er music competition Hülsbeck won with 'Shades'. So the 6502 source was public by design — a rare case where the listing itself is the primary technical source (license/rights nonetheless unclear).",

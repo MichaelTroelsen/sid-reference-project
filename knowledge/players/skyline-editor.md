@@ -4,7 +4,7 @@
 {
   "id": "skyline-editor",
   "name": "SkyLine Editor (Daniel Stenberg / SkyLine Technics)",
-  "aliases": ["SkyLine_Editor_V3.0"],
+  "aliases": ["SkyLine_Editor", "SkyLine_Editor_V3.0"],
   "authors": ["Daniel Stenberg (Danne/Bagder)"],
   "released": "28 October 1990 (V3.0, SkyLine Technics)",
   "status": "in-progress",

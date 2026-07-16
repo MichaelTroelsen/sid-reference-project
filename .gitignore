@@ -23,3 +23,8 @@ output/*.html
 # Derived player-knowledge graph — regenerated from knowledge/players/*.md
 # by knowledge/build-graph.js; the cards are the source of truth.
 knowledge/graph.json
+
+# Claude Code: agents/ and commands/ are project tooling and ARE versioned.
+# These two are user-local runtime state and are not.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

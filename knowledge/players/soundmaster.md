@@ -4,7 +4,7 @@
 {
   "id": "soundmaster",
   "name": "Soundmaster (SoedeSoft)",
-  "aliases": ["SoedeSoft/Soundmaster_V1.0", "SoedeSoft/Soundmaster_V3.1", "SoedeSoft/Soundmaster_V3.2", "SoedeSound Editor"],
+  "aliases": ["SoedeSoft/Soundmaster_V1.0", "SoedeSoft/Soundmaster_V3.1", "SoedeSoft/Soundmaster_V3.2", "SoedeSoft", "SoedeSound Editor"],
   "authors": ["Jeroen Soede (driver/player)", "Michiel Soede (editor)"],
   "released": "1988 (V1.0); V3.0-V3.2 1988-1989",
   "status": "in-progress",
@@ -47,13 +47,15 @@
     "Jeroen wrote the driver from scratch specifically 'to be able to arrange with drums like Rob Hubbard's' — a stated design motivation (not a code-derivation from Hubbard). No import/derivation link to other C64 editors established (TODO).",
     "V1.0 was also released as 'SoedeSound Editor V1.0' — a CSDb note confirms it 'uses the exact same player/editor as Soundmaster V1.0 but under a different name'. Version line: V1.0 (1988, id 117095), V3.0 (Jan 1989, id 126831), V3.1 (1989, id 90307), V3.2 (id 117086; shows '1988' on-screen but was a members-only Fire-Eagle release, V3.1 being the 1989 public one).",
     "CONFUSION WARNING: there is an UNRELATED 'Soundmaster V1.0' by Fire-Eagle/Rage for Order (CSDb 10735/10736) and a 'Sound Master 2' by Cabana — different tools, exclude. The Soedes' later Amiga 'SoundMaster Professional' is also separate. This card is strictly the C64 SoedeSoft Soundmaster.",
-    "Replay internals (load address, ZP, init/play, data format, effect set) all UNKNOWN — TODO. A good RE target file: Michiel Soede's 'Airwolf' (CSDb SID 26198, 1988). 852 files across 63 composers."
+    "Replay internals (load address, ZP, init/play, data format, effect set) all UNKNOWN — TODO. A good RE target file: Michiel Soede's 'Airwolf' (CSDb SID 26198, 1988). 852 files across 63 composers carry a versioned tag (V1.0/V3.1/V3.2).",
+    "A separate, unversioned raw tag 'SoedeSoft' (56 files, listed as its own 'uncarded family' in knowledge/COVERAGE.md since it doesn't share the 'SoedeSoft/Soundmaster_Vx.x' string prefix the grouping script keys on) is the SAME tool under the DeepSID dump's generic label — every composer who uses it (Jeroen Soede, Michiel Soede, Tomas Danko, LDX40, Rudolf Stember, SMC, Zagor, and 'SoedeSoft' itself) also appears under the versioned tags. Folded in here as an alias rather than given its own card. Combined dataset total: 908 files across 63 composers."
   ],
   "sources": [
     "VGMPF Jeroen Soede (authorship: Jeroen=driver, Michiel=editor; Rob-Hubbard-drums motivation): https://www.vgmpf.com/Wiki/index.php?title=Jeroen_Soede",
     "CSDb V1.0 / SoedeSound Editor identity link (1988): https://csdb.dk/release/?id=117095",
     "CSDb V3.1 (1989): https://csdb.dk/release/?id=90307 ; V3.2: https://csdb.dk/release/?id=117086",
-    "Local dataset: 852 files tagged SoedeSoft/Soundmaster_V1.0/V3.1/V3.2 (see knowledge/COVERAGE.md). No SIDId entry."
+    "Local dataset: 852 files tagged SoedeSoft/Soundmaster_V1.0/V3.1/V3.2 + 56 more tagged bare 'SoedeSoft' (same composer set — see knowledge/COVERAGE.md), 908 total.",
+    "data/sidid.json has four matching entries — 'SoedeSoft', '(Soundmaster_V1.0)', '(Soundmaster_V3.1)', '(Soundmaster_V3.2)' — all authored 'Jeroen Soede & Michiel Soede' with comment 'The editor is also known as Soundmaster or SoedeSound Editor', independently corroborating this card's authorship/identity claims"
   ]
 }
 ```
@@ -64,7 +66,10 @@ Soundmaster is a native C64 music editor+player by the **Soede brothers**
 (SoedeSoft) — the Dutch twins **Jeroen Soede** (driver/player) and **Michiel
 Soede** (editor) — first released 1988 (also as "SoedeSound Editor V1.0"),
 through V3.x in 1988-89. Jeroen wrote the driver from scratch to enable
-Rob-Hubbard-style drum arrangements. 852 files here across 63 composers.
+Rob-Hubbard-style drum arrangements. 908 files here across 63 composers
+(852 under versioned `SoedeSoft/Soundmaster_Vx.x` tags, plus 56 more under
+the bare `SoedeSoft` tag — same tool, same composer set, just an
+unversioned DeepSID-dump label; see `quirks`).
 
 ## Quirks & gotchas
 
@@ -88,5 +93,6 @@ version history are VGMPF/CSDb-sourced; all runtime fields `TODO`.
 
 ## Sources
 
-See the `sources` array — VGMPF (Jeroen Soede) and the CSDb V1.0/V3.x releases.
-No SIDId entry.
+See the `sources` array — VGMPF (Jeroen Soede), the CSDb V1.0/V3.x releases,
+and data/sidid.json's four matching entries (SoedeSoft, Soundmaster_V1.0/
+V3.1/V3.2), all authored 'Jeroen Soede & Michiel Soede'.

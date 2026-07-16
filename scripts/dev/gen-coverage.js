@@ -62,6 +62,11 @@ const OPEN_SOURCE = new Set([
   '(SidWizard_2SID)',
 ]);
 
+/** Content-equality helper: line endings and trailing whitespace are not content. */
+function normalise(s) {
+  return s.replace(/\r\n/g, '\n').trim();
+}
+
 /** Strip an unambiguous _V<version> suffix: DMC_V4.x -> DMC, FC_V4_Packed -> FC. */
 function stripVersionSuffix(tag) {
   return tag.replace(/_V\d+(\.(\d+|x))?(_Packed)?$/i, '');
@@ -262,13 +267,17 @@ function main() {
   const out = L.join('\n');
 
   if (toStdout) {
-    process.stdout.write(out);
+    process.stdout.write(out + '\n');
     return;
   }
 
   if (check) {
     const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
-    if (cur.trim() !== out.trim()) {
+    // Compare on normalised line endings. Git checks this file out with CRLF on
+    // Windows (autocrlf) while the generator writes LF, so a byte comparison
+    // reports STALE on every fresh clone -- which would make the gate cry wolf
+    // permanently and train everyone to ignore it. Content is what we mean.
+    if (normalise(cur) !== normalise(out)) {
       console.error('STALE: knowledge/COVERAGE.md differs from a fresh generation.');
       console.error('Run: node scripts/dev/gen-coverage.js');
       process.exit(1);

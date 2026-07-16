@@ -94,7 +94,7 @@ record it with the citation and set `status: in-progress`. Absent that, `stub`.
    matches both the filename and the JSON `id` field.
 7. Validate the JSON block parses:
    `node -e "const m=require('fs').readFileSync('knowledge/players/<id>.md','utf8');JSON.parse(m.match(/\`\`\`json\n([\s\S]*?)\n\`\`\`/)[1]);console.log('JSON OK')"`
-8. Run `npm run knowledge:graph` to confirm the card projects into the graph.
+8. Run `node knowledge/build-graph.js` to confirm the card projects into the graph.
 </workflow>
 
 <output_format>
@@ -114,7 +114,7 @@ Ten lines is a good target. Twenty-five is a hard maximum.
 </output_format>
 
 <success_criteria>
-- The card exists, its JSON block parses, and `npm run knowledge:graph` accepts it.
+- The card exists, its JSON block parses, and `node knowledge/build-graph.js` accepts it.
 - Every non-TODO fact carries a citation.
 - No runtime fact was guessed.
 - `status` honestly reflects the evidence tier reached.

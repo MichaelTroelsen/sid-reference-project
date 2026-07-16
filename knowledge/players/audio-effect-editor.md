@@ -8,10 +8,10 @@
   "authors": ["Alexander Kirsch ('Energy Master', Argon)"],
   "released": "June 1989 (Golden Disk 64 issue 06/1989, CP Verlag)",
   "status": "in-progress",
-  "platform": "A genuine, confirmed one-shot SFX-editor tool ('AEE Editor V1.0'), coded by German demoscener Alexander Kirsch (demoscene handle 'Energy Master', group Argon) and published on Golden Disk 64's June 1989 disk magazine issue. Used by Rudolf Stember (a co-programmer of Kirsch's on the game 'Tower of Terror', group Double Density) to score that title. Player-ID-fingerprinted across 4 files: 3 by Kirsch himself (all of which trace SILENT under this project's standard method — see verification notes) and 1 by Stember, which does produce a real trace.",
+  "platform": "A confirmed editor tool ('AEE Editor V1.0'), coded by German demoscener Alexander Kirsch (demoscene handle 'Energy Master', group Argon) and published on Golden Disk 64's June 1989 disk magazine issue. Used by Rudolf Stember (a co-programmer of Kirsch's on the game 'Tower of Terror', group Double Density) to score that title. Player-ID-fingerprinted across 4 files: 3 by Kirsch, 1 by Stember. NOTE: this card previously called it 'a genuine, confirmed ONE-SHOT SFX tool' — that framing rested on Kirsch's files appearing to trace silent, which turned out to be a tracer artefact (see quirks). All 4 files drive as conventional ~50Hz looping players. Whether the tool was INTENDED for effects rather than music is a genuine open question (its name and MagicDisk64 classification say so) but is no longer supported by trace behaviour.",
   "csdb_release": 122169,
 
-  "memory": { "load_address": "Sample HVSC file traced (Tower of Terror, composed by Rudolf Stember, since Kirsch's own files trace silent): load $a700 (init $c002, play $c011).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
+  "memory": { "load_address": "Stember's Tower of Terror: load $a700 (init $c002, play $c011). Kirsch's own 3 files: load $8000, init $8009, play $0000 (self-installing IRQ — drivable via scripts/dev/vsid-trace.js, NOT via the project's own tracer).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
   "entry": { "init": "Sample trace: $c002.", "play": "Sample trace: $c011 (called in IRQ)." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use — 1 filter write in a dense 160-write/50-frame sample, almost entirely on osc3)" },
@@ -22,7 +22,8 @@
   "quirks": [
     "TOOL AND AUTHOR CONFIRMED VIA THREE INDEPENDENT, MUTUALLY-CORROBORATING SOURCES: CSDb's own release page (id=122169, 'Audio Effect Editor V1.0', June 1989) credits 'Code: Energy Master of the group Argon'; SIDId's `sidid.nfo` independently gives name='Audio Effect Editor', author='Alexander Kirsch', released='1989 Golden Disk 64/CP Verlag', pointing at that SAME CSDb release id; MagicDisk64's own content index for Golden Disk 64 issue 06/1989 lists it among that issue's sound-effects utilities. High-confidence deduction (not stated verbatim on any single page, but consistent across all three): Kirsch's demoscene handle was 'Energy Master' of group Argon — the same real-name-vs-scene-handle split flagged as a landmine elsewhere in this project (e.g. DRAX in CLAUDE.md).",
     "RUDOLF STEMBER'S USE OF THE TOOL IS DIRECTLY EXPLAINED, NOT COINCIDENTAL: VGMPF states outright that for 'Tower of Terror,' Stember used the Audio Effect Editor, 'programmed by Argon groupmate Alex Kirsch' — and Lemon64's own credits for that 1990 game (publisher Golden Disk 64/CP Verlag/Magic Disk 64, developer group 'Double Density') list programmers as 'A. Kirsch and Ingo Wolf,' with Stember as composer. Kirsch wasn't just the tool's author — he was Stember's actual CO-PROGRAMMER on the specific game Stember used the tool to score, directly explaining the access.",
-    "THE TOOL'S OWN NAME AND CLASSIFICATION SUPPORT A ONE-SHOT SFX HYPOTHESIS for why Kirsch's own 3 files trace SILENT (play=$0, 0 writes) under this project's standard 50-frame IRQ-driven trace method: it's explicitly an 'Audio EFFECT Editor' (not a 'Music Editor'), classified by MagicDisk64 under that issue's 'Soundeffekte' (sound effects) heading alongside period tools like 'SFX Editor' and 'Addlogic Drums'. This is a plausible, evidence-backed technical read — a one-shot effect-generator with no looping player routine to trace — though no source explicitly states this as the reason.",
+    "FALSIFIED — THE 'ONE-SHOT SFX' HYPOTHESIS WAS EXPLAINING A TRACER ARTEFACT, NOT A FACT. This card previously argued that Kirsch's own 3 files 'trace SILENT (play=$0, 0 writes)' because the tool is an 'Audio EFFECT Editor' (not a 'Music Editor'), classified by MagicDisk64 under 'Soundeffekte' alongside SFX Editor and Addlogic Drums — a one-shot effect generator with no looping player routine to trace. It was flagged as a hypothesis ('no source explicitly states this'), and it was plausible and evidence-backed. IT IS ALSO WRONG. Re-traced with scripts/dev/vsid-trace.js (which drives play=$0000 self-installing-IRQ files that the project's own tracer cannot): Menuet 1,642 writes over 50/50 active frames, Sidwiz 1,609 over 49/50, Tune_1_v5 1,642 over 50/50 — all at ~32.8 writes/frame, all classified 'per-frame (~50Hz, conventional player)'. THESE ARE ORDINARY LOOPING MUSIC PLAYERS. The 0-write readings were entirely an artefact of the old tracer's lack of autonomous IRQ delivery.",
+    "THE NAME/CLASSIFICATION EVIDENCE STILL STANDS ON ITS OWN — it just never explained the silence. MagicDisk64 really does file this under 'Soundeffekte', and it really is called an EFFECT editor. That remains a genuine open question about the tool's intended purpose; it simply has no bearing on the trace behaviour, and must not be propped up by it. WIDER LESSON, worth carrying: a 0-write trace is evidence about the TOOL until the tool is ruled out. A well-argued hypothesis built on top of one inherits its error — and reads more convincing than a bare unknown, which is what makes it dangerous. Rule the tracer out FIRST, then theorise. Same trap resolved on [[oliver-kirwa]] (SID mirrors).",
     "GERMAN DEMOSCENE CONTEXT CONFIRMED FOR BOTH COMPOSERS: HVSC Musicians.txt lists both 'Kirsch, Alexander - GERMANY' and 'Stember, Rudolf (Rudi, The Holy Grail) - GERMANY.' Stember's own C64-Wiki (DE) biography (born 1969) confirms a broader multi-tool composer profile (Soundtracker, Future Composer, Soundmaster v3.1, TFMX-Editor) and career via 'Double Density's Walter Konrad — consistent with him readily using a colleague's custom editor for one specific project rather than exclusively self-composing.",
     "NO INDEPENDENT CSDb SCENER PROFILE PAGE WAS LOCATABLE for Kirsch/'Energy Master' — the Argon/Energy Master identity rests on the release-credit + VGMPF cross-reference above, not on a directly-fetched scener bio page. Flagged as a minor sourcing gap, not a contradiction.",
     "Not confirmed in SIDId beyond the tool-identity entry itself (already known for this tag pre-research). No known relationship found to any composer/tool already in this KB (checked against Ben Daglish, Adam Gilmore, David Dunn, Olav Mørkrid, Mark Tait, Jeroen Koops, Neil Brennan, Roel Bosch, Chris Cox, Ashley Hogg, Paul Norman, Henning Rokling, Martin Walker, Dave Lowe, Dave Warhol, Neil Baldwin, Henning Andersen, Mark Cooksey, David Whittaker, Rob Hubbard, Martin Galway, Fred Gray, Matt Gray, Jeroen Kimmel, Steve Turner, Jason Page, Nigel Grieve, Matt Furniss, Ed Bogas, David Thiel, Dave Kelly, Daniel Stenberg/SkyLine Editor, Tonal Kaos, Jason Briggs, Marco Scheepers, Rene Romijn/Emotional Mozes, Paul Mudra, Stephen Legg, Steve Bak — none found)."
@@ -56,9 +57,13 @@ See the `quirks` array — the load-bearing ones: the **three-source
 confirmed tool authorship** (CSDb, SIDId, and MagicDisk64 all
 independently corroborate); the **directly explained access path**
 (Stember and Kirsch were actual co-programmers on the game Stember
-scored with the tool); and a **plausible, evidence-backed technical
-hypothesis** for why the author's own files trace silent — a one-shot
-'effect' editor, not a looping music tracker.
+scored with the tool); and — as a **cautionary example** — a
+**falsified hypothesis**: this card used to explain Kirsch's
+"silent" files as a one-shot 'effect' editor rather than a looping
+music tracker. The files were never silent. They trace ~1,600 writes
+each at ~50Hz once driven by an emulator that delivers interrupts.
+The hypothesis was plausible, evidence-backed, honestly flagged as
+unconfirmed — and wrong, because it was explaining a tool artefact.
 
 ## Disassembly notes
 
@@ -69,13 +74,26 @@ to directly confirm the one-shot-SFX hypothesis.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
+**Playback + entry points confirmed — `status: in-progress`.**
 Traced a real HVSC `Audio_Effect_Editor` `.sid` (Tower of Terror, composed
 by Rudolf Stember): load `$a700`, init `$c002`, play `$c011`, **160
-register writes / 50 frames** (1 filter write). Kirsch's own 3 files all
-trace SILENT (load `$8000` init `$8009` play `$0`, 0 writes) — consistent
-with a one-shot SFX tool rather than a looping IRQ-driven player.
-Internals undocumented; memory map/format/effects are `TODO`.
+register writes / 50 frames** (1 filter write).
+
+**Corrected (2026-07-16): Kirsch's own 3 files are NOT silent.** They were
+previously recorded as tracing "0 writes", and this card built a one-shot-SFX
+hypothesis to explain that. Re-traced with `scripts/dev/vsid-trace.js`, which
+drives the `play=$0000` self-installing-IRQ files the old tracer cannot:
+
+| file | writes / 50 frames | active frames | cadence |
+|---|---|---|---|
+| `Menuet.sid` | 1,642 | 50/50 | per-frame (~50Hz) |
+| `Sidwiz.sid` | 1,609 | 49/50 | per-frame (~50Hz) |
+| `Tune_1_v5.sid` | 1,642 | 50/50 | per-frame (~50Hz) |
+
+All three are **conventional looping players** at ~32.8 writes/frame. The
+silence was a tracer artefact; the hypothesis is falsified (see quirks).
+
+Internals undocumented; memory map/format/effects remain `TODO`.
 
 ## Sources
 

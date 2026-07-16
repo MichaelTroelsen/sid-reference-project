@@ -15,6 +15,27 @@
  *   --all       don't apply the composer/tool-personal-tag heuristics
  *   --json      machine-readable output
  *
+ * READ THIS BEFORE TRUSTING THE DEFAULT VIEW. The default heuristics
+ * (`ncomp <= 3` and a `Foo_Bar` name shape) select for *personal* driver tags
+ * -- which are, almost by construction, the SMALLEST tags in the collection.
+ * The default view is therefore the TAIL of the distribution, and reading it as
+ * "what's left" is actively misleading: it once produced the conclusion that
+ * the work was nearly done when 91% of uncarded files were sitting untouched
+ * in tags the heuristic hides.
+ *
+ * The real shape (2026-07-16, 54,608 tagged files, 83.2% covered):
+ *
+ *     10+ files: 150 tags,  8,316 files   <- 91% of everything uncarded
+ *     5-9 files:  76 tags,    494 files
+ *     3-4 files:  52 tags,    181 files
+ *       2 files:  52 tags,    104 files
+ *       1 files:  52 tags,     52 files   <- the default view lives here
+ *
+ * Run `--all` to see the head: the big uncarded tags are real, documented,
+ * multi-composer TOOLS (SidTracker64, CyberTracker, DefMon, SidWinder,
+ * Reflextracker, Ariston, System6581, MoN/Deenen), not obscure person drivers.
+ * Prefer them when picking a batch -- the value per card is far higher.
+ *
  * NOTE: an aliases-field match is necessary but NOT sufficient. For each
  * candidate this prints, also run:
  *

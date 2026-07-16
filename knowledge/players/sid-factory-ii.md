@@ -4,7 +4,7 @@
 {
   "id": "sid-factory-ii",
   "name": "SID Factory II",
-  "aliases": ["SF2", "SidFactory_II"],
+  "aliases": ["SF2", "SidFactory_II", "SidFactory_II/Laxity"],
   "authors": [
     "Thomas Egeskov Petersen (Laxity)",
     "JCH (assistance)",

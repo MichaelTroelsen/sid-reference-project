@@ -94,7 +94,11 @@ function buildFileList(composer, stilByFolder) {
   // `subtunes` and `csdb_id` are additive per-file attributes for the Files
   // tab's grid — both omitted when absent/default (subtunes === 1, no
   // csdb_id) rather than stored as 1/null on every record, same repetition-
-  // avoidance reasoning as `comment` above. `player_type` is deliberately
+  // avoidance reasoning as `comment` above. NOTE a file's `csdb_id` is a CSDb
+  // *SID-entry* id (/sid/?id=), NOT a release id — unlike a *player*'s
+  // csdb_id, which is a release id. The two namespaces overlap numerically, so
+  // mixing them up resolves to an unrelated page rather than 404ing; the
+  // template links these as /sid/. `player_type` is deliberately
   // NOT carried: it is the constant string "Normal built-in" on all ~55,000
   // files (verified across the whole collection), so it holds zero
   // information and would add ~1.6MB of pure repetition — don't add it back.

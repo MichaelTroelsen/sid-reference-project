@@ -150,8 +150,18 @@ picture; this file is quick orientation for a fresh session.
   `currentSort` reset). `resolveTag()` memoizes `matchPlayer()` per
   distinct tag so filtering/sorting 55k files never re-resolves. Two
   extra per-file attributes were added to the payload for the grid's
-  columns: `subtunes` (omitted when 1) and `csdbId` (CSDb release link) —
-  both omit-when-default, same repetition-avoidance as `comment`.
+  columns: `subtunes` (omitted when 1) and `csdbId` — both
+  omit-when-default, same repetition-avoidance as `comment`.
+  **`csdbId` landmine**: a *file*'s `csdb_id` is a CSDb **SID-entry** id
+  (`csdb.dk/sid/?id=`), while a *player*'s `csdb_id` is a **release** id
+  (`csdb.dk/release/?id=`). Same field name, two different CSDb
+  namespaces — and they overlap numerically, so querying one as the other
+  silently returns an unrelated page instead of 404ing (Monster Munch's
+  61252 is the right SID entry but resolves to "ZSS Intro" as a release).
+  The Files tab linked these as `/release/` for a while and was wrong on
+  every row; fixed. Four independent research passes hit this trap before
+  it was spotted, so verify which namespace you're in before adding any
+  new CSDb link.
 - There's also a static **Sources** tab (`renderSources()`, `DATA_SOURCES`)
   — viewer-facing provenance listing the external services this reference is
   built from, with links (DeepSID API, the DeepSID database export, SIDId,
@@ -311,8 +321,13 @@ editing it, same as regenerating `graph.json` — and `mcp-c64` is the
 `status: verified` once its reconstruction assembles+runs). It is NOT a
 trained model and NOT a graph-DB-as-source-of-truth. Unknown facts are
 `"TODO: ..."` strings — never guess a memory map. `knowledge/playbooks/`
-holds the reusable procedures (e.g. `disassemble-a-player.md`). Currently 5
-connected cards (SF2/SF1/JCH NewPlayer/JCH OldPlayer/Laxity NewPlayer). The
+holds the reusable procedures (e.g. `disassemble-a-player.md`). The card
+count grows every batch — run `node knowledge/build-graph.js` for the
+current figure rather than trusting a number written here. (This line
+claimed "currently 5 connected cards" long after there were ~190; two
+separate research passes flagged it as stale before it got fixed.) The
+originally-seeded five were SF2/SF1/JCH NewPlayer/JCH OldPlayer/Laxity
+NewPlayer. The
 disassembly-derived fields (memory map, ZP, entry points, effect encodings)
 are sourced from the **SIDM2 project** (`c64server/SIDM2` — reverse-engineers
 Laxity-family SID players into SF2; the `laxity-newplayer.md` card is seeded

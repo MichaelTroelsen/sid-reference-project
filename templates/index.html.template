@@ -1091,8 +1091,14 @@ function filesTableBody(files, moreNote){
           : `<span class="tag" title="No match in players/editors database">${f.player}</span>`)
       : `<span class="cnote">${f.source === 'stil' ? 'unknown (STIL)' : 'not identified'}</span>`;
     const ds = deepsidFileUrl(f);
-    const csdb = f.csdbId ? `https://csdb.dk/release/?id=${f.csdbId}` : null;
-    const links = `${ds ? `<a class="dslink" href="${ds}" target="_blank" title="Play on DeepSID">▶</a>` : ''}${csdb ? ` <a class="dslink" href="${csdb}" target="_blank" title="CSDb release">CSDb</a>` : ''}`;
+    // A file's csdb_id is a CSDb *SID-entry* id (/sid/?id=), NOT a release id.
+    // They're separate namespaces that overlap numerically, so /release/?id=
+    // silently resolves to an unrelated release instead of 404ing — e.g. Monster
+    // Munch's 61252 is the right SID but "ZSS Intro" as a release. Note this is
+    // the opposite of a *player*'s csdb_id (see csdbReleaseBox), which really is
+    // a release id.
+    const csdb = f.csdbId ? `https://csdb.dk/sid/?id=${f.csdbId}` : null;
+    const links = `${ds ? `<a class="dslink" href="${ds}" target="_blank" title="Play on DeepSID">▶</a>` : ''}${csdb ? ` <a class="dslink" href="${csdb}" target="_blank" title="CSDb SID entry">CSDb</a>` : ''}`;
     const info = f.comment ? `<div><button class="cnote-btn" onclick="toggleFiles(this)">▸ song info</button><div class="mp-desc" style="display:none;max-width:520px">${f.comment}</div></div>` : '';
     return `<tr>
       <td style="font-family:'Share Tech Mono',monospace;font-size:.72rem;white-space:nowrap">${f.file || ''}</td>

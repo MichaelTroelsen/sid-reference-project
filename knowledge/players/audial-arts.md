@@ -32,12 +32,16 @@
     "Audial Arts is a Dutch C64 MUSIC GROUP (CSDb group #752, NL, founded 1990, active ~1990-92, 35 releases), NOT a person. Six musician members: Ronny Pasch (founder), Rodney Balai, François Prijt (also gfx/swapper), Harlequin, Softmaster, Tim Straten. The 99 files aggregate the group folder (per-member subfolders like Pasch_Ronny/, Balai_Rodney/), all using Prijt's Zong Player.",
     "NAME-COLLISION TRAP: distinct from 'Audial Revolution' — a SEPARATE SIDId entry ('Audial Revolution Music Editor' by Maikel van de Lisdonk (Yoga), 1989, a different group). Don't conflate.",
     "A reverse-engineered ACME source exists (realdmx/c64_6581_sid_players, `Audial_Arts/aaplayer1.asm`) — BUT it is the PLAYER skeleton only (no embedded tune): assembled clean ($1000-$19D1, jmp table init $1000→$1024 / play $1003→$1083) but produced 0 register writes standalone (nothing to play). So it can't self-verify like the composer-driver reconstructions; a `verified` card would need a real Audial_Arts tune's data assembled with it, or a disassembly of a specific rip.",
-    "Driver internals (memory map, ZP, format, effects, multispeed) UNKNOWN — TODO (read the realdmx Audial_Arts .asm). No stated lineage to JCH/DMC/etc."
+    "Driver internals (memory map, ZP, format, effects, multispeed) UNKNOWN — TODO (read the realdmx Audial_Arts .asm). No stated lineage to JCH/DMC/etc.",
+    "SIBLING TAGS ARE NOT THIS PLAYER: 'Audial_Arts/Cody' and 'Audial_Arts/Cody_Digi' are a SEPARATE routine — Ronny Pasch's (handle Cody) own 1989 Capitol-era code, predating the group. See [[audial-arts-cody]]. Distinct sidid.cfg signature ($D418-led vs the Zong Player's $D416-led), distinct addresses ($4000/$4003 vs $0fff/$1003 and $3fff/$4003), and ZERO file overlap across a byte-scan of all four AA-family signatures over 154 HVSC #85 files. The shared 'Audial_Arts/' prefix is HVSC FOLDERING (Pasch's files sit under MUSICIANS/A/Audial_Arts/Pasch_Ronny/), not lineage. Do not fold those files into this card — this card's headline claim (group routine, coded by Prijt) is wrong for them.",
+    "A FOURTH AA-family signature exists and is uncarded: '(Audial_Arts_Digi)' (2 files). Noted while researching the Cody sibling; not yet investigated.",
+    "OPEN TENSION in the Prijt attribution — flagged, not resolved. Zong-signature files carry release strings '1989 Capitol' (Jingle Bells, Landscape) and '1989 Audial Arts' (Kwenie, YoYo!) — yet CSDb dates the group's founding to 1990 and Prijt's membership to 12-1990. So Zong usage apparently PREDATES its credited author joining the group. Not a refutation (HVSC year fields are loose, and SIDId's AUTHOR is a single source), but the 'coded by Prijt' claim deserves this caveat until a second source confirms it."
   ],
   "sources": [
     "CSDb group 752 (identity, members, era): https://csdb.dk/group/?id=752",
     "SIDId sidid.nfo (names the player 'Zong Player' / François Prijt): https://raw.githubusercontent.com/cadaver/sidid/master/sidid.nfo",
     "realdmx disassembly (Audial_Arts/aaplayer1.asm — player skeleton, RE'd source): https://github.com/realdmx/c64_6581_sid_players",
+    "realdmx also carries aaplayer2.asm ('Audial Arts v2', credited Francois Prijt, 1991) — a SECOND Zong revision, not yet read: https://github.com/realdmx/c64_6581_sid_players",
     "Local dataset: 99 files tagged Audial_Arts (the group's members) — see knowledge/COVERAGE.md"
   ]
 }
@@ -58,6 +62,12 @@ named "Zong Player"** (author Prijt), Audial Arts is a **group not a person**,
 the **"Audial Revolution" name-collision trap**, and that the realdmx RE source
 is a **player skeleton only** (so it can't self-verify like the composer-driver
 reconstructions).
+
+Two more, added while researching the sibling tag: the `Audial_Arts/Cody*` tags
+are **a different routine entirely** ([[audial-arts-cody]] — Ronny Pasch's
+pre-group Capitol code, zero signature overlap with Zong), and the **Prijt
+attribution carries an unresolved date tension** (Zong-signature files are
+released 1989; CSDb has him joining the group 12-1990).
 
 ## Disassembly notes
 

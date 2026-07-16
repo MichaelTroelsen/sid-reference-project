@@ -39,7 +39,8 @@
     "SELF-CODED, CONFIRMED BY TWO INDEPENDENT METHODS THAT AGREE EXACTLY. (1) Binary: the driver prologue NOP / INC ctr / LDA ctr / CMP #$06 / BEQ / JMP hits 4 files across all 61,157 HVSC files, ALL Kirwa (two loose hits, Danko_Tomas and Dr_Zoom, ruled out on structure — one compares #$01). (2) Documentation: VGMPF, verbatim, 'Except on Title - Blast'em (C64), Kirwa programmed his own drivers.' THE TWO MATCH PERFECTLY — Blast_em is the one file using $D400 directly with ZERO mirror stores, and the one file DeepSID tags as Future Composer. His own code = $D480 mirror; the borrowed tool = $D400. A clean internal control.",
     "THE TAG UNDERCOUNTS ITS OWN FAMILY: DeepSID tags 3 files, but the driver family is 4 and his own code covers 5 of 6. SLASH.SID (1989 64'er/Markt & Technik) IS UNTAGGED YET RUNS THE SAME DRIVER — an earlier revision. A real gap. Ultrazoyd (1989) is also his code (68 mirror stores) but lacks the CMP #$06 prologue and is RSID/whole-program — predecessor or separate routine is UNDETERMINED. Blast_em (1989, Game On/CP Verlag) is the sole third-party exception, tagged FutureComposer_V4_Packed — see [[future-composer]].",
     "TWO REVISIONS: Slash (1989) is simpler — direct indexed sequences, no $FB/$FC. Sensitive/Stagger/Build_It (1990-91) are mature — a 16-bit $FB/$FC pointer, PHA/PLA-preserved. Build_It $3778 and Stagger $2171 are INSTRUCTION-FOR-INSTRUCTION IDENTICAL with only absolute addresses relocated: one driver, reassembled per game.",
-    "A KB-WIDE TOOLING LIMITATION FOUND HERE — sidm2-siddump SILENTLY MISSES SID-MIRROR DRIVERS. All four mirror-dominant Kirwa files trace 0 register writes / 0 frames, while Blast_em (canonical $D400) traces 2,842 lines. Perfect correlation: the tracer does not decode SID mirrors. This is a TOOLING LIMITATION, NOT A DEAD TUNE — a mirror-addressed driver reads as 'silent' and could be misjudged. It is why this card cannot reach 'verified'. It also matters for [[oliver-klaewer]], whose verification rests on the same tracer.",
+    "A KB-WIDE TOOLING LIMITATION FOUND HERE — sidm2-siddump SILENTLY MISSES SID-MIRROR DRIVERS. All four mirror-dominant Kirwa files trace 0 register writes / 0 frames under it, while Blast_em (canonical $D400) traces 2,842 lines. Perfect correlation: that tracer does not decode SID mirrors. A mirror-addressed driver reads as 'SILENT' rather than erroring — so it could be, and nearly was, misjudged as a dead tune. Anything relying on sidm2-siddump alone inherits this blind spot; relevant to [[oliver-klaewer]], whose verification rests on it.",
+    "RESOLVED — scripts/dev/vsid-trace.js HANDLES THE MIRROR CORRECTLY, so the blocker above is lifted. VICE emulates the real machine's partial address decode, so $D480 writes genuinely reach the SID and are reported at canonical register offsets. Measured with the wrapper at 50 frames: Slash 196 writes (33/50 active), Sensitive 203 (50/50), Build_It 460 (50/50), Stagger 448 (50/50, 'per-frame ~50Hz conventional player'), Ultrazoyd 66 (6/50), Blast_em 904 (50/50). ALL SIX FILES DRIVE. The 0-write readings were purely a tracer artefact. THE LESSON GENERALISES: a 0-write trace is evidence about the TOOL until you have ruled the tool out — reach for the VICE wrapper as a second opinion before concluding a tune is silent.",
     "SPELLING-VARIANT HYPOTHESIS DISCONFIRMED: 'Kirwa' is correct. HVSC Musicians.txt was checked for Kirwa/Kirwan/Kirva/Kiwra/Kirwe/Kierwa/Kirwo/Krwa — only 'Kirwa' exists (1 hit; all others 0). Four independent sources agree. Not a transliteration.",
     "THE COLLISION THAT MATTERS IS OLIVER KLAEWER — adjacent in Musicians.txt, both German Olivers, both self-coded drivers, both no editor. DIFFERENT PERSON: Klaewer b. 1969 Hanover, Kingsoft/reLine; Kirwa b. 1971-06-08 Bremen. Already carded as [[oliver-klaewer]]. Kingsoft appears in both gameographies (Emerald Mine; Gotcha!) — do not let that merge them. Also ruled out: 'Dr. Knox' vs Baron Knoxburry (Jason Langel, USA); six other German Olivers in Musicians.txt (Benedens, Mohr, Klee, Bartelt, Hoeller, Malms).",
     "CSDb URL TRAP (same family as the csdb_id landmine in CLAUDE.md): the XML nests Scener ID 22461, but /scener/?id=22461 returns 'The Fighter' (Denmark) — an unrelated person. The correct URL uses the HANDLE id: /scener/?id=25087.",
@@ -84,9 +85,10 @@ See the `quirks` array. The load-bearing ones:
 - **Self-coding is confirmed twice over**, and the two methods provide each
   other's control: VGMPF names *Blast'em* as the sole exception, and *Blast'em*
   is exactly the one file with zero mirror stores.
-- **The tracer can't see mirror drivers.** Four files reading "0 writes" are not
-  silent — the tool doesn't decode mirrors. This blocks `verified` here and
-  casts doubt on any similarly-verified card.
+- **`sidm2-siddump` can't see mirror drivers** — four files reading "0 writes"
+  were never silent. **Resolved**: `scripts/dev/vsid-trace.js` drives all six
+  (VICE emulates the real address decode). Generalised lesson: *a 0-write trace
+  is evidence about the tool until the tool is ruled out.*
 - **`Slash.sid` is untagged but runs the same driver** — a real gap in DeepSID's
   tagging.
 
@@ -106,9 +108,14 @@ modulo relocation — one driver reassembled per game.
 `status: in-progress`. Identity, provenance, self-coding and the driver family
 are solid and multiply-sourced. Entry points and the two revisions are measured.
 
-**`verified` is currently BLOCKED BY TOOLING**, not by effort: `sidm2-siddump`
-doesn't decode SID mirrors, so all four mirror-addressed files trace zero writes.
-This should be logged as a KB-wide issue — the same tracer underpins other cards.
+**Playback confirmed via `scripts/dev/vsid-trace.js`** — all six files drive
+(Stagger 448 writes over 50/50 frames; figures per file in the quirks). An
+earlier reading of "0 writes" on the four mirror-addressed files was a
+**`sidm2-siddump` artefact**, not silence: that tracer doesn't decode SID
+mirrors, VICE does. The tooling blocker is lifted.
+
+Still **not** `verified`, for the ordinary reason: nothing has been
+reconstructed and re-run. Driving cleanly is necessary, not sufficient.
 
 Not determined: the driver's internal data format (order list, pattern/instrument
 encoding, tables, effect commands) — all `TODO`, no memory map guessed; whether

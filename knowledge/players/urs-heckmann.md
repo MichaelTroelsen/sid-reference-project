@@ -20,7 +20,7 @@
     "init": "Das_Model $c000, La_Piranha $c000, Nippon $c000 (a relocation stub; real init at $c0b7), Howard_the_Coder $e812.",
     "play": "Nippon $c09f, Howard_the_Coder $e913. Das_Model and La_Piranha are PSID play=$0000 — they install their own IRQ via $0314/$0315 (Das_Model vectors to $c128) then CLI."
   },
-  "speed": "TODO — not determined.",
+  "speed": "Nippon/Howard: 1x (traced). Das_Model/La_Piranha: UNRESOLVED but NOT 1x — they trace at ~1,086 and ~1,136 writes PER FRAME (54,295 / 56,790 writes over 50 frames), an order of magnitude above the other two. That rate implies heavy multispeed or per-sample register churn. Measured, not explained — do not record a speed until it is understood.",
 
   "data_format": {
     "order_list": "TODO",
@@ -109,11 +109,22 @@ rather than purely relocated.
 Howard were **traced locally** (600 frames each) and their filter/PWM behavior
 above is measured, not inferred.
 
+**Update (2026-07-16): `Das_Model` and `La_Piranha` now trace.** They are
+`play=$0000` self-installing-IRQ files that the project's own tracer cannot drive
+(it returned 0 writes, then 15 bogus ones). Re-traced with
+`scripts/dev/vsid-trace.js`: **54,295** and **56,790** writes over 50/50 active
+frames. This **confirms at runtime** what was previously inferred from static
+`$d417` stores alone — `$D416`/`$D417`/`$D418` are all genuinely written.
+
+**But it raises a new question rather than closing one.** Those rates are
+**~1,086 and ~1,136 writes per frame** — an order of magnitude above Nippon
+(~1/frame) and Howard, on the same driver family. Heavy multispeed and
+per-sample register churn are both plausible; **neither is established**, and
+the `speed` field deliberately records the measurement without an explanation.
+Worth a dedicated look — it may be the most interesting unexplained thing on
+this card.
+
 **Not verified**, and specifically:
-- `Das_Model` / `La_Piranha` are `play=$0000` self-installing-IRQ files — the
-  project's own tracer cannot drive them (returned 0 writes, then 15 bogus
-  ones). Their filter use above is inferred from **static `$d417` stores only**,
-  not from runtime. These two are candidates for the VICE/`vsid` wrapper.
 - Zero-page map, data format and effect encodings were not investigated and are
   left `TODO`. No guesses.
 - Nippon's play routine beyond init is undisassembled.

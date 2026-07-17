@@ -45,14 +45,15 @@
   "quirks": [
     "100% personal: all 43 files across GRG_tiny_1..4 (and the separate bare 'GRG' tag's 11 files) belong to a single composer, Glenn Gallefoss himself — no other musician in the collection uses this signature. Strong signal this is a private/in-house routine, not a shared editor (data/composers/glenn-gallefoss.json).",
     "No CSDb release, manual, or public source was found for 'GRG Tiny' as a named tool — searched CSDb and the open web directly. Contrast with the same author's actually-published, credited tool SID Duzz' It (see sidduzzit.md, CSDb release 7175) — GRG Tiny appears to be a separate, unpublished personal routine, not a rebrand of SDI.",
-    "COVERAGE.md's own raw-tag grouping already merges GRG_tiny_1/2/3/4 into one family (rank 3, 43 files) — this card follows that grouping. The plain 'GRG' tag (11 files, also 100% Gallefoss) is Tier-1-evident but was deliberately left OUT of this card: HVSC's Prg2Sid ripping-tool changelog (December 2022 update) documents 'GRG Tiny4' as a newly-identified signature, but does NOT mention a separate 'GRG' entry anywhere in that changelog (checked directly) — so no source found during this pass confirms whether the two tags are the same underlying code or genuinely distinct signatures. Treat bare GRG as an unconfirmed lead for a future card, not pre-merged here.",
+    "COVERAGE.md's own raw-tag grouping already merges GRG_tiny_1/2/3/4 into one family (43 files) — this card follows that grouping. The plain 'GRG' tag (11 files, also 100% Gallefoss) is Tier-1-evident but was deliberately left OUT of this card: HVSC's Prg2Sid ripping-tool changelog (December 2022 update) documents 'GRG Tiny4' as a newly-identified signature, but does NOT mention a separate 'GRG' entry anywhere in that changelog (checked directly) — so no source found during this pass confirms whether the two tags are the same underlying code or genuinely distinct signatures. Treat bare GRG as an unconfirmed lead for a future card, not pre-merged here.",
+    "RESOLVED in a later pass: written up as its own card, knowledge/players/grg.md. SIDId's actual signature-matching config (sidid.cfg, not just the author-only .nfo index checked here) shows GRG's three byte-pattern signatures share no bytes with any of GRG_tiny_1..4's four signatures — genuinely different code, not a relocated copy of the same routine. Kept as a separate card rather than merged in as a fifth alias. That card also found the two tags' usage windows overlap almost entirely (bare GRG: CSDb dates 1999-2022; GRG Tiny: 2006-2025) rather than one preceding the other, with several same-era file pairs (adjacent CSDb ids, near-identical titles) appearing under both tags — consistent with Gallefoss using both routines side by side.",
     "Versioned over a long span: dataset dates suggest GRG_tiny_1 tunes go back to at least 2006 ('Lightforce 2006') while GRG_tiny_4 is still being used in 2025 ('N0s Intro 84' for Nostalgia, https://csdb.dk/sid/?id=65178) — a personal routine iterated across roughly two decades, not a single dated release.",
     "Many GRG_tiny-tagged titles are 'N0s Intro NN' (N0s Intro, N0s Intro 83/84/85, N0s TapeCart Intro) — the tag correlates with his intro/demo output for the group Nostalgia, consistent with a compact in-house routine rather than a general-purpose tracker.",
     "Gallefoss has two other, real connections to published C64 music tools worth knowing but NOT asserted as edges here (no source/header ties GRG Tiny's code to either): he co-authored SID Duzz' It with Geir Tjelta (knowledge/players/sidduzzit.md), and DeepSID's own players.json credits him (as '6R6') as a co-developer of Digitalizer alongside Olav Mørkrid (knowledge/players/digitalizer.md, data/players.json). Do not infer a derives_from link from name or author overlap alone — none of these sources states GRG Tiny shares code with either."
   ],
   "sources": [
     "SIDId sidid.nfo entries for GRG_tiny_1/_2/_3/_4 and GRG (author field only, no dates/reference/comment for any of the five tags): https://github.com/cadaver/sidid/blob/master/sidid.nfo",
-    "Local dataset: knowledge/COVERAGE.md (rank 3, 43 files, raw tags GRG_tiny_1..4) and data/composers/glenn-gallefoss.json (per-file player tags, all 5 GRG* tags used only by this one composer)",
+    "Local dataset: data/composers/glenn-gallefoss.json (per-file player tags, all 5 GRG* tags used only by this one composer, 43 files across GRG_tiny_1..4)",
     "HVSC Update 80 / December 2022 news (Prg2Sid 1.08 changelog: 'GRG Tiny4' listed as a newly identified player signature; no separate 'GRG' entry appears anywhere in this changelog, checked directly): https://www.hvsc.c64.org/download/files/news/20221223.txt",
     "CSDb SID entry, GRG_tiny_4 tune 'N0s Intro 84' (2025, group Nostalgia): https://csdb.dk/sid/?id=65178",
     "CSDb SID entry, GRG_tiny_1 tune 'Delta Ingame': https://csdb.dk/sid/?id=2704",
@@ -83,10 +84,12 @@ See the `quirks` array. Load-bearing points: this is **100% one composer**
 heuristic); **no tool release/manual exists** for it despite a real search;
 the four `_1`..`_4` tags were merged into one family here because
 `knowledge/COVERAGE.md` already groups them that way, while the **separate
-bare `GRG` tag was deliberately left out** — no source found in this pass
-(including HVSC's own Prg2Sid changelog, which documents "GRG Tiny4" but
-never mentions a separate "GRG" entry) confirms whether the two tags share
-code or are genuinely distinct. And: despite Gallefoss's real credits on SID Duzz' It
+bare `GRG` tag was deliberately left out and is now its own card**,
+`knowledge/players/grg.md` — SIDId's raw `sidid.cfg` signature bytes (not
+just the author-only `.nfo` index checked in this card's original pass)
+show `GRG` and `GRG_tiny_1..4` share no byte patterns, i.e. genuinely
+different code, resolving the open question this card originally left
+unconfirmed. And: despite Gallefoss's real credits on SID Duzz' It
 and Digitalizer, **no source ties GRG Tiny's code to either** — that
 would-be edge is deliberately NOT asserted.
 
@@ -102,8 +105,10 @@ tracing it via `sidm2-siddump` — not attempted in this pass.
 **Not verified — `status: stub`, identity/provenance only.** Confirmed:
 single-author/single-composer usage (local dataset) and the absence of a public
 tool release (CSDb/web search). Whether the separate bare `GRG` tag shares code
-with `GRG Tiny4` remains unconfirmed — HVSC's Prg2Sid changelog documents only
-`GRG Tiny4`, not a separate `GRG` entry. Every runtime field
+with `GRG Tiny4` was originally left unconfirmed here — HVSC's Prg2Sid changelog
+documents only `GRG Tiny4`, not a separate `GRG` entry — but is now resolved in
+`knowledge/players/grg.md`: SIDId's `sidid.cfg` signature bytes show the two are
+genuinely distinct code, not a shared/relocated routine. Every runtime field
 (memory map, entry points, speed model, data/effect format) is `TODO` because
 no source or disassembly was consulted for the actual code.
 

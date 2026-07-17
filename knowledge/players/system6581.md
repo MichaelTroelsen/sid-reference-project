@@ -43,7 +43,8 @@
   },
 
   "quirks": [
-    "Heavily concentrated usage: of the 101 files in this dataset tagged 'System6581', 7 composers use it, and just two — Moppe (39 files, 38.6%) and Zizyphus himself (23 files, 22.8%) — account for 61% of them. Per the project's concentration heuristic (knowledge/EXTRACTION-TEMPLATE.md), this reads as a small-scene/group tool rather than a widely-adopted published tracker: it appears mainly used by its author and one close collaborator, both members of the Oneway group.",
+    "Concentrated but NOT single-group usage: of the 101 files tagged 'System6581', 7 composers use it, and the top two — Moppe (39, 38.6%) and Zizyphus himself (23, 22.8%) — are both Oneway and account for 61%. But the tool was NOT confined to Oneway (see the cross-group quirk below): its next-largest user cohort is a different group entirely. Full breakdown: Moppe 39, Zizyphus 23, Gerard Gourley 13, Ben Hayes 10, Liket 10, Graffiti Sonic 5, Deek 1.",
+    "CROSS-GROUP ADOPTION — surfaced 2026-07-17 by a composer-overlap connection scan over data/composers/*.json. Beyond Oneway (Moppe + Zizyphus = 62 files), System 6581's SECOND user cohort is the UK music group Sonic Graffiti: Gerard Gourley (13), Ben Hayes (10), 'Graffiti Sonic' (5) and Deek (1) = 29 files (~29%) — the exact four musicians credited on [[sonic-graffiti]], their own in-house editor (by Andy Lumley). So this Swedish editor crossed to a UK group; its reach is wider than its author's immediate circle, correcting the earlier 'mostly its own small group' read. This is a shared-USERS relationship (the same people used both tools), NOT shared code — different coders (Hederstierna vs Lumley), so no `shares_routine_with` edge is asserted, only this navigational link.",
     "Release lag: CSDb credits/release notes (release id 27434) describe the tunes on the release disk as composed/coded in 1989-1990 but only officially released as freeware in 1993 (V3.0) — DeepSID's players.json start_year (1990) and SIDId's implicit 1993 distribution date reflect these two different milestones. Don't treat '1990' and '1993' as a contradiction; they're coding-date vs release-date.",
     "No public source code, format documentation, or disassembly was located (CSDb, Codebase64, web search). Every Tier 3 runtime field is TODO for that reason, not a research shortcut — an honest gap, not a guessed one.",
     "DeepSID's players.json spec entry for 'System 6581' includes two concrete-looking runtime hints — 'zero_pages: None' and 'cpu_time: Approx 26-33 rasterlines [SD]' — that are recorded here as citations to that source, not independently verified against a disassembly."
@@ -66,9 +67,13 @@ for V3.0 (release id 27434) credits Zizyphus with the code and Zizyphus/Moppe
 around 1989-1990, with the tool officially released as freeware in 1993.
 DeepSID's cached player spec agrees on developer and CSDb id and adds a
 start_year of 1990. In this dataset it's used by 101 files across only 7
-composers, with two names (Moppe and Zizyphus) accounting for 61% of that
-usage — consistent with a tool that mostly circulated within its own small
-group rather than becoming a widely-adopted scene tracker.
+composers, with two Oneway names (Moppe and Zizyphus) accounting for 61% of
+that usage. It was not, however, an Oneway-only tool: its second-largest user
+cohort is the UK group **Sonic Graffiti** (Gerard Gourley, Ben Hayes, "Graffiti
+Sonic", Deek — ~29% combined), whose members also had their own in-house editor
+(see `[[sonic-graffiti]]`). So it crossed from its Swedish author's circle to a
+UK group — a shared-users link, not shared code (a composer-overlap connection
+scan surfaced it; see quirks).
 
 ## Quirks & gotchas
 

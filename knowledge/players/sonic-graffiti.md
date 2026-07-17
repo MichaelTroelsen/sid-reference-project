@@ -45,13 +45,14 @@
   "quirks": [
     "Composer concentration confirms this is an in-house group tool, not a published editor: all 29 files tagged Sonic_Graffiti in this project's dataset trace to just 4 composers — 'Graffiti Sonic' (12), Ben Hayes (6), Gerard Gourley (6), Deek (5) (aggregated from data/composers/*.json).",
     "Those exact names — Ben Hayes, Deek, Gerard Gourley — appear as credited Musicians of the CSDb group 'Sonic Graffiti' (https://csdb.dk/group/?id=5067, UK music group active 1989-1991), alongside coder Andy Lumley. This corroborates the SIDId identification: the editor was written by the group's coder for its own musicians, not released as a standalone product.",
+    "TOOL CROSSOVER — surfaced 2026-07-17 by a composer-overlap connection scan. The group's four musicians did NOT use only this in-house editor: all four (Ben Hayes, Gerard Gourley, 'Graffiti Sonic', Deek) also produced files fingerprinted to [[system6581]], the Swedish Oneway-group editor by Fredrik Hederstierna (Zizyphus) — where they are collectively that tool's SECOND-largest user cohort (~29 files, after only Oneway's own Moppe and Zizyphus). So Sonic Graffiti's coder built the group an in-house tool AND its musicians adopted an unrelated foreign editor. This is a shared-USERS link between the two players, not shared code (different coders, Lumley vs Hederstierna); no `shares_routine_with` edge is asserted.",
     "No public source, disassembly, or format documentation was found (CSDb release page only lists a T64 download and credits, no technical write-up)."
   ],
   "sources": [
     "SIDId sidid.nfo entry (data/sidid.json byTag.Sonic_Graffiti): name \"Sonic Graffiti Music Editor\", author \"Andy Lumley\", released \"1989 Sonic Graffiti\", reference https://csdb.dk/release/?id=122160",
     "CSDb release: Sonic Graffiti Music Editor V1.0, 1989, code by Andy Lumley — https://csdb.dk/release/?id=122160",
     "CSDb group: Sonic Graffiti (United Kingdom, music group, active 1989-1991; members incl. Andy Lumley/coder, Ben Hayes/musician, Deek/musician, Gerard Gourley/musician) — https://csdb.dk/group/?id=5067",
-    "Local dataset: 29 files tagged Sonic_Graffiti, rank 16 of family sizes (knowledge/COVERAGE.md)",
+    "Local dataset: 29 files tagged Sonic_Graffiti (counted from data/composers/*.json)",
     "Local composer aggregation (data/composers/*.json): Ben Hayes 6 files, Deek 5, Gerard Gourley 6, Graffiti Sonic 12"
   ]
 }
@@ -62,8 +63,8 @@
 Sonic Graffiti Music Editor is a native Commodore 64 music tool coded by Andy
 Lumley in 1989 for Sonic Graffiti, a UK-based scene music group. SIDId
 identifies files it produced with the `Sonic_Graffiti` signature tag (29
-files in this project's dataset, rank 16 by file count — see
-`knowledge/COVERAGE.md`). It has no curated entry in `data/players.json`; it
+files in this project's dataset, counted from `data/composers/*.json`). It
+has no curated entry in `data/players.json`; it
 is known here purely through the SIDId index and this project's own
 composer-usage aggregation. Everything found so far points to an in-house
 tool rather than a widely-distributed editor: it was built by the group's

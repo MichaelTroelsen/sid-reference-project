@@ -46,7 +46,7 @@
     "VGMPF, 'TFMX Editor': https://www.vgmpf.com/Wiki/index.php?title=TFMX_Editor — driver history, Starball/Garrison first-use dates, 'script language' driver, editor never released, demoscene's Mastercomposer/Timecomposer built as replacements. This is the sole support for the C64-before-Amiga lineage direction — no other source cited for that specific claim.",
     "Wikipedia, 'Chris Huelsbeck': https://en.wikipedia.org/wiki/Chris_Huelsbeck — TFMX name/feature summary (describes the later Amiga engine's features; not used as a source for any C64-driver-specific claim)",
     "CSDb release (sibling tag TFMX/MasterComposer): https://csdb.dk/release/?id=4298 — Bierfront, 1990, code: Playboy & Sir Tippitt",
-    "CSDb release (sibling tag TFMX/TimeComposer): https://csdb.dk/release/?id=62502 — 'Time-Composer V4.0', 1990, coder credited as Playboy on CSDb (SIDId's sidid.json instead credits 'Oliver Hoeller (Rhodan)' — discrepancy noted, not resolved here)",
+    "CSDb release (sibling tag TFMX/TimeComposer): https://csdb.dk/release/?id=62502 — 'Time-Composer V4.0', 1990, coder credited as Playboy on CSDb (SIDId's sidid.json instead credits 'Oliver Hoeller (Rhodan)' — RESOLVED in knowledge/players/tfmx-timecomposer.md: id=62502 is a later crack by Playboy; the original tool release is a separate CSDb id, 199016, by Warriors of Time, credited to coder 'Rhodan', matching SIDId's author. SIDId's `reference` field simply points at the wrong CSDb entry.)",
     "CSDb scener (Chris Hülsbeck): https://csdb.dk/scener/?id=8645",
     "Sibling card knowledge/players/chris-huelsbeck.md — establishes the three-way tag split (Chris_Huelsbeck game-player tag vs SoundMonitor editor tag vs this TFMX tag) and the per-game TFMX attribution list"
   ]

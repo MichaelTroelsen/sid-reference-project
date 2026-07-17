@@ -7,7 +7,8 @@ specific knowledge card, a card `edges[]` relationship, or a
 `scripts/dev/find-connections.js` finding — nothing is asserted from general
 recollection. Where a section rests on an *organizing hypothesis* rather than a
 card-sourced fact, it says so. Sections marked **[needs writing]** are structure
-only; **[established]** points are safe to expand into prose as-is.
+only; **[established]** points are safe to expand into prose as-is; **[written]**
+sections have already been expanded into full cited prose.
 
 This document is curated, not generated — but it is meant to be *re-derived and
 extended* as the corpus grows. When a new connection is confirmed (a prose
@@ -105,28 +106,72 @@ here (see National Scenes).
 
 ---
 
-## Era III — the tracker dynasty (the code spine) **[established]**
+## Era III — the tracker dynasty (the code spine) **[written]**
 
-The single largest code lineage in the KB — **15 cards in one connected
-cluster** — and the backbone of any technical SID history. From `edges[]`:
+The single largest code lineage in the knowledge base — **15 cards in one
+connected `edges[]` cluster** — is also the backbone of any technical SID
+history. It is a single continuous thread that runs from **1988 to 2019 and
+beyond**, and the through-line is one specific design idea: JCH's "contiguous
+sequence stacking" track system, which every player below either introduced,
+inherited, or deliberately rebuilt. This is the best-evidenced narrative in the
+whole corpus; every claim in this section is a card `edges[]` relationship, not
+an inference.
 
-> [[laxity-newplayer]] · [[jch-newplayer]] · [[jch-oldplayer]] ·
-> [[jch-newplayer-v20]] · JCH Protracker · Kosa Protracker · Glover NewPlayer
-> V21 · Dane NewPlayer · the Laxity NP21 forks (Beast/Angular, Stinsen, DRAX) ·
-> [[sid-factory]] · [[sid-factory-ii]] · SID Factory II Driver 11 ·
-> [[cheesecutter]]
+**The root: JCH, 1988.** The line begins with [[jch-oldplayer]] (pre-1988) and
+its `successor_of` [[jch-newplayer]] (Jens-Christian Huus), whose true start is
+the `v00.xx` series of 17–23 July 1988. JCH NewPlayer became the single most
+influential *editor-paired* player routine of the Danish scene, and the hub from
+which most of this cluster radiates.
 
-This is the **Danish / Vibrants axis** (Laxity = Thomas Egeskov Petersen of
-Vibrants; JCH = Jens-Christian Huus) propagating forward through decades into
-the modern [[sid-factory-ii]]. [[laxity-newplayer]] is the *one verified card in
-this cluster* (~99.93% frame-accurate against SIDM2's disassembly), making it
-the technical keystone. **[established]** — this section can be written from the
-edges alone; it is the best-evidenced narrative in the whole corpus.
+**The JCH radiation (1988–2011).** JCH extended his own line —
+[[jch-newplayer-v20]] `derives_from` [[jch-newplayer]] (the JCH-Editor v3.x era,
+~1990–91) — and then others forked or re-fronted it, each spreading it into a
+new scene and decade:
 
-Smaller adjacent code lineages (2-card `edges` clusters) that belong near here:
+- [[jch-protracker]] (Jakub Kosinski / "Kosa", 1995) is `derives_from`
+  [[jch-newplayer]] — Kosa's own GUI wrapped around JCH's engine — and
+  [[kosa-protracker]] `shares_routine_with` it (the same engine under a second
+  tag).
+- [[glover-newplayer]] V21 (Lukasz Baran / "Glover", Samar Productions, 2000)
+  `derives_from` [[jch-newplayer]] — the line reaching the Polish scene.
+- [[dane-newplayer]] (Stellan Andersson / "Dane", Booze Design, 2011)
+  `derives_from` [[jch-newplayer]] — JCH's 1988 engine still being carried
+  forward more than two decades later.
+
+**The Laxity convergence (2005) — the verified keystone.** In 2005 Thomas
+Egeskov Petersen ("Laxity", of Vibrants) coded [[laxity-newplayer]] v21 *from
+scratch* as a rewrite of JCH's NewPlayer system, keeping the table layout of
+JCH's v20.g4. So it `shares_routine_with` [[jch-newplayer]] at the level of the
+"contiguous sequence stacking" *lineage and table layout* — but, importantly,
+with an **incompatible sequence architecture**: a shared design ancestry, not
+copied code. This card is the one `verified` node in the cluster (validated
+~99.93% frame-accurate against SIDM2's disassembly), which makes it the
+technical keystone — the point where the two great Danish player families are
+provably linked.
+
+**The Laxity NP21 forks.** Laxity's rewrite then became a root in its own right:
+[[beast-angular-newplayer]], [[stinsen-newplayer]], and [[drax-newplayer]]
+(Thomas Mogensen / "DRAX", 2008–2022) each `derives_from` [[laxity-newplayer]].
+And [[cheesecutter]] (Timo Taipalus / "abaddon", Triad, 2011) is the cluster's
+true crossroads: it `derives_from` [[laxity-newplayer]] **and**
+`shares_routine_with` [[jch-newplayer]] — a modern, cross-national inheritor
+(Finnish scene) pulling directly from *both* roots.
+
+**SID Factory → SID Factory II — the dynasty comes full circle.** In parallel,
+Laxity built the modern editors. The original [[sid-factory]] (~2005)
+`shares_routine_with` both [[jch-newplayer]] and [[laxity-newplayer]]. Its
+`successor_of` [[sid-factory-ii]] (2019, GPL, cross-platform) again uses JCH's
+contiguous-sequence-stacking track system, with [[sid-factory-ii-driver-11]] as
+its current swappable driver (`derives_from` SF2). The historical payoff is in
+SF2's own credits: it was built **with the assistance of JCH himself** (and
+Michel de Bree). The man whose 1988 player started this entire line is a
+credited collaborator on the 2019 editor that continues it — the dynasty's two
+founders, JCH and Laxity, reunited across 31 years.
+
+**Adjacent smaller code lineages** (2-card `edges` clusters) sit near this spine:
 [[1-raster-tracker]] → SID-Wizard (Hermit); Music Studio 2 → Music Studio Plus;
-NinjaTracker V1→V2 (Cadaver); Wizax-A → Zetrex/YP (shared $E000 player);
-Padua's Music Mixer → Music Assembler.
+NinjaTracker V1→V2 (Cadaver); [[wizax-a]] → [[zetrex-yp]] (a shared `$E000`
+player, a pre-NP21 Vibrants-era thread); Padua's Music Mixer → [[music-assembler]].
 
 ---
 

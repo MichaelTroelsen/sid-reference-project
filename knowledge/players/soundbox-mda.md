@@ -55,7 +55,7 @@
     "SIDId (data/sidid.json byTag['SoundBox/MDA']): author Tim Kleinert, released 1991 Modern Arts, reference https://csdb.dk/release/?id=112576",
     "CSDb release page — https://csdb.dk/release/?id=112576 (title \"Soundbox\", type C64 Tool, credit \"Tim of Modern Arts (Code)\", 1991, group Modern Arts)",
     "C64-Wiki, Tim Kleinert — https://www.c64-wiki.de/wiki/Tim_Kleinert (\"programmierte seinen eigenen Synthesizer und Sequencer für den SID 6581\" — self-taught 6502 assembler as a teenager, programmed his own synthesizer/sequencer for the SID; associates him with Modern Arts)",
-    "Local dataset: 9 files tagged SoundBox/MDA (see knowledge/COVERAGE.md, rank #20 of uncarded families) — 8 in data/composers/tim-kleinert.json, 1 in data/composers/matthias-hillebrand.json"
+    "Local dataset: 9 files tagged SoundBox/MDA — 8 in data/composers/tim-kleinert.json, 1 in data/composers/matthias-hillebrand.json"
   ]
 }
 ```

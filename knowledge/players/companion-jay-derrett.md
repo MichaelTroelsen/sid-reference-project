@@ -36,14 +36,14 @@
   },
 
   "edges": {
-    "derives_from": [],
+    "derives_from": ["companion"],
     "successor_of": [],
     "shares_routine_with": [],
     "same_effect_encoding_as": []
   },
 
   "quirks": [
-    "LINEAGE CLAIM (from SIDId, `sidid.nfo`): 'Rewrite of Clever Music's extension of Companion. Player is used in CRL (Computer Rentals Limited) releases.' This is a three-generation chain — Keith Bowden's 1984 'The Companion to the Commodore 64' (a Pan Books type-in driver, bare tag `Companion` in this dataset, OUT OF SCOPE for this card) -> Clever Music (Graham Jarvis/Rob Hartshorne) extended it -> Jay Derrett rewrote that extension for CRL. NOT asserted as an `edges.derives_from` link here because the bare `Companion` tag has no card yet in this batch; recorded as a lead for whoever cards `Companion` next.",
+    "LINEAGE CLAIM (from SIDId, `sidid.nfo`): 'Rewrite of Clever Music's extension of Companion. Player is used in CRL (Computer Rentals Limited) releases.' This is a three-generation chain — Keith Bowden's 1984 'The Companion to the Commodore 64' (a Pan Books type-in driver, bare tag `Companion`, now carded separately at knowledge/players/companion.md) -> Clever Music (Graham Jarvis/Rob Hartshorne) extended it -> Jay Derrett rewrote that extension for CRL. Asserted as `edges.derives_from: [\"companion\"]` now that the `Companion` tag has its own card (added in the same research pass that created that card); the intermediate Clever Music extension has no separate SIDId signature/card of its own, so the edge points directly at the root rather than at a non-existent middle node.",
     "INDEPENDENT CORROBORATION of the same chain from VGMPF's Clever Music page (not just the SIDId comment): 'Jarvis expanded [The Companion to the Commodore 64] ... For unconfirmed reasons, Steven Chapman, [Jay Derrett] and probably John McPhee reprogrammed it their own way.' VGMPF's Jay Derrett page separately confirms he wrote 'technical interfaces and SID drivers' for CRL after Clem Chambers (CRL) asked him to, turning Clever Music's scores into game-usable code — consistent with, but not identical wording to, the SIDId comment.",
     "COMPOSER CONCENTRATION IS HIGH: only 25 files in the local dataset use this tag, across 3 composers, and Jay Derrett himself accounts for 20/25 (80%) — Music Clever (4) and Gavin Raeburn (1) the rest. This reads as a small in-house CRL driver reused by very few people, not a widely published tool (cf. the project convention: concentrated use = personal/small-scene routine).",
     "CSDb lists Jay Derrett (scener id 9490) only under the function 'Musician', with no coder/driver-author credit visible on his scener page — the coding claim comes from VGMPF and SIDId, not from CSDb's own function tagging. Worth noting as a minor source disagreement, not a contradiction (CSDb's function tags track scene-release credits, not in-house/commercial CRL work).",
@@ -55,7 +55,7 @@
     "VGMPF — Jay Derrett biography (CRL role, 'technical interfaces and SID drivers', became CRL's 'main tune writer'): https://www.vgmpf.com/Wiki/index.php?title=Jay_Derrett",
     "VGMPF — Clever Music (the Companion-extension/rewrite chain quote, CRL connection, Rob Hartshorne/Graham Jarvis identity): https://www.vgmpf.com/Wiki/index.php?title=Clever_Music",
     "CSDb — Jay Derrett scener profile (id 9490, function: Musician): https://csdb.dk/scener/?id=9490",
-    "CSDb — Aleatory Composer by V.H. Berry, 1989 (a sibling Companion-derived editor, for context on the driver family): https://csdb.dk/release/?id=122331",
+    "CSDb release id=122331, claimed by SIDId/companion.md to be 'Aleatory Composer' by V.H. Berry (1989) — checked directly during this card's falsify audit and does NOT resolve (returns the generic CSDb homepage, not a release page); companion.md's own quirks already flag this same id as unconfirmed. Cited here only as an unresolved lead, not as a working confirmation.",
     "Local dataset: 25 files tagged Companion/Jay_Derrett, 3 composers (Jay Derrett 20, Music Clever 4, Gavin Raeburn 1) — see knowledge/COVERAGE.md and data/composers/*.json"
   ]
 }
@@ -80,9 +80,10 @@ with a small in-house driver rather than a widely distributed tool.
 See the `quirks` array — the load-bearing ones: the **three-generation
 lineage claim** (Companion -> Clever Music extension -> Derrett rewrite),
 corroborated by two independent sources (SIDId's comment and VGMPF's prose)
-but **not** encoded as an `edges.derives_from` link here because the `Companion`
-parent tag has no card yet in this batch — that merge is explicitly left for
-a future pass per this task's scope. Also the **high composer concentration**
+and encoded as `edges.derives_from: ["companion"]` now that the `Companion`
+tag has its own card (knowledge/players/companion.md) — the intermediate
+Clever Music extension has no separate SIDId signature/card of its own, so
+the edge points directly at the root. Also the **high composer concentration**
 (80% Jay Derrett himself) and the **absence of any CSDb release id** for the
 driver itself.
 

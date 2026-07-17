@@ -4,6 +4,12 @@ Ad-hoc tooling for reverse-engineering work. Nothing here is part of
 `npm run all`; these are run by hand.
 
 - `find-uncarded-tags.js` — player tags with no knowledge card yet.
+- `find-connections.js` — candidate player<->player connections from
+  composer-overlap over `data/composers/*.json` + card `edges[]`. Surfaces
+  bridge composers, high-overlap card pairs with no curated edge (with the
+  actual shared composers), and the curated lineage clusters. Confirmed pairs
+  become prose `[[links]]`, never machine edges — see the script header for the
+  discipline that separates real scene cohorts from popular-tool/omnivore noise.
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
 
 ---

@@ -47,7 +47,8 @@
     "Polish-scene tool (Longhair/Brush of Elysium and Parados, Polish groups). Usage reflects this: 1,126 files but only 45 composers (top users Bzyk, Klax, Randy, Shapie) — a concentrated, locally-circulated Polish editor rather than a broadly adopted one. A Polish-language manual exists.",
     "Version history is partial: V1.0 (1992, Elysium), a 'V1.0+ [6 speed]' re-release (Beverly Hills Group, adds Glover/Samar to credits), and a V2.0 referenced on a Polish forum. Dates for the latter two: UNKNOWN.",
     "Replay internals (load address, ZP, init/play, data format, effect set) are entirely undocumented — no public disassembly. All TODO; do not invent.",
-    "Year corrected to 1992 (was 'unknown' in the Tier-1 baseline)."
+    "Year corrected to 1992 (was 'unknown' in the Tier-1 baseline).",
+    "SHARED POLISH COMPOSER COHORT with [[reflextracker]] — surfaced 2026-07-17 by a composer-overlap connection scan over data/composers/*.json. Eight composers used BOTH this Polish editor and Reflex-Tracker (the 1995 German tool by kb/Quiss/Zorc of Reflex): Bax, Data, JFK, Leming, Praiser, Randy, V-12 and Warlock — all Polish. These are also among Reflex-Tracker's OWN heaviest users (Warlock, Data, JFK rank at its top), so the German-authored tool was substantially adopted by the same Polish scene that ran the native Hardtrack Composer — a cross-scene shared-USERS relationship, NOT shared code (different coders, Longhair/Brush vs kb/Quiss/Zorc; neither disassembled here). No `shares_routine_with` edge asserted; navigational link only."
   ],
   "sources": [
     "CSDb Hardtrack Composer V1.0 (release/credits/year): https://csdb.dk/release/?id=74928",

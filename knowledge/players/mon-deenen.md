@@ -18,7 +18,7 @@
 {
   "id": "mon-deenen",
   "name": "MoN/Deenen (Maniacs of Noise game replay routine, Charles Deenen)",
-  "aliases": ["MoN/Deenen", "Maniacs_of_Noise/Deenen", "Charles_Deenen"],
+  "aliases": ["MoN/Deenen", "Maniacs_of_Noise/Deenen", "Charles_Deenen", "MoN/FutureComposer/Deenen_Digi"],
   "authors": ["Charles Deenen"],
   "released": "TODO: exact year of first version not documented; VGMPF dates Deenen writing 'a C64 sound-driver' to circa 1985, in use as the house driver of Maniacs of Noise from the group's 1987 founding. SIDM2's disassembled corpus centers on ~1988 releases.",
   "status": "in-progress",
@@ -71,12 +71,13 @@
     "AT LEAST ONE MORE ORDERLIST ENGINE VARIANT EXISTS beyond the class-boundary differences above: Astro_Marine_Corps and Mr_Heli use a ZP nested-loop variant ($88,X loop counters) instead of the linear segment-step structure described in data_format.order_list.",
     "This is NOT an editor/tracker — it is Charles Deenen's own hand-written replay driver ('Musicfile'), coded in Turbo Assembler. VGMPF: 'Deenen, Donné, Tel and Ouwehand arranged by typing hexadecimal numbers and labels into the driver's source code.' There is no GUI, order-list editor, or pattern grid in the conventional sense — every tune is a hand-assembled variant of the driver source.",
     "Supported 4-bit sample ('digi') playback per VGMPF's Maniacs of Noise article: 'Deenen sent Bjerregaard a disk with Turbo Ass, his music driver, and some 4-bit samples.'",
+    "ALIAS FOLDED IN 2026-07-17 — the tag 'MoN/FutureComposer/Deenen_Digi' (11 files) is this driver's 4-bit-digi variant, folded into this card as an alias — NOT a separate tool, and NOT a MoN/FutureComposer variant despite the tag's '/FutureComposer/' name prefix. Basis for merging here rather than into future-composer.md: (1) all 5 of 5 sampled rips declare PSID play=$0000 and self-install their own IRQ — the exact hallmark this card's memory/entry fields document (e.g. Eye_to_Eye, load $4000), whereas every checked MoN/FutureComposer alias rip (RWE/Cyb2/TTWII/Bantam/JTS) has a concrete NON-zero play address; (2) SIDId/sidid.nfo has NO entry for 'Deenen_Digi' at all (the same absence-of-signature basis used for the prior FutureComposer alias merges — a matching name prefix alone settles nothing); (3) VGMPF already documents Deenen's driver did 4-bit sample playback (see the quirk directly above), so '_Digi' reads as a driver capability, not a distinct program; (4) composer concentration Jeroen Tel 8 / Charles Deenen 2 / Guy Shavitt 1 — both MoN founders present, consistent with the small in-house-team read. Sampled CSDb SID entries confirming play=$0000: Eye to Eye (10635), F1 Simulator (10637), Outrun Europa (28192), Navy Moves (28185), Pompa the Jam (26849).",
     "DO NOT CONFLATE with 'MoN/FutureComposer' (see future-composer.md) — that is a later, separate, GUI-wrapped tool (editor by Juha Granberg/Finnish Gold) built around a Maniacs-of-Noise player routine. SIDId's own 'MoN/FutureComposer' entry comment ('Editor made for the player of /MUSICIANS/T/Tel_Jeroen/Noisy_Pillars_tune_1.sid') ties that editor's origin to a Jeroen Tel tune from the same MoN driver lineage this card covers — evidence for a routine relationship, not proof of byte-identical code, hence the conservative `shares_routine_with` edge rather than `derives_from`.",
     "DO NOT CONFLATE with 'MoN/Bjerregaard' (Johannes Bjerregaard's own, separate driver) either — VGMPF states plainly Bjerregaard was offered Deenen's driver and declined: 'Deenen sent Bjerregaard a disk with Turbo Ass, his music driver, and some 4-bit samples, but Bjerregaard preferred his own driver. Petersen also used his own.' Same source group (Maniacs of Noise circle), three genuinely distinct player routines/tags.",
     "Nor with the separate Jeroen Tel MoN engine (Hawkeye / Cybernoid I+II / Myth / Supremacy) — same 'Maniacs of Noise' banner, different routine, per SIDM2.",
     "After Charles Deenen relocated to the USA around late 1990/1991, VGMPF states 'Tel programmed himself' — implying Jeroen Tel moved to his own driver after that point, so this tag's usage window is effectively bounded to Deenen's Netherlands-era MoN tenure (1987-1990/91).",
     "No dedicated CSDb release exists for the driver itself — Charles Deenen's CSDb scener page (id 1040) lists his tool credits as 'Future Composer V3.1' (release 7775), 'MON SFX Editor V1.00' (release 7936), and 'Sound Machine V1.1' (release 122536), but nothing titled 'Musicfile' or matching this Player-ID tag. Unlike Future Composer, this was never packaged/released as a standalone product.",
-    "126 files across 13 composers in this collection's Player-ID-tag population (rank 6 by file count per knowledge/COVERAGE.md) — the broader set this card's identity research covers, distinct from SIDM2's own 40-file classification corpus above. Composer concentration: Jeroen Tel 64 files (51%), Charles Deenen 17 (13%), Reyn Ouwehand 16 (13%), Francois Prijt 8, JVD 7, remaining 8 composers 1-3 each. This matches VGMPF's account of who directly used the driver (Deenen, Tel, Ouwehand, and 'Donné') — a genuinely shared in-house commercial tool among a small team, not one person's personal routine, but also never a publicly released/adopted tool the way Future Composer was.",
+    "126 files across 13 composers in this collection's Player-ID-tag population for the core 'MoN/Deenen' tag (counted from data/composers/*.json; a further 11 files come in via the folded-in 'MoN/FutureComposer/Deenen_Digi' alias — see the alias quirk above) — the broader set this card's identity research covers, distinct from SIDM2's own 40-file classification corpus above. Composer concentration: Jeroen Tel 64 files (51%), Charles Deenen 17 (13%), Reyn Ouwehand 16 (13%), Francois Prijt 8, JVD 7, remaining 8 composers 1-3 each. This matches VGMPF's account of who directly used the driver (Deenen, Tel, Ouwehand, and 'Donné') — a genuinely shared in-house commercial tool among a small team, not one person's personal routine, but also never a publicly released/adopted tool the way Future Composer was.",
     "SIDId's 'MoN/Deenen' entry has only an `author` field — no `released` or `reference` (CSDb release id), unlike most SIDId entries — consistent with there being no formal release to point at."
   ],
   "sources": [
@@ -84,8 +85,8 @@
     "SIDM2 corpus: SID/deenen/ (40 .sid, all credited 'Charles Deenen / 1988 Maniacs of Noise'); classified via tools/player-id.exe -m with tools/sidid.cfg.",
     "data/sidid.json byTag['MoN/Deenen'] — author: Charles Deenen (no release/reference field)",
     "data/sidid.json byTag['MoN/FutureComposer'] — comment tying the FutureComposer editor's origin to /MUSICIANS/T/Tel_Jeroen/Noisy_Pillars_tune_1.sid",
-    "knowledge/COVERAGE.md — rank 6, 126 files tagged 'MoN/Deenen'",
-    "Local aggregate over data/composers/*.json: 126 files / 13 composers (Jeroen Tel 64, Charles Deenen 17, Reyn Ouwehand 16, Francois Prijt 8, JVD 7, Barry Leitch 2, Hein Holt 2, Joachim Wijnhoven 3, No-XS 2, Trugoy 2, DRAX 1, Marc Francois 1, Yavin 1)",
+    "Local aggregate over data/composers/*.json: 126 files / 13 composers tagged 'MoN/Deenen' (Jeroen Tel 64, Charles Deenen 17, Reyn Ouwehand 16, Francois Prijt 8, JVD 7, Barry Leitch 2, Hein Holt 2, Joachim Wijnhoven 3, No-XS 2, Trugoy 2, DRAX 1, Marc Francois 1, Yavin 1)",
+    "Local aggregate over data/composers/*.json for the folded-in 'MoN/FutureComposer/Deenen_Digi' alias: 11 files / 3 composers (Jeroen Tel 8, Charles Deenen 2, Guy Shavitt 1)",
     "VGMPF, Charles Deenen — https://vgmpf.com/Wiki/index.php/Charles_Deenen (driver origin c.1985, MoN formation)",
     "VGMPF, Maniacs of Noise — https://vgmpf.com/Wiki/index.php/Maniacs_of_Noise ('Musicfile' driver name, Turbo Ass authorship, hex-in-source arranging method, 4-bit samples, Bjerregaard/Petersen declining it, Tel taking over after Deenen left)",
     "CSDb scener page, Charles Deenen (id 1040) — https://csdb.dk/scener/?id=1040 (tool credits checked: no standalone 'Musicfile'/driver release found)",
@@ -182,7 +183,7 @@ reconstruction has been assembled and run through `mcp-c64`.
 ## Sources
 
 See the `sources` array — SIDId's `MoN/Deenen` and `MoN/FutureComposer`
-entries, `knowledge/COVERAGE.md`, local `data/composers/*.json` aggregation,
+entries, local `data/composers/*.json` aggregation,
 VGMPF's Charles Deenen and Maniacs of Noise wiki pages, Charles Deenen's
 CSDb scener page (checked for, and finding no, a standalone driver release),
 and — new in this revision — the external **SIDM2** project's disassembly

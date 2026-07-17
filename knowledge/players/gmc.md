@@ -44,6 +44,7 @@
 
   "quirks": [
     "GMC is the direct PREDECESSOR of DMC (Demo Music Creator), same author Brian of Graffity — a well-attested lineage (a CSDb comment on the GMC release even says 'they should have called this DMC V1.0'). The dmc card carries the graph edge (derives_from / successor_of gmc).",
+    "SIDId also lists a 'GMC_V2.0/Superiors' tag with the identical NAME/AUTHOR fields but no CSDb reference and no confirmed matching release (only V1.0 here and a 'V1.6' are catalogued on CSDb) — carded separately as gmc-v2.md, which carries the derives_from/successor_of edge back to this card.",
     "'Superiors' in the DeepSID tag 'GMC/Superiors' is a SCENE GROUP that USED the GMC player, NOT the developer or a publisher. The developer group is Graffity. SIDId's comment: 'Player used by the group Superiors.'",
     "Only V1.0 is documented on CSDb (8 Dec 1990); development effectively continued as DMC. Code credited to Brian and Jay; music by Andy and Brian; graphics by Jay (all Graffity).",
     "A '.gmc' data-format entry reportedly exists on the ArchiveTeam File Formats wiki (unreachable during research — TODO to verify).",

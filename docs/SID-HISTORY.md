@@ -42,45 +42,65 @@ the scene links show how *people and communities* actually moved between tools.
 
 ---
 
-## Era I — the game-composer routines (early–mid 1980s) **[established]**
+## Era I — the game-composer routines (mid–late 1980s) **[written]**
 
-The oldest layer is hand-coded, per-game 6502 music drivers written by
-individual game composers — no reusable editor, the "format" is whatever the
-composer's own assembly source encoded. These are also the KB's most solid
-ground: **6 of the 7 `verified` cards are from this era**, grounded in
-disassembly or the composer's own published source:
+The oldest layer of SID music is not tools at all but **hand-coded, per-game
+6502 music drivers**, each written by an individual game composer. There was no
+reusable editor and no shared file format — the "format" is whatever the
+composer's own assembly source encoded, and the memory map varies from game to
+game. In this collection these routines appear only because Player-ID
+fingerprints their byte-signatures across the games that used them; a tag like
+`Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
+base's most solid ground: **six of the seven `verified` cards belong to it**,
+grounded in disassembly or (for Galway) the composer's own published source:
 
-| Year | Routine | Composer |
+| Routine | Composer | When |
 |---|---|---|
-| ~1980 | [[david-whittaker]] | David Whittaker |
-| ~1980 | [[matt-gray]] | Matt Gray |
-| 1984 | [[fred-gray]] | Fred Gray |
-| 1985 | [[martin-galway]] | Martin Galway |
-| 1985 | [[rob-hubbard]] | Rob Hubbard |
-| 1986 | [[jeroen-kimmel]] | Jeroen Kimmel (Red) |
+| [[david-whittaker]] | David Whittaker | reusable driver from ~1985 |
+| [[matt-gray]] | Matt Gray | ~mid–late 1980s |
+| [[fred-gray]] | Fred Gray | 1984–1990 |
+| [[martin-galway]] | Martin Galway | ~1985–1987 (Ocean) |
+| [[rob-hubbard]] | Rob Hubbard | ~1985 (first use late 1984/85) |
+| [[jeroen-kimmel]] | Jeroen Kimmel (Red) | 1986+ |
 
-Two code lineages already sit inside this era:
+**The Hubbard hub.** The defining figure is Rob Hubbard, the pre-eminent C64
+game composer of 1983–88, whose ~1KB 6502 driver was so effective that it was
+reverse-engineered and reused by *dozens* of other composers — the
+[[rob-hubbard]] card names Jeroen Tel, Johannes Bjerregaard, Jeroen Kimmel, Neil
+Baldwin, and Laxity among them. That is why 256 files across **51 composers**
+fingerprint to the tag while only ~28% are actually Hubbard's own work: it marks
+a routine *family*, not one man's output. The `edges[]` capture the core of it —
+[[jeroen-kimmel]] `derives_from` [[rob-hubbard]], and both [[robtracker]] (Jason
+Page & Rob Hubbard) and [[rob-hubbard-digi]] `share_routine_with` it. This hub
+also reaches *across eras*: because Laxity was among those who reused Hubbard's
+routine, Era I's foundational driver feeds forward — via Laxity — into the Era
+III tracker dynasty.
 
-- **The Hubbard cluster** (`edges`, 4 cards): [[jeroen-kimmel]] —
-  [[rob-hubbard]] — [[robtracker]] (Jason Page & Rob Hubbard) —
-  [[rob-hubbard-digi]]. Hubbard's routine was reused/adapted widely (the repo's
-  own finding: the plain `Rob_Hubbard` tag is only ~28% Hubbard's own files,
-  spread across 51 composers), so this is a genuine hub, not a personal dead-end.
-- **The Whittaker cluster** (`edges`, 3 cards): [[david-dunn]] —
-  [[jason-brooke]] — [[david-whittaker]].
+**The Whittaker line.** David Whittaker (~100+ titles) did something different
+with his personal driver: he **commercially licensed and sold it**, so it seeded
+*other developers'* games directly rather than only being reverse-engineered.
+That commercial reuse shows up as a short code lineage — [[jason-brooke]] is
+both `derives_from` and `successor_of` [[david-whittaker]], and [[david-dunn]]
+`shares_routine_with` [[jason-brooke]].
 
-**The Ocean Software axis (scene relationship, #73):** [[martin-galway]] and
-[[music-driver-paul-hughes]] are linked by an organizational succession — Paul
-Hughes wrote his in-house Ocean driver *after Galway left the company*,
-expressly "for the new guys to use," and the same Ocean composers (Jonathan
-Dunn, Matthew Cannon, Peter Clarke) span both. This is the clearest example of a
-*studio* (not just an author) as a unit of SID history. **[needs writing]** —
-worth developing into a full "the Ocean sound" section; candidate additional
-anchors: Jonathan Dunn's and Matthew Cannon's own routines if/when carded.
+**The Ocean Software axis.** The clearest case of a *studio*, not just an author,
+as a unit of SID history. [[martin-galway]] was Ocean's star composer until he
+left the company (c. 1986–87); Paul Hughes then wrote a fresh in-house driver
+([[music-driver-paul-hughes]]) expressly "for the new guys to use," and the same
+Ocean composers — Jonathan Dunn, Matthew Cannon, Peter Clarke — carried across
+both (surfaced by the composer-overlap scan, #73). No code passed from Galway to
+Hughes (Hughes wrote from scratch), so this is an organizational succession, not
+a code edge — but it is a genuine institutional thread, and a candidate to grow
+into a full "the Ocean sound" section if Dunn's and Cannon's own routines are
+ever carded.
 
-Also rooted here: [[soundmonitor]], whose cluster reaches back to a Chris
-Hülsbeck game routine and forward to [[rockmonitor]] — the bridge from
-personal game-driver to *published editor* (see Era II).
+**The pivot to editors.** The bridge out of this era runs through Chris
+Hülsbeck. His personal game player routine ([[chris-huelsbeck]], Musicmaster
+driver from 1985, Final Musicplayer 1987) `shares_routine_with` [[soundmonitor]]
+— the editor he published in 1986, which itself famously shipped as a magazine
+type-in listing — and [[rockmonitor]] then `derives_from` SoundMonitor. That
+step, from a composer's private in-game driver to a *published, reusable editor*
+anyone could type in and use, is exactly the transition that defines Era II.
 
 ---
 

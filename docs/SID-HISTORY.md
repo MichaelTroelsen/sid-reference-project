@@ -87,7 +87,14 @@ reverse-engineered and reused by *dozens* of other composers — the
 [[rob-hubbard]] card names Jeroen Tel, Johannes Bjerregaard, Jeroen Kimmel, Neil
 Baldwin, and Laxity among them. That is why 256 files across **51 composers**
 fingerprint to the tag while only ~28% are actually Hubbard's own work: it marks
-a routine *family*, not one man's output. The `edges[]` capture the core of it —
+a routine *family*, not one man's output. Two of those named reusers are now
+carded in their own right: [[bjerregaard]] (Johannes Bjerregaard), whose
+*second* music driver VGMPF documents as adapted directly from Hubbard's own
+code (1987–88, before he joined Maniacs of Noise), and [[neil-baldwin]], a
+self-taught composer-coder who wrote his own in-game routine and, by his own
+account, was "greatly inspired by Hubbard and Galway" — a stylistic debt his
+card is deliberate to keep as *influence*, explicitly not a code edge. The
+`edges[]` capture the core of it —
 [[jeroen-kimmel]] `derives_from` [[rob-hubbard]], and both [[robtracker]] (Jason
 Page & Rob Hubbard) and [[rob-hubbard-digi]] `share_routine_with` it. This hub
 also reaches *across eras*: because Laxity was among those who reused Hubbard's
@@ -111,6 +118,18 @@ Hughes (Hughes wrote from scratch), so this is an organizational succession, not
 a code edge — but it is a genuine institutional thread, and a candidate to grow
 into a full "the Ocean sound" section if Dunn's and Cannon's own routines are
 ever carded.
+
+**The Gremlin / We M.U.S.I.C. circle.** A second cluster of British game
+composers shows the same private-routine layer with a twist — they shared a
+*compiler*. [[ben-daglish]], Gremlin Graphics' other great name (The Last
+Ninja, Gauntlet, 720 Degrees) and a Hubbard collaborator (they co-composed
+*Auf Wiedersehen Monty*), did not write his tooling from scratch: through his
+pre-Gremlin years his music ran on a compiler built by fellow game-coder
+Antony Crowther, with whom he formed the outfit "We M.U.S.I.C." in 1986. And
+Crowther's compiler, [[antony-crowther]]'s *Music Master*, was itself published
+on 7 March 1986 as a type-in listing in *Your Commodore* magazine — a
+composer's private tool turned into a magazine you typed in, exactly the
+distribution-as-publication idea that [[soundmonitor]] carries into Era II.
 
 **The pivot to editors.** The bridge out of this era runs through Chris
 Hülsbeck. His personal game player routine ([[chris-huelsbeck]], Musicmaster
@@ -149,7 +168,13 @@ mon-futurecomposer shares with mon-deenen too. So Future Composer is best read
 not as one program but as *Deenen's driver + Granberg's editor*, a Dutch-engine /
 Finnish-interface collaboration — and it was hugely adopted (3,398 files / 366
 composers). This driver/editor separation is the same architectural idea that,
-decades later, SID Factory II would formalise (Era III).
+decades later, SID Factory II would formalise (Era III). It also wasn't the only
+Dutch tool built that way: the twin brothers Jeroen and Michiel Soede
+(SoedeSoft) shipped [[soundmaster]] in 1988 with the same split made explicit —
+Jeroen wrote the replay driver, Michiel the editor — and Jeroen states he built
+the driver from scratch specifically "to be able to arrange with drums like Rob
+Hubbard's," a direct line back to Era I's defining routine. It became one of the
+era's genuinely widely-adopted editors (some 900 files across 63 composers here).
 
 **The Graffity flagship: GMC → DMC (1990–91).** The Hungarian group **Graffity**
 (Brian / Balázs Farkas) produced the era's — and the whole collection's —
@@ -170,7 +195,11 @@ early editor, and [[padua-music-mixer]] (Paweł Sołtysiński "Polonus", 1991)
 `derives_from` it — the line reaching the Polish scene. Worth flagging: MC and
 OPM are the *same duo* behind Rock Monitor above, so this pair personally bridges
 the SoundMonitor-derived lineage and the Music-Assembler lineage — an authorship
-link, not a code edge.
+link, not a code edge. That same Dutch USA-Team turned out more than song
+editors: [[dutch-usa-team-prodrum]] (Pro-Drum, MC, 1988) was a dedicated
+two-track digi-*drum* sequencer rather than a tracker — a reminder that the
+late-80s scene was already building specialised rhythm tools alongside its
+general-purpose ones.
 
 Threads out of this era: the Hungarian editor scene (Graffity) and the Polish
 scene (Padua) both begin here and continue in **National scenes**; the
@@ -243,7 +272,14 @@ founders, JCH and Laxity, reunited across 31 years.
 **Adjacent smaller code lineages** (2-card `edges` clusters) sit near this spine:
 [[1-raster-tracker]] → SID-Wizard (Hermit); Music Studio 2 → Music Studio Plus;
 NinjaTracker V1→V2 (Cadaver); [[wizax-a]] → [[zetrex-yp]] (a shared `$E000`
-player, a pre-NP21 Vibrants-era thread); Padua's Music Mixer → [[music-assembler]].
+player, a pre-NP21 Vibrants-era thread); Padua's Music Mixer → [[music-assembler]];
+[[companion-jay-derrett]] `derives_from` [[companion]] (Jay Derrett's rewrite,
+for CRL games, of Keith Bowden's 1984 *Companion to the Commodore 64* type-in
+driver); and Geir Tjelta's own editor line — [[sidsys]] (SID Systems, 1990) →
+[[sidduzzit]] (SID Duzz'It, 1992) → the much later [[comptech-x]] (~2019) — a
+three-tool `shares_routine_with` cluster where the edges record shared
+*authorship* (all three are Tjelta's), the question of literal shared replay
+code being left open in the cards.
 
 ---
 
@@ -260,13 +296,18 @@ prose-link layer, not the `edges[]` layer.
 **Danish** — the scene with the deepest technical spine: the Vibrants/Laxity/JCH
 tracker dynasty (Era III), JCH and Laxity both confirmed Danish, running from
 1988's JCH NewPlayer to 2019's SID Factory II. DRAX (Thomas Mogensen, Denmark) —
-of Maniacs of Noise and the Laxity NP21 forks — sits here too.
+of Maniacs of Noise and the Laxity NP21 forks — sits here too. Beyond the
+dynasty, the Danish scene produced standalone editors of its own, like
+[[sound-tracker-64]] (the Mechanix trio Groo, Dean and Spe), premiered at the
+Dexion Meeting demoparty on 3 July 1988.
 
 **Hungarian** — the broadest editor-*and*-composer scene in the data. It opens
 with the Graffity flagship GMC/DMC (Era II; Brian / Balázs Farkas), and runs
 through a circle of native trackers whose users are confirmed Hungarian: the
 [[chubrocker]] ↔ [[sosperec]] circle (Chubrock, DOS, Mercury, Peet; #73) and
-[[odintracker]] (Zed / Zoltán Konyha). Its *modern-revival* wing is the most
+[[odintracker]] (Zed / Zoltán Konyha), plus [[minimusic]] (Brian's own smaller
+1990 editor — the same Graffity coder behind GMC/DMC) and [[sidwinder]] (Balázs
+"Taki" Takács of Natural Beat, 1999). Its *modern-revival* wing is the most
 active in the whole collection: Hermit (Hungary) with
 [[1-raster-tracker]]/SID-Wizard/[[flexsid]], alongside the two most prolific
 "bridge" composers of the entire dataset — NecroPolo and Vincenzo, both Hungary
@@ -275,7 +316,10 @@ the engine of the C64 music revival.
 
 **Polish** — a tightly-knit cohort visible through two tools: their own native
 [[hardtrack-composer]] (Longhair/Brush, Elysium) and [[padua-music-mixer]]
-(Polonus; Era II), plus a striking *cross-border adoption* — the same Polish
+(Polonus; Era II) — whose author Polonus also built [[digi-organizer]] (Padua,
+1991), an add-on that bolts a fourth sampled "digi" channel onto an
+independently-composed three-voice SID tune — plus a striking *cross-border
+adoption*: the same Polish
 composers (Bax, Data, JFK, Leming, Praiser, Randy, V-12, Warlock; all confirmed
 Polish) were also the heaviest users of the German [[reflextracker]] (#73).
 
@@ -296,15 +340,24 @@ bridge composer, is a modern node.
 and Jeroen Tel (Netherlands), whose house driver became the engine inside
 [[future-composer]] (Era II; [[mon-deenen]]). Reyn Ouwehand (Netherlands), a top
 bridge composer, and the Music Assembler duo MC/OPM (Era II) round out a scene
-defined as much by *drivers other tools wrapped* as by editors of its own.
+defined as much by *drivers other tools wrapped* as by editors of its own. Two
+more Dutch tools fill it in: the Soede twins' [[soundmaster]] (Era II) and Rene
+Lergner's [[heathcliff-digitalarts]] (Audio Assembler, the in-house tool of the
+group Focus, 1989–90) — the latter unusual for being distributed as raw 6502
+assembler source a composer edits and reassembles, not a GUI tracker.
 
 **Norwegian** — the Olav Mørkrid same-author cluster ([[digitalizer]] /
 [[olav-morkrid]] / [[omegasupreme-digi]]; #72), which the [[olav-morkrid]] card
-places explicitly in "the Norwegian Panoramic Designs scene."
+places explicitly in "the Norwegian Panoramic Designs scene." A second Norwegian
+pillar is Geir Tjelta's editor line — [[sidsys]] (1990) and [[sidduzzit]] (SID
+Duzz'It, 1992, co-coded with Glenn Rune Gallefoss under his group SHAPE) — the
+latter a Norwegian-scene mainstay maintained clear into the 2010s (979 files here).
 
 **Finnish & Swedish** — smaller but real: Finland gives us Cadaver (Lasse Öörni;
 NinjaTracker, [[sadotracker]]) and abaddon (Timo Taipalus; [[cheesecutter]], the
-Era III crossroads). Sweden gives Tomas Danko, and the Oneway group (Moppe,
+Era III crossroads), and Aleksi Eeben (Heatbeat / CNCD), who — finding the
+existing tools "unintuitive" — coded his own native tracker [[john-player]]
+(2001–02). Sweden gives Tomas Danko, and the Oneway group (Moppe,
 Zizyphus) behind [[system6581]].
 
 **Cross-scene adoptions — where a tool crossed a national boundary.** The most
@@ -335,7 +388,12 @@ finding**: their overlap inflates apparent "connections" between niche modern
 trackers that are really just "NecroPolo tried both" — which is why
 `find-connections.js` prints this list first, to discount those pairs. In the
 narrative they are the connective tissue of the *modern* scene, not evidence of
-tool lineage. **[established]**
+tool lineage. A telling wrinkle is that some of these omnivores were also
+*tool-builders*: Glenn Rune Gallefoss (9 devs) not only played every scene's
+trackers but wrote his own personal routines ([[grg]], [[grg-tiny]]) and
+co-authored [[sidduzzit]] with Geir Tjelta; DRAX (9 devs) has his own
+[[drax-newplayer]] in the Era III spine. For these composers, using everyone's
+tools and shipping your own were the same habit. **[established]**
 
 ---
 
@@ -353,7 +411,11 @@ Win/Linux/Mac), [[cheesecutter]] (2011 — cross-platform D), and
 [[sid-factory-ii]] (2019 — Windows/Mac/Linux with a reSID preview). You no
 longer need the hardware to write for it. The exception proves the rule:
 [[sidwizard]] (Mihály Horváth / Hermit, 2012) is still a *native* C64 tracker —
-but, tellingly, an open-source one (next point).
+but, tellingly, an open-source one (next point). The trajectory even leaves the
+*desktop*: [[sidtracker64]] (Daniel Larsson / "Pernod", 2015) is an iPad app with
+its own SID emulation that only touches real hardware when it exports a native
+C64 replay — and it found genuine adoption among original-era veterans, notably
+1980s game composer Jason Page.
 
 **Source became open.** The classic players were closed binaries — which is why
 this whole knowledge base leans on disassembly to document them. The modern
@@ -362,7 +424,14 @@ with public GitHub repos, [[goattracker]] and [[sidwizard]] likewise open. The
 sharpest illustration is [[cheesecutter]]'s replay source header, which literally
 declares its own lineage — *"Based on JCH NP 21.G4 by Laxity/VIB"* — a modern
 open-source tool stating in a code comment the exact classic-player descent that,
-for its ancestors, took a disassembly to establish.
+for its ancestors, took a disassembly to establish. Openness in this era isn't
+uniform, though. [[flexsid]] (Hermit, 2022) is open almost by accident of
+dependency: its author says he "didn't want to go open-source" but SDL 1.2's
+LGPL forced him to publish the source, so he attached his own informal "do what
+you want but mention the source" clause instead of a standard licence. And
+plenty of modern tools stayed *closed* — [[defmon]] (Frantic of Hack'n'Trade,
+built ~2008, first surfacing via a 2013 leak) is closed-source freeware, public
+but unopened, the same public-but-closed shape as DefleMask.
 
 **Preservation became a scene of its own.** The modern era is also when the
 *classic* players started being systematically reverse-engineered and

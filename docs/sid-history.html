@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A History of SID Players</title>
+<style>
+  :root {
+    --ground: #100f24;
+    --surface: #1a1940;
+    --panel: #201f52;
+    --screen: #201f6b;          /* the C64 "screen" blue */
+    --screen-border: #6f6ce0;   /* the C64 light-blue border */
+    --ink: #d9dbfb;
+    --ink-dim: #9a9dd6;
+    --ink-faint: #6f72ad;
+    --line: #2f2e66;
+    --cyan: #49e0cf;
+    --magenta: #ff5ea0;
+    --amber: #ffcf4d;
+    --green: #57d977;
+    --raster: linear-gradient(90deg, var(--cyan) 0%, var(--magenta) 52%, var(--amber) 100%);
+    --measure: 66ch;
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ground: #eef0fa; --surface: #ffffff; --panel: #f6f7fd;
+      --ink: #191a3d; --ink-dim: #4c4f86; --ink-faint: #8184b6; --line: #dfe0f2;
+      --cyan: #12a99a; --magenta: #d63c85; --amber: #b8791a; --green: #2f9e50;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #100f24; --surface: #1a1940; --panel: #201f52; --screen: #201f6b;
+    --ink: #d9dbfb; --ink-dim: #9a9dd6; --ink-faint: #6f72ad; --line: #2f2e66;
+    --cyan: #49e0cf; --magenta: #ff5ea0; --amber: #ffcf4d; --green: #57d977;
+  }
+  :root[data-theme="light"] {
+    --ground: #eef0fa; --surface: #ffffff; --panel: #f6f7fd;
+    --ink: #191a3d; --ink-dim: #4c4f86; --ink-faint: #8184b6; --line: #dfe0f2;
+    --cyan: #12a99a; --magenta: #d63c85; --amber: #b8791a; --green: #2f9e50;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .page {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.65;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+  .prose { max-width: var(--measure); }
+  p { margin: 0 0 1.1em; }
+  a { color: var(--cyan); }
+  h1, h2, h3, .mono, .eyebrow, .stat-n, .chip, .tag, .legend, .node-y, th {
+    font-family: var(--mono);
+  }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.22em; font-size: 12px;
+    color: var(--cyan); font-weight: 600; margin: 0 0 14px;
+  }
+  h2 {
+    font-size: clamp(24px, 4vw, 34px); line-height: 1.1; letter-spacing: -0.01em;
+    text-wrap: balance; margin: 0 0 6px; font-weight: 700;
+  }
+  h3 { font-size: 15px; letter-spacing: 0.02em; margin: 0 0 4px; }
+  .lede { color: var(--ink-dim); font-size: 18px; max-width: var(--measure); }
+
+  /* raster bar motif */
+  .raster { height: 6px; background: var(--raster); border: 0; margin: 0; }
+  .raster-thin { height: 3px; background: var(--raster); border-radius: 2px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .raster.anim { background-size: 220% 100%; animation: slide 9s linear infinite; }
+    @keyframes slide { to { background-position: 220% 0; } }
+  }
+
+  section { padding: 68px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: 0; }
+
+  /* HERO — C64 screen homage */
+  .hero { padding: 0; border-bottom: 0; }
+  .screen {
+    background: var(--screen);
+    border: 3px solid var(--screen-border);
+    border-radius: 8px;
+    padding: clamp(28px, 5vw, 56px);
+    color: #dcdcff;
+    box-shadow: 0 0 0 1px #0c0b28, 0 22px 60px -30px #000;
+  }
+  :root[data-theme="light"] .screen, .page .screen { color: #dcdcff; } /* screen stays a CRT */
+  .hero-outer { padding: 56px 0 40px; }
+  .screen .kicker {
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.3em;
+    font-size: 12px; color: #8f8dff;
+  }
+  .screen h1 {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(30px, 6.4vw, 60px); line-height: 1.02; letter-spacing: -0.01em;
+    margin: 16px 0 18px; text-wrap: balance; color: #fff;
+  }
+  .screen h1 .accent { color: var(--amber); }
+  .screen .sub { font-family: var(--sans); color: #c3c3f5; max-width: 60ch; font-size: 18px; }
+  .ready { font-family: var(--mono); margin-top: 26px; color: #9fe7dd; font-size: 15px; }
+  .cursor {
+    display: inline-block; width: 9px; height: 17px; margin-left: 3px;
+    background: #9fe7dd; vertical-align: -2px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cursor { animation: blink 1.06s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+  }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 16px; flex: 1 1 150px;
+  }
+  .stat-n { font-size: 24px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stat-l { font-size: 12.5px; color: var(--ink-dim); margin-top: 2px; }
+
+  /* eras timeline */
+  .era { display: grid; grid-template-columns: 120px 1fr; gap: 22px; padding: 20px 0; border-top: 1px dashed var(--line); }
+  .era:first-of-type { border-top: 0; }
+  .era .when { font-family: var(--mono); color: var(--magenta); font-size: 13px; padding-top: 3px; letter-spacing: 0.02em; }
+  .era .era-n { font-family: var(--mono); color: var(--ink-faint); font-size: 12px; }
+  .era h3 { color: var(--ink); font-size: 18px; margin-bottom: 6px; }
+  .era p { color: var(--ink-dim); font-size: 15.5px; margin: 0; }
+  .era .anchors { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px; color: var(--ink-dim); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px;
+  }
+
+  /* decade histogram */
+  .hist { margin-top: 30px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px 24px; }
+  .hist .row { display: grid; grid-template-columns: 62px 1fr 46px; align-items: center; gap: 12px; margin: 9px 0; }
+  .hist .lbl, .hist .val { font-family: var(--mono); font-size: 13px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .hist .val { text-align: right; color: var(--ink); }
+  .bar { height: 16px; border-radius: 4px; background: var(--raster); background-size: 940px 100%; }
+  .hist .cap { font-size: 12.5px; color: var(--ink-faint); margin-top: 14px; font-family: var(--mono); }
+
+  /* dynasty CRT panel (always dark) */
+  .crt {
+    background: #16163e; border: 3px solid var(--screen-border); border-radius: 10px;
+    padding: 12px 12px 6px; margin-top: 24px; overflow-x: auto;
+    box-shadow: inset 0 0 60px -20px #000;
+  }
+  .crt pre.mermaid { background: transparent; margin: 0; text-align: center; min-width: 560px; }
+  .crt svg { display: block; margin: 0 auto; max-width: 100%; height: auto; min-width: 620px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin: 16px 2px 0; font-size: 12.5px; color: var(--ink-dim); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 26px; height: 0; border-top: 2px solid var(--cyan); }
+  .swatch.dash { border-top-style: dashed; border-color: var(--magenta); }
+  .dot-v { width: 10px; height: 10px; border-radius: 50%; background: var(--green); display: inline-block; }
+
+  /* scene grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-top: 30px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .card .flag { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); }
+  .card h3 { color: var(--ink); margin: 6px 0 8px; font-size: 17px; }
+  .card p { font-size: 14.5px; color: var(--ink-dim); margin: 0; }
+  .card .tools { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+
+  /* findings */
+  .find { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }
+  .finding {
+    display: grid; grid-template-columns: 30px 1fr; gap: 14px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--magenta); border-radius: 10px; padding: 16px 18px;
+  }
+  .finding .ix { font-family: var(--mono); color: var(--magenta); font-size: 13px; padding-top: 2px; }
+  .finding h3 { color: var(--ink); font-size: 15.5px; margin-bottom: 3px; }
+  .finding p { font-size: 14.5px; color: var(--ink-dim); margin: 0; }
+
+  .note { display: flex; gap: 14px; margin-top: 26px; }
+  .note .k { flex: 1 1 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .note .k h3 { color: var(--ink); }
+  .note .k p { font-size: 14.5px; color: var(--ink-dim); margin: 0; }
+  .note .k.code { border-top: 3px solid var(--cyan); }
+  .note .k.scene { border-top: 3px solid var(--magenta); }
+
+  footer { padding: 46px 0 60px; color: var(--ink-faint); font-size: 13.5px; }
+  footer .prov { font-family: var(--mono); font-size: 12.5px; line-height: 1.9; }
+  footer b { color: var(--ink-dim); font-weight: 600; }
+
+  @media (max-width: 620px) {
+    .era { grid-template-columns: 1fr; gap: 6px; }
+    .note { flex-direction: column; }
+    .finding { grid-template-columns: 1fr; }
+    .finding .ix { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <hr class="raster anim" />
+
+  <!-- HERO -->
+  <div class="hero-outer wrap">
+    <div class="screen">
+      <div class="kicker">Commodore 64 &middot; MOS 6581/8580 SID</div>
+      <h1>A History of<br>SID <span class="accent">Players</span></h1>
+      <p class="sub">Not a history of the tunes — a history of the <em>software</em> that made them: the
+      machine-code replay routines and editors behind Commodore 64 chip music, and the people and
+      scenes who built and shared them.</p>
+      <div class="ready">READY.<br>LOAD"HISTORY",8,1<span class="cursor"></span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">345</div><div class="stat-l">players &amp; editors mapped</div></div>
+      <div class="stat"><div class="stat-n">50</div><div class="stat-l">documented lineage links</div></div>
+      <div class="stat"><div class="stat-n">99.0%</div><div class="stat-l">of 54,608 SID tunes attributed</div></div>
+      <div class="stat"><div class="stat-n">1988&ndash;now</div><div class="stat-l">span of the longest lineage</div></div>
+    </div>
+  </div>
+
+  <hr class="raster" />
+
+  <!-- ERAS -->
+  <section><div class="wrap">
+    <p class="eyebrow">The shape of it</p>
+    <h2>Five eras, two kinds of change</h2>
+    <p class="lede prose">The story runs along two tracks at once: how the <em>technology</em> propagated
+    (one routine deriving from another) and how <em>communities</em> formed around it. The eras below are
+    broadly chronological; the scenes cut across all of them.</p>
+
+    <div style="margin-top:34px">
+      <div class="era">
+        <div class="when">mid&ndash;late<br>1980s</div>
+        <div><div class="era-n">ERA I</div><h3>The game-composer routines</h3>
+        <p>No editors yet — each composer hand-codes a private 6502 driver for their own games. The most
+        solid ground in the whole record: six of the seven fully-verified players belong here.</p>
+        <div class="anchors"><span class="tag">Rob Hubbard</span><span class="tag">David Whittaker</span><span class="tag">Martin Galway</span><span class="tag">Fred &amp; Matt Gray</span><span class="tag">Jeroen Kimmel</span></div></div>
+      </div>
+      <div class="era">
+        <div class="when">late<br>1980s</div>
+        <div><div class="era-n">ERA II</div><h3>The first editors</h3>
+        <p>The reusable, <em>distributable</em> editor is born — a tool others could load and circulate.
+        SoundMonitor even shipped as a magazine type-in listing. The demoscene's music culture starts here.</p>
+        <div class="anchors"><span class="tag">SoundMonitor</span><span class="tag">Future Composer</span><span class="tag">GMC &rarr; DMC</span><span class="tag">Music Assembler</span></div></div>
+      </div>
+      <div class="era">
+        <div class="when">1988 &rarr;<br>today</div>
+        <div><div class="era-n">ERA III</div><h3>The tracker dynasty</h3>
+        <p>One code lineage — fifteen tools in a single connected chain — runs unbroken from JCH's 1988
+        NewPlayer to Laxity's cross-platform SID Factory II. The technical spine of the whole history.</p>
+        <div class="anchors"><span class="tag">JCH NewPlayer</span><span class="tag">Laxity NewPlayer</span><span class="tag">SID Factory II</span><span class="tag">CheeseCutter</span></div></div>
+      </div>
+      <div class="era">
+        <div class="when">through-<br>out</div>
+        <div><div class="era-n">CROSS-CUT</div><h3>National scenes &amp; bridge composers</h3>
+        <p>The social layer: circles of composers forming around their own national tools — and, now and
+        then, borrowing a rival scene's. A handful of omnivore composers tie it all together.</p>
+        <div class="anchors"><span class="tag">Danish</span><span class="tag">Hungarian</span><span class="tag">Polish</span><span class="tag">British</span><span class="tag">Dutch</span></div></div>
+      </div>
+      <div class="era">
+        <div class="when">2000s+</div>
+        <div><div class="era-n">MODERN</div><h3>The revival</h3>
+        <p>The tools leave the C64 — cross-platform, open-source — and the classic players start being
+        reverse-engineered back into the modern ones. The loop closes.</p>
+        <div class="anchors"><span class="tag">SID Factory II</span><span class="tag">GoatTracker</span><span class="tag">CheeseCutter</span><span class="tag">SID-Wizard</span></div></div>
+      </div>
+    </div>
+
+    <div class="hist">
+      <p class="eyebrow" style="margin-bottom:16px">Carded player families by release decade</p>
+      <div class="row"><span class="lbl">1980s</span><div class="bar" style="width:100%"></div><span class="val">198</span></div>
+      <div class="row"><span class="lbl">1990s</span><div class="bar" style="width:43.4%"></div><span class="val">86</span></div>
+      <div class="row"><span class="lbl">2000s</span><div class="bar" style="width:11.1%"></div><span class="val">22</span></div>
+      <div class="row"><span class="lbl">2010s</span><div class="bar" style="width:10.6%"></div><span class="val">21</span></div>
+      <div class="row"><span class="lbl">2020s</span><div class="bar" style="width:1.6%"></div><span class="val">3</span></div>
+      <p class="cap">The 1980s&ndash;90s built the tools; the thin modern tail is the revival — fewer,
+      but longer-lived, cross-platform editors.</p>
+    </div>
+  </div></section>
+
+  <!-- DYNASTY -->
+  <section><div class="wrap">
+    <p class="eyebrow">Era III, in one picture</p>
+    <h2>The tracker dynasty</h2>
+    <p class="lede prose">The single largest lineage in the knowledge base — fifteen tools in one connected
+    graph, propagating JCH's "contiguous sequence stacking" idea from 1988 to 2019. Its keystone,
+    <b style="color:var(--green)">Laxity&nbsp;NewPlayer</b>, is the one member verified against a
+    disassembly at ~99.9% accuracy. The line comes full circle: JCH himself is a credited collaborator on
+    Laxity's 2019 SID Factory II.</p>
+
+    <div class="crt">
+      <svg viewBox="0 0 1070 566" role="img" aria-label="Lineage graph of the JCH / Laxity tracker dynasty: JCH OldPlayer leads to JCH NewPlayer, which derives NP20, Glover NP21, Dane NewPlayer and JCH Protracker, and shares lineage with the verified Laxity NewPlayer, whose forks are Beast/Angular, Stinsen, DRAX and CheeseCutter; SID Factory shares with both JCH and Laxity and succeeds into SID Factory II and SF2 Driver 11.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#7d80c8"></path>
+          </marker>
+          <marker id="arrowM" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#ff5ea0"></path>
+          </marker>
+        </defs>
+
+        <!-- ===== EDGES (drawn first, under the nodes) ===== -->
+        <!-- solid: derives from / succeeds -->
+        <g fill="none" stroke="#7d80c8" stroke-width="1.5" marker-end="url(#arrow)">
+          <line x1="271" y1="68"  x2="271" y2="132"></line>            <!-- OLD  -> JCH  -->
+          <line x1="271" y1="178" x2="98"  y2="252"></line>            <!-- JCH  -> NP20 -->
+          <line x1="271" y1="178" x2="271" y2="252"></line>            <!-- JCH  -> GLO  -->
+          <line x1="271" y1="178" x2="444" y2="252"></line>            <!-- JCH  -> DANE -->
+          <line x1="271" y1="178" x2="620" y2="252"></line>            <!-- JCH  -> JPT  -->
+          <line x1="799" y1="298" x2="98"  y2="372"></line>            <!-- LAX  -> BEA  -->
+          <line x1="799" y1="298" x2="271" y2="372"></line>            <!-- LAX  -> STI  -->
+          <line x1="799" y1="298" x2="447" y2="372"></line>            <!-- LAX  -> DRAX -->
+          <line x1="799" y1="298" x2="620" y2="372"></line>            <!-- LAX  -> CC   -->
+          <line x1="975" y1="298" x2="975" y2="372"></line>            <!-- SF   -> SF2  -->
+          <line x1="975" y1="418" x2="975" y2="492"></line>            <!-- SF2  -> D11  -->
+        </g>
+        <!-- dashed: shares replay routine -->
+        <g fill="none" stroke="#ff5ea0" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arrowM)">
+          <line x1="623" y1="298" x2="782" y2="372"></line>            <!-- JPT  -.- KOSA -->
+          <line x1="346" y1="166" x2="722" y2="266"></line>            <!-- JCH  -.- LAX (shared lineage) -->
+          <line x1="900" y1="276" x2="878" y2="276"></line>            <!-- SF   -.- LAX -->
+          <path d="M975,254 C 860,46 430,24 273,130"></path>          <!-- SF   -.- JCH (high bypass arc) -->
+        </g>
+        <!-- shared-lineage label with masking backdrop -->
+        <rect x="486" y="200" width="108" height="17" rx="3" fill="#16163e"></rect>
+        <text x="540" y="212" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="10.5" fill="#ff8fbf">shared lineage</text>
+
+        <!-- ===== NODES ===== -->
+        <g font-family="ui-monospace, Menlo, Consolas, monospace" text-anchor="middle">
+          <!-- Row 0 -->
+          <g>
+            <rect x="196" y="24" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="271" y="43" font-size="12.5" fill="#e6e7ff">JCH OldPlayer</text>
+            <text x="271" y="58" font-size="10" fill="#e6e7ff" fill-opacity="0.7">pre-1988</text>
+          </g>
+          <!-- Row 1: the hub -->
+          <g>
+            <rect x="196" y="134" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="271" y="153" font-size="12.5" fill="#e6e7ff">JCH NewPlayer</text>
+            <text x="271" y="168" font-size="10" fill="#e6e7ff" fill-opacity="0.7">1988 &middot; the hub</text>
+          </g>
+          <!-- Row 2 -->
+          <g>
+            <rect x="20" y="254" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="95" y="273" font-size="12.5" fill="#e6e7ff">JCH NP20</text>
+            <text x="95" y="288" font-size="10" fill="#e6e7ff" fill-opacity="0.7">1990</text>
+          </g>
+          <g>
+            <rect x="196" y="254" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="271" y="273" font-size="12.5" fill="#e6e7ff">Glover NP21</text>
+            <text x="271" y="288" font-size="10" fill="#e6e7ff" fill-opacity="0.7">2000</text>
+          </g>
+          <g>
+            <rect x="372" y="254" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="447" y="273" font-size="12.5" fill="#e6e7ff">Dane NewPlayer</text>
+            <text x="447" y="288" font-size="10" fill="#e6e7ff" fill-opacity="0.7">2011</text>
+          </g>
+          <g>
+            <rect x="548" y="254" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="623" y="273" font-size="12.5" fill="#e6e7ff">JCH Protracker</text>
+            <text x="623" y="288" font-size="10" fill="#e6e7ff" fill-opacity="0.7">Kosa &middot; 1995</text>
+          </g>
+          <!-- Row 2: Laxity NewPlayer (VERIFIED) -->
+          <g>
+            <rect x="724" y="254" width="150" height="44" rx="7" fill="#1c3a24" stroke="#57d977" stroke-width="2"></rect>
+            <text x="799" y="273" font-size="12.5" fill="#c8f7d4">Laxity NewPlayer</text>
+            <text x="799" y="288" font-size="10" fill="#c8f7d4" fill-opacity="0.85">2005 &middot; VERIFIED</text>
+          </g>
+          <!-- Row 2: SID Factory (side line) -->
+          <g>
+            <rect x="900" y="254" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="975" y="273" font-size="12.5" fill="#e6e7ff">SID Factory</text>
+            <text x="975" y="288" font-size="10" fill="#e6e7ff" fill-opacity="0.7">2005</text>
+          </g>
+          <!-- Row 3 -->
+          <g>
+            <rect x="20" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="95" y="401" font-size="12.5" fill="#e6e7ff">Beast / Angular</text>
+          </g>
+          <g>
+            <rect x="196" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="271" y="401" font-size="12.5" fill="#e6e7ff">Stinsen</text>
+          </g>
+          <g>
+            <rect x="372" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="447" y="401" font-size="12.5" fill="#e6e7ff">DRAX</text>
+          </g>
+          <g>
+            <rect x="548" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="623" y="393" font-size="12.5" fill="#e6e7ff">CheeseCutter</text>
+            <text x="623" y="408" font-size="10" fill="#e6e7ff" fill-opacity="0.7">2011</text>
+          </g>
+          <!-- Row 3: Kosa Protracker (shares JCH Protracker routine) -->
+          <g>
+            <rect x="724" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="799" y="401" font-size="12.5" fill="#e6e7ff">Kosa Protracker</text>
+          </g>
+          <!-- Row 3: SID Factory II -->
+          <g>
+            <rect x="900" y="374" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="975" y="393" font-size="12.5" fill="#e6e7ff">SID Factory II</text>
+            <text x="975" y="408" font-size="10" fill="#e6e7ff" fill-opacity="0.7">2019 &middot; GPL</text>
+          </g>
+          <!-- Row 4: SF2 Driver 11 -->
+          <g>
+            <rect x="900" y="494" width="150" height="44" rx="7" fill="#262566" stroke="#6f6ce0" stroke-width="1.5"></rect>
+            <text x="975" y="521" font-size="12.5" fill="#e6e7ff">SF2 Driver 11</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><span class="swatch"></span> derives from / succeeds</span>
+      <span><span class="swatch dash"></span> shares replay routine</span>
+      <span><span class="dot-v"></span> verified against disassembly</span>
+    </div>
+  </div></section>
+
+  <!-- SCENES -->
+  <section><div class="wrap">
+    <p class="eyebrow">The social layer</p>
+    <h2>National scenes</h2>
+    <p class="lede prose">Where the technical tree shows how code moved, the scenes show how <em>people</em>
+    did — circles of composers, each with a home toolset. Every nationality here is confirmed from the
+    knowledge base's own country data, not recollection.</p>
+
+    <div class="grid">
+      <div class="card"><div class="flag">Denmark</div><h3>The tracker dynasty's home</h3>
+        <p>JCH and Laxity — the whole Era III spine, running from 1988 to SID Factory II.</p>
+        <div class="tools"><span class="tag">JCH NewPlayer</span><span class="tag">Laxity NewPlayer</span><span class="tag">SID Factory II</span></div></div>
+      <div class="card"><div class="flag">Hungary</div><h3>Editors, then the revival</h3>
+        <p>Graffity's GMC/DMC in the 90s; then Hermit and the omnivores NecroPolo &amp; Vincenzo drive the
+        modern revival.</p>
+        <div class="tools"><span class="tag">DMC</span><span class="tag">Chubrocker</span><span class="tag">SID-Wizard</span></div></div>
+      <div class="card"><div class="flag">Poland</div><h3>A tight, tool-sharing cohort</h3>
+        <p>Their own Hardtrack &amp; Padua editors — and, notably, the heaviest users of a <em>German</em>
+        tool, Reflex-Tracker.</p>
+        <div class="tools"><span class="tag">Hardtrack</span><span class="tag">Padua Mixer</span><span class="tag">Reflex-Tracker</span></div></div>
+      <div class="card"><div class="flag">Britain</div><h3>The games industry</h3>
+        <p>Less demoscene than studio: the Ocean succession from Galway to Paul Hughes, and the Whittaker
+        commercial-driver line.</p>
+        <div class="tools"><span class="tag">Galway</span><span class="tag">Music Driver</span><span class="tag">Whittaker</span></div></div>
+      <div class="card"><div class="flag">Netherlands</div><h3>Maniacs of Noise</h3>
+        <p>Charles Deenen and Jeroen Tel's house driver became the engine inside Future Composer.</p>
+        <div class="tools"><span class="tag">MoN driver</span><span class="tag">Future Composer</span></div></div>
+      <div class="card"><div class="flag">Germany</div><h3>From Hülsbeck to Reflex</h3>
+        <p>Chris Hülsbeck's SoundMonitor seeds the editor age; the Reflex group and X-Ample carry it on.</p>
+        <div class="tools"><span class="tag">SoundMonitor</span><span class="tag">Reflex-Tracker</span><span class="tag">X-Ample</span></div></div>
+      <div class="card"><div class="flag">Norway</div><h3>The Mørkrid cluster</h3>
+        <p>Olav Mørkrid's Panoramic-scene routines — his Digitalizer editor's real user base, though, was
+        the group SHAPE.</p>
+        <div class="tools"><span class="tag">Digitalizer</span><span class="tag">Olav Mørkrid</span></div></div>
+      <div class="card"><div class="flag">Finland &middot; Sweden</div><h3>Cadaver &amp; Oneway</h3>
+        <p>Finland's Cadaver (GoatTracker, NinjaTracker) and abaddon (CheeseCutter); Sweden's Oneway group
+        behind System 6581.</p>
+        <div class="tools"><span class="tag">GoatTracker</span><span class="tag">CheeseCutter</span><span class="tag">System 6581</span></div></div>
+    </div>
+  </div></section>
+
+  <!-- FINDINGS -->
+  <section><div class="wrap">
+    <p class="eyebrow">What the connection scan found</p>
+    <h2>Threads that cross the borders</h2>
+    <p class="lede prose">The most telling findings are the ones where a tool jumped a group or a national
+    boundary — surfaced by scanning which composers used which tools, then verified as a coherent scene
+    cohort rather than coincidence. These are <em>people</em> connections, recorded as prose links, never
+    as code lineage.</p>
+
+    <div class="find">
+      <div class="finding"><div class="ix">01</div><div>
+        <h3>A Swedish editor, adopted by a British group</h3>
+        <p>The four musicians of UK group Sonic Graffiti were the <em>second-largest</em> user cohort of
+        System 6581 — the in-house tool of Sweden's Oneway.</p></div></div>
+      <div class="finding"><div class="ix">02</div><div>
+        <h3>A German tool, run by the Polish scene</h3>
+        <p>The same eight Polish composers who used the native Hardtrack Composer were Reflex-Tracker's
+        heaviest users too — a whole scene adopting a foreign tool.</p></div></div>
+      <div class="finding"><div class="ix">03</div><div>
+        <h3>The Ocean succession</h3>
+        <p>Paul Hughes wrote his Ocean driver <em>after Martin Galway left</em> the company, "for the new
+        guys" — and the same composers span both. A studio, not just an author, as a unit of history.</p></div></div>
+      <div class="finding"><div class="ix">04</div><div>
+        <h3>A tool's real owners aren't always its author's group</h3>
+        <p>Olav Mørkrid built Digitalizer, but its heaviest users were the group SHAPE (two composers,
+        ~460 files) — not his own Panoramic Designs.</p></div></div>
+    </div>
+
+    <div class="note">
+      <div class="k code"><h3>Code lineage</h3><p>One routine derives from, succeeds, or shares replay
+      code with another — asserted only on disassembly, source, or an author's statement. The 50 edges
+      of the technical family tree.</p></div>
+      <div class="k scene"><h3>Scene relationship</h3><p>The same people or group used two otherwise
+      unrelated tools. A social fact, never code evidence — kept strictly separate, as prose links, so the
+      two never get confused.</p></div>
+    </div>
+  </div></section>
+
+  <hr class="raster" />
+
+  <!-- FOOTER -->
+  <footer><div class="wrap">
+    <p class="prov"><b>Built from a knowledge base</b> of 345 SID-player cards, each a markdown record with
+    a machine-readable facts block. Every claim above traces to a card, a lineage edge, or a
+    composer-overlap connection scan — nothing from recollection.<br>
+    Sources: DeepSID &middot; the SIDId player index &middot; CSDb &middot; the High Voltage SID Collection
+    &middot; VGMPF &middot; SIDM2 disassemblies.<br>
+    <span style="color:var(--ink-faint)">A companion to <b>docs/SID-HISTORY.md</b>. Coverage: 54,076 of
+    54,608 tunes attributed to a player.</span></p>
+  </div></footer>
+</div>
+</body>
+</html>

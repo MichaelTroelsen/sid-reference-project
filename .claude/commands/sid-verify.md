@@ -24,18 +24,24 @@ entry on `docs/SIDM2-INTEGRATION.md`'s KB-driven priority list.
    context — the whole point of the subagent is keeping the heavy tool
    output (disassembly text, trace JSON) out of the main session.
 
-3. If the subagent reports a new gotcha or tool quirk it had to work through,
-   remind the user it should be appended to
-   `.claude/agents/sid-player-verify.md`'s `<lessons_learned>` section (the
-   subagent may already have done this itself — check before duplicating).
+3. The subagent never edits `.claude/agents/sid-player-verify.md` itself —
+   it reports a `new_lesson_learned` value in its output instead (a prose
+   "New lesson: ..." line for a single direct run, or a named schema field
+   for a `Workflow` batch). If that value isn't `none`/absent, append it
+   yourself, in THIS session: read the file, find the current highest
+   numbered `<lessons_learned>` entry, and append the new one as `<N+1>` via
+   Edit, verbatim (don't paraphrase or shorten it — these are meant to be as
+   precise as the existing entries).
 
-4. If several cards were targeted at once (in parallel), diff each subagent's
-   *returned report* against `sid-player-verify.md` afterward — parallel runs
-   each read-then-overwrite the whole file, so whichever finishes last wins
-   and earlier runs' lessons can be silently lost (this happened the first
-   time three cards ran in parallel: one run's discovery had to be re-added
-   by hand from its report). Don't assume the file already has everything
-   every parallel run found.
+4. If several cards were targeted at once (in parallel, e.g. via `Workflow`),
+   wait for ALL subagents to finish and collect every one's
+   `new_lesson_learned` first, then append them yourself one at a time, in a
+   single deterministic order (e.g. the order the targets were listed) —
+   never let a subagent write to the shared file directly. This is what
+   removes the old race entirely: since only this session ever edits
+   `<lessons_learned>`, there is nothing for parallel runs to overwrite. (The
+   race used to happen because each subagent read-then-overwrote the whole
+   file itself — see that file's entry 12 for the history.)
 </workflow>
 
 <constraints>

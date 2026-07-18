@@ -41,6 +41,15 @@ NEVER dump two full trace JSON payloads into your own context to compare them
 by eye — trace outputs run 10-50KB+ each. Byte-diff first; only trace when the
 byte-diff is close enough to be worth it, and diff programmatically (see
 `workflow` step 5).
+
+NEVER edit this agent file (`.claude/agents/sid-player-verify.md`) yourself —
+not even the `<lessons_learned>` section below, and not even when you're
+confident you're the only instance of this agent running. This file is shared
+across every parallel invocation; a subagent reading-then-overwriting it is a
+proven race (see `<lessons_learned>` entry 12) that lost real discoveries in
+every batch run before this rule existed. Report a new lesson via the
+`new_lesson_learned` output field instead (see `<output_format>`) and let the
+calling session append it.
 </constraints>
 
 <tools_and_locations>
@@ -193,21 +202,34 @@ know what happened:
 - The single most useful next step for someone continuing this, if not fully
   closed — a specific address range, file, or comparison to try, not "keep
   investigating."
+- A final `new_lesson_learned` value: either the text of a new gotcha, tool
+  quirk, or false start worth recording (same style as the numbered
+  `<lessons_learned>` entries below — what was assumed, what was actually
+  true, and why the failure mode is structural, not "used the wrong flag"),
+  or the literal string `none` if nothing new came up. This is the ONLY
+  channel for contributing a lesson — see `<constraints>`. When dispatched
+  through a structured-output schema (e.g. a `Workflow` batch), this is a
+  named field of the same name; when run directly via `/sid-verify`, put it
+  as a final `New lesson: ...` line in your prose report.
 
 Fifteen lines is a good target.
 </output_format>
 
 <lessons_learned>
-This section is meant to grow. When a future run of this agent discovers a
-new gotcha, tool quirk, or false start worth recording, append it here in the
-same style as `hard_won_gotchas` above — a numbered entry with what was
-assumed, what was actually true, and why the failure mode is structural (not
-"used the wrong flag" but "the flag takes decimal, not hex, and the help
-text's hex-looking range notation invites the wrong assumption"). This is
-the same discipline this project already applies to `knowledge/players/*.md`
-cards' `quirks` arrays and `CLAUDE.md`'s accumulated landmines — the point is
-that the next session/agent starts smarter than this one did, not that this
-file stays a fixed reference.
+This section is meant to grow, but entries are appended by the CALLING
+session (the `/sid-verify` command, or the workflow script orchestrating a
+batch) — never by this agent itself; see `<constraints>`. When you discover a
+new gotcha, tool quirk, or false start worth recording, report it via the
+`new_lesson_learned` output field (see `<output_format>`) in the same style as
+`hard_won_gotchas` above — a numbered entry with what was assumed, what was
+actually true, and why the failure mode is structural (not "used the wrong
+flag" but "the flag takes decimal, not hex, and the help text's hex-looking
+range notation invites the wrong assumption"). This is the same discipline
+this project already applies to `knowledge/players/*.md` cards' `quirks`
+arrays and `CLAUDE.md`'s accumulated landmines — the point is that the next
+session/agent starts smarter than this one did, not that this file stays a
+fixed reference. This indirection (report, don't write) is itself the fix for
+the race documented in entry 12 below.
 
 (No entries yet beyond `hard_won_gotchas` above — this agent was just
 created. The first agent to hit a new wall should add it here.)
@@ -284,6 +306,13 @@ created. The first agent to hit a new wall should add it here.)
     against this file afterward and manually reconcile any lesson that
     didn't make it in — do not assume the file already has everything every
     parallel run found.
+    **Fixed structurally after this happened three batches in a row:**
+    subagents no longer edit this file at all (see `<constraints>`) — they
+    report a `new_lesson_learned` field in their output instead, and the
+    calling session (`/sid-verify`) appends every non-`none` value itself,
+    sequentially, after all subagents in a batch have finished. Only the
+    main session ever writes to this file now, so there is nothing left to
+    overwrite.
 13. **`SIDdecompiler`'s `-P<decimal>` (override play address) and `-I<decimal>`
     (override init address) flags can rescue a file whose PSID header's own
     declared play address is not real code** — same decimal-not-hex

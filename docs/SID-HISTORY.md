@@ -451,6 +451,43 @@ freely-downloadable, cross-platform, open tools are exactly what enable.
 
 ---
 
+## The shape over time
+
+The eras above are a qualitative arc; the collection can also be dated
+quantitatively. Every `.sid` file's PSID/RSID header carries a `released` year,
+and it is parseable for **~97% of 55,223 files** (53,534 dated via
+`scripts/dev/find-eras.js`) — so the whole corpus can be placed on a real
+timeline, not a proxy one.
+
+Two things fall out of it. First, the **production curve**: the C64 music
+collection peaks hard in the **1990s** (24,225 dated files), roughly a decade
+after the machine's commercial prime — the demoscene, not the games industry,
+made the most SID music, and made it *later* than one might guess. Output then
+falls to a **steady revival plateau**: the 2000s, 2010s and 2020s each hold
+~5,500–6,900 files, a scene that never stopped.
+
+| Decade | Dated files |
+|---|---|
+| 1980s | 10,273 |
+| 1990s | **24,225** |
+| 2000s | 6,639 |
+| 2010s | 6,880 |
+| 2020s | 5,517 |
+
+Second, the per-file years **cross-validate the whole knowledge base**. For a
+tool used honestly from its release onward, the *median* year of its dated files
+should sit at or just after its documented release year — and across the carded
+tools it does, tightly: SoundMonitor's files run a median 1988 against a 1986
+card date, Rob Hubbard's 1987 against ~1985, SID Factory II's 2022 against 2019,
+CheeseCutter's 2016 against 2011. Two independently-sourced dates (the card's
+research and the file's own header) agreeing across hundreds of tools is strong
+evidence both are right. The same data settles the veteran-vs-omnivore question
+the tool-year proxy could not: by *median* file year, ~370 profiled composers are
+1980s–90s veterans and ~120 are modern-era — [[jch-newplayer]]'s own files span
+1988 to **2025**, confirming the dynasty is not history but a living line.
+
+---
+
 ## Appendix: sources and method
 
 Every anchor in this history is a knowledge card under `knowledge/players/`
@@ -468,17 +505,16 @@ fold it into the relevant section.
 The narrative above is complete, but a few analytical threads remain open — none
 are gaps in the story, only directions for a deeper cut:
 
-- **The temporal dimension is data-blocked.** A true chronological account of
-  composers *migrating* tool-to-tool over time needs **per-file dates**, which
-  the corpus lacks: folder records carry `player`/`csdb_id` but no year, and the
-  per-composer `profile.active` is a single latest year. The only proxy — the
-  *tool's* release year — is misleading, because it cannot separate a persisting
-  veteran (Laxity, JCH, Rob Hubbard, active from the 1980s into the 2010s) from a
-  modern omnivore (NecroPolo, Demosic, SIDwave, active only recently but using
-  retro tools of every era); both show a ~34-year tool span. The concrete route
-  to unblock it: each file already carries a CSDb SID-entry id, so a future
-  enrichment pass could fetch per-file release dates and date the *usage*, not
-  just the tools.
+- **The temporal dimension — now unblocked** (see "The shape over time" above).
+  It had been recorded here as data-blocked, because the folder records carry no
+  year. The fix turned out to be local, not a CSDb fetch: every `.sid` file's
+  PSID/RSID header carries a `released` year, parseable for **~97%** of the
+  collection (`scripts/dev/find-eras.js`). One caveat remains — the header year
+  is the *work's* year, so covers/remakes carry the original's date; the analysis
+  uses the median, not the extremes, to avoid mistaking a modern composer's
+  remake of a 1989 tune for 1980s activity. What is *still* open is the
+  finer-grained **migration** view (the ordered sequence in which an individual
+  composer adopted tools over time), which the per-file years now make possible.
 - **The connection scan is not exhausted.** The composer-overlap pass
   (`find-connections.js`) surfaced its high-confidence findings, but ~9 lower-
   confidence pairs were judged popular-tool or bridge-composer artifacts rather

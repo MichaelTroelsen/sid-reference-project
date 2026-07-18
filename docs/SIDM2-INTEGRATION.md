@@ -12,11 +12,13 @@ connect them, roughly in order of effort:
 This doc predates most of the project. The figures further down ("56 composers",
 "145 documents") are stale; the current picture:
 
-- **~1,895 composers** and **~54,600 SID files** cataloged; **345 player
-  knowledge cards** under `knowledge/players/` (7 `verified`, the rest
-  `in-progress`/`stub`), all ingested into the `tdz-c64-knowledge` MCP server
-  (~578 documents) — so integration modes #1 and #2 below are effectively LIVE:
-  a SIDM2 session can already search this project's player facts via TDZ.
+- **~1,895 composers** and **~54,600 SID files** cataloged; player
+  knowledge cards under `knowledge/players/` — see `knowledge/COVERAGE.md`
+  for the current card count, and `rg -h '"status"' knowledge/players/*.md
+  | sort | uniq -c` for the verified/in-progress/stub breakdown — all
+  ingested into the `tdz-c64-knowledge` MCP server — so integration modes #1
+  and #2 below are effectively LIVE: a SIDM2 session can already search this
+  project's player facts via TDZ.
 - The cards carry a machine-readable facts block (memory map, entry points, data
   format, `edges[]` lineage) — exactly the scaffold a SIDM2 disassembly fills in.
   A card reaches `verified` only when a reconstruction **assembles and plays**

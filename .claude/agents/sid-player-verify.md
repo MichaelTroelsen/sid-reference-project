@@ -284,6 +284,79 @@ created. The first agent to hit a new wall should add it here.)
     against this file afterward and manually reconcile any lesson that
     didn't make it in — do not assume the file already has everything every
     parallel run found.
+13. **`SIDdecompiler`'s `-P<decimal>` (override play address) and `-I<decimal>`
+    (override init address) flags can rescue a file whose PSID header's own
+    declared play address is not real code** — same decimal-not-hex
+    convention as `-a` (gotcha 1), easy to miss since the same
+    `<0000-ffff>` hex-range help text appears for both. Confirmed on
+    `sid-factory-ii-driver-11`: SID Factory II's Driver 11 is IRQ-driven —
+    the PSID header's play vector (`$16CC` on the reference template build)
+    is a command-*flag byte* the real dispatcher polls, not a callable
+    routine. Tracing/disassembling from the header's own declared play
+    address (the default, with no `-P` override) produces a trace with
+    **zero trace-node pairs** and an entire disassembly of `"Unreferenced
+    data"` — a different failure signature than gotcha 9's silent-truncation
+    case (that one still traces and disassembles something, just short); this
+    one produces *nothing at all* past the init routine, and is a strong
+    signal to go looking for the real per-frame entry point (e.g. from a
+    prior manual trace-probing pass, or the driver's own documentation) and
+    feed it back in via `-P<decimal>` — SIDdecompiler does not infer it.
+    Confirmed the real dispatcher (`init+6` on this driver) via `-P4102`
+    (decimal for `$1006`) raised trace-node pairs from 0 to 9,495 and
+    produced a disassembly that reassembled to a 99.06%-byte-exact,
+    trace-exact reconstruction — succeeding where a prior SIDwinder attempt
+    on the identical file had failed at the same stub/dispatcher header
+    (SIDwinder has no equivalent override flag found). General form: a
+    disassembly that traces to essentially nothing (0 trace nodes, not just
+    a short one) past init is a sign the tool is using the wrong play
+    address, not that the file is unplayable — check for an override flag
+    before concluding the file can't be disassembled.
+14. **A PSID file whose header declares `load address = 0` (meaning the
+    real load address is embedded as the payload's own first two bytes, per
+    this project's own `psid_header` convention above) is not automatically
+    handled the same way by every tool that accepts a `.sid` file directly.**
+    `sidm2-sid-trace.exe` given the raw `.sid` path on such a file reported
+    `Loaded: <file> @ $5350` (a nonsense address, not the real `$1000`) and
+    every subsequent frame showed 0 SID changes — a silent misload, not an
+    error. Building a proper `.prg` by hand first (2-byte little-endian real
+    load address, computed the same way the `psid_header` snippet computes
+    it, + the stripped payload) and tracing *that* worked correctly and
+    matched the driver-11 card's earlier documented result exactly. Lesson:
+    when a `loadAddr=0`-style file produces a suspicious load address or an
+    all-zero trace from a tool that accepts `.sid` directly, don't conclude
+    the file is silent — repackage the already-correctly-parsed payload as a
+    `.prg` (which every tool in this toolchain handles unambiguously) and
+    retry before trusting a 0-write trace.
+15. **When parsing `SIDdecompiler`'s own text output (its log lines, not the
+    `.asm` it writes) with a hand-rolled regex, don't use a bare `$`
+    end-of-line anchor after `.split('\n')`.** Its logs are CRLF. Splitting
+    on `'\n'` alone leaves a trailing `\r` on every line; a pattern like
+    `/:\s(.+)$/` then fails silently (`.` does not consume `\r`, which reads
+    as its own line terminator to the regex engine) — the match returns
+    `null` with no error, easy to misdiagnose as "the log format is
+    different than I expected" when it is purely CRLF residue. Split on
+    `/\r?\n/` instead whenever parsing this tool's stdout/log text.
+16. **A byte-diff mismatch landing on a `-v2`-map `+`/write-touched address
+    is NOT automatically safe to write off as dead workspace, contrary to
+    how definitively entry 10 reads** — that conclusion holds only for the
+    specific file it was checked against, and must be re-confirmed per file
+    with an actual trace-diff, not assumed from the map alone. Found the
+    counter-example on `cheesecutter`: the identical player, same relocation
+    method, same address range read as "dead" on `Ants.sid` (trace-exact
+    despite the byte mismatch) turned out to hold a real, load-bearing
+    3-voice init/subtune-select table on `Blackjack.sid` — the decompiler's
+    default `-t 30000` had baked in a *drifted* runtime value at that shared
+    address, and for Blackjack.sid that wrong value is actually read once at
+    cold start, silencing all three voices (0 SID writes over 300 frames vs.
+    1,658 in the original). Lowering `-t` recovered the correct byte at that
+    one address but under-covered the rest of the routine — no single `-t`
+    value served both goals for this file. Structural lesson: fidelity from
+    this whole pipeline can be genuinely file-dependent even holding the
+    player/relocation/method constant — **always test at least two real
+    files before treating one trace-exact match as representative of the
+    player as a whole**, and treat a byte-diff cluster sitting close to the
+    entry point (an init/subtune table) with more suspicion than one deep in
+    the play routine, even when the `-v2` map marks it `+`.
 </lessons_learned>
 
 <success_criteria>

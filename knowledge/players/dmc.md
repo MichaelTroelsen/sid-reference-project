@@ -98,6 +98,56 @@ confirming the `$1000`/`$1003` packed convention and that it plays. The
 data-format internals (ZP, tables, effect encoding) are still undocumented and
 `TODO`, so in-progress rather than verified.
 
+**Full disassemble/reassemble/byte-diff/trace-diff pass (2026-07-18) — status
+remains `in-progress`, not raised to `verified`.** Used `SIDdecompiler.exe`
+(`-a4096 -z -d -c -v2/-v1`, i.e. decimal for `$1000`) + `64tass` on two
+independent real HVSC DMC_V4.x files (the highest-usage variant, 5,337 of the
+10,491 total DMC-family files):
+
+- **File 1**: `MUSICIANS/C/CHR_142/Autocomposer_for_ZX81.sid` (load/init
+  `$1000`, play `$1003`, payload 3,095 bytes). Reassembled to exactly 3,095
+  bytes at `$1000-$1C16`. **Byte-diff: 98.45% (48/3095 bytes differ)**, all
+  falling in two address ranges: `$100F-$1016` (8 bytes) and
+  `$1718-$1793` (40 bytes, scattered). Both ranges are marked `+`
+  (write-touched at runtime) in the decompiler's own `-v2` memory-touch map,
+  the same pattern as `future-composer`'s entry-10 finding. **Trace-diff:
+  50-frame register-write trace via `sidm2-sid-trace.exe` (init `$1000`,
+  play `$1003`) is EXACT — 369/369 writes identical, byte-for-byte** (only
+  the tool's echoed input filename differs between the two log files).
+- **File 2** (per this project's own gotcha 16 — never trust one file's
+  trace-exact result as representative): `MUSICIANS/A/Abee/After_Promises.sid`
+  (load/init `$1000`, play `$1003`, payload 4,084 bytes). Reassembled to
+  exactly 4,084 bytes at `$1000-$1FF3`. **Byte-diff: 98.16% (75/4084 bytes
+  differ)**, in the SAME two address ranges as file 1 (`$1012-$1017` and
+  `$1719-$17B5`) — strong evidence this is a consistent player-internal
+  table, not file-specific noise. **Trace-diff: 327 total register writes
+  over 50 frames; 326/327 identical, but ONE write pair genuinely diverges**:
+  frame 0, `osc3_freq_lo`/`osc3_freq_hi` written as `$FA/$A8` in the real
+  file vs `$31/$1C` in the reassembly (99.69% trace-exact, not 100%).
+  Traced the root cause into the disassembly: `$1012-$1017` is a 6-byte
+  table (`l1012: .byte $0c,$30,$39` / `l1015: .byte $07,$04,$02` in the
+  reassembled source) that is BOTH read (`ldy l1012,X` / `lda l1015,X` /
+  `adc l1015,X`) and written (`sta l1012,X` / `sta l1015,X`) at runtime —
+  exactly the entry-16 cheesecutter failure mode: the decompiler's default
+  `-t` trace window baked in a post-execution (drifted) snapshot of this
+  table rather than its true cold-start constants, and file 2's play routine
+  happens to read the wrong byte from it during voice-3 setup where file 1's
+  does not.
+  
+  **Conclusion: this is a genuine, localized, well-characterized ~98.2-98.5%
+  byte match and ~99.7-100% trace match, not a full match** — the gap is
+  isolated to one small startup-constant table at `$1012-$1017` (and its
+  associated working-storage region `$1719-$17B5`) that the decompiler
+  cannot currently recover the pristine initial value of. `status` stays
+  `in-progress`, per this project's rule against rounding a near-match up to
+  `verified`. Both scratchpad builds (`dmc.asm`/`dmc_reasm.prg` from file 1,
+  `dmc2.asm`/`dmc2_reasm.prg` from file 2) plus both original/reassembled
+  trace logs are on disk if a future pass wants to hand-patch that one table
+  from the pristine `.sid` payload bytes and re-verify — the fix is
+  mechanical (substitute the 8 correct init-time bytes at `$100F-$1016`
+  into the `.byte` directives) but wasn't done here to keep this pass to
+  read-only reconstruction, not a hand-edited hybrid.
+
 ## Sources
 
 See the `sources` array — primarily CSDb (Graffity group + the V4.0/V1.2

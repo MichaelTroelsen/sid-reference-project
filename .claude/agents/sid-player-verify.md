@@ -357,6 +357,198 @@ created. The first agent to hit a new wall should add it here.)
     player as a whole**, and treat a byte-diff cluster sitting close to the
     entry point (an init/subtune table) with more suspicion than one deep in
     the play routine, even when the `-v2` map marks it `+`.
+17. **A drifted-table divergence (entries 10/16) does not have to be
+    all-or-nothing per file** — it can also surface as a single wrong
+    register write buried in an otherwise-perfect trace, not silence or an
+    obviously broken playback. Confirmed on `dmc` (DMC/Demo Music Creator):
+    two independent real HVSC DMC_V4.x files, same relocation (`-a4096`,
+    decimal for `$1000`), same disassembly method. File 1
+    (`Autocomposer_for_ZX81.sid`) traced 100% exact over 369 writes/50
+    frames despite a byte-diff cluster at `$100F-$1016`/`$1718-$1793`
+    (both `-v2`-map `+`-marked). File 2 (`After_Promises.sid`) — same
+    player, same disassembly, same two diverging address ranges in the
+    byte-diff (`$1012-$1017`/`$1719-$17B5`, i.e. clearly the same
+    underlying table, not coincidence) — was 326/327 writes identical but
+    ONE pair genuinely wrong: frame 0's `osc3_freq_lo`/`osc3_freq_hi`
+    written as `$FA/$A8` in the real file vs `$31/$1C` in the reassembly.
+    Traced to source: `$1012-$1017` disassembles as a tiny 6-byte table
+    (`l1012: .byte $0c,$30,$39` / `l1015: .byte $07,$04,$02`) that is BOTH
+    read (`ldy l1012,X` / `lda l1015,X`) and written (`sta l1012,X` /
+    `sta l1015,X`) at runtime — the decompiler's default trace window
+    captured a post-execution snapshot of it rather than the pristine
+    cold-start constants, and only file 2's particular play-routine path
+    happens to read the byte that's wrong. Net effect: a 98.2-98.5%
+    byte-diff score with a 99.7-100% (file-dependent) trace match is a
+    real, reportable result on its own — resist the urge to either (a)
+    call the higher-scoring file representative and stop, or (b) treat the
+    one-write divergence as disqualifying noise; report both numbers, name
+    the exact table address, and leave `status` as `in-progress` rather
+    than rounding either direction. General form: when a byte-diff cluster
+    sits right after entry point AND the disassembly shows both a read and
+    a write instruction indexing that same table, that combination (not
+    just the `+` marker alone) is the real tell that it's a drifted-value
+    problem worth naming precisely in the card rather than papering over.
+18. **SIDdecompiler can silently drop the file's true FIRST loaded byte,
+    shifting every subsequent address by one, when that byte is fully
+    unaccessed ('?' — never read/written/executed) at runtime** — a
+    distinct failure mode from entry 9 (which is about the trailing end of
+    a region being under-traced). Confirmed on `odintracker`'s
+    `Arpeggioland.sid` (real PSID-header load address `$a000`, header
+    field 0 → address embedded as the payload's own first 2 LE bytes, per
+    this project's `psid_header` convention): the `-v2` memory-map log
+    itself reports "Start: $a001" — one byte past the file's real, header-
+    confirmed load address — and the reassembled `.asm`'s first `.byte`
+    (`$0a`) is actually the real file's SECOND byte, not its first (`$12`).
+    Byte-diff at native (zero-shift) alignment came back a suspicious-but-
+    not-nonsensical 53.8% (not the ~5% noise floor of a genuinely different
+    build per entry 4, but far below a real match) — a strong tell to
+    suspect exactly this kind of front-of-region single-byte drop, distinct
+    from entry 11's "small unidentified run-stub" pattern (there is no
+    stub here; the true entry points sit deep inside the loaded block, not
+    at its front). Shifting the comparison by +1 (`reassembled[i]` vs.
+    `original[i+1]`) recovered a much-improved-but-still-incomplete 90.7%
+    match, and critically: **a text-level fix (manually inserting the
+    dropped byte at the top of the `.asm` before reassembly) did NOT
+    restore correct execution** — the reassembled INIT vector still
+    executed garbage after the patch, and traced completely differently
+    from the original (0 SID writes vs. 1 in frame 0, all-zero vs.
+    non-zero SID state after INIT). This means the disassembler's internal
+    relocation/jump-target math had already baked in the wrong base
+    address at disassembly time — the bug isn't merely a display/text
+    offset fixable by re-inserting one byte in the source, it corrupts the
+    tool's own understanding of where things point. General form: if a
+    `-v2` map's own reported "Start" address doesn't exactly equal the
+    PSID header's real (embedded-if-0) load address, don't trust the
+    reassembly at all without a trace-diff — and don't assume a simple
+    byte-level patch can repair it; treat it as a hard, unresolved gap and
+    say so, rather than reporting the shift-corrected byte-diff percentage
+    as if it reflected a working reconstruction.
+19. **When fixing a syntactically-invalid `<label>+1`-suffixed label
+    definition (the exact case in gotcha 1/entry from `roland-hermans`'s own
+    disassembly: SIDdecompiler emits e.g. `la1bb+1           lda #$00`,
+    which 64tass rejects with "general syntax" since a label can't contain
+    `+`), do NOT simply text-rename it in place (`la1bb+1` → `la1bb_1`
+    everywhere). That silently redefines the symbol to mean the address of
+    the OPCODE byte the label now precedes (one address too LOW), not the
+    operand-byte address `<base>+1` originally meant — because in 64tass (as
+    in any assembler) a label placed before an instruction always resolves
+    to that instruction's first byte, regardless of what the label's own
+    name superficially suggests. Every other place in the file that
+    references the same renamed symbol (self-modifying `sta`/`dec`
+    instructions, `.byte <label,>label` pointer tables) then gets a value
+    exactly 1 too low, producing a systematic, scattered "reassembled =
+    original − 1" pattern across every downstream use — confirmed on
+    `Advanced_Space_Battle.sid` (roland-hermans): ~100 single-byte diffs,
+    every one exactly one less than the true byte, all traceable to 10
+    renamed symbols. The tell that this is a *labeling* bug and not a real
+    content difference: the diffs are single isolated bytes, at addresses
+    that are pointer/pointer-table operands (not raw data), and the
+    direction is uniform. Correct fix: leave an anchor label on the
+    instruction itself (a plain name, e.g. `la1bb_anc`), then add a
+    *separate* assignment line `la1bb_1 = la1bb_anc + 1` so the symbol used
+    everywhere else correctly evaluates to the operand-byte address, one
+    past the anchor — do not conflate "renaming a symbol to be legal syntax"
+    with "preserving its numeric meaning."
+20. **A byte-diff cluster immediately after the entry point in a driver with
+    self-modifying code is not always fixable by literally restoring the
+    pristine original bytes at that address — verify with a trace *after*
+    patching, not just before.** On `roland-hermans`'s `Sleepwalker.sid`, a
+    56-byte `+`-marked (read+write) table right after `init` byte-diffed at
+    98.86%; naively patching every diverging byte back to the true original
+    SID-file value (the obvious first move) raised the byte-diff to 99.88%
+    but the trace *still* diverged identically (a `filter_mode_volume`
+    register write desynced from frame 0 onward, all 4 subtunes) — because
+    the real divergence wasn't in that big data table at all, it was in 7
+    separate, much smaller self-modified-immediate-operand bytes elsewhere
+    in the CODE (`ora #$30`, `adc #$18`, `ldy #$1c`, etc., each individually
+    marked `_` in the `-v2` map) that this project's own entry 10 would
+    normally treat as "probably dead." Patching those 7 (again, back to
+    true original SID-file byte values, located precisely by diffing raw
+    bytes around each flagged address rather than trusting the disassembly's
+    printed label position — see next point) resolved the trace to 100%
+    exact across all 4 subtunes and pushed the byte-diff to a clean 100.0000%.
+    Lesson: a partial patch that doesn't fully close the trace is a sign
+    there's a SECOND, smaller divergence hiding elsewhere — re-run the
+    byte-diff and re-check the `-v2` map for every remaining differing
+    address rather than assuming the first (biggest, most obvious) cluster
+    was the whole story.
+21. **SIDdecompiler's printed label position for a self-modified-operand
+    address can be cosmetically wrong by exactly one byte — trust raw byte
+    offsets computed from the PSID header, not the disassembly's label
+    names, when localizing a byte-diff.** On the same `Sleepwalker.sid` fix
+    (entry 20), grep'ing for the label the tool printed (e.g. `l11aa lda
+    #$0f`) and assuming that instruction's opcode sits at `$11aa` was WRONG
+    — direct byte-level comparison of the original file around that address
+    showed the true `LDA` opcode byte at `$11a9`, one less than the label
+    claimed, with everything downstream still correctly, sequentially
+    positioned (i.e., this is purely a *display* quirk in how the tool
+    names certain self-modified locations, not an actual byte-stream
+    misalignment — patching "whatever line has that label" still worked
+    correctly, since the physical file position is right even when the
+    label text isn't). The failure mode this causes: manually reasoning
+    from the `.asm`'s printed label ("this must be address X, so the
+    differing byte must be its Nth byte") can point you at the wrong exact
+    byte within a multi-byte instruction. Always re-derive the true address
+    of a diverging byte directly from `(loadAddr + file_offset)` arithmetic
+    on the raw payload buffers, and dump raw hex bytes around that computed
+    address in both files side-by-side, rather than trusting which
+    disassembly line "looks like" it should contain that address.
+22. **`sidm2-sid-trace.exe` does NOT parse PSID/RSID headers at all when
+    given a `.sid` path directly — it always treats the input as a raw C64
+    `.prg` (first 2 bytes = load address, little-endian), even on a normal
+    file whose header load address is non-zero.** This broadens entry 14
+    (which described only the `loadAddr=0` case): confirmed on a known-good
+    PSID file with a perfectly ordinary load address (`42nd_Street.sid`) —
+    handed the raw `.sid`, the tracer read the literal ASCII bytes `"PS"`
+    (from the `PSID` magic) as a little-endian load address `$5350`, then
+    reported 0 SID changes over every frame with no error. The real rule:
+    **always** build a proper `.prg` (2-byte real load address computed via
+    the `psid_header` snippet, prefixed to the stripped payload) before
+    using `sidm2-sid-trace.exe` on *any* `.sid` file — never pass a `.sid`
+    path to it directly and trust its own printed load address.
+23. **`SIDdecompiler.exe` can reproducibly HANG — not crash, not complete,
+    zero output ever flushed — on some real files of a player whose export
+    installs a custom hardware IRQ vector and runs its own raster-split
+    multispeed loop**, independent of `-a`, `-C1`, or `-t`. Confirmed on 11
+    of 12 sampled real RSID exports of one player family (SidBang64); the
+    one working file in the family completed in under a second, so this
+    isn't "slow," it's stuck. This is a different failure signature from
+    entry 13 (completes fast with 0 trace nodes) — here the process itself
+    never returns; confirm via `tasklist` that it's still alive before
+    concluding it's hung rather than just slow. Related process-management
+    trap: GNU `timeout` reliably kills a synchronous invocation, but does
+    **not** reliably kill one launched through a shell backgrounded with a
+    trailing `&` *and* the Bash tool's own `run_in_background: true` at the
+    same time — that double-indirection can detach the real child process
+    from `timeout`'s tracked process group, letting it keep running even
+    after the wrapper reports completion. Don't stack both; pick one, and
+    sanity-check with `tasklist` afterward regardless.
+24. **A reconstruction that writes to a real hardware vector/I/O address
+    near the top of memory** (e.g. `sta $fffe`/`sta $ffff` installing a
+    custom IRQ vector — common in raster-split multispeed players) **can
+    make `SIDdecompiler`'s `-d` unused-data padding span the entire
+    contiguous range from lowest to highest touched address**, producing a
+    reassembled `.prg` noticeably *longer* than the original file (confirmed:
+    63,425 vs 63,035 real bytes, extending to `$FFFF` because `$D000-$DFFF`
+    I/O space sits far above the file's real end). Harmless for byte-diffing
+    (just `Math.min` both lengths) but NOT harmless for tracing:
+    `sidm2-sid-trace.exe` panicked with an out-of-bounds index on the
+    over-length reconstruction specifically, while the same file's
+    correctly-sized original traced cleanly — its RAM model appears sized to
+    the loaded file's own byte length, not a fixed 64KB space. If a
+    trace crashes only on your reconstruction, try truncating/padding it to
+    the original's exact length before concluding the code itself is wrong.
+25. **Confirmed a third time** (after future-composer/entry 10 and
+    cheesecutter/entry 16): a byte-diff mismatch on a `-v2`-map
+    self-modified-write address is frequently but *not always* dead. On
+    SidBang64, the identical class of mismatch at the same relative offset
+    in the same player's code was fully dead on one file (trace-exact) but
+    caused 3 real, audible-but-transient extra register writes confined to
+    frame 0 (self-correcting by frame 1) on a second file. Smaller-magnitude
+    than entry 16's case, but the same underlying lesson: never skip the
+    second-file trace-diff check on the assumption that one exact match
+    generalizes to the whole player family, even when the byte-level diff
+    pattern looks pixel-identical across files.
 </lessons_learned>
 
 <success_criteria>

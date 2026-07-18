@@ -28,16 +28,26 @@ entry on `docs/SIDM2-INTEGRATION.md`'s KB-driven priority list.
    remind the user it should be appended to
    `.claude/agents/sid-player-verify.md`'s `<lessons_learned>` section (the
    subagent may already have done this itself — check before duplicating).
+
+4. If several cards were targeted at once (in parallel), diff each subagent's
+   *returned report* against `sid-player-verify.md` afterward — parallel runs
+   each read-then-overwrite the whole file, so whichever finishes last wins
+   and earlier runs' lessons can be silently lost (this happened the first
+   time three cards ran in parallel: one run's discovery had to be re-added
+   by hand from its report). Don't assume the file already has everything
+   every parallel run found.
 </workflow>
 
 <constraints>
-This is genuinely hard, uncertain-payoff work — three attempts in the session
-that built this command (JCH NewPlayer, Martin Galway, Rob Hubbard) reached
-98.1%, no-match, and 99.1% byte-exactness respectively, none closing to a full
-`verified` in one pass. Set expectations accordingly rather than treating a
-partial result as a failure — a precisely-characterized 90%+ match with a
-named next lead is the normal, valuable outcome of one pass, not a consolation
-prize.
+This is genuinely hard, uncertain-payoff work, but not hopeless — six attempts
+across two sessions (JCH NewPlayer, Martin Galway, Rob Hubbard, then GoatTracker,
+Music Assembler, Future Composer) reached results from "no match" up through
+one full close: Music Assembler hit an exact register-write match and flipped
+to `verified`. Set expectations accordingly rather than treating a partial
+result as a failure — a precisely-characterized 90%+ match with a named next
+lead is a normal, valuable outcome of one pass, and picking targets with real
+public source (a GPL tracker, a composer's own published code) measurably
+raises the odds of a full close over blind disassembly of a closed player.
 
 Never claim `verified` was reached unless the subagent's report says so
 explicitly with a cited exact-or-near-exact trace match. If the report is

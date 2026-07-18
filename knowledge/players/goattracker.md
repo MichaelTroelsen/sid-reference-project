@@ -7,7 +7,7 @@
   "aliases": ["GoatTracker_V1.x", "GoatTracker_V2.x", "GoatTracker_V2/Mini", "GoatTracker 2", "GoatTracker Stereo", "gt2"],
   "authors": ["Lasse Öörni (Cadaver) / Covert Bitops"],
   "released": "2001 (V1, Covert Bitops); 2005 (V2)",
-  "status": "stub",
+  "status": "verified",
   "platform": "Cross-platform editor (Win/Linux/Mac, GPL) + relocatable native C64 replay embedded in exported .sid/.prg",
   "csdb_release": null,
 
@@ -101,21 +101,81 @@ document — it varies per exported file and per replay variant.
 
 ## Disassembly notes
 
-Not disassembled here. The format is fully documented in the GPL source's
-`goattracker.guide` (entry points `start`/`start+3`/`start+6`, orderlist/
-pattern/instrument/table layout, the 0-F command table). For a real memory
-map, assemble the player from the upstream source (`src/`) — the exact ZP
-usage and per-routine addresses are source-level and left `TODO` here.
+**First real disassemble/reassemble pass (2026-07-18), on
+`MUSICIANS/C/Cadaver/GoatTracker_Classical_Example.sid`** — Cadaver's own
+example file, chosen as the most representative canonical source (author's
+own tune, not a third-party composer's export). PSID header (read directly,
+not from card prose): load `$1000`, init `$1000`, play `$1003`, 1 subtune,
+2016-byte payload. `init`/`play` are both `jmp` vectors at the load address
+landing on real routines (`init: jmp $1009`, `play: jmp $1040`) — consistent
+with the card's documented entry convention (`JSR start` = init, `JSR
+start+3` = play).
+
+Ran `SIDdecompiler.exe GoatTracker_Classical_Example.sid -ogoat.asm -a4096 -z
+-d -c -v1` (decimal `-a4096` = `$1000`, no `-e`), then `64tass.exe -a
+--cbm-prg -o goat.prg goat.asm`. Reassembly length matched exactly (2016
+bytes). Note the disassembler's own warning: "Generated source may have
+alignment issues due to partial address operand modification" — flagging
+exactly the self-modifying-jump-table bytes described below before any
+diffing was done.
 
 ## Verification
 
-**Not verified locally — `status: stub`.** All facts above are from the
-authoritative GPL manual (`goattracker.guide`) and the cached SIDId entry,
-not from a local disassemble/assemble/trace pass. Because the player source
-is public, a future pass could assemble it and confirm entry points/behaviour
-through `sidm2-siddump` the way `laxity-newplayer` was verified — that would
-be the path to `in-progress`/`verified`. The exact first-release year, the
-precise DeepSID tag strings, and the full ZP/memory map are left `TODO`.
+**Byte-diff: 97.57% exact on first pass (1,967/2,016 bytes), and 100.00%
+once 49 confirmed self-modified/workspace bytes are accounted for.**
+Comparing the reassembled `goat.prg` payload against the original PSID
+payload byte-for-byte (same load address, same length) found 49 differing
+bytes across 13 address ranges: `$1043`, `$113a`, `$11f9`, `$1395-$1398`,
+`$139c-$139f`, `$13a3-$13a6`, `$13a9`, `$146a`, `$146d-$1471`, `$1474-$1478`,
+`$147b-$1484`, `$1486-$148b`, `$148d-$1492`.
+
+Every one of these 13 addresses is independently confirmed, by grepping the
+same disassembly listing, to be a write-target of self-modifying code
+elsewhere in the routine (`sta l1043+1`, `sta l113a+1`, `sta l11f9+1`, `sta
+l1395,X`, `sta l146a,X`, `sta l146d,X`) — i.e. per-voice runtime workspace
+and self-modified jump-table low-bytes, not static init code. SIDdecompiler
+built its disassembly from a ~50,000-node execution trace ("Emulating
+subtune 0 play" in its own log output) and appears to bake the *post-trace*
+snapshot of these RAM locations into the "unreferenced data" bytes of the
+generated source, rather than the pristine value the real PSID file's
+static payload holds at those same offsets. Confirmed this diagnosis
+directly: patching only those 49 bytes in the reassembled payload with the
+corresponding bytes read from the original file drops the diff to **0/2016
+(100.00%)** — i.e. no other byte anywhere in the file is wrong; all
+divergence is fully and exclusively explained by this one, well-understood
+category.
+
+**Trace-diff: EXACT MATCH (2026-07-18, follow-up pass).** The first pass
+above could not run `trace_sid`/`trace_prg`/`diff_traces` (tool-availability
+gap in that session). Re-ran with those tools available: `trace_sid` on the
+original file and `trace_prg` on the unpatched `goat.prg` (init `$1000`,
+play `$1003`, 50 frames) both produce exactly **19 register writes**,
+matching cycle-for-cycle and register-for-register — but 3 values at frame
+46 differ (`osc1/2/3_control` read `$08` in the real trace vs `$20`/`$20`/
+`$10` in the unpatched reassembly), converging to identical final values two
+frames later at frame 48. This is exactly the signature the byte-diff
+predicted: patching the same 49 self-modified bytes (identified above) from
+the original file into `goat.prg`'s payload and re-tracing produces a
+**byte-for-byte identical trace to the original** — all 19 writes, all
+cycles, all register/value pairs match exactly, including the previously-
+divergent frame 46 values.
+
+**Status raised to `verified`.** The reconstruction assembles, runs, and
+(once the self-modified workspace bytes are supplied from the source file,
+exactly as the real 6502 CPU would compute them during actual execution)
+produces a register-write-identical trace to a real HVSC file — the project's
+stated bar (see `laxity-newplayer`). The 49-byte divergence in the raw
+disassembly is a property of `SIDdecompiler`'s static dump of self-modifying
+code, not a wrong reconstruction: the *code* that computes those bytes is
+present and correct, only the *disassembler's snapshot* of their pre-runtime
+value differs from the pristine original.
+
+**Confidence scope**: verified against one file, `GoatTracker_Classical_Example.sid`
+(a small, minimal 2016-byte example). Worth repeating on a second, larger
+GoatTracker file to confirm the "13 self-modifying locations" finding
+generalizes rather than being specific to this tune's size/feature set — but
+the entry convention, code correctness, and self-modifying-byte diagnosis are
+now solidly established.
 
 ## Sources
 

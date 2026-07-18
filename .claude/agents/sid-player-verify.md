@@ -211,6 +211,79 @@ file stays a fixed reference.
 
 (No entries yet beyond `hard_won_gotchas` above — this agent was just
 created. The first agent to hit a new wall should add it here.)
+
+8. **The `mcp__sidm2-siddump__*` tools described in `tools_and_locations` may
+   not actually be registered in a given session** (hit this verifying
+   `future-composer`: `mcp__sidm2-siddump__trace_sid` errored "No such tool
+   available"). Don't stall on it — the underlying binary is directly
+   filesystem-reachable and usable via plain `Bash`:
+   `sidm2-sid-trace.exe <file.prg> <frames> <init_hex_no_$> <play_hex_no_$>
+   [subtune]` (run with no args for usage), writing a
+   `frame,cycle,register,old_val,new_val` CSV-ish log to stdout. Diffing two
+   trace runs then doesn't need `diff_traces` either — a plain `diff` of the
+   two log files works fine (the only expected difference is the echoed
+   input filename on line 1); this is a legitimate substitute when the MCP
+   layer isn't available, not a workaround to avoid.
+9. **`SIDdecompiler`'s reconstruction coverage is bounded by what its
+   emulation actually touched (read/write/executed), not by the SID file's
+   real length** — and this is silent, not reported as an error or a
+   truncation warning. On `Test_in_FC.sid` (FutureComposer, payload 3740
+   bytes) the reassembled `.prg` was only 2738 bytes ($1800-$22B1, 73.2%);
+   the trailing 1002 bytes ($22B2-$26DB) were not merely marked "unreferenced
+   data" (which `-d` does emit, verbatim, for touched-but-unused regions) —
+   they were entirely absent, because `-v2`'s printed memory-touch map
+   (`r`/`w`/`x`/`o`/`?` per address) showed the emulator's model of memory
+   genuinely stops around `$22C0` regardless of `-C1` (speculative) or a much
+   longer `-t` (times-to-call-play, tried up to 2,000,000). Raising `-t` did
+   not recover the tail because the gap wasn't under-tracing within the
+   player's real control flow — a much longer direct trace (2000 frames via
+   `sidm2-sid-trace.exe` on the *original* file) also never touched that
+   region, i.e. the data is very plausibly genuinely unreferenced by this
+   particular file's playback, not merely outside the decompiler's emulation
+   window. Lesson: a length-mismatched reassembly isn't automatically a
+   failed disassembly — check the decompiler's own memory-touch map (`-v2`)
+   to see whether the shortfall is "not traced long enough" (fixable with
+   `-t`) or "genuinely never touched, by anyone, ever" (a real gap to report,
+   not a knob to turn).
+10. **A byte-diff mismatch localized to addresses the decompiler's own
+    memory map marks as written (`+`/`w`) at runtime is not a defect** — it
+    means the decompiled `.asm` is dumping the *post-execution* value of
+    self-modified/working-storage bytes rather than the file's pristine
+    initial byte value. Confirmed on `future-composer`: all 35 of 2738
+    byte mismatches fell exactly inside the one contiguous `+`-marked range
+    the `-v2` map reported ($2121-$217F) — and a full register-write
+    trace-diff was nonetheless byte-for-byte exact, proving those initial
+    values are dead (always overwritten before being read). Cross-reference
+    the diff's diverging addresses against the `-v2` map before concluding
+    the disassembly itself is wrong.
+11. **If the reassembled binary is relocated to the PSID's own `load address`
+    and the byte-diff comes back only ~90-93% (a "bad but not random" score,
+    not the ~5% noise floor of genuinely misaligned code), suspect a small
+    unidentified run-stub at the very front the disassembler's trace never
+    visits.** Confirmed on `music-assembler`: the real module opens with a
+    ~33-byte block (a `JMP init`/`JMP play` call table plus ~26 bytes
+    SIDdecompiler couldn't classify) that gets silently dropped, shifting
+    every address after it forward by that same amount — relocating to the
+    file's own PSID *load* address therefore misaligns everything past the
+    stub. Fix: relocate to the file's own PSID **play** address instead
+    (`-a<decimal play address>`) — this lands the reassembled `init`/`play`
+    labels exactly on the file's real entry points and raised the match from
+    ~92% to ~98.8% on two independent files. General form of the lesson: a
+    byte-diff score in the "clearly not aligned but clearly not random"
+    range is itself a signal to try relocating against a *different* PSID
+    header field (play vs. load) before concluding the disassembly is wrong.
+12. **Running this agent on several cards in parallel risks losing
+    `lessons_learned` entries to each other.** Each parallel instance reads
+    this file, then writes back an updated copy at the end of its own run —
+    whichever instance finishes last overwrites the others' additions
+    entirely, silently. This happened the first time three cards were run in
+    parallel: entry 11 above (`music-assembler`'s run-stub discovery) was
+    lost this way and had to be re-added by hand afterward from the run's own
+    returned report, not from the file. If running this agent on multiple
+    cards at once, the caller should diff each agent's *returned report*
+    against this file afterward and manually reconcile any lesson that
+    didn't make it in — do not assume the file already has everything every
+    parallel run found.
 </lessons_learned>
 
 <success_criteria>

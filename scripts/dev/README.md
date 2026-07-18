@@ -16,6 +16,12 @@ Ad-hoc tooling for reverse-engineering work. Nothing here is part of
   author-dominated false positives with ⚠; the script header documents the
   verification rule (rule out author-domination / self-named group before
   believing a finding). Confirmed finds become prose notes, never edges.
+- `find-eras.js` — temporal analysis. Reads each carded file's PSID/RSID header
+  `released` year from the local HVSC collection (~97% parse) and produces a
+  production-by-decade timeline plus a per-tool usage-year-vs-card-release
+  validity check. Needs HVSC locally (see the `HVSC` env var in the header). The
+  header year is the WORK's year (covers carry the original's date) — the tool
+  uses medians, not extremes; read the header caveat before trusting a span.
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
 
 ---

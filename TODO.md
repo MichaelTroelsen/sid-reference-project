@@ -94,7 +94,7 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       only 47 had actually been enriched. Re-ran it (cache-aware, safely
       re-runnable, ~11 min at the existing 400ms rate limit) — 1,564
       fetched, 0 failed. Composer cards with real CSDb bio/group/country
-      data went from 47 to 1,609 of 1,902 (85%).
+      data went from 47 to 1,608 of 1,902 (85%).
 - [x] ~~Surface real player/tool usage (not just that a tool exists).~~
       Done — the Players tab now sorts by real files-made-with-it (a new
       `computePlayerUsageCounts()`) instead of insertion order, with a
@@ -141,7 +141,7 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
       737 of 1,817 distinct groups qualify, sorted by size, each member
       name clickable (jumps to their composer card). Onslaught leads at
       48 composers, Hokuto Force 43, Triad 36. Only viable now that CSDb
-      enrichment covers 1,609 composers instead of 47.
+      enrichment covers 1,608 composers instead of 47.
 - [x] ~~Surface CSDb's other scene roles per composer.~~ Done —
       `summarizeCsdb()` now also extracts `handle.FreelanceFunctions`
       (was fetched and cached but never read). 897 of 1,579 role-tagged
@@ -190,7 +190,7 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
         chart — top 50 composers (2.6% of everyone with a file) made 25%
         of all 55,225 files.
       - **Group mobility**: new `computeGroupMobility()` chart — 967 of
-        1,609 CSDb-enriched composers belonged to 3+ different groups
+        1,608 CSDb-enriched composers belonged to 3+ different groups
         over their career ("Metal" tops out at 18). Reuses the same
         `composer.csdb.groups` data as the Scene Groups tab.
       - **Real bug found and fixed while building this**: plain

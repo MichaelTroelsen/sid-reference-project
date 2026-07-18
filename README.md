@@ -378,9 +378,11 @@ are legitimately unknown (lost to history) rather than un-filled-in.
   exhaustive.
 - CSDb enrichment only covers composers whose DeepSID profile already has
   a non-zero `csdb_id` — composers DeepSID hasn't linked to CSDb yet get
-  no enrichment, not an error. Currently 1,609 of 1,902 composers (85%)
-  are enriched; `npm run fetch:csdb` is cache-aware and safe to re-run
-  any time (only fetches newly-added composers unless `--refresh` is
+  no enrichment, not an error. Currently 1,608 of 1,902 composers (85%)
+  are enriched (`npm run build`'s own console output is the current figure —
+  a handful of cached CSDb entries are scene groups rather than people and
+  don't count toward this); `npm run fetch:csdb` is cache-aware and safe to
+  re-run any time (only fetches newly-added composers unless `--refresh` is
   passed).
 - `find-gaps.js`'s idea of "missing" is a fixed field list
   (`EXPECTED_PLAYER_FIELDS` in that script) — adjust it if DeepSID's

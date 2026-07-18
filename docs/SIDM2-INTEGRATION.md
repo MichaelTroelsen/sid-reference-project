@@ -66,6 +66,12 @@ HVSC file for that player → `diff_traces`; when they match, the card's facts a
 confirmed and its `status` flips to `verified`. This is the same bar the 7
 existing verified cards met.
 
+`sidm2-siddump` is wired up in `.mcp.json` at the repo root, pointing at the
+SIDM2 checkout's `mcp-siddump/server.py` by absolute path. That path is
+specific to the machine this project was built on — anyone else cloning this
+repo needs to edit `.mcp.json`'s `args` to point at their own local SIDM2
+checkout before this server will start.
+
 ## 1. Player identification as a disassembly starting point
 
 Every SID file's `player` field (from `?file=` or `?profile=` folder

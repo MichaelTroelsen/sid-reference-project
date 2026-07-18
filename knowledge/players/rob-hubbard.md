@@ -127,6 +127,26 @@ all playing), the card's core claims — entry convention, playability, and
 cross-composer reuse — are verified. Per-game data-format internals still vary
 and are not decoded here.
 
+**Independent near-byte-exact reconstruction (2026-07-18), via a different
+route.** Rather than McSweeney's generic listing, disassembled the real HVSC
+`Hubbard_Rob/Monty_on_the_Run.sid` directly with SIDdecompiler.exe (load
+`$8000`, init `$8000`, play `$8012` — confirmed from the PSID header itself),
+reassembled with 64tass, and byte-diffed against the original payload: **only
+49 of 5,568 bytes differ (99.1% exact)**, clustered in two small regions
+(`$84c4`-`$84fa`, ~35 bytes, and a handful near `$8566`/`$93b5`-`$9415`) —
+almost certainly one or two instrument/pulse-parameter table(s) the
+disassembler's default trace pass didn't fully resolve, not a wrong entry
+point or memory-map error. Tracing both (50 frames): the real rip produces
+354 register writes, the reconstruction 342 — nearly the same shape and cycle
+timing throughout, diverging only on `osc2`/`osc3` frequency and
+pulse-width values in exactly the frames where the ~49 differing bytes would
+be read. This is markedly closer than McSweeney's generic reconstruction (that
+one is not byte-aligned with this rip at all) and is the strongest lead yet
+for a future pass to actually close: identify what belongs in the `$84c4`-
+`$84fa` region (likely by comparing against Commando's real rip, already
+locally available, to see if the same table exists there with different
+values) and the trace should converge to an exact match.
+
 ## Sources
 
 See the `sources` array — the McSweeney disassembly, VGMPF's driver page (the

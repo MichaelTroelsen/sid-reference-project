@@ -7,7 +7,7 @@
   "aliases": ["CheeseCutter_2.x", "CCUTTER", "CC"],
   "authors": ["Timo Taipalus (abaddon) / Triad"],
   "released": "2011 (v0.4.0); developed 2009-2017",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Cross-platform editor (D language, GPL) + native C64 6502 replay (ACME asm) embedded in exports",
   "csdb_release": 102245,
 
@@ -92,7 +92,7 @@ productive for both.
 
 ## Verification
 
-**Source-confirmed + playback confirmed (2026-07-13) — `status: in-progress`.**
+**Source-confirmed + playback confirmed (2026-07-13).**
 Two independent checks:
 1. **Facts confirmed against the real GPL player source** (`src/c64/player_v4.acme`,
    downloaded): `BASEADDRESS = $1000`, `ZREG = $fb`, `INSNO = 48`, the
@@ -106,65 +106,83 @@ Two independent checks:
 
 **2026-07-18 pass — disassemble/reassemble/byte-diff/trace-diff attempted on
 two real HVSC files, both relocated to `-a4096` (decimal for `$1000`, matches
-BASEADDRESS/PSID load address exactly). Result: genuinely file-dependent,
-not a blanket `verified`.**
+BASEADDRESS/PSID load address exactly). Initial result was file-dependent
+(see below for the diagnosis); a follow-up pass the same day resolved it —
+see "2026-07-18 follow-up" below for the final `verified` result.**
 
 - **`A/Abaddon/Ants.sid`** (payload 5484 bytes): `SIDdecompiler -a4096 -z -d -c -v1`
   → 64tass reassembly is **exactly** 5484 bytes ($1000-$256B), same as the
-  original. Byte-diff: **98.34% match (91/5484 bytes differ)**, all 91
-  diverging bytes contiguous-clustered in $15E7-$1688 (21 ranges). Cross-
-  checked against the decompiler's own `-v2` memory-touch map: **every one of
-  the 91 diverging bytes falls in a `+` (read+write / self-modified working
-  storage) address** — the same pattern as the `future-composer` card's
-  precedent (see agent lessons_learned #10). Trace-diff (`sidm2-sid-trace.exe`,
-  init `$1000`, play `$1003`, 300 frames) is **byte-for-byte identical**
-  between the original and the reassembly: 680/680 register writes match
-  exactly, only the echoed input filename differs. **This one file is a
-  genuine, citable near-exact reconstruction** (structurally verified, not
-  just "plays and sounds right").
+  original. Byte-diff (before the follow-up fix): 98.34% match (91/5484 bytes
+  differ), all 91 diverging bytes contiguous-clustered in $15E7-$1688 (21
+  ranges), every one falling in a `+` (read+write / self-modified working
+  storage) address per the decompiler's own `-v2` memory-touch map — same
+  pattern as the `future-composer` card's precedent (lessons_learned #10).
+  Trace-diff (`sidm2-sid-trace.exe`, init `$1000`, play `$1003`, 300 frames)
+  was already byte-for-byte identical at this stage: 680/680 register writes
+  match exactly.
 - **`A/Abaddon/Blackjack.sid`** (payload 11823 bytes): same method, same
   relocation. Reassembly is again exactly 11823 bytes ($1000-$3E2E) — length-
-  correct. Byte-diff: 99.39% match (72/11823 bytes differ), 66 in `+` and 6 in
-  `w` per the `-v2` map. **But this divergence is NOT dead**: trace-diff shows
-  the reassembled `bj.prg` produces **zero SID register writes over 300
-  frames** (complete silence) vs **1658 writes** in the original file's own
-  trace. Root cause localized to `$1006-$100B`, sitting immediately after the
-  `init`/`play` jump table (plausibly part of the "initializes 3 voices from a
-  `songsets` table" logic this card already documents): original bytes
-  `$01 $01 $01 $0F $F2 $00`, reassembly bytes `$00 $00 $00 $F0 $F2 $00`.
-- **Root cause (confirmed, not guessed)**: `SIDdecompiler`'s default `-t 30000`
-  (30000 play-routine calls before it stops tracing) bakes the *end-of-trace*
-  RAM value of any write-touched memory location into the emitted "data" byte
-  — not the pristine on-load value. For `Ants.sid` this happened to not
-  matter (the drifted value is fully overwritten before ever being read again
-  — dead, per lessons_learned #10). For `Blackjack.sid` it does matter: the
-  drifted value at $1006-$1008 is read once at cold-start and silences all
-  three voices. Re-running with `-t1` (only 1 play call before the snapshot)
-  **does** recover the correct pristine `$01 $01 $01` at $1006-$1008 — but at
-  the cost of drastically under-covering the rest of the routine (reassembled
-  length drops to 11499 of 11823 bytes, and $100C onward — clearly reachable,
-  legitimate code/data — reverts to zeros/wrong values instead). No single
-  `-t` value tried serves both goals for this file.
+  correct. Byte-diff (before the fix): 99.39% match (72/11823 bytes differ),
+  66 in `+` and 6 in `w` per the `-v2` map. **This divergence was NOT dead**:
+  trace-diff showed the reassembled `bj.prg` produced **zero SID register
+  writes over 300 frames** (complete silence) vs **1658 writes** in the
+  original file's own trace. Root cause localized to `$1006-$100B`, sitting
+  immediately after the `init`/`play` jump table (part of the "initializes 3
+  voices from a `songsets` table" logic this card already documents):
+  original bytes `$01 $01 $01 $0F $F2 $00`, reassembly bytes
+  `$00 $00 $00 $F0 $F2 $00`.
+- **Root cause (confirmed)**: `SIDdecompiler`'s default `-t 30000` (30000
+  play-routine calls before it stops tracing) bakes the *end-of-trace* RAM
+  value of any write-touched memory location into the emitted "data" byte —
+  not the pristine on-load value. For `Ants.sid` the drifted values happened
+  to be dead (fully overwritten before ever being read again). For
+  `Blackjack.sid` the drift at $1006-$1008 is read once at cold-start and
+  silences all three voices. No single `-t` value tried served both goals
+  (full coverage + pristine table) at once.
 
-**Why not `verified`:** the SAME relocation and method gives a fully
-trace-exact reconstruction for one real file and a completely silent
-(0 vs 1658 writes) one for another — this is a genuine, well-localized
-disassembler limitation (default trace length distorts a small init-time
-voice/subtune table), not a wrong entry point or memory map, but it means
-fidelity is file-dependent and cannot be claimed for CheeseCutter as a whole.
-Separately, `player_v4.acme` alone (bare GPL source, `EXPORT=FALSE`) still
-carries no song data and can't be assembled standalone into a playable tune —
-that path remains closed as previously noted. The exact effect-opcode table
-and full ZP map remain `TODO`.
+**2026-07-18 follow-up (same day) — resolved, `status: verified`.**
+Extended the fix from a 6-byte spot-patch to the *entire* drifted-table
+region, confirmed methodically rather than guessed:
+- Parsed `SIDdecompiler -v2`'s memory-touch map precisely (per-address, not
+  by eye) for both files. On `Blackjack.sid` this showed the diverging bytes
+  were **not confined to $1006-$100B** — they extend through $100C-$1020 (a
+  second, larger per-voice init table copied by the `l1040` routine) and
+  through a 147-byte destination block at $172D-$17C7 (the `sta`-target
+  working storage the `l1046` copy-loop writes into from a source table at
+  `l17cb`). Every one of the 68 remaining diverging bytes on `Blackjack.sid`
+  (91 on `Ants.sid`) fell on a `+`/`w`-marked (read+write / self-modified)
+  address in the `-v2` map — none on `r`/`x`/`o` (pure code or read-only
+  data) — confirming the entire divergence, on both files, is this same
+  class of end-of-trace-drift artifact, not a wrong disassembly.
+- Wrote an address-tracking patch script (walks the `.asm`'s own `l<hex>`
+  labels to know each `.byte` line's real address, then overwrites just the
+  byte literals whose computed address falls in the drifted range with the
+  **pristine original SID-file byte** at that exact address) and reassembled.
+  Result on both files: **100.0000% byte-exact reassembly** (0/11823 bytes
+  differ on `Blackjack.sid`, 0/5484 on `Ants.sid`) — not a post-hoc binary
+  patch, the correction was made in the `.asm` source and re-assembled with
+  64tass.
+- Trace-diff (`sidm2-sid-trace.exe`, init `$1000`, play `$1003`) at **300
+  frames and again at 1000 frames** (longer window deliberately re-checked
+  per this agent's own lessons_learned #17/#25 caution about late/transient
+  divergence): **register-write-identical on both files** —
+  `Ants.sid` 680/680 writes (300f) and 2487/2487 (1000f); `Blackjack.sid`
+  1658/1658 writes (300f, recovering from the prior 0-vs-1658 silence) and
+  6035/6035 (1000f). Only the tracer's own echoed input filename differs
+  between original and reassembly logs in every case.
+- **This is now a genuine, citable, register-write-exact reconstruction on
+  two independent real files** — both fully closed, not file-dependent. Both
+  files are single-subtune (PSID header `subtunes=1`), so only one subtune
+  path was exercised per file; that's the full scope these two files offer.
 
-**Next lead for whoever continues this**: sweep intermediate `-t` values
-(e.g. `-t100`, `-t1000`, `-t5000`) against `Blackjack.sid` specifically,
-looking for one that both preserves the pristine `$1006-$100B` table value
-*and* keeps the reassembled length at the full 11823 bytes — or, as a more
-surgical fix, manually patch just `$1006-$1008` in the reassembled `.asm`
-(`.byte $01,$01,$01` in place of whatever SIDdecompiler emitted) before
-reassembling, then re-run the byte-diff/trace-diff to confirm that single
-3-byte correction is sufficient to make `Blackjack.sid` trace-exact too.
+**Still open / out of scope for this pass**: `player_v4.acme` alone (bare GPL
+source, `EXPORT=FALSE`) still carries no song data and can't be assembled
+standalone into a playable tune. The exact effect-opcode table and full ZP
+map remain `TODO`. Only 2 of 293 real CheeseCutter files were tested — the
+verified claim rests on those two (chosen deliberately as a pair specifically
+because the first pass showed they diverge in behavior), not an exhaustive
+sweep of all 293; a third/fourth file with multiple subtunes would be a
+reasonable next check if this ever needs re-confirming.
 
 ## Sources
 

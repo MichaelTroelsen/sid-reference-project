@@ -7,6 +7,63 @@ project and SIDM2 have complementary data: SIDM2 works from the binary up
 (DeepSID's metadata about what that code *is*). Three concrete ways to
 connect them, roughly in order of effort:
 
+## Current state (2026-07-18) — read this first
+
+This doc predates most of the project. The figures further down ("56 composers",
+"145 documents") are stale; the current picture:
+
+- **~1,895 composers** and **~54,600 SID files** cataloged; **345 player
+  knowledge cards** under `knowledge/players/` (7 `verified`, the rest
+  `in-progress`/`stub`), all ingested into the `tdz-c64-knowledge` MCP server
+  (~578 documents) — so integration modes #1 and #2 below are effectively LIVE:
+  a SIDM2 session can already search this project's player facts via TDZ.
+- The cards carry a machine-readable facts block (memory map, entry points, data
+  format, `edges[]` lineage) — exactly the scaffold a SIDM2 disassembly fills in.
+  A card reaches `verified` only when a reconstruction **assembles and plays**
+  (the 7 verified are composer-driver reconstructions: Hubbard, Galway, Whittaker,
+  Fred/Matt Gray, Kimmel, plus Laxity NewPlayer at ~99.9% frame accuracy).
+- New analytical surface SIDM2 can lean on: `scripts/dev/find-connections.js`
+  (player↔player composer-overlap), `find-group-tools.js` (scene-group usage),
+  `find-eras.js` (per-file production years from PSID headers), and the narrative
+  in `docs/SID-HISTORY.md` (the lineage clusters written up).
+
+## Which players to tackle next — a KB-driven priority list
+
+The single most useful thing this project can hand SIDM2 is a *ranked* worklist:
+which not-yet-`verified` players would return the most value if disassembled and
+reconstructed. Ranked by **usage** (files affected), **lineage centrality**
+(`edges[]` degree — verifying a hub anchors its whole cluster), and
+**tractability** (public source to diff against beats reverse-engineering from
+scratch). Regenerate with `scripts/dev/` data; the current top picks:
+
+| Player | Files | Edges | Public source? | Why |
+|---|---|---|---|---|
+| **[[jch-newplayer]]** | 1,885 | 9 | no (RE) | **Highest leverage.** The tracker-dynasty hub; SIDM2's exact family (Laxity NewPlayer already `verified` beside it). No public source, but [[cheesecutter]]'s GPL source *declares* "Based on JCH NP 21.G4 by Laxity/VIB" — a lever straight into it. |
+| **[[sid-factory-ii]]** | 360 | 6 | **yes** (GPL, chordian/sidfactory2) | Most tractable *and* it is SIDM2's own **target format** — read the driver `.asm` directly, no RE. Verifying the tool SIDM2 converts *into* is foundational. |
+| **[[goattracker]]** | 8,421 | 0 | **yes** (GPL, Cadaver) | Biggest single coverage win with public source. Standalone, well-documented. |
+| **[[dmc]]** | 10,491 | 2 | no (RE) | The largest player family in the whole collection — a full RE, but the biggest coverage payoff of any. |
+| **[[cheesecutter]]** | 293 | 2 | **yes** (GPL) | Modern, open, and a dynasty member whose source states its JCH/Laxity descent — an easy win that also corroborates the Era III lineage. |
+| **[[soundmonitor]]** | 2,403 | 2 | no (RE) | The Era II hinge (game-driver → published editor); high usage; would anchor the Hülsbeck cluster. |
+
+Others with public source (tractable, lower centrality): [[sidwizard]],
+[[music-assembler]] (a reimplementation exists), [[future-composer]] (libsidplayfp
+carries a replay). The natural SIDM2 sequence is therefore: **verify the
+dynasty (jch-newplayer via the CheeseCutter/SF2 open sources), then sweep the
+high-file open-source standalones (GoatTracker, SID-Wizard), then take on the big
+closed RE targets (DMC, SoundMonitor)** last.
+
+## The verification loop (how a card actually moves to `verified`)
+
+The trace tooling to close the loop is available in this workspace:
+`sidm2-siddump` (`trace_sid` for an existing `.sid`, `trace_prg` for a
+hand-assembled reconstruction, `diff_traces` to check two traces are
+register-write-identical) and `mcp-c64` (`assemble_program`, `run_program`). The
+pipeline for a target above: SIDM2 disassembles/reconstructs the player →
+`assemble_program` it → `trace_prg` the reconstruction and `trace_sid` a real
+HVSC file for that player → `diff_traces`; when they match, the card's facts are
+confirmed and its `status` flips to `verified`. This is the same bar the 7
+existing verified cards met.
+
 ## 1. Player identification as a disassembly starting point
 
 Every SID file's `player` field (from `?file=` or `?profile=` folder

@@ -10,7 +10,8 @@ picture; this file is quick orientation for a fresh session.
   `fast-xml-parser`, used only by `scripts/lib/csdb-client.js` since
   CSDb's webservice is XML-only.
 - `npm run all` does everything: fetch (DeepSID players/composers, CSDb,
-  HVSC docs) → analyze gaps → build HTML
+  player media, HVSC docs) → analyze gaps → build HTML — see
+  `package.json`'s `scripts` block for the authoritative step chain
 - Data lives in `data/*.json`, all gitignored except `data/composer-list.json` (the seed)
 - Three independent external sources, each with its own client in
   `scripts/lib/`: DeepSID (`deepsid-client.js`, JSON), CSDb
@@ -58,8 +59,11 @@ picture; this file is quick orientation for a fresh session.
   all carrying the same data at once, and a per-file `url` string was
   being pre-built and stored instead of reconstructed from data already
   present. Fixed down to ~8-9MB (still large, but usable) — see git
-  history if this creeps back up after future changes. Now ~9-10MB after
-  also cross-referencing STIL.txt's `COMMENT` field onto ~6,500 files
+  history if this creeps back up after future changes. Currently
+  ~10.75MB after also cross-referencing STIL.txt's `COMMENT` field onto
+  ~6,500 files; `build-html.js` prints the actual output size at the end
+  of every `npm run build`, so check that rather than trusting this
+  figure
   (see the STIL.txt line below). That same fix (deleting `composer.folder`
   after deriving `composer.files`) silently broke every composer card's
   file count/expand toggle in `templates/index.html.template` — its
@@ -302,6 +306,15 @@ picture; this file is quick orientation for a fresh session.
   upstream without review.
 - See `docs/SIDM2-INTEGRATION.md` for the (currently manual) connection
   to the SIDM2 disassembly project.
+- Composer/file counts are hand-maintained across 10+ locations in
+  `README.md`/`CLAUDE.md`/`TODO.md` and legitimately differ by
+  denominator — `~1,895` is the seed list (`data/composer-list.json`),
+  `1,902` is cached composers (`ls data/composers/*.json`), `54,608` is
+  tagged files (`knowledge/COVERAGE.md`), `55,223` is dump-sourced file
+  rows. Don't "harmonise" these to one number if you touch them — they
+  measure different things. When a count is next edited, prefer linking
+  to its generated source (e.g. `knowledge/COVERAGE.md`) over writing a
+  fresh copy.
 
 ## Player knowledge base (`knowledge/`)
 
@@ -313,7 +326,7 @@ accumulated knowledge rather than a blank disassembler. Design is deliberate
 **graph is derived** (`knowledge/build-graph.js` → `knowledge/graph.json`,
 gitignored, `npm run knowledge:graph`), the `tdz-c64-knowledge` MCP server
 (a pre-existing general C64 documentation search server, not built for this
-project) is the *access* layer — all 5 cards are ingested into it via
+project) is the *access* layer — the cards are ingested into it via
 `add_document`, tagged `sid-player-kb` + the card's id, so it's searchable
 mid-task through its FTS5/semantic search tools; re-ingest a card after
 editing it, same as regenerating `graph.json` — and `mcp-c64` is the
@@ -333,8 +346,9 @@ are sourced from the **SIDM2 project** (`c64server/SIDM2` — reverse-engineers
 Laxity-family SID players into SF2; the `laxity-newplayer.md` card is seeded
 from its disassembly + author source, externally validated at ~99.93% frame
 accuracy). See `docs/SIDM2-INTEGRATION.md`. A card only becomes
-`status: verified` once re-run through `mcp-c64` here (which needs a SID
-register-write/siddump trace tool it doesn't have yet).
+`status: verified` once re-run through `mcp-c64` here — see
+`docs/SIDM2-INTEGRATION.md`'s "The verification loop" section for the
+tooling that closes this.
 
 ## Testing without network access
 

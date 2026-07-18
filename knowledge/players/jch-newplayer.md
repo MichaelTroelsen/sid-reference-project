@@ -12,20 +12,20 @@
   "csdb_release": 14037,
 
   "memory": {
-    "load_address": "TODO: per version — needs disassembly",
-    "zero_page": "TODO: per version",
-    "layout": "TODO"
+    "load_address": "$1000 (V13, DISASSEMBLY-CONFIRMED 2026-07-18 via SIDdecompiler.exe on Abaddon/Apina.sid — see Disassembly notes). Per-file for relocated/per-game builds; likely $1000 for the packed convention generally but not yet checked on other versions.",
+    "zero_page": "$FB/$FC only (V13, DISASSEMBLY-CONFIRMED) — a single indirect pointer pair reused across all 3 voices in turn (saved/restored via push/pull around each voice's play-routine slice), not three separate per-voice pointers. Not yet confirmed on other versions.",
+    "layout": "V13: $1000 init vector, $1003 play vector, $1006-$101f small per-voice working-value block (partially unresolved — see Disassembly notes), $1020 a flag byte + embedded ASCII credit text (same $1020 credit-block convention as the v00 series' quirk above), code from ~$1040, data tables (order-list, pattern/instrument) from ~$1700 onward. TODO for other versions."
   },
   "entry": {
-    "init": "$1000 in the standard packed convention (load $1000, init at the load address) — TRACE-CONFIRMED 2026-07-18 on two real HVSC files (JCH/42nd_Street.sid V-tag, Abaddon/Apina.sid V13), both init $1000. Relocated/per-game builds place it elsewhere; read the PSID header per file.",
-    "play": "$1003 in the standard packed convention (init+3) — TRACE-CONFIRMED on the same two files (both play $1003). Single frame call; multispeed variants exist. Per-file for relocated builds."
+    "init": "$1000 in the standard packed convention (load $1000, init at the load address) — TRACE-CONFIRMED 2026-07-18 on two real HVSC files (JCH/42nd_Street.sid V-tag, Abaddon/Apina.sid V13), both init $1000; DISASSEMBLY-CONFIRMED on Apina.sid the same day (SIDdecompiler shows `$1000: jmp init` landing on the real init routine at $1040). Relocated/per-game builds place it elsewhere; read the PSID header per file.",
+    "play": "$1003 in the standard packed convention (init+3) — TRACE- and DISASSEMBLY-CONFIRMED on the same file (`$1003: jmp play` landing on $10da). Single frame call; multispeed variants exist. Per-file for relocated builds."
   },
   "speed": "TODO: 1x + multispeed",
 
   "data_format": {
-    "order_list": "TODO",
-    "patterns": "Contiguous sequence stacking; JCH Editor v3 exposes 114 patterns up to 96 rows",
-    "instruments": "32 instruments",
+    "order_list": "V13 (DISASSEMBLY-CONFIRMED, not yet trace-verified): a per-voice 2-byte (lo/hi) pointer table at $17d3, copied by init into a working 'current position' pointer (at $172c/$172f per voice) and a separate 'restart on loop' pointer (at $1732/$1735 per voice) — so looping resets to a stored restart point rather than re-deriving it. TODO for other versions.",
+    "patterns": "Contiguous sequence stacking; JCH Editor v3 exposes 114 patterns up to 96 rows. V13 (DISASSEMBLY-CONFIRMED, partial): sequence bytes are read indirectly via (zfb),Y; top-bit-set bytes are note/duration data, with $7E/$7F reserved as special markers (loop/end) distinct from note data — not yet fully mapped byte-by-byte.",
+    "instruments": "32 instruments. V13 (DISASSEMBLY-CONFIRMED, partial): one command class ($A0-$BF range, masked #$3f) indexes a 64-entry table at $1930/$192f — plausibly an instrument or arpeggio table; not yet confirmed which.",
     "wavetable": "TODO",
     "pulsetable": "TODO",
     "filtertable": "TODO"
@@ -98,10 +98,59 @@ earlier "OldPlayer".
 
 ## Disassembly notes
 
-TODO. Pick one high-usage version (V20 is a good target — 1,616 files) and
-follow the [playbook](../playbooks/disassemble-a-player.md). The
-`successor_of: jch-oldplayer` edge is a lead: diffing OldPlayer vs NewPlayer
-routines is often the fastest way to understand what "New" changed.
+**First real disassembly pass (2026-07-18), on `Abaddon/Apina.sid`
+(JCH_NewPlayer_V13), via SIDM2's `tools/SIDdecompiler.exe`** (a genuine 6502
+disassembler for SID players — this project's own filesystem can reach it
+directly at `C:\Users\mit\claude\c64server\SIDM2\tools\SIDdecompiler.exe`, no
+separate SIDM2 session needed). This is the first attempt at going beyond
+trace-only confirmation toward an actual reconstruction.
+
+**Confirmed via disassembly (not just trace) this pass**:
+- Entry points **exactly match the PSID header and the earlier trace**: `init`
+  is a `jmp` at $1000 landing on the real init routine at $1040; `play` is a
+  `jmp` at $1003 landing on the real play routine at $10da.
+- **Zero page**: only `$FB`/`$FC` (named `zfb`/`zfc` in the disassembly), used
+  as an indirect pointer into per-voice sequence/pattern data (`lda (zfb),Y`);
+  saved/restored around each voice's processing in `play` via push/pull, so
+  the same two ZP bytes serve all three voices in turn rather than three
+  separate pointer pairs.
+- **Per-voice order-list table** at $17d3 (2 bytes low/high per voice), copied
+  by `init` into working pointers at $172c/$172f (current) and $1732/$1735
+  (restart-on-loop) for each of the 3 voices.
+- **Command-byte encoding partially decoded** from the play routine's
+  branching on the byte read via `(zfb),Y`: top-bit-set values are note/
+  duration data (branches differently for `$00`, `$7E`, `$7F` as special
+  markers); `$80-$9F` and `$A0-$BF` ranges are separately masked and dispatched
+  as distinct command classes (the routine at `l11c6` masks `#$3f` and indexes
+  a 64-entry table at $1930/$192f for one class — likely an instrument or
+  arpeggio table).
+
+**NOT yet verified — an honest gap, not a guess.** Reassembling the
+disassembly (64tass) and byte-comparing the result against the original SID's
+own data payload found the two match for the first ~10 bytes and diverge
+across roughly 73 of 3,921 bytes total, concentrated in two regions: $100b-
+$101f (immediately after the `init`/`play` vectors — likely a small working-
+table SIDdecompiler's default 30,000-frame trace didn't fully resolve, since
+several of those addresses show up elsewhere as per-voice constants) and a
+handful of bytes around $172c/$1744 (the per-voice pointer/counter tables
+`init` writes into — plausibly a runtime snapshot difference rather than a
+disassembly error, since these are working RAM, not static code). This means
+the reconstruction is **not yet register-write-identical to a real trace** —
+diffing it against a fresh `trace_sid` of the same file showed real
+divergence starting at frame 0, not just cosmetic timing noise. Closing this
+gap means resolving those ~73 bytes specifically (compare against a second
+JCH_NewPlayer_V13 file if one exists, or single-step the SIDdecompiler
+"Unreferenced data" regions in `mcp-c64`/vice's monitor to see if they're
+reached via a code path the default trace missed), not restarting from
+scratch — the entry points, ZP, and order-list table above are solid.
+
+Next step for whoever picks this up: pick one high-usage version (V20 is a
+good target — 1,616 files, and SIDM2 already has a partial "NP20 Driver" at
+70-90% frame accuracy per its own `CONTEXT.md` — worth checking whether that
+existing driver's gap analysis explains the same class of byte discrepancy
+found here) and follow the [playbook](../playbooks/disassemble-a-player.md).
+The `successor_of: jch-oldplayer` edge is a lead: diffing OldPlayer vs
+NewPlayer routines is often the fastest way to understand what "New" changed.
 
 ## Verification
 

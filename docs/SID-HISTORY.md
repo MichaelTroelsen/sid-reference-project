@@ -1,20 +1,36 @@
 # A History of SID Players and Composers
 
-**Status: first-draft narrative — all body sections written.** This is the
-SID-player/composer history the knowledge base was built to support (see the
-`project-tdz-endgame` context). Every factual anchor here is traceable to a
-specific knowledge card, a card `edges[]` relationship, or a
-`scripts/dev/find-connections.js` finding — nothing is asserted from general
-recollection. Where a section rests on an *organizing hypothesis* rather than a
-card-sourced fact, it says so. All seven body sections are now **[written]**
-(full cited prose); what remains is *analytical* extension, not prose-writing —
-see "What's still missing / next passes." Section markers: **[written]** =
-finished prose; **[established]** = safe to write from edges alone;
-**[needs writing]** = structure only (none remain in the body).
+The music of the Commodore 64 is inseparable from the software that produced it.
+Behind almost every SID tune is a **player** — a machine-code replay routine,
+sometimes hand-written for a single game, sometimes a reusable editor circulated
+across a whole scene. This is a history not of the tunes but of *those tools and
+the people who built and used them*: how a handful of 1980s game-composer
+routines gave way to distributable editors, how one Danish player lineage ran
+unbroken for three decades, how national scenes formed around their own tools
+and occasionally borrowed each other's, and how the whole culture turned, in the
+2000s, to open source and self-preservation.
 
-This document is curated, not generated — but it is meant to be *re-derived and
-extended* as the corpus grows. When a new connection is confirmed (a prose
-`[[link]]` added to a pair of cards), fold it into the relevant section here.
+It is drawn entirely from this project's knowledge base. **Every factual anchor
+below is traceable to a specific player card, a card lineage `edges[]`
+relationship, or a `scripts/dev/find-connections.js` connection finding** —
+nothing is asserted from general recollection, and where a claim is an
+organizing inference rather than a sourced fact, it says so. The `[[bracketed]]`
+names link to the underlying cards under `knowledge/players/`.
+
+### The eras at a glance
+
+| Era | Period | The defining shift | Anchors |
+|---|---|---|---|
+| **I. Game-composer routines** | mid–late 1980s | private, per-game hand-coded drivers | Hubbard, Whittaker, Galway, Fred/Matt Gray, Kimmel |
+| **II. The first editors** | late 1980s | the reusable, *distributable* editor is born | SoundMonitor, Future Composer, GMC→DMC, Music Assembler |
+| **III. The tracker dynasty** | 1988 → today | one code lineage, 15 cards, JCH → Laxity → SID Factory II | JCH NewPlayer, Laxity NewPlayer, SID Factory II, CheeseCutter |
+| **National scenes** | throughout | tools as community markers (and cross-border borrowings) | Danish, Hungarian, Polish, British, German, Dutch, Norwegian… |
+| **Modern revival** | 2000s+ | tools leave the C64, go cross-platform and open-source | SID Factory II, GoatTracker, CheeseCutter, SID-Wizard |
+
+The first three sections are broadly chronological; **National scenes** and
+**The bridge composers** cut across all of them (the social layer beneath the
+technical one), and **Modern revival** is where the technical and social threads
+rejoin.
 
 ---
 
@@ -44,7 +60,7 @@ the scene links show how *people and communities* actually moved between tools.
 
 ---
 
-## Era I — the game-composer routines (mid–late 1980s) **[written]**
+## Era I — the game-composer routines (mid–late 1980s)
 
 The oldest layer of SID music is not tools at all but **hand-coded, per-game
 6502 music drivers**, each written by an individual game composer. There was no
@@ -106,7 +122,7 @@ anyone could type in and use, is exactly the transition that defines Era II.
 
 ---
 
-## Era II — the first editors and trackers (late 1980s) **[written]**
+## Era II — the first editors and trackers (late 1980s)
 
 If Era I was composers writing private drivers for their own games, Era II is
 the birth of the **reusable, distributable editor**: a tool other people could
@@ -162,7 +178,7 @@ editor/driver split matures into **Era III**.
 
 ---
 
-## Era III — the tracker dynasty (the code spine) **[written]**
+## Era III — the tracker dynasty (the code spine)
 
 The single largest code lineage in the knowledge base — **15 cards in one
 connected `edges[]` cluster** — is also the backbone of any technical SID
@@ -231,7 +247,7 @@ player, a pre-NP21 Vibrants-era thread); Padua's Music Mixer → [[music-assembl
 
 ---
 
-## National scenes (person/scene relationships) **[written]**
+## National scenes (person/scene relationships)
 
 Where the *social* history lives. The technical eras above trace how code
 propagated; this section traces how *communities* did. Each scene below is a
@@ -303,7 +319,7 @@ threads that cross the obvious group and national boundaries.
 
 ---
 
-## The bridge composers (the omnivores) **[written]**
+## The bridge composers (the omnivores)
 
 A handful of composers used tools from a very large number of *distinct
 developers*, tying otherwise-separate scenes together (from
@@ -323,7 +339,7 @@ tool lineage. **[established]**
 
 ---
 
-## The modern revival (2000s+) **[written]**
+## The modern revival (2000s+)
 
 The tracker dynasty (Era III) runs straight into the present, so the modern era
 is less a break than a continuation — but three *structural* shifts make it its
@@ -366,44 +382,41 @@ freely-downloadable, cross-platform, open tools are exactly what enable.
 
 ---
 
-## What's still missing / next passes
+## Appendix: sources and method
 
-- **~9 lower-value overlap pairs** from the first `find-connections.js` scan
-  remain unexamined (mostly popular-tool or bridge-composer artifacts — see the
-  script header). *Done since:* the **CSDb scene-group** angle
-  (`scripts/dev/find-group-tools.js`) has now been run — it surfaced the
-  Digitalizer↔SHAPE house-group finding (see the National Scenes / Norwegian
-  thread) and validated the method against known author-groups.
-- **Dangling edges: cleared.** `audiomaster-v1` and `prophet64` are now carded,
-  so `build-graph.js` reports **0 dangling edge targets**. Any *new* card that
-  references an uncarded id will reintroduce one — watch the build output.
-- The `Basic_Program` (234 files) and RSID-tail families are still uncarded;
-  they are unlikely to add lineage but would close coverage.
-- **Temporal flows — blocked by a data gap, with a known route to fix it.** A
-  true chronological narrative (composers *migrating* tool-to-tool over time)
-  needs **per-file dates**, and the corpus does not have them: `data/composers/*.json`
-  folder records carry `player`/`csdb_id` but no year, and the per-composer
-  `profile.active` is a single (latest) year, not a range. The only date proxy
-  available is the *tool's* release year (from each card), and a span built on
-  that is misleading: it cannot separate a **persisting veteran** (Laxity, JCH,
-  Rob Hubbard — genuinely active from the 1980s into the 2010s) from a **modern
-  omnivore** (NecroPolo, Demosic, SIDwave — active only recently but using retro
-  tools of every era), because both show a ~34-year tool span. The concrete
-  route to unblock this: each file already carries a CSDb SID-entry id
-  (`csdb_id`), so a future enrichment pass could fetch per-file release dates
-  from CSDb and finally date the *usage*, not just the tools. Until then, treat
-  any tool-year timeline as approximate (it even mis-parses one card to "1977").
-- All seven body sections are now **[written]**; no prose gaps remain. Further
-  history work is *deepening* (new confirmed connections folded in) or the
-  temporal enrichment above, not filling blanks.
+Every anchor in this history is a knowledge card under `knowledge/players/`
+(follow the `[[bracketed]]` links), a card `edges[]` lineage relationship (see
+`knowledge/graph.json`, rebuilt via `node knowledge/build-graph.js`), or a
+`scripts/dev/find-connections.js` / `find-group-tools.js` connection finding. The
+cross-scene findings tagged `(#72)`/`(#73)` are recorded in the relevant cards'
+`quirks[]` with their shared-composer evidence. No claim here originates outside
+that corpus. As the knowledge base grows, this document is meant to be extended:
+when a new connection is confirmed (a prose `[[link]]` added to a pair of cards),
+fold it into the relevant section.
 
----
+## Appendix: open threads
 
-## Sources
+The narrative above is complete, but a few analytical threads remain open — none
+are gaps in the story, only directions for a deeper cut:
 
-Every anchor above is a knowledge card under `knowledge/players/` (follow the
-`[[id]]` links), a card `edges[]` relationship (see `knowledge/graph.json`, via
-`node knowledge/build-graph.js`), or a `scripts/dev/find-connections.js`
-finding. The cross-scene findings tagged (#72)/(#73) are recorded in the
-respective cards' `quirks[]` with their shared-composer evidence. No claim in
-this scaffold originates outside that corpus.
+- **The temporal dimension is data-blocked.** A true chronological account of
+  composers *migrating* tool-to-tool over time needs **per-file dates**, which
+  the corpus lacks: folder records carry `player`/`csdb_id` but no year, and the
+  per-composer `profile.active` is a single latest year. The only proxy — the
+  *tool's* release year — is misleading, because it cannot separate a persisting
+  veteran (Laxity, JCH, Rob Hubbard, active from the 1980s into the 2010s) from a
+  modern omnivore (NecroPolo, Demosic, SIDwave, active only recently but using
+  retro tools of every era); both show a ~34-year tool span. The concrete route
+  to unblock it: each file already carries a CSDb SID-entry id, so a future
+  enrichment pass could fetch per-file release dates and date the *usage*, not
+  just the tools.
+- **The connection scan is not exhausted.** The composer-overlap pass
+  (`find-connections.js`) surfaced its high-confidence findings, but ~9 lower-
+  confidence pairs were judged popular-tool or bridge-composer artifacts rather
+  than examined exhaustively; a deeper pass, or the group-membership angle at a
+  finer grain, could surface more genuine cross-scene links to fold in here.
+- **Coverage is near-total but not complete.** A long tail of tiny, mostly
+  single-composer digi/sample routines remains uncarded — real but low-lineage,
+  so deliberately deferred. (`Basic_Program`, once the largest uncarded family,
+  turned out to be HVSC's `_BASIC` meta-tag, not a player — see
+  [[basic-program]].)

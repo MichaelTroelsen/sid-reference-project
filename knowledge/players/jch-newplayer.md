@@ -17,8 +17,8 @@
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO: per version",
-    "play": "TODO: per version (single frame call; multispeed variants exist)"
+    "init": "$1000 in the standard packed convention (load $1000, init at the load address) — TRACE-CONFIRMED 2026-07-18 on two real HVSC files (JCH/42nd_Street.sid V-tag, Abaddon/Apina.sid V13), both init $1000. Relocated/per-game builds place it elsewhere; read the PSID header per file.",
+    "play": "$1003 in the standard packed convention (init+3) — TRACE-CONFIRMED on the same two files (both play $1003). Single frame call; multispeed variants exist. Per-file for relocated builds."
   },
   "speed": "TODO: 1x + multispeed",
 
@@ -105,8 +105,31 @@ routines is often the fastest way to understand what "New" changed.
 
 ## Verification
 
-Seeded from cached DeepSID `players.json` (the JCH Editor entries), SIDId, and
-CSDb release 14037 — **not** yet disassembled/run. `status: in-progress`.
+**Playback + entry points LOCALLY CONFIRMED via trace (2026-07-18) — `status:
+in-progress`.** Two real HVSC `JCH_NewPlayer`-tagged files were run through
+`sidm2-siddump`'s `trace_sid` (the cycle-accurate zig64 tracer): `JCH/42nd_Street.sid`
+(init `$1000`, play `$1003`, **223 register writes / 50 frames**) and
+`Abaddon/Apina.sid` (JCH_NewPlayer_V13; init `$1000`, play `$1003`, plays
+cleanly). Both confirm the documented standard packed convention (load `$1000`,
+init at the load address, play at init+3) and produce coherent per-frame
+three-voice output — steady pulse-width ramps on voice 1, oscillating
+(vibrato-style) frequency on voice 2, and filter-cutoff sweeps — i.e. the player
+demonstrably runs and behaves as a real music driver, consistent across two
+versions and two composers.
+
+**Why this is NOT `verified`.** This project's `verified` bar is stricter than
+"it plays": it requires a *reconstruction* of the player (from disassembly or
+published source) that assembles, runs, and produces a **register-write-identical
+trace** to a real file (the bar the 7 verified cards met, e.g. [[laxity-newplayer]]
+at ~99.9% frame accuracy). JCH NewPlayer has **no public source**, so closing the
+loop means disassembling the routine from the binary and reconstructing it — which
+is exactly the **SIDM2** task this family sits at the top of the priority list for
+(see `docs/SIDM2-INTEGRATION.md`; [[cheesecutter]]'s GPL source, which declares
+"Based on JCH NP 21.G4 by Laxity/VIB", is a documented lever into it). The trace
+above gives SIDM2 the reference target to diff a future reconstruction against.
+
+Seeded facts (identity, version history, spec table) remain from cached DeepSID
+`players.json` (the JCH Editor entries), SIDId, and CSDb release 14037.
 
 ## Sources
 

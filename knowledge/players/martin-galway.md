@@ -120,6 +120,33 @@ song-4 filter trace would need mapping the rip's subtune indices onto the demo's
 `TUNETABLE`/`DVTABL` order — left as a further-tightening step. Data-format
 internals (instruments/effects) remain `TODO`.
 
+**Gap characterized more precisely (2026-07-18), still not closed.** The real
+`Wizball.sid`'s PSID header declares **9 subtunes** (default song 4), but the
+demo source exposes only **8 named entry routines**
+(FilthRaid/BonusMusic/EndOfLevel/Title/BonusBass/GetReady/InputName/GameOver) —
+a genuine 9-vs-8 mismatch, not just an ordering difference, so no 1:1 remap of
+"demo routine N = rip subtune N" can exist; the mapping must go through
+whatever raw tune-index each named routine's `LDY #tune : JMP TUNE` actually
+passes (only the named routines' own preset Y values are known, not the full
+0-8 range `TUNE` itself accepts). Traced all 8 named routines fresh this pass
+(reusing the working `gw_sweep.prg` build from a prior session's scratchpad —
+still on disk at
+`C:\Users\mit\AppData\Local\Temp\claude\...\a01c38ad-.../scratchpad\gw_sweep.prg`,
+not part of this repo): **none** reproduce the rip's dominant
+`filter_freq_hi`/`filter_freq_lo` cycling signature — FilthRaid/BonusMusic/
+EndOfLevel/Title/InputName write zero filter registers at all; BonusBass
+produces only 1 write in 50 frames (likely a slow/sparse tune, not zero
+activity); GetReady writes `filter_res_control` once but never
+`filter_freq_hi/lo`. **GameOver actually crashes the tracer** (`sidm2-sid-trace`
+panics with "integer overflow" rather than returning a normal trace) — a
+tracer-side or genuine-runaway-loop bug worth a bug report to SIDM2 either way,
+separate from this card's own gap. Next concrete step: find the shared `TUNE`
+dispatcher's address and call it directly with each Y value 0-8 (not just the
+8 preset wrapper routines) to find which raw index produces the filter-heavy
+signature — or debug why GameOver's specific preset value crashes the tracer,
+since PSID subtune 4 (1-indexed, i.e. index 3) may simply be an index none of
+the 8 named wrappers happens to pass.
+
 The realdmx ACME disassembly route (`Galway_Martin_Arkanoid.asm`) was NOT used —
 unlike every other realdmx player it is a multi-block LOADER (BASIC `$0801` +
 code `$2000`/`$3F00`) the simple player-extractor can't handle; the author's own

@@ -7,7 +7,7 @@
   "aliases": ["Driver 11", "SF2 Driver 11", "Driver11", "driver11"],
   "authors": ["Thomas Egeskov Petersen (Laxity)"],
   "released": "2019 (11.00 baseline, shipped with SID Factory II's first public release); 11.01-11.05 are later point releases adding features",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 player routine — SID Factory II's default, full-feature 'luxury' driver (one of several swappable drivers; see the parent card)",
   "csdb_release": 210571,
 
@@ -93,11 +93,27 @@ See the `quirks` array above — the load-bearing ones: **addresses here are SID
 
 SIDM2 has not disassembled Driver 11's own 6502 code — it treats Driver 11 as a **target data format** it packs music into (via `sidm2/sf2_packer.py` and related table-injector modules), not a player it reverse-engineers. What SIDM2 does know concretely, confirmed by both its own format-spec doc and its packer code: the canonical table bases (`SEQ=$0903, INST=$0A03, WAVE=$0B03, PULSE=$0D03, FILTER=$0F03`), the header-block scheme ($0800-$08FF, block IDs 1-9 + 255=end, $1337 magic), the aux-data vector at $0FFB (5 bytes before the init entry, with the IRQ vector occupying the vector's last 2 bytes), and the control-byte set (`END=$7F, GATE_ON=$7E, GATE_OFF=$80, TRANSPOSE=$A0`). For an actual disassembly, the GPL source at `github.com/chordian/sidfactory2` is the straightforward next step.
 
+**Update 2026-07-18**: an actual disassembly was produced without needing the GPL source — `SIDdecompiler.exe` (not SIDwinder, which had already been tried and failed on this exact file) with its `-P<decimal play addr>` override flag correctly traces past the `$16CC` flag-address red herring in the PSID header straight to the real `$1006` dispatcher, producing a disassembly that reassembles byte-identical (modulo self-modified working storage) and trace-identical to the original. See Verification below for the full method and the resulting `.asm`/`.prg` (scratchpad, not checked into this repo).
+
 ## Verification
 
-**Entry points and playback behavior are now LOCALLY TRACE-CONFIRMED (2026-07-12); the data-format sub-fields are not, so `status: in-progress` is kept.**
+**2026-07-18: full reassemble-and-diff round-trip achieved; `status: verified`.** The 2026-07-12 pass (below, kept for history) confirmed entry points by tracing the *real* binary directly, because SIDwinder's disassembly was lossy at the stub/dispatcher header and could not be reassembled into a working copy. This pass redid the disassembly with a different tool — `SIDdecompiler.exe` — using its `-P<decimal>` play-address-override flag (not previously used on this card) to point the emulation trace at the real dispatcher instead of the PSID header's flag-address play vector, and got a working, byte-comparable reassembly.
 
-Method: traced the real stock-template file `SIDM2:SIDSF2player/Driver 11 Test - Arpeggio.sid` (PSID load $0000 / init $1000 / play $16CC) with the `sidm2-siddump` tracer (`sidm2-sid-trace.exe`, zig64-based — the same tool the `sidm2-siddump` MCP server wraps, proven live via the MCP surface this session on the laxity card) for 50 PAL frames, probing candidate play addresses.
+**File**: `SIDM2:SIDSF2player/Driver 11 Test - Arpeggio.sid`. PSID header: load embedded in payload (`loadAddr field=0`) = `$1000`, init = `$1000`, play (PSID header) = `$16CC` (a flag byte, not code — see below), subtunes = 1, payload = 6978 bytes ($1000-$2B41).
+
+**Disassembly**: `SIDdecompiler.exe d11_arpeggio.sid -oarpeggio2.asm -a4096 -I4096 -P4102 -z -d -c -v2` (`-a4096`=$1000 decimal, `-I4096`=init override $1000 decimal, `-P4102`=**play override $1006 decimal** — the real per-frame dispatcher, not the PSID header's `$16CC` flag address). Without `-P4102` the decompiler traces from `play=$16CC` exactly as the PSID header (mis)declares it and produces zero trace nodes / an entirely `"Unreferenced data"` disassembly, the same failure mode SIDwinder hit. With the override: 9,495 trace-node pairs (632,817 with `-t2000000`, no change in output — confirms this is genuine coverage, not an under-traced artifact per the project's FutureComposer lesson).
+
+**Reassembly**: `64tass.exe -a --cbm-prg -o arpeggio2.prg arpeggio2.asm` → 6480 bytes, `$1000-$294F`.
+
+**Byte-diff** (Node, against the original PSID payload, same $1000 base): of the 6480 bytes SIDdecompiler's execution trace actually covered (92.9% of the file's 6978 bytes — the remaining 498 bytes, `$2950-$2B41`, are a block of ASCII instrument/wave-program names — `"Lead vibrato"`, `"Arp 037c"`, `"Slow Arp 047c"`, `"Arpeggio sound"`, `"Bass"`, `"Flute lead"` — i.e. the parent card's documented **auxiliary-data text chain**, genuinely never read during playback, not a tracer shortfall), **99.06% match (61 of 6480 bytes differ)**. Cross-referencing all 61 differing addresses against SIDdecompiler's own `-v2` memory-access map: **100% of the 61 diffs fall on a byte the map marks `w`, `+`, or `_` (write / read-write / self-modifying-operand access)** — i.e. every single divergence is a self-modified or working-storage byte where the disassembly captured the post-execution value, not dead pristine data (same class of finding as this project's `future-composer` card, entry 10 of the shared lessons file). No diff falls on a byte the map marks read-only or execute-only.
+
+**Trace-diff** (`sidm2-sid-trace.exe`, both the original PSID payload and the reassembled `.prg` packaged as `.prg` files with the same `$1000` load header, `init=$1000 play=$1006`, since the raw `.sid` path mishandles this file's `loadAddr=0`-embedded-in-payload PSID convention — see lesson below): **20-frame and 50-frame traces are byte-for-byte identical** (193 register writes over 50 PAL frames, `diff` of the two CSV logs shows zero differing lines besides the echoed input filename on line 1) — an exact register-write match, matching the project's `laxity-newplayer` precedent bar.
+
+**Scope, stated honestly**: this verifies, at the register-write-exact level, the driver's entry-point/dispatcher structure and one real file's playback (arpeggio test tune — 3-voice ADSR, gate on/off, arpeggio stepping). It does **not** independently re-derive the table row/column semantics for the pulse, filter, or tempo tables (this test file's trace may not exercise all of them), nor the full effect-command byte encodings — those still rest on SIDM2's format-spec + packer code, same caveat this card already carried before today, in the same spirit as `laxity-newplayer.md`'s own stated scope limits alongside its `verified` status. Also out of scope: this pass traced an **HVSC/PSID memory-image rip** of an SF2 song, not a raw `.sf2` editor file — see the parent card's Verification section for why the `$1337`/TLV-header-chain claims are a different, unverified-by-this-pass file-format layer.
+
+---
+
+**2026-07-12 pass (superseded above, kept for history):** traced the real stock-template file directly (PSID load $0000 / init $1000 / play $16CC) with `sidm2-sid-trace.exe` for 50 PAL frames, probing candidate play addresses by hand (no reassembly, since SIDwinder's disassembly was lossy at the stub/dispatcher header — it rendered `$1003-$10FF` as a zero `.byte` block, dropping the real `$1003` stub and `$1006` dispatcher).
 
 Result — the three-vector stub header and IRQ-driven design were confirmed by execution:
 - `play=$1006` → **193 register writes** (correct 3-voice playback: ADSR envelopes, gate on/off, arpeggio frequency stepping).
@@ -105,10 +121,6 @@ Result — the three-vector stub header and IRQ-driven design were confirmed by 
 - `play=$16CC` → 0 writes (`$16CC` is a command-*flag* byte the init/stub write and `$1006` reads, not a routine; it holds `$40`=RTI).
 
 This resolves the card's previously-flagged entry-point contradiction in favour of SIDM2's methodology doc (`$1000/$1003` stubs, real dispatcher `$1006`) — see `entry.play` and `quirks`.
-
-**Scope, stated honestly**: this confirms the entry vectors and that the stock driver produces correct playback — it does NOT independently verify the table offsets (`$0903/$0A03/…`), the column-major instrument layout, or the command-table semantics; those still rest on SIDM2's format-spec + packer code, not on independent reconstruction here.
-
-**Why there is no full reassemble-and-diff round-trip (unlike the laxity card):** SIDwinder's disassembly of this file (`Driver 11 Test - Arpeggio_original_sidwinder.asm`) is **lossy at the stub/dispatcher header** — it renders `$1003-$10FF` as a zero `.byte` block (`$1000` reassembles to `4C E4 15 00 00 00 …`), dropping the real `$1003` stub and `$1006` dispatcher (`… 4C ED 15 A9 00 2C CC 16 …` in the original). Reassembled and traced at `$1006` it produces 0 writes, so it cannot serve as the register-identical reconstruction the laxity SIDwinder disassembly could. The confirmations above therefore come from tracing the **real original binary directly**, not a reassembled copy. A true round-trip would need a complete disassembly or the GPL source at `github.com/chordian/sidfactory2`.
 
 ## Sources
 

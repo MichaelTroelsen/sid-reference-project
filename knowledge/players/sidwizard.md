@@ -7,7 +7,7 @@
   "aliases": ["SidWizard", "Hermit/SidWizard_V1.x", "SID-Wizard", "SWM", "SWP", "(SidWizard_2SID)"],
   "authors": ["Mihály Horváth (Hermit) / Hermit Software"],
   "released": "2012",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 tracker/editor + its own relocatable/exported 6502 replay (open source)",
   "csdb_release": 255544,
 
@@ -81,22 +81,93 @@ the repo's own LICENSE before treating the source as reusable.
 
 ## Disassembly notes
 
-Not disassembled/traced here. The engine is documented by its own source:
-`native/sources/include/player.asm` (the `PLAYER_JUMPTABLE` entries
-`inisub`/`playsub`/`mulpsub`/`volusub`/`SFXsub`, the DOTRACK/COMMONREGS play
-loop, tick-phase logic) and `native/sources/SWM-spec.src` (the SWM data
-layout and the full effect-value table). Absolute addresses are relocatable
-and left `TODO`; the exact effect-value table beyond the confirmed anchors
-($60/$78/$7D/$7E) needs a direct read of `SWM-spec.src`.
+**Disassembled 2026-07-18** from a real HVSC rip,
+`MUSICIANS/H/Hermit/Border_Odyssey.sid` (PSID: `load=$1000 init=$1000
+play=$1003`, 1 subtune, payload 3427 bytes, load-address-in-payload
+convention not used here — header's own load field is non-zero `$1000`).
+`SIDdecompiler.exe Border_Odyssey.sid -oborder_odyssey.asm -a4096 -z -d -c -v2`
+(4096 decimal = `$1000`; no `-e`), reassembled clean with
+`64tass.exe -a --cbm-prg -o border_odyssey.prg border_odyssey.asm` to the
+exact same length (`$1000-$1d62`, 3427 bytes).
+
+This concretely confirms the card's `PLAYER_JUMPTABLE` description for this
+file's relocation: `$1000: JMP $109f` (init), `$1003: JMP $10f4` (play),
+followed immediately by 3 more `JMP` entries the decompiler correctly left
+as "Unreferenced data" (this subtune's trace never called
+`mulpsub`/`volusub`/`SFXsub`) — `$1006: 4C 39 11` / `$1009: 4C 2C 19` /
+`$100C: 4C 38 11`. Right after the 5-entry, 15-byte jump table sits an
+embedded ASCII signature, `" SID-WIZARD 1.8 "` (bytes `$100F-$101F`) — a
+concrete, file-confirmed detail not previously in the card. The 64-byte
+tune header described in `data_format.layout` then begins around `$1020`.
+Absolute addresses remain relocatable/per-file as documented; the exact
+effect-value table beyond the confirmed anchors ($60/$78/$7D/$7E) still
+needs a direct read of `SWM-spec.src`.
 
 ## Verification
 
-**Not verified locally — `status: stub`.** Facts come from the public source
-tree (`player.asm`, `SWM-spec.src`) and the cached SIDId entry, not a local
-assemble/trace pass. Because the source is public, it's a candidate for
-promotion via a `sidm2-siddump` verification pass. Left `TODO`: exact license
-text, absolute memory map, the `PLAYERZP` address, the full effect-value
-table, and the exact `hermitsoft` repo name.
+**Disassembly + reassembly + trace attempted (2026-07-18) — `status`
+promoted `stub` -> `in-progress` (a real, quantified, mostly-explained
+match, not yet clean enough to call `verified`).** No reusable prior
+scratchpad work was found for this player (searched all session
+`scratchpad/` folders for `sidwizard`/`sid-wizard`/`hermit` — nothing).
+File: `MUSICIANS/H/Hermit/Border_Odyssey.sid` (PSID `load=$1000 init=$1000
+play=$1003`, 1 subtune, payload 3427 bytes).
+
+*Byte-diff*: reassembled `.prg` is the **exact same length** as the
+original payload (3427 bytes, `$1000-$1d62`) — **96 of 3427 bytes differ
+(97.20% exact match)**, in 25 small clustered ranges between `$1021` and
+`$18b1`. Cross-referencing every one of those 96 differing addresses
+against `SIDdecompiler -v2`'s own memory-touch map: **100% of them land on
+a write-tagged marker** (`+` read+write, `w` write-only, `_`
+operand+write/self-modifying, or the `B` other-combination code) — none
+fall on a pure `r`/`x`/`o`/unwritten `?` byte. This is the same pattern
+previously confirmed on `future-composer`: the disassembly is dumping the
+*post-execution* value of working-storage/self-modified bytes inside the
+64-byte tune header (see Disassembly notes), not the file's pristine
+initial byte — consistent with, not contradicting, a correct
+reconstruction.
+
+*Trace-diff* (`sidm2-sid-trace.exe` directly — the `mcp__sidm2-siddump__*`
+MCP tools were not registered in this session; see `lessons_learned` #8;
+the tracer needs a raw load-address+payload `.prg`, not a PSID file
+directly, so the original payload was re-packaged with its own 2-byte
+load-address header before tracing): traced both `init=$1000 play=$1003`
+at 50 and 300 frames. **Result: 406 total register writes on both sides at
+300 frames (77 at 50 frames), and every frame from 3 onward (297 of 300,
+99% of frames traced) is byte-for-byte identical.** The one real,
+localized divergence: at frames 0-2, the reassembly sets
+`filter_res_control`/`filter_freq_hi` for one instrument 1-3 frames
+*earlier* than the original (`$00->$F0` then `$F0->$F1` in the reassembly
+vs. `$00->$01` then `$01->$F1` in the original) — both converge to the
+identical final value (`filter_res_control=$F1`, `filter_freq_hi=$08`) by
+frame 3, and the divergence does not recur later in the 300-frame trace.
+This is consistent with one of the write-tagged "dead" bytes above not
+being fully inert but instead an initial ramp/counter value inside the
+per-instrument filter-table program (see `data_format.filtertable`) that
+the decompiler's dump got slightly wrong — a real, small, well-localized
+gap, not a structural mismatch.
+
+**Why this stays `in-progress`, not `verified`.** The reconstruction is
+byte-complete (same length, 97.2% exact) and the register-write trace
+converges to fully exact for the overwhelming majority of frames, but
+there is a genuine, reproducible 3-frame transient divergence in one
+instrument's filter setup that this pass could not close — not merely a
+"dead byte," since it visibly changes trace timing for 2 registers before
+self-correcting. Per this project's precedent (`laxity-newplayer` ~99.9%
+exact with the divergence fully resolved), a transient-but-real trace
+divergence — even a small, converging one — does not meet the `verified`
+bar. Left `TODO`, same as before: exact license text, absolute/universal
+memory map (still genuinely relocatable), the `PLAYERZP` address, the full
+effect-value table, and the exact `hermitsoft` repo name.
+
+**Next step**: identify the exact byte inside `$1021-$1090` (the tune-header
+region marked `+`/`w`/`_` in the `-v2` map) that drives the filter-table
+ramp's first few frames, and check whether `SIDdecompiler`'s dumped value
+there is off by a small, explicable amount (e.g. a start-position pointer
+into the filter program vs. a different starting index) — that would
+localize this from "somewhere in a 96-byte diff" to one specific address
+and one specific fix, which is what would be needed to actually reach
+`verified`.
 
 ## Sources
 

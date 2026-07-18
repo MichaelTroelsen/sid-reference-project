@@ -1,14 +1,16 @@
-# A History of SID Players and Composers — narrative scaffold
+# A History of SID Players and Composers
 
-**Status: SCAFFOLD, not a finished history.** This is the organizing structure
-for the SID-player/composer history the knowledge base was built to support (see
-the `project-tdz-endgame` context). Every factual anchor here is traceable to a
+**Status: first-draft narrative — all body sections written.** This is the
+SID-player/composer history the knowledge base was built to support (see the
+`project-tdz-endgame` context). Every factual anchor here is traceable to a
 specific knowledge card, a card `edges[]` relationship, or a
 `scripts/dev/find-connections.js` finding — nothing is asserted from general
 recollection. Where a section rests on an *organizing hypothesis* rather than a
-card-sourced fact, it says so. Sections marked **[needs writing]** are structure
-only; **[established]** points are safe to expand into prose as-is; **[written]**
-sections have already been expanded into full cited prose.
+card-sourced fact, it says so. All seven body sections are now **[written]**
+(full cited prose); what remains is *analytical* extension, not prose-writing —
+see "What's still missing / next passes." Section markers: **[written]** =
+finished prose; **[established]** = safe to write from edges alone;
+**[needs writing]** = structure only (none remain in the body).
 
 This document is curated, not generated — but it is meant to be *re-derived and
 extended* as the corpus grows. When a new connection is confirmed (a prose
@@ -301,7 +303,7 @@ threads that cross the obvious group and national boundaries.
 
 ---
 
-## The bridge composers (the omnivores) **[established]**
+## The bridge composers (the omnivores) **[written]**
 
 A handful of composers used tools from a very large number of *distinct
 developers*, tying otherwise-separate scenes together (from
@@ -321,12 +323,46 @@ tool lineage. **[established]**
 
 ---
 
-## The modern revival (2000s+) **[needs writing]**
+## The modern revival (2000s+) **[written]**
 
-[[sid-factory-ii]], [[cheesecutter]], SID-Wizard, GoatTracker-era tools, and the
-active national revival scenes (esp. Hungarian). The tracker dynasty (Era III)
-extends directly into this period, so it is less a break than a continuation.
-Anchors are present; the section is unwritten.
+The tracker dynasty (Era III) runs straight into the present, so the modern era
+is less a break than a continuation — but three *structural* shifts make it its
+own chapter, and none of them is about the music.
+
+**The tools left the C64.** The classic editors of Era II ran *on* a Commodore
+64 — that was the only place to compose SID music. The modern tools are
+cross-platform host applications that assemble and preview a C64 replay from a
+PC: [[goattracker]] (Lasse Öörni / Cadaver, Covert Bitops, 2001/2005 —
+Win/Linux/Mac), [[cheesecutter]] (2011 — cross-platform D), and
+[[sid-factory-ii]] (2019 — Windows/Mac/Linux with a reSID preview). You no
+longer need the hardware to write for it. The exception proves the rule:
+[[sidwizard]] (Mihály Horváth / Hermit, 2012) is still a *native* C64 tracker —
+but, tellingly, an open-source one (next point).
+
+**Source became open.** The classic players were closed binaries — which is why
+this whole knowledge base leans on disassembly to document them. The modern
+tools ship their source: [[sid-factory-ii]] and [[cheesecutter]] are both GPL
+with public GitHub repos, [[goattracker]] and [[sidwizard]] likewise open. The
+sharpest illustration is [[cheesecutter]]'s replay source header, which literally
+declares its own lineage — *"Based on JCH NP 21.G4 by Laxity/VIB"* — a modern
+open-source tool stating in a code comment the exact classic-player descent that,
+for its ancestors, took a disassembly to establish.
+
+**Preservation became a scene of its own.** The modern era is also when the
+*classic* players started being systematically reverse-engineered and
+reconstructed rather than merely used — the SIDM2 project turning
+[[laxity-newplayer]] into SID Factory II driver format at ~99.93% frame accuracy
+(the basis for the one `verified` card in the Era III spine), and this knowledge
+base itself. The dynasty's history became an object of study, by many of the
+same people who made it.
+
+The result is a story that closes a loop: the modern flagship editor
+([[sid-factory-ii]]) is built by the classic dynasty's own founders (Laxity, with
+JCH assisting — Era III), it is open source, and the classic players it descends
+from are being disassembled back *into* it. And the composers driving this
+revival are precisely the omnivore "bridge" users of the previous section —
+NecroPolo, Vincenzo (Hungary), Richard Bayliss (England) — a behaviour that
+freely-downloadable, cross-platform, open tools are exactly what enable.
 
 ---
 

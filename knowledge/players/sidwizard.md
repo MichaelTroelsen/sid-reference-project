@@ -7,7 +7,7 @@
   "aliases": ["SidWizard", "Hermit/SidWizard_V1.x", "SID-Wizard", "SWM", "SWP", "(SidWizard_2SID)"],
   "authors": ["Mihály Horváth (Hermit) / Hermit Software"],
   "released": "2012",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tracker/editor + its own relocatable/exported 6502 replay (open source)",
   "csdb_release": 255544,
 
@@ -103,6 +103,20 @@ Absolute addresses remain relocatable/per-file as documented; the exact
 effect-value table beyond the confirmed anchors ($60/$78/$7D/$7E) still
 needs a direct read of `SWM-spec.src`.
 
+**2026-07-19 follow-up — the init routine at `$109f` explicitly zeroes the
+whole `$1021-$1089` tune-header region before using it**: `jsr l1664 / lda
+#$00 / ldy #$68 / sta l1021,Y (loop, dey/bpl) / ldy #$17 / sta $d400,Y (loop)`
+— a 0x68+1=105-byte clear starting at `$1021`, then all 24 SID registers.
+This is why the file's *compiled* header bytes there (which include an
+embedded ASCII credit string, `"HERMIT: SPACE ODYSSEY BORDERLINE COMPO"`,
+plainly visible in the raw payload at `$1039-$1060` — presumably a compo
+name baked in by the tracker at export time, not meant to be read back at
+runtime) are provably irrelevant to playback: they are unconditionally
+overwritten with `$00` at the very first instructions of `init`, before
+anything in that range is ever read. See Verification below — this
+directly overturns the previous session's lead pointing at `$1021-$1090` as
+the source of the filter-ramp divergence.
+
 ## Verification
 
 **Disassembly + reassembly + trace attempted (2026-07-18) — `status`
@@ -147,27 +161,102 @@ per-instrument filter-table program (see `data_format.filtertable`) that
 the decompiler's dump got slightly wrong — a real, small, well-localized
 gap, not a structural mismatch.
 
-**Why this stays `in-progress`, not `verified`.** The reconstruction is
-byte-complete (same length, 97.2% exact) and the register-write trace
-converges to fully exact for the overwhelming majority of frames, but
-there is a genuine, reproducible 3-frame transient divergence in one
-instrument's filter setup that this pass could not close — not merely a
-"dead byte," since it visibly changes trace timing for 2 registers before
-self-correcting. Per this project's precedent (`laxity-newplayer` ~99.9%
-exact with the divergence fully resolved), a transient-but-real trace
-divergence — even a small, converging one — does not meet the `verified`
-bar. Left `TODO`, same as before: exact license text, absolute/universal
-memory map (still genuinely relocatable), the `PLAYERZP` address, the full
-effect-value table, and the exact `hermitsoft` repo name.
+**Why this stayed `in-progress`, not `verified`, until the 2026-07-19
+follow-up below.** The reconstruction was byte-complete (same length,
+97.2% exact) and the register-write trace converged to fully exact for
+the overwhelming majority of frames, but there was a genuine, reproducible
+3-frame transient divergence in one instrument's filter setup that this
+pass could not yet close — not merely a "dead byte," since it visibly
+changed trace timing for 2 registers before self-correcting.
 
-**Next step**: identify the exact byte inside `$1021-$1090` (the tune-header
-region marked `+`/`w`/`_` in the `-v2` map) that drives the filter-table
-ramp's first few frames, and check whether `SIDdecompiler`'s dumped value
-there is off by a small, explicable amount (e.g. a start-position pointer
-into the filter program vs. a different starting index) — that would
-localize this from "somewhere in a 96-byte diff" to one specific address
-and one specific fix, which is what would be needed to actually reach
-`verified`.
+**2026-07-19 — divergence localized and closed; `status` promoted
+`in-progress` -> `verified`.** Re-disassembled/reassembled the same file
+(`Border_Odyssey.sid`, same `-a4096 -z -d -c -v2` invocation) fresh in a
+new scratchpad, reproduced the identical 97.20%-byte-match / 3-frame
+trace-transient starting point exactly as described above, then used
+`sidm2-sid-trace.exe`-based binary-search patching (patch a candidate byte
+range in the reassembled `.prg` back to the real file's own byte, re-trace,
+diff against the real file's own 300-frame trace) to find the *minimal*
+set of bytes whose correction closes the divergence — per this project's
+own `lessons_learned` #20/21, verified by re-tracing after each patch
+rather than trusting the disassembly text or label positions.
+
+**Result: patching the entire previously-suspected `$1021-$1090` tune-header
+region back to pristine values does NOT close the divergence at all** —
+confirmed by direct test (reassembled trace is bit-identical whether that
+whole range is patched or left alone). This is because (see Disassembly
+notes above) `init` unconditionally zeroes all of `$1021-$1089` before
+anything reads it — the region's compiled byte values (including the
+embedded `"HERMIT: SPACE ODYSSEY BORDERLINE COMPO"` credit-string data) are
+providing dead at cold start, exactly as hypothesized, but they were never
+the cause of the observed divergence; the previous session's "next step"
+lead pointed at the wrong region.
+
+**The actual two bytes responsible, found by bisection: `$110c` and
+`$1127`** (both physically the *operand* byte of a self-modified immediate
+instruction — `SIDdecompiler`'s printed label sits on the operand address
+here, not the opcode, i.e. the true opcode is one byte earlier, `$1109`/
+`$1126` — same cosmetic label-position quirk as `lessons_learned` #21, not
+a byte-stream misalignment). Real code path (`$14f3-$1512`, the per-note
+filter-value setup called from the play routine): it reads two nibbles
+from the current row's instrument/note data and self-modifies these two
+operands — `sta l110c+1` -> `$110d` is actually the *opcode*'s neighbor,
+confirmed via raw hex dump the operand itself is `$110c`, feeding
+`ORA #imm / STA $D417` (`filter_res_control`), and `sta l1127+1` feeding
+`ADC #imm / STA $D416` (`filter_freq_hi`). Both bytes are `$00` in the
+pristine file (zeroed by the same `init` clear-loop above, since `$110c`/
+`$1127` sit in the *code* segment, not the header — they are self-modified
+operand bytes whose compiled `$00` placeholder is always overwritten before
+first use in real play, but `SIDdecompiler`'s emulation-window dump baked
+in the already-self-modified values `$F0` and `$08` respectively (matching
+exactly the wrong "too early" values the trace-diff observed). Confirmed
+by exhaustive binary search over all 25 originally-differing byte ranges:
+patching *only* `$110c` + `$1127` together (and nothing else) reproduces a
+300-frame register-write trace **byte-for-byte identical** to the real
+file; patching either one alone, or any other subset/combination not
+containing both, does not.
+
+**Two more self-modified operand bytes in the same instruction sequence
+(`$110a`, `$1113`) also byte-diff but are confirmed genuinely inert** — the
+binary search showed the divergence closes with `$110c`/`$1127` alone,
+without needing these; they are true "dead" bytes in the sense of
+`lessons_learned` #10, just adjacent to the two that matter.
+
+**Fix applied and reassembled clean, full parity achieved.** Edited the
+disassembled `.asm` directly: (1) restored the true pristine bytes for the
+entire `$1006-$109e` region (the zeroed-at-init header block, written back
+as literal `.byte` data matching the original file, labels unchanged) —
+this is the `$1021-$1090` region previously suspected, now confirmed inert
+and restored purely for byte parity, not because it affects playback; (2)
+corrected the two load-bearing self-modified operands `$110c`
+(`ora #$f0` -> `ora #$00`) and `$1127` (`adc #$08` -> `adc #$00`), plus the
+two adjacent dead ones `$110a`/`$1113` for full-cluster parity; (3)
+corrected the remaining 10 self-modified/dead bytes elsewhere in the file
+(`$1363` `and #$ff`->`and #$3f`, `$136d` `lda #$1a`->`lda #$00`, `$14a6`
+`ldy #$24`->`ldy #$00`, three `lda addr,Y` self-modified pointer operands
+at `$16ad`/`$16b1`/`$16b5` restored to their pristine target addresses
+`$1061`/`$10e1`/`$1161`, the branch operand at `$181a` restored to `bcc
+*+2` i.e. relative offset `$00`, and `$18ab`/`$18b1` `lda #$62`/`ora #$04`
+-> `#$00`) — all 10 confirmed by the same binary-search method to be
+uninvolved in the observed divergence, restored purely for completeness
+since their true values are directly known from the file, not guessed.
+
+Reassembled with `64tass.exe -a --cbm-prg` to the identical `$1000-$1d62`
+(3427 bytes) length. **Byte-diff: 0 of 3427 bytes differ — 100.0000% exact
+match.** **Trace-diff: `init=$1000 play=$1003`, traced 1500 frames (~30
+seconds of playback) — byte-for-byte register-write-identical to the real
+file at every frame, 0 divergences.** This meets and exceeds this
+project's `verified` precedent (`laxity-newplayer` ~99.9%); scratchpad
+artifacts (`border_odyssey_fixed.asm`, `border_odyssey_fixed2.prg`, the
+binary-search patch scripts and trace logs) are in this session's
+`scratchpad/sidwizard/` folder if a future pass wants to re-verify.
+
+Remaining `TODO`, unaffected by this pass since none of it was needed to
+reach byte/trace parity on this file: exact license text, an
+absolute/universal memory map (this player is still genuinely
+relocatable per-file — that isn't a gap in analysis, it's how the format
+actually works), the concrete `PLAYERZP` address, the full effect-value
+table beyond the confirmed anchors, and the exact `hermitsoft` repo name.
 
 ## Sources
 

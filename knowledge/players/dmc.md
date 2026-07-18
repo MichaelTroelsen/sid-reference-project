@@ -7,7 +7,7 @@
   "aliases": ["DMC", "DMC_V4.x", "DMC_V5.x", "DMC_V6.x", "Graffity/Brian", "Demo Music Creator", "Demo Music Creator System"],
   "authors": ["Brian (Graffity)"],
   "released": "1991 (V1.2 Feb 1991; V4.0 Sep 1991)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tracker/editor ('ProTracker for the C64'). Closed classic tool; V5.0 was later placed in the public domain by the author.",
   "csdb_release": 2596,
 
@@ -82,24 +82,26 @@ technique* with JCH NewPlayer — a technique, not shared code.
 
 ## Disassembly notes
 
-None done here. The runtime format (ZP, orderlist/pattern/instrument/table
-layout, effect set) is undocumented online. The one firm hook is the packing
-convention — tunes relocate to **$1000**, init at load, play once per frame from
-IRQ — so a disassembly of a representative DMC `.sid` (init/play from its PSID
-header) traced through `sidm2-siddump` is the route to real facts. Given the
-file count, DMC is the highest-value RE target among the uncarded players.
+Two independent real HVSC DMC_V4.x files fully disassembled (SIDdecompiler),
+reassembled (64tass), byte-diffed, and trace-verified — both reaching
+**100.0000% byte-exact and trace-exact** after one round of hand-patching a
+small self-modified table (see Verification). Structural internals (ZP
+layout, order list / pattern / instrument / wavetable / pulsetable /
+filtertable formats, effect encoding) were NOT reverse-engineered — this pass
+established byte-for-byte and register-write equivalence only, not the
+player's data format. Those remain `TODO` (matches this project's
+`roland-hermans` precedent: verified playback parity does not require full
+format documentation).
 
 ## Verification
 
-**Entry points + playback LOCALLY CONFIRMED (2026-07-13) — `status:
-in-progress`.** Traced a real HVSC DMC_V4.x `.sid` with `sidm2-sid-trace`:
-load `$1000`, init `$1000`, play `$1003`, **369 register writes / 50 frames** —
-confirming the `$1000`/`$1003` packed convention and that it plays. The
-data-format internals (ZP, tables, effect encoding) are still undocumented and
-`TODO`, so in-progress rather than verified.
+**Entry points + playback LOCALLY CONFIRMED (2026-07-13).** Traced a real
+HVSC DMC_V4.x `.sid` with `sidm2-sid-trace`: load `$1000`, init `$1000`, play
+`$1003`, **369 register writes / 50 frames** — confirming the `$1000`/`$1003`
+packed convention and that it plays.
 
-**Full disassemble/reassemble/byte-diff/trace-diff pass (2026-07-18) — status
-remains `in-progress`, not raised to `verified`.** Used `SIDdecompiler.exe`
+**Full disassemble/reassemble/byte-diff/trace-diff pass, first attempt
+(2026-07-18) — status stayed `in-progress`.** Used `SIDdecompiler.exe`
 (`-a4096 -z -d -c -v2/-v1`, i.e. decimal for `$1000`) + `64tass` on two
 independent real HVSC DMC_V4.x files (the highest-usage variant, 5,337 of the
 10,491 total DMC-family files):
@@ -134,19 +136,46 @@ independent real HVSC DMC_V4.x files (the highest-usage variant, 5,337 of the
   happens to read the wrong byte from it during voice-3 setup where file 1's
   does not.
   
-  **Conclusion: this is a genuine, localized, well-characterized ~98.2-98.5%
-  byte match and ~99.7-100% trace match, not a full match** — the gap is
-  isolated to one small startup-constant table at `$1012-$1017` (and its
-  associated working-storage region `$1719-$17B5`) that the decompiler
-  cannot currently recover the pristine initial value of. `status` stays
-  `in-progress`, per this project's rule against rounding a near-match up to
-  `verified`. Both scratchpad builds (`dmc.asm`/`dmc_reasm.prg` from file 1,
-  `dmc2.asm`/`dmc2_reasm.prg` from file 2) plus both original/reassembled
-  trace logs are on disk if a future pass wants to hand-patch that one table
-  from the pristine `.sid` payload bytes and re-verify — the fix is
-  mechanical (substitute the 8 correct init-time bytes at `$100F-$1016`
-  into the `.byte` directives) but wasn't done here to keep this pass to
-  read-only reconstruction, not a hand-edited hybrid.
+  **Conclusion (at this stage): a genuine, localized, well-characterized
+  ~98.2-98.5% byte match and ~99.7-100% trace match, not a full match** — the
+  gap is isolated to one small startup-constant table at `$1012-$1017` (and
+  its associated working-storage region `$1719-$17B5`) that the decompiler's
+  default trace window baked in a post-execution (drifted) value for instead
+  of the pristine cold-start constant.
+
+**Hand-patch pass (2026-07-18, same day, follow-up) — status raised to
+`verified`.** Per the next-step already identified above: wrote both `.sid`
+files' pristine payload bytes (read directly via the `psid_header` method,
+NOT the decompiler's post-execution snapshot) back into the reassembled
+`.asm`'s `.byte` directives at every one of the 48 (file 1) / 75 (file 2)
+diverging addresses, all of which fell inside the labeled data-table lines
+SIDdecompiler itself emitted (`l100c`/`l100f`/`l1012`/`l1015` and the
+`l1710`-`l1794`-ish per-voice table block) — no code changes, only literal
+constant bytes patched. Reassembled with 64tass and re-diffed/re-traced:
+
+- **File 1** (`Autocomposer_for_ZX81.sid`, load/init `$1000`, play `$1003`,
+  3,095-byte payload): reassembled to exactly 3,095 bytes at `$1000-$1C16`.
+  **Byte-diff: 100.0000% exact (0/3095 bytes differ).** Trace-diff (50
+  frames, `sidm2-sid-trace.exe`, init `$1000`/play `$1003`): the two 427-line
+  logs differ **only** in the echoed input filename on line 1 — every
+  register write is identical.
+- **File 2** (`After_Promises.sid`, load/init `$1000`, play `$1003`,
+  4,084-byte payload): reassembled to exactly 4,084 bytes at `$1000-$1FF3`.
+  **Byte-diff: 100.0000% exact (0/4084 bytes differ).** Trace-diff (50
+  frames, same tool/addresses): the two 385-line logs also differ **only** in
+  the echoed filename — the previously-diverging frame-0
+  `osc3_freq_lo`/`osc3_freq_hi` write pair now matches exactly.
+- Both files independently reach exact byte and register-write parity —
+  meets this project's `verified` bar (matching `laxity-newplayer`'s and
+  `roland-hermans`'s precedent). This is the highest-usage uncarded-until-now
+  player family closed to `verified` so far (10,491 files). Player **data
+  format internals** (ZP, order list/pattern/instrument/table layout, effect
+  encoding) remain unexamined and `TODO` — this pass established playback
+  parity, not the runtime data format; see Disassembly notes.
+- Scratchpad artifacts (this session): `dmc_patched.asm`/`dmc_patched.prg`
+  (file 1), `dmc2_patched.asm`/`dmc2_patched.prg` (file 2), plus
+  `trace_f1_orig.log`/`trace_f1_patched.log`/`trace_f2_orig.log`/
+  `trace_f2_patched.log` — all four traces on disk for direct inspection.
 
 ## Sources
 

@@ -578,6 +578,92 @@ created. The first agent to hit a new wall should add it here.)
     second-file trace-diff check on the assumption that one exact match
     generalizes to the whole player family, even when the byte-level diff
     pattern looks pixel-identical across files.
+26. **When hand-patching a SIDdecompiler-produced `.asm`'s `.byte` directives
+    to fix drifted self-modified-table bytes (the entry-17-style fix), do NOT
+    compute each byte's real address by walking the `.asm` text sequentially
+    and incrementing an address counter across ALL lines including non-`.byte`
+    instructions.** A labeled instruction line (e.g. `l101d jmp l1807`, 3
+    bytes) between two `.byte` blocks doesn't advance a naive counter that
+    only tracks `.byte` lines, silently shifting every subsequent unlabeled
+    continuation `.byte` line's assumed address by the skipped instruction's
+    length — this produced a spurious ~500-diff byte-diff (vs. the true 48)
+    on `dmc` when first tried this way. Two-part fix: (1) anchor every patch
+    strictly to line labels themselves (`lXXXX .byte ...` — the label's hex
+    IS SIDdecompiler's own ground-truth address, always trust it over any
+    running counter), never carrying computed state across a non-`.byte`
+    line; (2) for FINAL verification of a patch's correctness, byte-diff the
+    actually-ASSEMBLED `.prg` output against the original payload (workflow
+    step 7 already says this) rather than trusting a hand-rolled `.asm`-text
+    address parser at all — the `.prg` diff is unambiguous and immediately
+    caught the parser bug. Separately: some labeled `.byte` lines contain
+    pointer-table entries (`<label`, `>label` expressions) rather than
+    literal hex constants — a patcher's value-parser must recognize and skip
+    non-literal tokens (require `/^\$[0-9a-fA-F]+$/` or `/^[0-9]+$/`) rather
+    than blindly parsing them as numbers, since a failed parse (`NaN`) always
+    compares unequal to the true byte and produces false "this needs
+    patching" flags on lines that were never actually wrong.
+27. **A byte-diff score in the "clearly not aligned but clearly not random"
+    range (e.g. 53-90%) combined with a `-v2` map `Start:` address exactly 1
+    byte past the file's true PSID-header load address is a strong, specific
+    signature of the front-of-region single-byte-drop bug (entry 18) — but
+    the bug is confirmed DATA-CONTENT-dependent, not tied to any particular
+    entry-point convention.** Tested on `odintracker`: two files
+    (`Firelord_old.sid`, `Arpeggioland.sid`) share the exact same "entry deep
+    inside the loaded block near `$c000`" convention (both init=`$bff0`,
+    play=`$bff3`, same packer-relocation style) — one reassembles
+    100.0000% byte-exact, the other hits the bug and is badly broken. The
+    only difference between them is whether that specific file's own true
+    first loaded byte happens to be runtime-untouched (`?` in the `-v2` map)
+    or not. Do not use "this file's entry-point/load-address style matches a
+    previously-broken file" as a predictor of whether the bug will recur —
+    check that specific file's own `-v2` `Start:` line against its own
+    PSID-header load address every time, file by file.
+28. **A prior session's "next step" lead pointing at a specific address
+    range for an unresolved trace divergence should be re-verified by binary-
+    search patching, not assumed correct — it can be flatly wrong even when
+    framed narrowly and plausibly.** On `sidwizard`, the prior session's
+    documented lead (`$1021-$1090`, the tune-header region, all its diff
+    bytes marked `+`/`w`/`_` in the `-v2` map) was reasonable-sounding but
+    empirically false: patching that entire region back to pristine values
+    left the trace divergence completely unchanged, because the player's own
+    `init` routine unconditionally zeroes that whole range before ever
+    reading it (`lda #$00 / ldy #$68 / sta l1021,Y` loop right at the start
+    of `init`) — so its compiled-file bytes, however different-looking from
+    the reassembly (here: an entire embedded ASCII credit string vs.
+    unrelated binary garbage), are structurally incapable of affecting
+    playback. The actual two responsible bytes (`$110c`, `$1127`) were
+    ~260-280 bytes further into the file, in the CODE segment (self-modified
+    instruction operands in the per-note filter-setup routine), not the
+    header/data area at all. The method that found this: patch candidate
+    byte ranges into the reassembled `.prg` one at a time (or via binary
+    search over combinations), re-trace after each patch, and diff against
+    the real file's own trace — treat "this range's bytes are marked touched
+    in the `-v2` map" as a hypothesis to test, not a conclusion, especially
+    when a prior session already named a specific range as the presumed
+    cause without having verified it by this method.
+29. **Extends entries 16/17/20: a drifted-table divergence from
+    SIDdecompiler's default `-t 30000` is not always confined to the single
+    small cluster nearest the entry point that a first pass localizes — it
+    can spread across multiple, non-contiguous address ranges (a "source"
+    table plus its separate destination/working-storage copy target
+    elsewhere in the file), all still individually `+`/`w`-marked in `-v2`'s
+    map, that only reveal themselves once the FIRST patch is applied and a
+    residual byte-diff is re-run.** Confirmed on `cheesecutter`: the earlier
+    "next step" 6-byte spot patch on `Blackjack.sid` only reached 99.42%
+    (68/11823 diffs remaining) — full resolution required patching the
+    ENTIRE drifted-table region across two separate ranges (`$1006-$1020`
+    and `$172D-$17C7`). The fix that actually closes this class of gap is
+    not "patch the byte(s) the root-cause trace pointed at" but "patch every
+    remaining byte-diff address the `-v2` map marks read+write/self-modified,
+    iteratively, until the byte-diff reaches exactly 0" — do this with an
+    address-tracking script that walks the `.asm`'s own `l<hex>` labels to
+    compute each `.byte` line's true address (rather than hand-editing line
+    by line), patch from the pristine original SID-file bytes at each
+    computed address, reassemble, and re-diff. Confirmed this converges to a
+    genuine 100.0000% byte-exact, register-write-exact reconstruction (not
+    just "good enough") on both `Ants.sid` and `Blackjack.sid` for
+    CheeseCutter — worth trying this iterative-full-patch approach before
+    writing off a file-dependent partial result as unresolvable.
 </lessons_learned>
 
 <success_criteria>

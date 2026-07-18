@@ -47,7 +47,7 @@
   "edges": {
     "derives_from": [],
     "successor_of": [],
-    "shares_routine_with": ["audiomaster-v1"],
+    "shares_routine_with": [],
     "same_effect_encoding_as": []
   },
 
@@ -55,7 +55,7 @@
     "This is Johannes Bjerregaard's THIRD and final personal driver, per VGMPF's career chronology: an early ripped David Whittaker driver used for The Vikings (1987, pre-personal-driver ripped work, not one of his own three); his own first driver (Tiger Mission, 1987); his second own driver (1987-88, evolved from Rob Hubbard's and programmed via his own 'DMC Edit'/Profi-Ass 64); and THIS, his third driver — after joining Maniacs of Noise in October 1988, Charles Deenen supplied Turbo Ass and requested a faster driver, which Bjerregaard wrote himself rather than adopting Deenen's own ('MoN/Bjerregaard' — see mon-deenen.md's quirks for the explicit VGMPF quote that he declined Deenen's driver).",
     "DIRECT FILE-LEVEL EVIDENCE this is a genuinely different SIDId signature from the plain 'Bjerregaard' raw tag (65 files, researched as a separate family in this same batch), not the same routine under two export shapes: in this project's own data/composers/johannes-bjerregaard.json, the 15 files by Bjerregaard himself tagged 'MoN/Bjerregaard' are exactly the titles VGMPF attributes to his MoN-era Turbo Ass driver — Stormlord, Stormlord V2, Fruitbank, Flimbo's Quest (main), plus Kamikaze/Music Demo/Myth Demo/Slimbo4/STII8/Street Cred Boxing/Alf TV Theme/Deel 1/Deel 2/Domino Dancing/Test — while his 61 files tagged plain 'Bjerregaard' are dominated by his earlier 1987-88 Danish Music Company demo-scene output (multiple 'DMC Demo IV' tunes, cover versions like Billie Jean, Blue Monday '88, Depeche Mode Songs) consistent with his second, pre-MoN driver. Two different SIDId byte signatures, two different eras of his own driver work — kept as SEPARATE cards, not merged, per this evidence. (Contrast the CyberTracker/CyberTracker_exe case, which was confirmed to be one engine under two export shapes — no equivalent confirmation exists here.)",
     "Composer concentration is the opposite of the plain 'Bjerregaard' tag: 77 files across 15 composers, and Bjerregaard himself is NOT the top user (15 files, 19%) — Fozzie leads with 17 (22%), then ELA 9, Dokken 6, Joachim Wijnhoven 6, Widding Roy Johan 5, Drumtex 4, Rage 4, Zipper 3, Lynx 2, Scroll 2, and five more with 1 each. This spread indicates the driver circulated and was reused within the Scandinavian demoscene after its commercial debut, much like Rob Hubbard's driver did — not a routine that stayed personal (compare the plain 'Bjerregaard' tag, 94% himself).",
-    "SIDId documents a direct lineage from THIS driver to a separate, later editor: the '(Audiomaster_V1)' entry (Ruben Spaans/Scroll, 1989, Megastyle, CSDb release id 7071) has the comment 'Editor that is based on the player of /MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid' — and Stormlord.sid is itself tagged 'MoN/Bjerregaard' in this dataset. Recorded as a `shares_routine_with` edge to the (not-yet-carded) 'audiomaster-v1' id — a genuine lineage claim from SIDId's own data, kept as the non-directional 'shares_routine_with' type since no card exists yet to host a directional 'derives_from' the other way.",
+    "SIDId documents a direct lineage from THIS driver to a separate, later editor: the '(Audiomaster_V1)' entry (Ruben Spaans/Scroll, 1989, Megastyle, CSDb release id 7071) has the comment 'Editor that is based on the player of /MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid' — and Stormlord.sid is itself tagged 'MoN/Bjerregaard' in this dataset. As of 2026-07-18 that editor has its own card ([[audiomaster-v1]]), so the directional edge now lives THERE as `audiomaster-v1 derives_from mon-bjerregaard` (editor built on this driver). This card's earlier placeholder `shares_routine_with: ['audiomaster-v1']` was therefore removed to avoid a redundant second edge for the same relationship — the lineage claim is unchanged, just hosted directionally on the correct card.",
     "No standalone CSDb release exists for the driver itself, mirroring MoN/Deenen. Bjerregaard's CSDb scener page (id 8138) lists a tool credit for a 'Bjerregaard DMC Editor' (2012, released under his own group Danish Music Company), but that is a much later item and its relationship (if any) to this 1988-89 in-game driver is unconfirmed — not assumed to be the same thing here. Also do not confuse 'DMC' in that later tool's name, or in VGMPF's phrase 'arranged in his DMC Edit' for the SECOND driver, with the unrelated, coincidentally-named 'DMC (Demo Music Creator)' by Brian/Graffity already carded at knowledge/players/dmc.md — 'DMC' here stands for Bjerregaard's own group Danish Music Company, a completely separate lineage.",
     "77 files across 15 composers in this collection (rank 5 by file count per knowledge/COVERAGE.md among uncarded families)."
   ],
@@ -91,8 +91,9 @@ for 77 files across 15 composers (rank 5 among uncarded families per
 work (94% himself), this driver spread into the wider Scandinavian scene —
 Fozzie alone outranks Bjerregaard as the top user. A separate SIDId entry
 documents that Ruben Spaans' 1989 **Audiomaster V1** editor was built directly
-on top of this driver's Stormlord code, a genuine (if one-sided) lineage claim
-recorded as a `shares_routine_with` edge.
+on top of this driver's Stormlord code — now carded as [[audiomaster-v1]], which
+hosts the directional `derives_from` edge to this driver (a genuine, if
+one-sided, lineage claim).
 
 ## Quirks & gotchas
 

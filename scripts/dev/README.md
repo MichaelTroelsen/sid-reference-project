@@ -10,6 +10,12 @@ Ad-hoc tooling for reverse-engineering work. Nothing here is part of
   actual shared composers), and the curated lineage clusters. Confirmed pairs
   become prose `[[links]]`, never machine edges — see the script header for the
   discipline that separates real scene cohorts from popular-tool/omnivore noise.
+- `find-group-tools.js` — CSDb-group companion to `find-connections.js`. Uses
+  scene-group membership (`data/csdb/*.json`) instead of composer overlap to find
+  "house tools" (a tool whose usage concentrates in one group). Flags
+  author-dominated false positives with ⚠; the script header documents the
+  verification rule (rule out author-domination / self-named group before
+  believing a finding). Confirmed finds become prose notes, never edges.
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
 
 ---

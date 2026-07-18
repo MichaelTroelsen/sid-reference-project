@@ -370,19 +370,32 @@ freely-downloadable, cross-platform, open tools are exactly what enable.
 
 - **~9 lower-value overlap pairs** from the first `find-connections.js` scan
   remain unexamined (mostly popular-tool or bridge-composer artifacts — see the
-  script header). A second scan angle not yet tried: **CSDb scene-group
-  membership** cross-referenced against tool usage (which *groups* drove which
-  tools), which the main reference's Scene Groups tab already computes.
-- **Two dangling edges** point at uncarded targets that would complete a
-  lineage: `audiomaster-v1` (from [[mon-bjerregaard]]) and `prophet64` (from
-  [[mssiah]], its 8bit-Ventures predecessor).
+  script header). *Done since:* the **CSDb scene-group** angle
+  (`scripts/dev/find-group-tools.js`) has now been run — it surfaced the
+  Digitalizer↔SHAPE house-group finding (see the National Scenes / Norwegian
+  thread) and validated the method against known author-groups.
+- **Dangling edges: cleared.** `audiomaster-v1` and `prophet64` are now carded,
+  so `build-graph.js` reports **0 dangling edge targets**. Any *new* card that
+  references an uncarded id will reintroduce one — watch the build output.
 - The `Basic_Program` (234 files) and RSID-tail families are still uncarded;
   they are unlikely to add lineage but would close coverage.
-- **Temporal flows** — the KB has per-card release years but no analysis of
-  *composers migrating from tool to tool over time*; that's the missing
-  dimension for a genuinely chronological narrative.
-- Most Era II / national-scene sections above are **[needs writing]**: the
-  structure and anchors are here, the prose is not.
+- **Temporal flows — blocked by a data gap, with a known route to fix it.** A
+  true chronological narrative (composers *migrating* tool-to-tool over time)
+  needs **per-file dates**, and the corpus does not have them: `data/composers/*.json`
+  folder records carry `player`/`csdb_id` but no year, and the per-composer
+  `profile.active` is a single (latest) year, not a range. The only date proxy
+  available is the *tool's* release year (from each card), and a span built on
+  that is misleading: it cannot separate a **persisting veteran** (Laxity, JCH,
+  Rob Hubbard — genuinely active from the 1980s into the 2010s) from a **modern
+  omnivore** (NecroPolo, Demosic, SIDwave — active only recently but using retro
+  tools of every era), because both show a ~34-year tool span. The concrete
+  route to unblock this: each file already carries a CSDb SID-entry id
+  (`csdb_id`), so a future enrichment pass could fetch per-file release dates
+  from CSDb and finally date the *usage*, not just the tools. Until then, treat
+  any tool-year timeline as approximate (it even mis-parses one card to "1977").
+- All seven body sections are now **[written]**; no prose gaps remain. Further
+  history work is *deepening* (new confirmed connections folded in) or the
+  temporal enrichment above, not filling blanks.
 
 ---
 

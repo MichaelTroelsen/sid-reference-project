@@ -4,7 +4,7 @@
 {
   "id": "dmc",
   "name": "DMC (Demo Music Creator)",
-  "aliases": ["DMC", "DMC_V4.x", "DMC_V5.x", "DMC_V6.x", "Demo Music Creator", "Demo Music Creator System"],
+  "aliases": ["DMC", "DMC_V4.x", "DMC_V5.x", "DMC_V6.x", "Graffity/Brian", "Demo Music Creator", "Demo Music Creator System"],
   "authors": ["Brian (Graffity)"],
   "released": "1991 (V1.2 Feb 1991; V4.0 Sep 1991)",
   "status": "in-progress",

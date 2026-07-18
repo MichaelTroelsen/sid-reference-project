@@ -4,7 +4,7 @@
 {
   "id": "ems-odie",
   "name": "EMS (Electronic Music System)",
-  "aliases": ["EMS/Odie", "EMS_V7.03", "EMS_V9.x", "EMS_V10.x", "The Electronic Music System"],
+  "aliases": ["EMS/Odie", "EMS_V7.03", "EMS_V9.x", "EMS_V10.x", "(EMS_V10.x)", "The Electronic Music System"],
   "authors": ["Sean Connolly (Odie)"],
   "released": "1997 (V7.03, 18 Jan 1997); V9.x / V10.x later",
   "status": "in-progress",

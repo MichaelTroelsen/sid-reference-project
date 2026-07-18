@@ -4,7 +4,7 @@
 {
   "id": "sidwizard",
   "name": "SID-Wizard",
-  "aliases": ["SidWizard", "Hermit/SidWizard_V1.x", "SID-Wizard", "SWM", "SWP"],
+  "aliases": ["SidWizard", "Hermit/SidWizard_V1.x", "SID-Wizard", "SWM", "SWP", "(SidWizard_2SID)"],
   "authors": ["Mihály Horváth (Hermit) / Hermit Software"],
   "released": "2012",
   "status": "stub",

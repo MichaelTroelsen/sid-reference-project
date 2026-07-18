@@ -104,25 +104,59 @@ anyone could type in and use, is exactly the transition that defines Era II.
 
 ---
 
-## Era II — the first editors and trackers (late 1980s) **[needs writing]**
+## Era II — the first editors and trackers (late 1980s) **[written]**
 
-The shift from personal routines to reusable, distributable editors. Anchors
-present in the KB:
+If Era I was composers writing private drivers for their own games, Era II is
+the birth of the **reusable, distributable editor**: a tool other people could
+load, compose in, and circulate — the model that made the demoscene's music
+culture possible. Four lineages in the KB mark the transition, and unlike the
+game routines these are mostly *scene products*, released and versioned in the
+open.
 
-- **[[dmc]] / [[gmc]] cluster** (`edges`, 3 cards) — Demo Music Creator / Game
-  Music Creator, by Brian (Graffity). DMC is the single largest player family in
-  the collection (~10,000+ files); its ubiquity is why DMC↔other-big-tool
-  composer overlaps are *popular-tool artifacts*, not connections (see Method).
-- **[[future-composer]] cluster** (`edges`, 3 cards) — Future Composer /
-  MoN/FutureComposer / [[mon-deenen]] (Maniacs of Noise replay, Charles Deenen).
-  The Dutch MoN axis (Deenen, Jeroen Tel) is a candidate scene section.
-- **[[soundmonitor]] → [[rockmonitor]]** — the type-in-listing origin
-  (SoundMonitor shipped as a 1986 magazine listing) is a distinct distribution
-  story worth its own paragraph.
-- **[[music-assembler]]** — MC/Marco Swagerman; a major early editor.
+**The published-editor beginning: SoundMonitor → Rock Monitor.** The hinge, set
+up at the close of Era I, is [[soundmonitor]] (Chris Hülsbeck, 1986) — an editor
+that famously shipped as a *magazine type-in listing*, i.e. distribution as
+publication. [[rockmonitor]] (Oscar Giesen "OPM" — code; Marco Swagerman "MC" —
+music, 1987–88) `derives_from` it. This is the first appearance of the idea that
+an editor is itself a scene artifact to be reworked and re-released, not a
+one-composer secret.
 
-Open question threading into this era: the **Hungarian editor scene** begins
-here (see National Scenes).
+**The MoN / Future Composer axis (1988) — the editor/driver split.** [[future-composer]]
+is the era's most instructive object: a **Finnish Gold** editor wrapped around a
+**Maniacs of Noise** replay driver (Charles Deenen / Jeroen Tel). The engine and
+the interface came from *different hands* — the `edges[]` show [[mon-deenen]]
+(Deenen's own MoN house driver, in use from the group's 1987 founding) and
+[[mon-futurecomposer]] both `share_routine_with` [[future-composer]], and
+mon-futurecomposer shares with mon-deenen too. So Future Composer is best read
+not as one program but as *Deenen's driver + Granberg's editor*, a Dutch-engine /
+Finnish-interface collaboration — and it was hugely adopted (3,398 files / 366
+composers). This driver/editor separation is the same architectural idea that,
+decades later, SID Factory II would formalise (Era III).
+
+**The Graffity flagship: GMC → DMC (1990–91).** The Hungarian group **Graffity**
+(Brian / Balázs Farkas) produced the era's — and the whole collection's —
+heaviest-used family. [[gmc]] (Game Music Creator, Dec 1990) came first; its
+`successor_of` and `derives_from` [[dmc]] (Demo Music Creator, 1991) became the
+single most-used player in the entire corpus — **10,491 files across 365
+composers**, often called "ProTracker for the C64," with V5.0 eventually placed
+in the public domain. ([[gmc-v2]], the Superiors build, also `derives_from`
+[[gmc]].) DMC's sheer ubiquity is exactly why DMC↔other-big-tool composer
+overlaps are *popular-tool artifacts* rather than real connections (see Method).
+Note the group-name trap: this Graffity is also the label on [[sosperec]]'s tag,
+but that is a *different* Graffity coder (Grabowsky) — no code link (see the
+Hungarian scene, below).
+
+**Music Assembler → Padua (1989–91).** [[music-assembler]] (Marco Swagerman
+"MC" & Oscar Giesen "OPM", released 1989, developed from Nov 1987) is a major
+early editor, and [[padua-music-mixer]] (Paweł Sołtysiński "Polonus", 1991)
+`derives_from` it — the line reaching the Polish scene. Worth flagging: MC and
+OPM are the *same duo* behind Rock Monitor above, so this pair personally bridges
+the SoundMonitor-derived lineage and the Music-Assembler lineage — an authorship
+link, not a code edge.
+
+Threads out of this era: the Hungarian editor scene (Graffity) and the Polish
+scene (Padua) both begin here and continue in **National scenes**; the
+editor/driver split matures into **Era III**.
 
 ---
 

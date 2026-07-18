@@ -4,7 +4,7 @@
 {
   "id": "andrew-colin",
   "name": "Andrew Colin (player routine)",
-  "aliases": ["Andrew_Colin"],
+  "aliases": ["Andrew_Colin", "?Andrew_Colin/Talent"],
   "authors": ["Andrew Colin"],
   "released": "1982-1986 (Talent Computer Systems era)",
   "status": "in-progress",
@@ -26,7 +26,8 @@
     "CSDb ITSELF FLAGS HIM AS AN OUTSIDE HISTORICAL FIGURE, not a scener: his profile (id=14419) carries the explicit note 'Obviously not a scener' — a rare, notable case in this KB of CSDb's own curators distinguishing an academic/commercial figure's catalogued SID output from genuine demoscene participation. Credits there: Andrew Colin Sound Demo (1982, code+music), Queen of Sheba (1983, code+music), Uncle Ben's Magic 2 (1986, music), plus a 1985 Vienna-Soft re-release of the Sheba tune. Four total SID compositions match this project's own broader catalog for him (Arrival of the Queen of Sheba, Bugle Call, Kalah, Testcard).",
     "CONFIRMED BOTH CODER AND MUSICIAN: C64-Wiki credits him with programs Reaction Time (1981), Hangman 64 (1982), Kalah (1984), Trasmat (1984), plus 'numerous music demos' through the 1980s — consistent with a self-taught, all-round programmer-academic rather than a specialist composer.",
     "THE 'RETURN OF SHEBA' TRIBUTE CONNECTION IS LEFT EXPLICITLY UNCONFIRMED: the 4th file under this tag, 'Return of Sheba' (composed by Stefano Tognon, an Italian scener — CSDb handle 'Ice00', founder of Ice Team, member of Hokuto Force, active from the early 2000s through at least 2026), has a title that clearly echoes Colin's own 'Arrival of the Queen of Sheba' (itself an arrangement of Handel's piece from the oratorio Solomon). No source found ties the two directly as a documented tribute or remix — it does not appear in CSDb's list of Tognon's notable productions, and this project's own STIL.txt only attributes the underlying tune to Handel, not to either composer specifically. The title-echo is real but reported as circumstantial, not proven.",
-    "Not confirmed in SIDId (no entry for this tag). No known relationship found to any composer/tool already in this KB for either Andrew Colin or Stefano Tognon (checked against Ben Daglish, Adam Gilmore, David Dunn, Olav Mørkrid, Mark Tait, Jeroen Koops, Neil Brennan, Roel Bosch, Chris Cox, Ashley Hogg, Paul Norman, Henning Rokling, Martin Walker, Dave Lowe, Dave Warhol, Neil Baldwin, Henning Andersen, Mark Cooksey, David Whittaker, Rob Hubbard, Martin Galway, Fred Gray, Matt Gray, Jeroen Kimmel, Steve Turner, Jason Page, Nigel Grieve, Matt Furniss, Ed Bogas, David Thiel, Dave Kelly, Daniel Stenberg/SkyLine Editor, Tonal Kaos, Jason Briggs, Marco Scheepers, Rene Romijn/Emotional Mozes, Paul Mudra, Stephen Legg, Steve Bak, Shaun Southern, Antony Crowther, Rick Cardinali, Steffen Wagner, Ulrich Muehl, Alexander Kirsch/Audio Effect Editor, Christoph Bergmann, Colin Davies, Daniele Liverani, Daryll Reynolds, Gavin Graham, Keith Wood, Al Lowe — none found)."
+    "Not confirmed in SIDId (no entry for this tag). No known relationship found to any composer/tool already in this KB for either Andrew Colin or Stefano Tognon (checked against Ben Daglish, Adam Gilmore, David Dunn, Olav Mørkrid, Mark Tait, Jeroen Koops, Neil Brennan, Roel Bosch, Chris Cox, Ashley Hogg, Paul Norman, Henning Rokling, Martin Walker, Dave Lowe, Dave Warhol, Neil Baldwin, Henning Andersen, Mark Cooksey, David Whittaker, Rob Hubbard, Martin Galway, Fred Gray, Matt Gray, Jeroen Kimmel, Steve Turner, Jason Page, Nigel Grieve, Matt Furniss, Ed Bogas, David Thiel, Dave Kelly, Daniel Stenberg/SkyLine Editor, Tonal Kaos, Jason Briggs, Marco Scheepers, Rene Romijn/Emotional Mozes, Paul Mudra, Stephen Legg, Steve Bak, Shaun Southern, Antony Crowther, Rick Cardinali, Steffen Wagner, Ulrich Muehl, Alexander Kirsch/Audio Effect Editor, Christoph Bergmann, Colin Davies, Daniele Liverani, Daryll Reynolds, Gavin Graham, Keith Wood, Al Lowe — none found).",
+    "ALIAS MERGE (2026-07-18): the raw Player-ID tag `?Andrew_Colin/Talent` (1 file per knowledge/COVERAGE.md's uncarded-family sweep) is the SAME player/composer, not a distinct tool — confirmed directly from `data/composers/andrew-colin.json`, where the file `Kalah.sid` (composed by Andrew Colin, 17 subtunes, CSDb id=47810) carries this exact tag, while his other two files (Arrival of the Queen of Sheba, Testcard) carry the plain `Andrew_Colin` tag already covered above. The leading `?` marks it as an uncertain Player-ID match and the `/Talent` suffix ties it to Talent Computer Systems, the educational-software company Colin himself founded (~1984) — Kalah (1984) is one of his known Talent-era programs, already noted in this card. No separate research was warranted since the file, author, and company are all already documented facts in this card; merged by adding the tag to `aliases` rather than creating a near-duplicate card."
   ],
   "sources": [
     "HVSC Musicians.txt ('Colin, Andrew', bare entry; 'Tognon, Stefano - ITALY'): https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt",
@@ -49,8 +50,11 @@ notable British computer scientist (Strathclyde University), author of
 widely-used BASIC textbooks, and founder of Talent Computer Systems. An
 initial hypothesis that he was the Flair Software founder was
 investigated and explicitly ruled out. Player-ID-fingerprinted across 3
-files: 2 by Colin, 1 by an unrelated Italian scener whose tune title
-echoes his own.
+files under the plain `Andrew_Colin` tag: 2 by Colin, 1 by an unrelated
+Italian scener whose tune title echoes his own — plus a 4th file
+(`Kalah.sid`, also by Colin) under the related `?Andrew_Colin/Talent`
+tag, merged into this card's `aliases` (same person, same Talent
+Computer Systems era, uncertain-match-flagged variant tag).
 
 ## Quirks & gotchas
 

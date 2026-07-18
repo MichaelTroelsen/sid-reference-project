@@ -229,39 +229,75 @@ player, a pre-NP21 Vibrants-era thread); Padua's Music Mixer → [[music-assembl
 
 ---
 
-## National scenes (person/scene relationships) **[partly established]**
+## National scenes (person/scene relationships) **[written]**
 
-Where the *social* history lives. Each of these is a scene circle using a
-coherent set of tools — grounded in `find-connections.js` cohorts confirmed by
-composer nationality in `data/composers/*.json`.
+Where the *social* history lives. The technical eras above trace how code
+propagated; this section traces how *communities* did. Each scene below is a
+circle of composers using a coherent set of tools, and every nationality here is
+confirmed from `data/composers/*.json` country fields or a card's own platform
+note — not asserted from recollection. Crucially, these are person/scene
+relationships, **never** code evidence (the discipline from Method): they are the
+prose-link layer, not the `edges[]` layer.
 
-- **Danish** — the Vibrants/Laxity/JCH tracker dynasty (Era III). **[established]**
-- **Hungarian** — [[chubrocker]] ↔ [[sosperec]] share a mid-1990s Hungarian
-  composer circle (Chubrock, DOS, Mercury, Peet — all Hungarian; #73). Also
-  Hungarian: [[odintracker]] (Zed / Zoltán Konyha). And the *modern revival*
-  wing — Hermit's [[1-raster-tracker]]/SID-Wizard/[[flexsid]], heavily used by
-  NecroPolo and the modern Hungarian scene. **[established for the two links;
-  the wider scene needs writing]**
-- **Polish** — [[hardtrack-composer]] (Longhair/Brush, Elysium) and a large
-  Polish composer cohort (Bax, Data, JFK, Leming, Praiser, Randy, V-12, Warlock)
-  that *also adopted the German* [[reflextracker]], of which they are the top
-  users — a cross-scene adoption (#73). **[established]**
-- **UK game industry** — the Ocean axis (Era I); Whittaker/Dunn/Brooke.
-  **[partly established]**
-- **German** — Hülsbeck ([[soundmonitor]] cluster); the Reflex group
-  ([[reflextracker]]); Markus Schneider's LordsOfSonics → [[x-ample]] driver.
-  **[needs writing]**
-- **Dutch** — Maniacs of Noise (Deenen, Jeroen Tel; [[mon-deenen]] /
-  [[future-composer]]); Reyn Ouwehand. **[needs writing]**
-- **Norwegian** — Olav Mørkrid's same-author cluster ([[digitalizer]] /
-  [[olav-morkrid]] / [[omegasupreme-digi]]) and the Panoramic circle (#72).
-  **[established as a same-author cluster; scene context needs writing]**
+**Danish** — the scene with the deepest technical spine: the Vibrants/Laxity/JCH
+tracker dynasty (Era III), JCH and Laxity both confirmed Danish, running from
+1988's JCH NewPlayer to 2019's SID Factory II. DRAX (Thomas Mogensen, Denmark) —
+of Maniacs of Noise and the Laxity NP21 forks — sits here too.
 
-**Cross-scene adoptions** — the most interesting social findings, where a tool
-crossed a national boundary:
-- UK Sonic Graffiti ↔ Swedish [[system6581]] (#72): the four
-  [[sonic-graffiti]] musicians were System 6581's second-largest user cohort.
-- Polish scene ↔ German [[reflextracker]] (#73, above).
+**Hungarian** — the broadest editor-*and*-composer scene in the data. It opens
+with the Graffity flagship GMC/DMC (Era II; Brian / Balázs Farkas), and runs
+through a circle of native trackers whose users are confirmed Hungarian: the
+[[chubrocker]] ↔ [[sosperec]] circle (Chubrock, DOS, Mercury, Peet; #73) and
+[[odintracker]] (Zed / Zoltán Konyha). Its *modern-revival* wing is the most
+active in the whole collection: Hermit (Hungary) with
+[[1-raster-tracker]]/SID-Wizard/[[flexsid]], alongside the two most prolific
+"bridge" composers of the entire dataset — NecroPolo and Vincenzo, both Hungary
+(see next section). The Hungarian scene is thus both a 1990s editor culture and
+the engine of the C64 music revival.
+
+**Polish** — a tightly-knit cohort visible through two tools: their own native
+[[hardtrack-composer]] (Longhair/Brush, Elysium) and [[padua-music-mixer]]
+(Polonus; Era II), plus a striking *cross-border adoption* — the same Polish
+composers (Bax, Data, JFK, Leming, Praiser, Randy, V-12, Warlock; all confirmed
+Polish) were also the heaviest users of the German [[reflextracker]] (#73).
+
+**British (UK game industry)** — less a demoscene than a professional games
+industry, centred on Ocean Software: [[martin-galway]] → [[music-driver-paul-hughes]]
+(the studio succession, Era I / #73), and the [[david-whittaker]] →
+[[jason-brooke]] → [[david-dunn]] commercial-driver line. The scene's modern
+inheritor is Richard Bayliss (England), the single most prolific composer in the
+dataset (1,282 files) and a top-3 bridge user.
+
+**German** — Chris Hülsbeck (SoundMonitor, Era II; and TFMX) is the seed; the
+Reflex group (kb / Quiss / Zorc — [[reflextracker]] states "the German group
+Reflex") and the X-Ample Architectures circle (Markus Schneider, Germany;
+[[x-ample]], Thomas Detert) carry it into the 1990s. Fanta (Germany), a top
+bridge composer, is a modern node.
+
+**Dutch** — anchored on Maniacs of Noise: Charles Deenen (Netherlands, pre-1990)
+and Jeroen Tel (Netherlands), whose house driver became the engine inside
+[[future-composer]] (Era II; [[mon-deenen]]). Reyn Ouwehand (Netherlands), a top
+bridge composer, and the Music Assembler duo MC/OPM (Era II) round out a scene
+defined as much by *drivers other tools wrapped* as by editors of its own.
+
+**Norwegian** — the Olav Mørkrid same-author cluster ([[digitalizer]] /
+[[olav-morkrid]] / [[omegasupreme-digi]]; #72), which the [[olav-morkrid]] card
+places explicitly in "the Norwegian Panoramic Designs scene."
+
+**Finnish & Swedish** — smaller but real: Finland gives us Cadaver (Lasse Öörni;
+NinjaTracker, [[sadotracker]]) and abaddon (Timo Taipalus; [[cheesecutter]], the
+Era III crossroads). Sweden gives Tomas Danko, and the Oneway group (Moppe,
+Zizyphus) behind [[system6581]].
+
+**Cross-scene adoptions — where a tool crossed a national boundary.** The most
+telling social findings, because they show the scenes were *not* sealed:
+- UK Sonic Graffiti ↔ Swedish [[system6581]] (#72): the four [[sonic-graffiti]]
+  musicians were the Swedish editor's second-largest user cohort.
+- Polish scene ↔ German [[reflextracker]] (#73): a whole national cohort adopting
+  a foreign tool as heavily as its native one.
+
+These two are the template for what the connection scan is *for*: finding the
+threads that cross the obvious group and national boundaries.
 
 ---
 

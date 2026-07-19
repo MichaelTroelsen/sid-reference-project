@@ -664,6 +664,43 @@ created. The first agent to hit a new wall should add it here.)
     just "good enough") on both `Ants.sid` and `Blackjack.sid` for
     CheeseCutter — worth trying this iterative-full-patch approach before
     writing off a file-dependent partial result as unresolvable.
+30. **A prior pass's "concentrated in two regions: A and B" byte-diff
+    localization can genuinely UNDERCOUNT the extent of a region, not just
+    the byte count within it.** On `jch-newplayer`'s `Abaddon/Apina.sid`, an
+    earlier pass reported the second drifted-table cluster as `72c-744`
+    (~24 bytes); a fresh, full, programmatic byte-diff this pass found the
+    real cluster runs all the way to `7b9` (~140 bytes, 60+ individual diff
+    points scattered non-contiguously through `72c-7b9`), all still
+    `-v2`-map `+`/`w`-marked. The earlier estimate wasn't wrong about the
+    mechanism or the starting address, just incomplete about the extent —
+    likely from eyeballing/sampling the diff output rather than
+    programmatically listing every diverging address. General form: when
+    re-verifying a card that already documents specific hex ranges from a
+    prior pass, re-run the full byte-diff yourself and trust its own output
+    over the card's prose estimate, even when that prose sounds precise —
+    a partial-but-plausible-looking range is the same kind of trap as a
+    wrong "next step" lead (entry 28).
+31. **`SIDdecompiler's `-a<decimal>` relocation target must go to the
+    LOWEST TOUCHED ADDRESS ACROSS THE WHOLE EMULATED TRACE (the `-v2` map's
+    own "Start:" line), not the PSID header's declared load address, whenever
+    those two differ** — a qualitatively worse failure mode than entry
+    18/27's single-byte case, not just a bigger version of it. Confirmed on
+    `soundmonitor`: the player keeps ~20 bytes of fixed low-RAM workspace at
+    `/usr/bin/bash2C0-/usr/bin/bash2D4`, far below a typical song's own `` load address.
+    Relocating to the PSID load address (by the book, per gotchas 1/2)
+    produces a FULL-LENGTH, plausible-looking reassembly — 64tass reports two
+    separate `Data:` ranges (e.g. `/usr/bin/bash000-b66` and `-`) plus a
+    `-Wwrap-pc`/`-Wwrap-mem` warning easy to dismiss as cosmetic — but the
+    real payload has silently wrapped via 16-bit overflow to the WRONG
+    addresses, byte-diffing at a suspicious-but-plausible ~0% (effectively
+    random). Fix: relocate to the `-v2` map's own "Start:" address instead —
+    this yields one contiguous, non-wrapping block covering the true native
+    range end-to-end, byte-diffing 100.0000% exact on two independent files.
+    General form: whenever a player's emulated touched-memory Start is BELOW
+    the PSID header's declared load address, relocate to Start, not the
+    header's load address — and treat 64tass's `-Wwrap-pc`/`-Wwrap-mem`
+    warnings plus a suspiciously bank-spanning `Data:` report as the tell
+    that this has gone wrong.
 </lessons_learned>
 
 <success_criteria>

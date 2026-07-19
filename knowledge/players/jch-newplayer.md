@@ -7,14 +7,14 @@
   "aliases": ["JCH_NewPlayer", "NewPlayer", "NP", "JCH_NewPlayer_V0x", "JCH_NewPlayer_V1", "JCH_NewPlayer_V2", "JCH_NewPlayer_V3", "JCH_NewPlayer_V4", "JCH_NewPlayer_V5", "JCH_NewPlayer_V6", "JCH_NewPlayer_V7", "JCH_NewPlayer_V8", "JCH_NewPlayer_V9", "JCH_NewPlayer_V10", "JCH_NewPlayer_V11", "JCH_NewPlayer_V12", "JCH_NewPlayer_V13", "JCH_NewPlayer_V14", "JCH_NewPlayer_V15", "JCH_NewPlayer_V17", "JCH_NewPlayer_V18", "JCH_NewPlayer_V19"],
   "authors": ["Jens-Christian Huus (JCH)"],
   "released": "1988 (17-23 July 1988: the v00.xx series, the TRUE start of the line — see the v00 quirk; then the pre-editor V1-V4 phase; November 1988: editor v1 series; December 1988: editor v2 series, with sequences; January 1989: v05.02, the first editor-paired version)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 (runtime player; authored with the JCH Editor)",
   "csdb_release": 14037,
 
   "memory": {
     "load_address": "$1000 (V13, DISASSEMBLY-CONFIRMED 2026-07-18 via SIDdecompiler.exe on Abaddon/Apina.sid — see Disassembly notes). Per-file for relocated/per-game builds; likely $1000 for the packed convention generally but not yet checked on other versions.",
     "zero_page": "$FB/$FC only (V13, DISASSEMBLY-CONFIRMED) — a single indirect pointer pair reused across all 3 voices in turn (saved/restored via push/pull around each voice's play-routine slice), not three separate per-voice pointers. Not yet confirmed on other versions.",
-    "layout": "V13: $1000 init vector, $1003 play vector, $1006-$101f small per-voice working-value block (partially unresolved — see Disassembly notes), $1020 a flag byte + embedded ASCII credit text (same $1020 credit-block convention as the v00 series' quirk above), code from ~$1040, data tables (order-list, pattern/instrument) from ~$1700 onward. TODO for other versions."
+    "layout": "V13: $1000 init vector, $1003 play vector, $1006-$101f small per-voice working-value block (RESOLVED 2026-07-19 — self-modified/working-storage bytes, see Verification), $1020 a flag byte + embedded ASCII credit text (same $1020 credit-block convention as the v00 series' quirk above), code from ~$1040, data tables (order-list, pattern/instrument) from ~$1700 onward, a per-voice pointer/counter working block at $172c-$17c0 (also self-modified — see Verification). TODO for other versions."
   },
   "entry": {
     "init": "$1000 in the standard packed convention (load $1000, init at the load address) — TRACE-CONFIRMED 2026-07-18 on two real HVSC files (JCH/42nd_Street.sid V-tag, Abaddon/Apina.sid V13), both init $1000; DISASSEMBLY-CONFIRMED on Apina.sid the same day (SIDdecompiler shows `$1000: jmp init` landing on the real init routine at $1040). Relocated/per-game builds place it elsewhere; read the PSID header per file.",
@@ -92,7 +92,10 @@ earlier "OldPlayer".
 - **Versions are distinct players.** V9…V20 each appear as their own tag in the
   file data (and rank among the most-used tools overall). [`jch-newplayer-v20.md`](jch-newplayer-v20.md)
   is now that sub-card — still mostly `TODO`, since SIDM2 only has an
-  external, never-disassembled spec for NP20, not its own RE work.
+  external, never-disassembled spec for NP20, not its own RE work. V13 is the
+  one version with a full disassembly + register-write-exact reconstruction
+  (see Disassembly notes / Verification) — the rest of the family's
+  memory-map/format claims are trace-confirmed only, not reconstruction-confirmed.
 - **Hub of a lineage.** This is the graph's root for the track-system family —
   most edges point *toward* it, not away.
 
@@ -125,60 +128,124 @@ trace-only confirmation toward an actual reconstruction.
   a 64-entry table at $1930/$192f for one class — likely an instrument or
   arpeggio table).
 
-**NOT yet verified — an honest gap, not a guess.** Reassembling the
-disassembly (64tass) and byte-comparing the result against the original SID's
-own data payload found the two match for the first ~10 bytes and diverge
-across roughly 73 of 3,921 bytes total, concentrated in two regions: $100b-
-$101f (immediately after the `init`/`play` vectors — likely a small working-
-table SIDdecompiler's default 30,000-frame trace didn't fully resolve, since
-several of those addresses show up elsewhere as per-voice constants) and a
-handful of bytes around $172c/$1744 (the per-voice pointer/counter tables
-`init` writes into — plausibly a runtime snapshot difference rather than a
-disassembly error, since these are working RAM, not static code). This means
-the reconstruction is **not yet register-write-identical to a real trace** —
-diffing it against a fresh `trace_sid` of the same file showed real
-divergence starting at frame 0, not just cosmetic timing noise. Closing this
-gap means resolving those ~73 bytes specifically (compare against a second
-JCH_NewPlayer_V13 file if one exists, or single-step the SIDdecompiler
-"Unreferenced data" regions in `mcp-c64`/vice's monitor to see if they're
-reached via a code path the default trace missed), not restarting from
-scratch — the entry points, ZP, and order-list table above are solid.
+**GAP CLOSED (2026-07-19) — the ~73-byte divergence was the project's own
+well-known "SIDdecompiler default-trace-window drifted working-storage
+table" pattern (already closed on `dmc`, `cheesecutter`, `roland-hermans`,
+`sidwizard` this same batch), not a disassembly error.** Re-disassembled
+`Abaddon/Apina.sid` fresh with `-v2` (memory-touch map) and confirmed every
+one of the 73 diverging byte addresses ($100b-$101f, $172c-$17b9 — a wider
+span than the card's earlier "$172c-$1744" estimate, since the earlier pass
+only inspected the first cluster) is marked `+` (read+write) or `w`
+(write-only) in the emulator's own touch map — i.e. self-modified/working
+RAM the decompiler's default 30,000-call trace snapshotted post-execution,
+not the file's pristine cold-start bytes. Patched the reassembled `.asm`'s
+`.byte` directives at exactly those addresses back to the pristine original
+SID-payload bytes (script walks the `.asm`'s own `l<hex>` labels to compute
+each `.byte` line's true address — see `patch_asm.js` in scratchpad),
+reassembled, and the byte-diff dropped from 73/3,915 differing bytes to
+**0/3,915 (100.0000% byte-exact)** over the region SIDdecompiler's model
+actually covers ($1000-$1f4a). Six trailing bytes of the real 3,921-byte SID
+payload ($1f4b-$1f50, all `$FF`) sit outside that touched range entirely (the
+`-v2` map's own "End: $1f4a" is one byte before them) and are silently absent
+from the reassembly — same "genuinely never touched, by anyone, ever"
+tail-padding pattern as this project's `future-composer` card, not a real
+data gap (all-`$FF` filler, not code or a table).
 
-Next step for whoever picks this up: pick one high-usage version (V20 is a
-good target — 1,616 files, and SIDM2 already has a partial "NP20 Driver" at
-70-90% frame accuracy per its own `CONTEXT.md` — worth checking whether that
-existing driver's gap analysis explains the same class of byte discrepancy
-found here) and follow the [playbook](../playbooks/disassemble-a-player.md).
-The `successor_of: jch-oldplayer` edge is a lead: diffing OldPlayer vs
-NewPlayer routines is often the fastest way to understand what "New" changed.
+**Confirmed on a SECOND independent V13 file, `DRAX/Church.sid`** (different
+composer, 4,062-byte payload) using the identical method (same two patch
+ranges, `$1006-$1020;$172c-$17c0`): 68 diverging bytes before patching, all
+in the same two address regions, all `-v2`-map `+`/`w`-marked; **0/4,062
+(100.0000% byte-exact) after patching** — the full payload this time, no
+trailing-tail caveat. Two files, two composers, same player version, same
+patch ranges, same result: this is not a one-file coincidence.
+
+**Trace-diff (register-write comparison), both files, 300 frames via
+`sidm2-sid-trace.exe`** (init `$1000`, play `$1003` on both, per the PSID
+header): Apina.sid — 2,603 register-write lines identical between original
+and patched reconstruction (the only 2 differing lines across the whole
+300-frame log are the tool's own echoed input filename, not a register
+write). Church.sid — 2,829 register-write lines identical, same single
+filename-line difference. **Both files: register-write-exact.**
+
+This closes the V13 sub-case of this card's central open question — the
+entry points, ZP, order-list table, and now the two working-storage regions
+are all disassembly- and reconstruction-confirmed, not just traced. **This
+verification covers V13 specifically** (56 HVSC files, 2 of them now
+byte/trace-verified) — V0x and V1-V12/V14-V19 share the family's broad
+structure (same entry-point convention, same trace behavior) but have NOT
+been individually disassembled/reconstructed; treat their memory-map/format
+claims as unverified-by-reconstruction until someone repeats this exact
+process on a file from each.
+
+Next step for whoever picks up another version: V20 has its own card
+([[jch-newplayer-v20]]) and is the highest-value remaining target (1,616
+files, SIDM2 already has a partial "NP20 Driver" at 70-90% frame accuracy per
+its own `CONTEXT.md`) — worth checking whether that driver's existing gap
+analysis is the same drifted-table class of issue closed here. The
+`successor_of: jch-oldplayer` edge remains a good lead for a from-scratch
+version: diffing OldPlayer vs NewPlayer routines is often the fastest way to
+understand what "New" changed.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED via trace (2026-07-18) — `status:
-in-progress`.** Two real HVSC `JCH_NewPlayer`-tagged files were run through
-`sidm2-siddump`'s `trace_sid` (the cycle-accurate zig64 tracer): `JCH/42nd_Street.sid`
-(init `$1000`, play `$1003`, **223 register writes / 50 frames**) and
-`Abaddon/Apina.sid` (JCH_NewPlayer_V13; init `$1000`, play `$1003`, plays
-cleanly). Both confirm the documented standard packed convention (load `$1000`,
-init at the load address, play at init+3) and produce coherent per-frame
-three-voice output — steady pulse-width ramps on voice 1, oscillating
-(vibrato-style) frequency on voice 2, and filter-cutoff sweeps — i.e. the player
-demonstrably runs and behaves as a real music driver, consistent across two
-versions and two composers.
+**`status: verified` (2026-07-19) — a register-write-exact reconstruction of
+JCH_NewPlayer_V13, confirmed on two independent real HVSC files.** Method
+(per `knowledge/playbooks/disassemble-a-player.md` and the project's
+`sid-player-verify` process):
 
-**Why this is NOT `verified`.** This project's `verified` bar is stricter than
-"it plays": it requires a *reconstruction* of the player (from disassembly or
-published source) that assembles, runs, and produces a **register-write-identical
-trace** to a real file (the bar the 7 verified cards met, e.g. [[laxity-newplayer]]
-at ~99.9% frame accuracy). JCH NewPlayer has **no public source**, so closing the
-loop means disassembling the routine from the binary and reconstructing it — which
-is exactly the **SIDM2** task this family sits at the top of the priority list for
-(see `docs/SIDM2-INTEGRATION.md`; [[cheesecutter]]'s GPL source, which declares
-"Based on JCH NP 21.G4 by Laxity/VIB", is a documented lever into it). The trace
-above gives SIDM2 the reference target to diff a future reconstruction against.
+1. Disassembled `Abaddon/Apina.sid` and `DRAX/Church.sid` (both
+   JCH_NewPlayer_V13, load/init `$1000`, play `$1003` per PSID header) via
+   `SIDdecompiler.exe -a4096 -z -d -c -v2` (decimal `4096` = `$1000`; `-v2`
+   for the memory-touch map).
+2. Reassembled with `64tass.exe -a --cbm-prg`. Byte-diffed the reassembled
+   `.prg` payload against the pristine original SID payload (read via the
+   `psid_header` method, never the decompiler's own post-execution
+   snapshot): **Apina.sid — 73/3,915 bytes differed** (covering
+   $100b-$101f and $172c-$17b9); **Church.sid — 68/4,062 bytes differed**
+   (same two address ranges).
+3. Cross-referenced every diverging address against the `-v2` memory-touch
+   map: 100% of them are marked `+` (read+write) or `w` (write-only) — i.e.
+   working-storage/self-modified bytes the decompiler's default 30,000-call
+   trace snapshotted at a post-execution value, not the file's true
+   cold-start bytes. This is the same class of gap this project closed on
+   `dmc`, `cheesecutter`, `roland-hermans`, and `sidwizard`.
+4. Patched the reassembled `.asm`'s `.byte` directives at those exact
+   addresses back to the pristine original bytes, reassembled again:
+   **both files reached 0 remaining byte differences** across the region
+   SIDdecompiler's model covers (Apina: 0/3,915, the file's own last 6
+   bytes — $1f4b-$1f50, all `$FF` — sit outside the decompiler's touched
+   range entirely and are a separate, non-blocking tail-padding gap;
+   Church: 0/4,062, the full payload, no such tail).
+5. Traced both the original and the patched reconstruction with
+   `sidm2-sid-trace.exe` (init `$1000`, play `$1003`, 300 PAL frames):
+   **Apina.sid — 2,603 register-write lines identical**; **Church.sid —
+   2,829 register-write lines identical.** The only difference in either
+   diff was the tool's own echoed input filename (not a register write).
+
+This is a genuine register-write-exact match, on two files by two different
+composers, meeting the same bar as [[laxity-newplayer]] (~99.9% frame
+accuracy) — here slightly better, at 100% over the covered region. **Scope
+of this verification: JCH_NewPlayer_V13 specifically** (56 HVSC files total,
+2 now individually confirmed). V0x and V1-V12/V14-V19 share this card's
+broad structural claims (entry points, ZP convention) by trace only — they
+have not been individually disassembled/reconstructed, and their
+version-specific bytes (if any differ) remain unverified until someone
+repeats this same process on a file from each. The earlier trace-only pass
+(`JCH/42nd_Street.sid`, 223 writes/50 frames; kept below for its own record)
+predates this disassembly work and is superseded by it for V13 but still
+relevant evidence for the family's broader consistency.
+
+**Prior trace-only pass (2026-07-18, superseded above for V13 specifically):**
+Two real HVSC `JCH_NewPlayer`-tagged files were run through `sidm2-siddump`'s
+`trace_sid`: `JCH/42nd_Street.sid` (init `$1000`, play `$1003`, 223 register
+writes / 50 frames) and `Abaddon/Apina.sid` (JCH_NewPlayer_V13; plays
+cleanly). Both confirmed the standard packed convention and produced coherent
+per-frame three-voice output.
 
 Seeded facts (identity, version history, spec table) remain from cached DeepSID
 `players.json` (the JCH Editor entries), SIDId, and CSDb release 14037.
+
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/jch-newplayer.md`.
 
 ## Sources
 

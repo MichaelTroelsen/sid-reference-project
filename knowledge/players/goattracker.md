@@ -177,6 +177,8 @@ generalizes rather than being specific to this tune's size/feature set — but
 the entry convention, code correctness, and self-modifying-byte diagnosis are
 now solidly established.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/goattracker.md`.
+
 ## Sources
 
 See the `sources` array — primary is the GPL `goattracker.guide` and the

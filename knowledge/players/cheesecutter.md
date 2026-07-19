@@ -184,6 +184,8 @@ because the first pass showed they diverge in behavior), not an exhaustive
 sweep of all 293; a third/fourth file with multiple subtunes would be a
 reasonable next check if this ever needs re-confirming.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/cheesecutter.md`.
+
 ## Sources
 
 See the `sources` array — primary is CheeseCutter's own GPL player source

@@ -104,6 +104,8 @@ dead-vs-load-bearing self-modified byte issue).
   `laxity-newplayer`'s precedent). Driver **format internals** (not just
   playback correctness) remain unexamined — see Disassembly notes.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/roland-hermans.md`.
+
 ## Sources
 
 See the `sources` array — CSDb scener 13338, the PSID64 repo (as the *separate*

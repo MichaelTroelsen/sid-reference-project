@@ -246,10 +246,8 @@ Reassembled with `64tass.exe -a --cbm-prg` to the identical `$1000-$1d62`
 match.** **Trace-diff: `init=$1000 play=$1003`, traced 1500 frames (~30
 seconds of playback) — byte-for-byte register-write-identical to the real
 file at every frame, 0 divergences.** This meets and exceeds this
-project's `verified` precedent (`laxity-newplayer` ~99.9%); scratchpad
-artifacts (`border_odyssey_fixed.asm`, `border_odyssey_fixed2.prg`, the
-binary-search patch scripts and trace logs) are in this session's
-`scratchpad/sidwizard/` folder if a future pass wants to re-verify.
+project's `verified` precedent (`laxity-newplayer` ~99.9%). Exact byte-level
+patch table (durable, not scratchpad): `knowledge/players/reconstructions/sidwizard.md`.
 
 Remaining `TODO`, unaffected by this pass since none of it was needed to
 reach byte/trace parity on this file: exact license text, an

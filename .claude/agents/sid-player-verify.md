@@ -859,6 +859,72 @@ created. The first agent to hit a new wall should add it here.)
     byte-exact (the residual 87 bytes were separately confirmed
     self-modified/load-bearing at cold start and patched directly), reaching
     100.0000% byte-exact and a fully trace-exact 300-frame match.
+37. **A binary-search patch-isolation test (patch candidate A alone; patch
+    everything-except-A; re-trace both) is cheap and decisively separates
+    "dead self-modified byte" from "real cause" within a single byte-diff
+    cluster, rather than assuming either from the `-v2` map's `+`/`w`
+    markers alone (which entry 16 already warned isn't reliable on its
+    own).** Concretely on `rockmonitor`'s Rockmonitor_5_Intromusic.sid: a
+    33-byte diff cluster held one obviously-suspicious self-modified
+    countdown byte ($0de4, a `dec play+1` operand) sitting right next to a
+    32-byte working-storage table — the natural guess would be "the
+    countdown byte matters, patch it first." Patching $0de4 ALONE left the
+    trace divergence completely unchanged; patching everything EXCEPT $0de4
+    fixed the trace completely. Without the isolation test, either the true
+    cause (the 32-byte table) could have been left unpatched while chasing
+    the wrong lead, or the dead byte could have been wrongly reported as a
+    real residual divergence. Three patch variants (A-only, not-A, both)
+    computed and traced in under a minute total — cheap insurance against
+    exactly the kind of wrong-lead trap entry 28 documents for
+    address-range guesses, generalized here to byte-level guesses within
+    one cluster.
+38. **A file whose PSID header init/play addresses land EXACTLY on the
+    file's own true load address (init=load, play=load+3, both directly
+    runtime-called — not an unreached stub per lesson #34, and not a case
+    needing lesson #13's -P/-I override) can still hit lesson #31/#33's
+    wrap-around trap for a different reason than SoundMonitor's fixed
+    low-RAM workspace.** On `soundmaster`: the driver's runtime
+    working-state (channel pointers/counters, zero at cold boot, never part
+    of the file's own PSID payload) can sit on a fixed low page (e.g.
+    $02a7 or $0334) that SIDdecompiler's `-v2` map reports as "Start:",
+    well below the code's own load address (here $F400/$F700) — and
+    relocating to the PSID load address (the textbook-correct choice per
+    gotchas 1/2, since there's no dropped-leading-byte issue here) still
+    produces a wrapping, corrupted reassembly. The tell is identical to
+    lesson #31: 64tass emits `-Wwrap-pc`/`-Wwrap-mem` warnings and a
+    `Data:` report spanning `$0000-...` plus a second block far above it.
+    Fix is the same as #31/#33: relocate to the `-v2` map's own literal
+    "Start:" address instead of the PSID header's load address, even
+    though in this case the header's load address was already 100% correct
+    and didn't need lesson #18/#27's leading-byte-drop fix at all. Net
+    lesson: check the `-v2` Start: address against the PSID load address
+    on every file, regardless of whether the init/play vectors look "clean"
+    (pointing exactly at load/load+3) — a clean-looking entry-point
+    convention does not imply the workspace-wrap trap won't fire.
+39. **When SIDdecompiler's reassembly fails with an "undefined symbol"
+    error for a data-table entry it referenced but never labeled (distinct
+    from lesson 32's WARNING-flagged self-modified-operand case — this is a
+    plain missing label, no warning printed), the real target address can
+    be recovered without guessing.** On `romuzak`: (1) temporarily inject a
+    placeholder definition for the missing symbol (e.g.
+    `song00trk00 = $dead`) right after the `* = $xxxx` origin line so the
+    file assembles; (2) reassemble with 64tass's `--labels=<file>` flag to
+    dump the *other*, already-defined symbols' real addresses (e.g. the
+    pointer table's own label, `song00`, resolves to a concrete address in
+    the labels dump); (3) read the pristine original SID-file bytes
+    directly at that now-known address — since the table entry is a
+    `<label`/`>label` (lo-byte/hi-byte) pointer pair, those raw bytes ARE
+    the real target address, no disassembly needed to find it, just
+    arithmetic (`hi<<8 | lo`). This is corroborable for free when sibling
+    table entries (e.g. `song00trk01`, `song00trk02`) DID get real labels
+    from SIDdecompiler — recomputing their addresses this same way and
+    checking they match the tool's own labels confirms the method before
+    trusting it for the missing one. Whether that recovered address falls
+    inside a region SIDdecompiler actually disassembled (fixable by
+    defining `missingsymbol = $<address>` and reassembling) or in
+    genuinely untouched territory (a deeper gap, same class as entry 9) is
+    then a separate, subsequent question — but at least the address itself
+    is no longer a guess.
 </lessons_learned>
 
 <success_criteria>

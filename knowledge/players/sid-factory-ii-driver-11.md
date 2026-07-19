@@ -122,6 +122,8 @@ Result — the three-vector stub header and IRQ-driven design were confirmed by 
 
 This resolves the card's previously-flagged entry-point contradiction in favour of SIDM2's methodology doc (`$1000/$1003` stubs, real dispatcher `$1006`) — see `entry.play` and `quirks`.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/sid-factory-ii-driver-11.md`.
+
 ## Sources
 
 See the `sources` array — primary is SIDM2's `docs/players/DRIVER11.md` and `docs/reference/SF2_FORMAT_SPEC.md`, cross-checked against `CLAUDE.md`'s Essential Constants and the literal offset/aux-vector constants in `sidm2/sf2_packer.py` / `sidm2/sf2_aux_bodies.py`. The parent card is [sid-factory-ii](sid-factory-ii.md); the public GPL source is <https://github.com/chordian/sidfactory2>.

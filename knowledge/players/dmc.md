@@ -172,10 +172,8 @@ constant bytes patched. Reassembled with 64tass and re-diffed/re-traced:
   format internals** (ZP, order list/pattern/instrument/table layout, effect
   encoding) remain unexamined and `TODO` — this pass established playback
   parity, not the runtime data format; see Disassembly notes.
-- Scratchpad artifacts (this session): `dmc_patched.asm`/`dmc_patched.prg`
-  (file 1), `dmc2_patched.asm`/`dmc2_patched.prg` (file 2), plus
-  `trace_f1_orig.log`/`trace_f1_patched.log`/`trace_f2_orig.log`/
-  `trace_f2_patched.log` — all four traces on disk for direct inspection.
+- Exact byte-level patch table for both files (durable, not scratchpad):
+  `knowledge/players/reconstructions/dmc.md`.
 
 ## Sources
 

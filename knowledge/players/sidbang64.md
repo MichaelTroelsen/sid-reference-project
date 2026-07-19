@@ -188,6 +188,8 @@ dataset, unchanged by this pass.
    as far as this project's research shows, an independent from-scratch
    design.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/sidbang64.md`.
+
 ## Sources
 
 See the `sources` array — sidid.nfo, three CSDb tool releases (V0.6/V0.6.2/

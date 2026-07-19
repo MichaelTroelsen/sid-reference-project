@@ -158,6 +158,8 @@ traced both the original `.sid` and the reassembled `.prg` with
   chased down to a specific table identity either — see the JC64dis lead in
   `Disassembly notes` for the most promising next step.
 
+Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/music-assembler.md`.
+
 ## Sources
 
 See the `sources` array — CSDb release, SIDId's lineage note, Dutch USA-Team

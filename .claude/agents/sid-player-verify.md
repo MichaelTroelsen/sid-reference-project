@@ -701,6 +701,53 @@ created. The first agent to hit a new wall should add it here.)
     header's load address — and treat 64tass's `-Wwrap-pc`/`-Wwrap-mem`
     warnings plus a suspiciously bank-spanning `Data:` report as the tell
     that this has gone wrong.
+32. **The "drifted self-modified working-storage table" pattern (entries
+    9/10/16/17/20/25/29/30) generalizes ACROSS PLAYER VERSIONS within one
+    lineage, not just across files of the same version.** Confirmed on
+    `jch-newplayer-v20`: the exact same decompiler-default-30000-call-trace
+    drift hit V20 at nearly the same relative addresses as V13 (`00b-01f`
+    / `72c-7c0`-ish in both), and closed with the identical patch
+    methodology, zero new failure modes, on two "standard convention" files.
+    A genuinely new sub-case appeared on a THIRD file of the same version: a
+    self-modified JSR *instruction operand* byte (not a `.byte` table entry)
+    landed in the byte-diff. SIDdecompiler's own `.asm` output flags this
+    case up front with a comment ("WARNING: May have alignment issues due to
+    partial address operand modification. Operand at l<label>+1") — grep a
+    freshly generated `.asm` for that exact warning string before patching
+    anything, since it names the address where a plain `.byte`-directive
+    patch script will fall one byte short and a direct `.prg`-binary patch is
+    needed instead (offset = target_addr - load_addr + 2, for the `.prg`'s
+    own 2-byte load header). Also reconfirmed: a per-release/per-game build
+    can wrap a player's standard load-address entry convention in an outer
+    PSID-header-declared init/play dispatcher elsewhere in memory (here,
+    `init=$2170`/`play=$2182`, not the engine's real `$1000`/`$1003`), with
+    the core engine reached only via a runtime-computed (self-modified) jump
+    — don't assume a family's documented "standard convention" describes
+    where a GIVEN file's own PSID vectors actually point.
+33. **`SIDdecompiler's `-v2` memory-touch-map "Start:"/"End:" addresses are
+    fixed by the tool's internal emulation of the file at its OWN true
+    PSID-header load address — the `-a<decimal>` relocation flag only
+    relabels already-captured bytes for OUTPUT and does not feed back into
+    that computation at all.** This means relocating to an address BEFORE
+    the file's real load address (the natural first instinct for "recover a
+    dropped leading byte," per entries 18/27) is mechanically inert — it
+    byte-diffs identically to the un-shifted attempt once relabeled. The
+    angle that DOES work: relocate to `-a<decimal for the map's own literal
+    "Start:" address>` — i.e. ONE ADDRESS AFTER the true load address when a
+    leading byte was dropped, not one before. This correctly zeroes the
+    tool's internal `offset = target_base - captured_start`, fixing literal
+    PSID-header init/play addresses (used directly, not derived) to
+    byte-exact. Confirmed on `odintracker's` Arpeggioland.sid: this closed
+    the INIT-vector garbage (Mem[$BFF0]/Mem[$BFF3] now byte-exact) but did
+    NOT close the file overall — a large, separate, ~950-byte divergence
+    persisted deeper in the file (`$c180-$c9ff`), in a region the `-v2` map
+    marks execute/operand-touched (not unreached), insensitive to `-t` and
+    `-C1` sweeps, with an unstructured (non-uniform) value-delta pattern —
+    i.e. a leading-byte-drop fix and a completely separate "rest of the file
+    disassembles wrong" defect can coexist in the same file as two
+    independent problems. General form: always re-run a FULL byte-diff and
+    trace-diff after applying a targeted fix, rather than assuming the one
+    diagnosed root cause was the file's only problem.
 </lessons_learned>
 
 <success_criteria>

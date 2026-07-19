@@ -91,11 +91,13 @@ earlier "OldPlayer".
   V21). Keep the two straight.
 - **Versions are distinct players.** V9…V20 each appear as their own tag in the
   file data (and rank among the most-used tools overall). [`jch-newplayer-v20.md`](jch-newplayer-v20.md)
-  is now that sub-card — still mostly `TODO`, since SIDM2 only has an
-  external, never-disassembled spec for NP20, not its own RE work. V13 is the
-  one version with a full disassembly + register-write-exact reconstruction
-  (see Disassembly notes / Verification) — the rest of the family's
-  memory-map/format claims are trace-confirmed only, not reconstruction-confirmed.
+  is now that sub-card — as of 2026-07-19 it ALSO has a real disassembly +
+  register-write-exact reconstruction (3 files, 2 composers), independently
+  of this V13 card's own work, confirming the same entry-point/ZP/
+  order-list-table architecture with V20-specific addresses. V13 and V20 are
+  now the two versions with full disassembly + reconstruction — the rest of
+  the family's memory-map/format claims (V0x, V1-V12, V14-V19) are
+  trace-confirmed only, not reconstruction-confirmed.
 - **Hub of a lineage.** This is the graph's root for the track-system family —
   most edges point *toward* it, not away.
 
@@ -178,13 +180,14 @@ claims as unverified-by-reconstruction until someone repeats this exact
 process on a file from each.
 
 Next step for whoever picks up another version: V20 has its own card
-([[jch-newplayer-v20]]) and is the highest-value remaining target (1,616
-files, SIDM2 already has a partial "NP20 Driver" at 70-90% frame accuracy per
-its own `CONTEXT.md`) — worth checking whether that driver's existing gap
-analysis is the same drifted-table class of issue closed here. The
-`successor_of: jch-oldplayer` edge remains a good lead for a from-scratch
-version: diffing OldPlayer vs NewPlayer routines is often the fastest way to
-understand what "New" changed.
+([[jch-newplayer-v20]]) and was closed to `verified` on 2026-07-19 by the
+same method as this card (3 files, 2 composers, register-write-exact) — it
+was, as predicted, the same drifted-table class of issue, not a new problem.
+The next highest-value remaining targets are the still trace-only versions
+(V14 at 683 files/70 composers is the largest uncarded-by-reconstruction
+version). The `successor_of: jch-oldplayer` edge remains a good lead for a
+from-scratch version: diffing OldPlayer vs NewPlayer routines is often the
+fastest way to understand what "New" changed.
 
 ## Verification
 

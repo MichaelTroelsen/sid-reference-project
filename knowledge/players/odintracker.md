@@ -64,6 +64,7 @@
     "Native C64 tracker: its tunes use Odin Tracker's own replay routine (`vplayer.s`, literally named \"Relocatable player\" in its own header comment) and are relocated+combined with a song via the packer in `c64pack/` (PC-side `c64pack.cpp` + C64-side `depacker.s`) to produce a standalone runnable PRG/SID — this is why load/init addresses vary per exported file (confirmed architecturally from source, not just inferred from file variance).",
     "This card was a near-empty stub on purpose (engine facts not yet extracted from source). A 2026-07-18 verification pass disassembled two real HVSC rips directly (SIDdecompiler.exe + 64tass, no source needed for this) and found the byte-diff quality is WILDLY file-dependent for this player: Bachimisation.sid reassembles to 99.61% byte-exact and is fully trace-exact over 300 frames — but Arpeggioland.sid reassembles to only 53.8% byte-exact at native alignment, and its reconstruction's INIT vector itself executes garbage. Root cause identified: SIDdecompiler's own `-v2` memory-map log reports 'Start: $a001' instead of the true (PSID-header-embedded) load address $a000 for this file — it silently drops the very first loaded byte (real value $12, marked fully unaccessed '?' in its own trace) from the reconstructed output, misaligning every subsequent byte by one. A manual attempt to patch this by re-inserting the dropped byte at the top of the .asm did NOT fix it — the internal jump-target/relocation math was already computed against the wrong base.",
     "A SECOND 2026-07-18 pass (same day, follow-up) tested two MORE real HVSC rips to see whether Arpeggioland's front-byte-drop bug or Bachimisation's near-exact result is more typical, and got a much more encouraging answer: Firelord_old.sid (load $8b00, init/play at $bff0/$bff3 — the SAME \"entry deep inside the loaded block, near $c000\" convention as the broken Arpeggioland, disproving any hypothesis that the bug is tied to that convention specifically) reassembled **100.0000% byte-exact** (0 diffs over the full 16045-byte real payload; the reassembled .prg's extra ~163 trailing bytes are just SIDdecompiler's own `-d` padding walking into adjacent self-modified-but-beyond-file-end scratch RAM, not a real mismatch — see Disassembly notes) and is fully trace-exact over 300 frames. Ice.sid (load $1000, init=load — the SAME front-JMP-table convention as Bachimisation) reassembled 99.23% byte-exact (66/8544 bytes differ, clustered at the exact same relative addresses as Bachimisation's own mismatch cluster — same shared replay-routine self-modified workspace, not new code) and is ALSO fully trace-exact over 300 frames. Net: 3 of 4 real files tested are now register-write-exact matches (only their SIDdecompiler's `-v2` map ever showed those diverging bytes as write-touched, per this project's `dmc`/`cheesecutter`/`future-composer` precedent for 'dead' initial-value mismatches) — the front-byte-drop bug is data-content-dependent (whether THAT FILE's true first loaded byte happens to be runtime-untouched), not tied to which of the two known entry-point conventions (front-of-block vs. tail-of-block) a given export uses. Still NOT resolved for Arpeggioland itself, and still only 4 of 156 files in the local dataset have been tested — do not extrapolate a fixed pass rate from this sample.",
+    "A THIRD 2026-07-19 pass specifically retried Arpeggioland.sid with a genuinely new angle: relocate SIDdecompiler's own `-a` target to the exact address its OWN `-v2` map reports as 'Start' ($a001 — one byte AFTER the true PSID load address $a000, not one before it). This is a real, partial breakthrough: `-a40961` (decimal for $a001) makes the reassembly's INIT/PLAY vector bytes at $bff0/$bff3 match the real file EXACTLY (previously `4C CA C2 4C 90 C1` in the real file vs `C9 C2 4C 8F C1 00` reconstructed — now identical), and raises the byte-diff from 53.8% to ~91% (plateaus 90.98-91.32% across `-t` values from 10 to 300,000 — completely insensitive to trace length past a small floor, see Verification). The OPPOSITE direction first (`-a40959`, decimal for $9fff, one byte BEFORE load, the literally-suggested first angle) was tested and confirmed mechanically inert: the `-v2` map's own Start/End values are computed from the tool's internal emulation at the file's real PSID load address and do NOT change with `-a` at all — `-a` only applies a constant relabeling to whatever was already captured, so a lower `-a` target just renames output addresses without recovering any information. Despite the INIT/PLAY fix, the file is STILL genuinely broken: a ~700-byte code region ($c180-$c9ff, itself execute/operand-touched per the `-v2` map, i.e. NOT an unreached gap) differs from the real file with an essentially unstructured distribution of value deltas (only 143/968 remaining diffs are the simple '-1' pattern that would indicate a further uniform address-shift bug, and only 44/968 are recon-side zero-fill of untouched data — the rest span -255 to +255 with no dominant peak) that does not respond to `-t` (ruling out the 'drifted self-modified value from a too-long default trace' mechanism documented for other players in entries 16/17/29 of the agent's own lessons) or to `-C1` speculative disassembly (tried, made it slightly WORSE at 90.38%). A trace-diff at this new alignment confirms the divergence is real and starts at frame 0 (20-frame trace: 84 register writes in the original vs. 139 in the reconstruction, not just a later drift). Net: this is a genuine, reportable improvement (leading-byte alignment fixed, INIT/PLAY vectors now exact, byte-diff roughly doubled) but NOT a fix — a third, distinct, still-unexplained SIDdecompiler defect remains in this file's mid-block code region.",
     "The instrument table has a real, source-confirmed SoA/AoS mismatch worth flagging for anyone reading `tracker.s` (the editor) alongside `vplayer.s` (the exported replay): the editor's own `INSTRUMENTS = $4800` comment describes \"32 instruments, each 16 bytes\" (array-of-structs, instrument-major), but the replay's actual runtime field accessors (`INSTRUMENTS_AD`, `INSTRUMENTS_SR`, etc., each `defines.s`-computed as `<field>*32+INSTRUMENTS`) are structure-of-arrays, field-major — i.e. all 32 instruments' AD bytes are contiguous, then all 32 SRs, etc. Both layouts total the same 512 bytes; only the byte ORDER differs. A naive reading of just the editor's own comment would get instrument-field addressing wrong for the exported replay.",
     "Effect 0x0F sub-command $D0-$DF (\"note delay\") is explicitly marked `!!!! TODO` in the shipped `vplayer.s` source and falls through to a bare `rts` — i.e. this is a DOCUMENTED, author-acknowledged missing feature in the real released replay code, not a gap in this card's own research. Any real exported tune using that sub-command's parameter range would have it silently do nothing."
   ],
@@ -72,7 +73,8 @@
     "sidid:OdinTracker (author Zoltán Konyha (Zed), 2000, CSDb release 12577 — https://csdb.dk/release/?id=12577)",
     "Local dataset: 156 files tagged OdinTracker (see knowledge/COVERAGE.md)",
     "Verification pass (2026-07-18, part 1): HVSC MUSICIANS/S/SounDemoN/Bachimisation.sid (load $1000, 15648-byte payload) and MUSICIANS/S/SounDemoN/Arpeggioland.sid (load $a000, 10754-byte payload)",
-    "Verification pass (2026-07-18, part 2, same day follow-up): HVSC MUSICIANS/S/SounDemoN/Firelord_old.sid (load $8b00, init $bff0, 16045-byte payload, 100.0000% byte-exact + trace-exact) and MUSICIANS/S/SounDemoN/Ice.sid (load $1000, init $1000, 8544-byte payload, 99.23% byte-exact + trace-exact) — all four files disassembled with SIDdecompiler.exe -a<decimal load addr> -z -d -c -v2, reassembled with 64tass.exe, byte-diffed with a small Node script, trace-diffed with sidm2-sid-trace.exe (direct exe invocation — built a proper 2-byte-load-address .prg for the original file too, per this project's lesson about never handing sidm2-sid-trace.exe a raw .sid path directly)"
+    "Verification pass (2026-07-18, part 2, same day follow-up): HVSC MUSICIANS/S/SounDemoN/Firelord_old.sid (load $8b00, init $bff0, 16045-byte payload, 100.0000% byte-exact + trace-exact) and MUSICIANS/S/SounDemoN/Ice.sid (load $1000, init $1000, 8544-byte payload, 99.23% byte-exact + trace-exact) — all four files disassembled with SIDdecompiler.exe -a<decimal load addr> -z -d -c -v2, reassembled with 64tass.exe, byte-diffed with a small Node script, trace-diffed with sidm2-sid-trace.exe (direct exe invocation — built a proper 2-byte-load-address .prg for the original file too, per this project's lesson about never handing sidm2-sid-trace.exe a raw .sid path directly)",
+    "Verification pass (2026-07-19, part 3): re-attempted MUSICIANS/S/SounDemoN/Arpeggioland.sid specifically, relocating to -a40961 (the -v2 map's own reported Start address $a001, not the PSID header's $a000), plus an -a/-t/-C1 sweep to characterize the residual divergence — raised byte-diff from 53.8% to 90.9970% and fixed the INIT/PLAY vector bytes to exact, but a second, distinct, unresolved defect remains (see Verification and Disassembly notes)"
   ]
 }
 ```
@@ -123,6 +125,48 @@ archive needed for this part — PSID header + SIDdecompiler was sufficient).**
   drops the file's true first loaded byte, shifting everything after it by
   one, and INIT itself executes garbage in the reconstruction as a result.
 
+**2026-07-19 (third pass): relocating to the `-v2` map's own reported
+"Start" address instead of the PSID load address.**
+
+- **Arpeggioland.sid, retried**: `SIDdecompiler.exe Arpeggioland.sid
+  -oarp_a001.asm -a40961 -z -d -c -v2` (40961 decimal = $a001, the exact
+  address the tool's own `-v2` map reports as "Start", i.e. one byte AFTER
+  the true $a000 load address — the opposite direction from relocating to
+  one byte BEFORE it, which was tried first and confirmed to do nothing:
+  the map's Start/End values come from the tool's internal emulation at the
+  file's real PSID load address and are completely unaffected by whatever
+  `-a` target is requested). Same `za9 = $a9` manual fix needed. This
+  correctly re-anchors the file: `Mem[$BFF0]` in the reassembled `.prg` now
+  reads `4C CA C2 4C 90 C1`, byte-for-byte identical to the real file
+  (previously `C9 C2 4C 8F C1 00` — completely wrong). Byte-diff (comparing
+  `original[i+1]` vs `reassembled[i]`, i.e. the one-byte shift the new base
+  implies) rose from 53.8% to 90.9970% (968/10752 bytes differ) at the
+  default `-t 30000`; swept `-t` from 1 to 300000 and it plateaus at
+  90.98-91.32% for any `-t >= 10` (10, 50, 100, 1000, 5000, 100000, 300000
+  all land in that band; `-t` below 10 is much worse, ~18%, from
+  under-coverage) — i.e. genuinely insensitive to trace length past a
+  small floor, ruling out a trace-length remedy. Tried `-C1` (speculative
+  disassembly) at this same base: 90.3832%, slightly WORSE, not better.
+  The remaining ~950-970 diffs concentrate in $c180-$c9ff, a region the
+  `-v2` map marks densely execute/operand-touched (`x`/`o`), not
+  unreached — so this is not the same "silently dropped, never-touched
+  data" mechanism as the leading byte. The diff VALUES in that region have
+  no systematic pattern (histogram of `reassembled - original` spans -255
+  to +255 with no dominant peak besides 143/968 being exactly -1; only
+  44/968 are simple recon-side zero-fill) — ruling out both a further
+  uniform address-shift bug (checked directly: shifting the comparison by
+  an extra +/-1 or +/-2 in that region does not improve alignment) and the
+  "self-modified value drifted after a too-long default trace" mechanism
+  documented for other players (this project's `dmc`/`cheesecutter`
+  precedent) since insensitivity to `-t` rules that out too. A trace-diff
+  of this improved build over 20 frames shows the divergence is real and
+  starts at frame 0: 84 register writes in the original vs. 139 in the
+  reconstruction (not a later drift — genuinely different playback from
+  the start). Conclusion: this is a real, useful partial fix (INIT/PLAY
+  vectors now exact, byte-diff roughly doubled) but the file remains
+  broken — a third, distinct, unexplained SIDdecompiler defect affects
+  this specific mid-block code region and was not resolved this pass.
+
 **2026-07-18, part 2 (same day follow-up): two MORE real HVSC rips tested to
 determine whether part 1's good or bad file is more typical.**
 
@@ -169,24 +213,50 @@ project handles file-dependent fidelity).**
 - **Ice.sid: 99.23% byte-exact** (66 of 8544 bytes differ, at the same
   relative offsets as Bachimisation's own mismatch cluster) **and fully
   trace-exact** over 300 frames.
-- **Arpeggioland.sid: only 53.8% byte-exact at native alignment**, and
-  tracing confirms the reconstruction is **actually broken**, not just
-  imprecise — its INIT vector executes different bytes than the real file
-  (`Mem[$BFF0]` reads `C9 C2 4C 8F C1 00` in the reconstruction vs. the real
-  file's `4C CA C2 4C 90 C1`), producing a near-silent trace (0 SID writes
-  in frame 0 vs. 1 in the original, all-zero SID register state after INIT
-  vs. real non-zero state). Root cause: SIDdecompiler's own `-v2` map
-  reports its captured memory window starting at `$a001`, one byte past
-  the file's real, PSID-header-confirmed load address `$a000` — it silently
-  drops the file's true first byte (value `$12`, itself never read/
-  written/executed at runtime, hence trimmed) from its own output, and
-  every subsequent byte inherits a 1-byte shift. Manually reinserting the
-  missing byte at the top of the `.asm` does NOT fix it — the disassembler's
-  internal relocation/jump-target math was already computed against the
-  wrong base, so a text-level shift can't retroactively correct it. This
-  remains UNRESOLVED — the bug is confirmed data-content-dependent (whether
-  a given file's true first loaded byte happens to be runtime-untouched),
-  not tied to load-address style or entry-point convention.
+- **Arpeggioland.sid: only 53.8% byte-exact at native alignment (`-a40960`,
+  the true $a000 load address)**, and tracing confirms the reconstruction is
+  **actually broken**, not just imprecise — its INIT vector executes
+  different bytes than the real file (`Mem[$BFF0]` reads `C9 C2 4C 8F C1 00`
+  in the reconstruction vs. the real file's `4C CA C2 4C 90 C1`), producing
+  a near-silent trace (0 SID writes in frame 0 vs. 1 in the original,
+  all-zero SID register state after INIT vs. real non-zero state). Root
+  cause: SIDdecompiler's own `-v2` map reports its captured memory window
+  starting at `$a001`, one byte past the file's real, PSID-header-confirmed
+  load address `$a000` — it silently drops the file's true first byte
+  (value `$12`, itself never read/written/executed at runtime, hence
+  trimmed) from its own output, and every subsequent byte inherits a 1-byte
+  shift. Manually reinserting the missing byte at the top of the `.asm`
+  does NOT fix it — the disassembler's internal relocation/jump-target math
+  was already computed against the wrong base, so a text-level shift can't
+  retroactively correct it.
+  **2026-07-19 update — partially, not fully, resolved**: relocating with
+  `-a40961` (decimal for $a001, the tool's OWN `-v2`-reported Start address,
+  not the PSID header's $a000) fixes the leading-byte alignment at its
+  root — `Mem[$BFF0]`/`Mem[$BFF3]` in the reassembly now match the real file
+  byte-for-byte exactly, and the overall byte-diff rises to 90.9970%
+  (968/10752 bytes differ at the default `-t 30000`; plateaus 90.98-91.32%
+  across a wide `-t` sweep, 10 through 300000 — insensitive to trace
+  length). The literally-suggested opposite angle (`-a40959`, one byte
+  BEFORE load, decimal for $9fff) was tried FIRST and confirmed inert: the
+  `-v2` map's Start/End are computed independently of `-a` (from the tool's
+  internal emulation at the file's real PSID load address), so relocating
+  lower just relabels the same captured bytes without recovering anything.
+  Despite the INIT/PLAY fix, the file is STILL genuinely broken: the
+  remaining ~950-970 byte diffs concentrate in a $c180-$c9ff code region
+  (execute/operand-touched per the `-v2` map, not an unreached gap) with an
+  unstructured distribution of value differences (spanning -255 to +255,
+  no dominant pattern beyond 143/968 being exactly -1) that is insensitive
+  to both `-t` (ruling out drifted-self-modified-value, this project's
+  `dmc`/`cheesecutter` precedent) and to `-C1` speculative mode (tried,
+  made it slightly WORSE at 90.3832%) — this is a THIRD, distinct,
+  still-unexplained SIDdecompiler defect. A 20-frame trace-diff at the
+  improved alignment confirms real, frame-0-onward behavioral divergence:
+  84 register writes in the original vs. 139 in the reconstruction. This
+  remains UNRESOLVED and `Arpeggioland.sid`'s reconstruction is NOT a
+  register-write match — the bug is confirmed data-content-dependent
+  (whether a given file's true first loaded byte happens to be
+  runtime-untouched) for the leading-byte component, with a second,
+  separate, unexplained defect layered on top for this file specifically.
 - **Net conclusion**: 3 of 4 real files tested (75%) hit this project's
   `verified`-bar register-write match (exact or effectively-exact with the
   divergence fully localized to dead self-modified workspace bytes, per the
@@ -204,17 +274,25 @@ project handles file-dependent fidelity).**
   fields and the `quirks` array for the SoA/AoS instrument-layout nuance and
   the source's own acknowledged-unimplemented note-delay effect.
 
-**Next step for a future pass**: (1) either fix/work around the
-SIDdecompiler front-byte-drop bug (try patching the tool's own relocation
-math rather than the `.asm` text, or try a different disassembler on
-Arpeggioland.sid specifically) or test enough additional real files to
-establish a reliable pass-rate estimate before considering `verified`;
-(2) cross-reference the now-read source's effect/data-format facts against
-an actual pattern-data region in one of the byte-exact reconstructions (e.g.
-Firelord_old.sid) to confirm the row-packing byte-math derived from
-`vplayer.s` matches real note/effect/instrument bytes in that file — this
-pass derived the encoding from source code logic alone, not yet cross-
-checked against a real file's actual pattern bytes.
+**Next step for a future pass**: (1) the leading-byte-drop component of
+Arpeggioland.sid's bug is now understood and worked around (relocate to
+`-a40961`/$a001, the tool's own `-v2`-reported Start, not the PSID load
+address) — but a SECOND, separate, unexplained defect remains in the
+$c180-$c9ff code region and still blocks a match; the most useful specific
+lead is to disassemble just that address range by hand (read the actual
+6502 instructions SIDdecompiler emitted there against the real file's raw
+bytes at the same addresses, instruction by instruction) to find whichever
+single wrong jump target, operand, or branch is causing the apparent
+desync, rather than continuing to sweep `-a`/`-t`/`-C` flags, which this
+pass exhausted without another improvement; (2) test enough additional real
+files to establish a reliable pass-rate estimate before considering
+`verified` — still only 4 of 156 files in the local dataset have been
+tested; (3) cross-reference the now-read source's effect/data-format facts
+against an actual pattern-data region in one of the byte-exact
+reconstructions (e.g. Firelord_old.sid) to confirm the row-packing
+byte-math derived from `vplayer.s` matches real note/effect/instrument
+bytes in that file — this pass derived the encoding from source code logic
+alone, not yet cross-checked against a real file's actual pattern bytes.
 
 ## Sources
 

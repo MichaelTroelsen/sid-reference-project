@@ -69,7 +69,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 17 `verified` cards belong to it**,
+base's most solid ground: **six of the whole knowledge base's 18 `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |
@@ -231,8 +231,8 @@ of this whole spine's disassembly work so far.
 
 **The JCH radiation (1988–2011).** JCH extended his own line —
 [[jch-newplayer-v20]] `derives_from` [[jch-newplayer]] (the JCH-Editor v3.x era,
-~1990–91) — and then others forked or re-fronted it, each spreading it into a
-new scene and decade:
+~1990–91; its own runtime now `verified` too) — and then others forked or
+re-fronted it, each spreading it into a new scene and decade:
 
 - [[jch-protracker]] (Jakub Kosinski / "Kosa", 1995) is `derives_from`
   [[jch-newplayer]] — Kosa's own GUI wrapped around JCH's engine — and
@@ -449,11 +449,11 @@ and this knowledge base itself. The dynasty's history became an object of
 study, by many of the same people who made it. This project's own
 `/sid-verify` pipeline (disassemble a real HVSC file, reassemble, byte-diff
 and trace-diff against the original) is the same idea applied more broadly:
-as of this writing it has closed 10 more cards to `verified` beyond the
+as of this writing it has closed 11 more cards to `verified` beyond the
 original composer-driver core — DMC, Music Assembler, GoatTracker,
-CheeseCutter, SID-Wizard, SID Factory II Driver 11, JCH NewPlayer (V13), and
-SoundMonitor among them (see each card's own Verification section, and
-`knowledge/players/reconstructions/` for the exact byte-level patch data
+CheeseCutter, SID-Wizard, SID Factory II Driver 11, JCH NewPlayer (V13 and
+V20), and SoundMonitor among them (see each card's own Verification section,
+and `knowledge/players/reconstructions/` for the exact byte-level patch data
 behind each).
 
 The result is a story that closes a loop: the modern flagship editor

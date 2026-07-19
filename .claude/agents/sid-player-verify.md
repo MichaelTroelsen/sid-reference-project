@@ -825,6 +825,40 @@ created. The first agent to hit a new wall should add it here.)
     empirically answer a "does this player use zero page for its state"
     question, complementary to (and cross-checkable against) a full
     disassembly's own zero-page-symbol usage.
+36. **A byte-diff cluster of many *isolated single-byte* diffs (spaced every
+    few bytes, each on the low byte of an absolute-address operand)
+    immediately followed by one or more *large contiguous* diff blocks is a
+    distinct, specific signature worth naming on its own (related to but
+    more precise than entries 20/21): it means a single dropped/extra byte
+    occurred once, upstream of all of it, and every symbolic label
+    SIDdecompiler auto-generates for addresses past that point silently
+    resolves to a value 1-off once reassembled — even though the label's
+    *name* still matches the true target address exactly.** The fix is
+    never to patch the many downstream single-byte diffs individually; find
+    the ONE point where an instruction's real byte-length doesn't match its
+    reassembled length (hex-dump both files side by side right where the
+    isolated-diffs give way to the first contiguous block) and fix the
+    length mismatch itself. One concrete new sub-case of this: a
+    `SIDdecompiler`-emitted `bit <symbol>` (or any absolute-mode
+    instruction) whose only manual symbol-definition fix was a bare
+    byte-sized constant (`symbol = $xx`) can silently get re-encoded by
+    64tass in the shorter zero-page addressing mode instead of the source's
+    true absolute mode — always suspect this when the manually-patched
+    symbol is involved in a self-modifying "skip N bytes" trick (a branch
+    elsewhere targeting `label+1`/`label+2`), since those tricks
+    specifically depend on the instruction's exact byte length and are
+    exactly the kind of code SIDdecompiler tends to name with an ambiguous
+    zero-page-looking symbol. The fix is to replace the symbolic instruction
+    with an explicit `.byte` sequence matching the true opcode bytes, not to
+    redefine the symbol's value. Confirmed on `odintracker`'s
+    Arpeggioland.sid: a `bit za9` (manually patched from an undefined
+    symbol as `za9 = $a9`) got re-encoded 2 bytes instead of the real file's
+    3-byte `2C A9 00` absolute-mode BIT — replacing it with an explicit
+    `.byte $2c, $a9, $00` closed the entire remaining $c180-$c9ff
+    divergence in one fix, taking this file from 90.9970% to 99.19%
+    byte-exact (the residual 87 bytes were separately confirmed
+    self-modified/load-bearing at cold start and patched directly), reaching
+    100.0000% byte-exact and a fully trace-exact 300-frame match.
 </lessons_learned>
 
 <success_criteria>

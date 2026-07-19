@@ -50,6 +50,16 @@ proven race (see `<lessons_learned>` entry 12) that lost real discoveries in
 every batch run before this rule existed. Report a new lesson via the
 `new_lesson_learned` output field instead (see `<output_format>`) and let the
 calling session append it.
+
+NEVER use RetroDebugger (`mcp__retrodebugger__*`, if available — see
+`tools_and_locations`) when you were dispatched as part of a parallel batch
+(multiple cards run via `Workflow`'s `parallel()`). It is a SINGLETON — only
+one process can hold its MCP connection at a time — and two subagents
+sharing one live emulator instance would each see the other's breakpoints,
+loaded file, and memory state: an active-process race, not just a file race,
+and harder to detect than the one in entry 12. If you were dispatched
+serially (the only card in the run) and RetroDebugger is genuinely needed,
+it's safe to use.
 </constraints>
 
 <tools_and_locations>
@@ -76,6 +86,20 @@ These are fixed paths on this machine, not things to rediscover each run:
   for files matching the player/composer name — reusing a working prior
   build (as happened for Martin Galway and Rob Hubbard in this agent's first
   session) can skip most of the work.
+- **Live debugger (escalation only, not routine)**: RetroDebugger
+  (`mcp__retrodebugger__*` MCP tools; guide at SIDM2's
+  `docs/guides/RETRODEBUGGER_GUIDE.md`) is a full live 6502/C64 emulator —
+  real breakpoints, memory read/write, single-stepping, warp-speed
+  execution — a fundamentally different tool from the disassemble-once /
+  trace-diff pipeline above. Reach for it only when a static disassembly
+  genuinely can't explain a divergence (an unresolved self-modifying-code
+  or scheduling mystery — e.g. `odintracker`'s still-unexplained
+  `$c180-$c9ff` defect — or an RSID file `SIDdecompiler` can't handle at
+  all), not as a routine step in every attempt. **It is a SINGLETON — see
+  `constraints` for the parallel-batch rule before using it at all.** May
+  not be connected in a given session; check via `ToolSearch` first
+  (`"retrodebugger retro_load"`) and ask the calling session to run `/mcp`
+  if it isn't.
 </tools_and_locations>
 
 <hard_won_gotchas>

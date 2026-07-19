@@ -772,6 +772,59 @@ created. The first agent to hit a new wall should add it here.)
     independent problems. General form: always re-run a FULL byte-diff and
     trace-diff after applying a targeted fix, rather than assuming the one
     diagnosed root cause was the file's only problem.
+34. **On FutureComposer (a second confirmation of `lessons_learned` #11/#31's
+    pattern on a different player): a file's true leading bytes can be a
+    small `JMP`/`JMP` vector table that SIDdecompiler's `-v2` memory-touch
+    map reports as never touched (its own "Start:" address lands past it)
+    because the PSID header's init/play vectors are called directly,
+    bypassing that table entirely — not a stub the emulated trace merely
+    failed to reach.** This is detectable cheaply and cheerfully before
+    touching any `.asm`: run the `-a<decimal load addr>` disassembly once,
+    check whether the `-v2` log's "Start:" line equals the PSID header's own
+    load address; if it's higher, re-run with `-a<decimal for that Start:
+    address>` instead (here, the PSID's own **play** address happened to
+    equal that Start address, but don't assume that coincidence — always
+    read Start: directly rather than guessing which header field it'll
+    match). Getting this right took a 73.2%-covered reassembly (file 1,
+    unrelated file, wrong relocation base never tried) up to a 99.8%-covered
+    one on this second file — the single biggest lever in this pass, bigger
+    than the trace-diff work that followed it.
+35. **A player's public GPL repo can be split unevenly between "genuinely
+    open" and "binary-only" layers, and this project's own accumulated cards
+    can mis-describe which is which even after real research — worth
+    re-checking, not just trusting the existing quirks text.** On SID
+    Factory II (github.com/chordian/sidfactory2), the C++ EDITOR/PACKER
+    source is fully public and was directly sufficient (no disassembly) to
+    confirm the .sf2 CONTAINER FILE FORMAT ground-truth: the exact parser
+    class (DriverInfo::Parse/ParseHeader in driver_info.cpp) that reads the
+    $1337 magic word, the TLV header-block chain, and the $0FFB aux-data
+    pointer is right there in the repo, and its literal constants
+    (ExpectedFileIDNumber=0x1337, AuxilaryDataPointerAddress=0x0ffb,
+    block_address=TopAddress+2) can be diffed against a card's prose claims
+    word-for-word. But the DRIVER's own 6502 CODE is NOT published as source
+    anywhere in that same repo — only precompiled .prg binaries (confirmed
+    via a full `git/trees?recursive=1` GitHub API listing: zero .asm/.s
+    files anywhere) — so a card claiming "source is public, skip
+    disassembly, read the driver .asm directly" can be flatly wrong about
+    the SECOND layer while being right about the FIRST. Practical technique
+    worth reusing: GitHub's
+    `api.github.com/repos/<owner>/<repo>/git/trees/<branch>?recursive=1`
+    returns the full repo file tree in one request (confirmed
+    network-reachable from this environment via plain curl, no auth needed
+    for a public repo) — grep that JSON tree for `.asm`/`.s`/
+    driver-source-looking paths BEFORE assuming disassembly is unnecessary
+    just because a repo is described as "open source." Separately: a
+    player's own header/container-format C++ code can directly hand you a
+    driver's DECLARED persistent-state addresses (SF2's "DriverCommon"
+    header block lists ~18 named addresses like tick-counter,
+    order-list-index, current-sequence, etc.) without any disassembly at
+    all — parsing a handful of real, never-repacked native files (not
+    HVSC/PSID rips, which only capture the runtime memory image after the
+    driver's own loader/packer step, not the on-disk container bytes)
+    against that confirmed format is a fast, high-confidence way to
+    empirically answer a "does this player use zero page for its state"
+    question, complementary to (and cross-checkable against) a full
+    disassembly's own zero-page-symbol usage.
 </lessons_learned>
 
 <success_criteria>

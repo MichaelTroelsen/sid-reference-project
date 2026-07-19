@@ -62,4 +62,10 @@ ambiguous, ask rather than rounding up.
 Keep this session's context clean — same discipline as `/sid-card`. The
 subagent returns a short report by design; do not defeat that by reading the
 disassembly, the `.prg` files, or trace output back into the main thread.
+
+If a target's known blocker calls for RetroDebugger (a live 6502 emulator/
+debugger, see the subagent's own `tools_and_locations`) — e.g. a static-
+disassembly mystery a byte-diff/trace-diff can't explain — do NOT include
+that card in a parallel batch alongside others. It's a singleton MCP
+connection; run it as the sole target of its own `/sid-verify` call instead.
 </constraints>

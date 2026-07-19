@@ -69,7 +69,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 18 `verified` cards belong to it**,
+base's most solid ground: **six of the whole knowledge base's 21 `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |
@@ -159,6 +159,7 @@ an editor is itself a scene artifact to be reworked and re-released, not a
 one-composer secret.
 
 **The MoN / Future Composer axis (1988) — the editor/driver split.** [[future-composer]]
+(runtime now `verified`, register-write-exact against two independent real files)
 is the era's most instructive object: a **Finnish Gold** editor wrapped around a
 **Maniacs of Noise** replay driver (Charles Deenen / Jeroen Tel). The engine and
 the interface came from *different hands* — the `edges[]` show [[mon-deenen]]
@@ -268,8 +269,11 @@ files) — the cluster now has three verified nodes, not one.
 **SID Factory → SID Factory II — the dynasty comes full circle.** In parallel,
 Laxity built the modern editors. The original [[sid-factory]] (~2005)
 `shares_routine_with` both [[jch-newplayer]] and [[laxity-newplayer]]. Its
-`successor_of` [[sid-factory-ii]] (2019, GPL, cross-platform) again uses JCH's
-contiguous-sequence-stacking track system, with [[sid-factory-ii-driver-11]] (also now `verified` — its IRQ-driven
+`successor_of` [[sid-factory-ii]] (2019, GPL, cross-platform — its own
+`.sf2` container format and Driver 11's zero-page usage now `verified`
+too, against the public editor/packer source and real `.sf2` files) again
+uses JCH's contiguous-sequence-stacking track system, with
+[[sid-factory-ii-driver-11]] (also now `verified` — its IRQ-driven
 dispatcher structure register-write-matches a real exported tune) as
 its current swappable driver (`derives_from` SF2). The historical payoff is in
 SF2's own credits: it was built **with the assistance of JCH himself** (and
@@ -313,7 +317,8 @@ Dexion Meeting demoparty on 3 July 1988.
 with the Graffity flagship GMC/DMC (Era II; Brian / Balázs Farkas), and runs
 through a circle of native trackers whose users are confirmed Hungarian: the
 [[chubrocker]] ↔ [[sosperec]] circle (Chubrock, DOS, Mercury, Peet; #73) and
-[[odintracker]] (Zed / Zoltán Konyha), plus [[minimusic]] (Brian's own smaller
+[[odintracker]] (Zed / Zoltán Konyha; runtime now `verified` against four
+independent real files, register-write-exact on all four), plus [[minimusic]] (Brian's own smaller
 1990 editor — the same Graffity coder behind GMC/DMC) and [[sidwinder]] (Balázs
 "Taki" Takács of Natural Beat, 1999). Its *modern-revival* wing is the most
 active in the whole collection: Hermit (Hungary) with
@@ -416,7 +421,8 @@ own chapter, and none of them is about the music.
 cross-platform host applications that assemble and preview a C64 replay from a
 PC: [[goattracker]] (Lasse Öörni / Cadaver, Covert Bitops, 2001/2005 —
 Win/Linux/Mac; runtime now `verified`), [[cheesecutter]] (2011 — cross-platform D), and
-[[sid-factory-ii]] (2019 — Windows/Mac/Linux with a reSID preview). You no
+[[sid-factory-ii]] (2019 — Windows/Mac/Linux with a reSID preview;
+container format and Driver 11 ZP usage now `verified`). You no
 longer need the hardware to write for it. The exception proves the rule:
 [[sidwizard]] (Mihály Horváth / Hermit, 2012; runtime now `verified`) is still
 a *native* C64 tracker — but, tellingly, an open-source one (next point). The trajectory even leaves the
@@ -449,12 +455,13 @@ and this knowledge base itself. The dynasty's history became an object of
 study, by many of the same people who made it. This project's own
 `/sid-verify` pipeline (disassemble a real HVSC file, reassemble, byte-diff
 and trace-diff against the original) is the same idea applied more broadly:
-as of this writing it has closed 11 more cards to `verified` beyond the
+as of this writing it has closed 14 more cards to `verified` beyond the
 original composer-driver core — DMC, Music Assembler, GoatTracker,
 CheeseCutter, SID-Wizard, SID Factory II Driver 11, JCH NewPlayer (V13 and
-V20), and SoundMonitor among them (see each card's own Verification section,
-and `knowledge/players/reconstructions/` for the exact byte-level patch data
-behind each).
+V20), SoundMonitor, Future Composer, SID Factory II (the parent card's own
+container format), and OdinTracker among them (see each card's own
+Verification section, and `knowledge/players/reconstructions/` for the exact
+byte-level patch data behind each).
 
 The result is a story that closes a loop: the modern flagship editor
 ([[sid-factory-ii]]) is built by the classic dynasty's own founders (Laxity, with

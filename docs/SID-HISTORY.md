@@ -69,7 +69,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 15 `verified` cards belong to it**,
+base's most solid ground: **six of the whole knowledge base's 17 `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |
@@ -151,9 +151,9 @@ game routines these are mostly *scene products*, released and versioned in the
 open.
 
 **The published-editor beginning: SoundMonitor → Rock Monitor.** The hinge, set
-up at the close of Era I, is [[soundmonitor]] (Chris Hülsbeck, 1986) — an editor
-that famously shipped as a *magazine type-in listing*, i.e. distribution as
-publication. [[rockmonitor]] (Oscar Giesen "OPM" — code; Marco Swagerman "MC" —
+up at the close of Era I, is [[soundmonitor]] (Chris Hülsbeck, 1986; its
+runtime now `verified`) — an editor that famously shipped as a *magazine
+type-in listing*, i.e. distribution as publication. [[rockmonitor]] (Oscar Giesen "OPM" — code; Marco Swagerman "MC" —
 music, 1987–88) `derives_from` it. This is the first appearance of the idea that
 an editor is itself a scene artifact to be reworked and re-released, not a
 one-composer secret.
@@ -225,7 +225,9 @@ an inference.
 its `successor_of` [[jch-newplayer]] (Jens-Christian Huus), whose true start is
 the `v00.xx` series of 17–23 July 1988. JCH NewPlayer became the single most
 influential *editor-paired* player routine of the Danish scene, and the hub from
-which most of this cluster radiates.
+which most of this cluster radiates — its V13 revision is now `verified`
+(register-write-exact against two real files), the highest-priority closure
+of this whole spine's disassembly work so far.
 
 **The JCH radiation (1988–2011).** JCH extended his own line —
 [[jch-newplayer-v20]] `derives_from` [[jch-newplayer]] (the JCH-Editor v3.x era,
@@ -447,11 +449,12 @@ and this knowledge base itself. The dynasty's history became an object of
 study, by many of the same people who made it. This project's own
 `/sid-verify` pipeline (disassemble a real HVSC file, reassemble, byte-diff
 and trace-diff against the original) is the same idea applied more broadly:
-as of this writing it has closed 8 more cards to `verified` beyond the
+as of this writing it has closed 10 more cards to `verified` beyond the
 original composer-driver core — DMC, Music Assembler, GoatTracker,
-CheeseCutter, SID-Wizard, and SID Factory II Driver 11 among them (see each
-card's own Verification section, and `knowledge/players/reconstructions/`
-for the exact byte-level patch data behind each).
+CheeseCutter, SID-Wizard, SID Factory II Driver 11, JCH NewPlayer (V13), and
+SoundMonitor among them (see each card's own Verification section, and
+`knowledge/players/reconstructions/` for the exact byte-level patch data
+behind each).
 
 The result is a story that closes a loop: the modern flagship editor
 ([[sid-factory-ii]]) is built by the classic dynasty's own founders (Laxity, with

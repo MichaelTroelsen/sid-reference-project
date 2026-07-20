@@ -181,7 +181,7 @@ era's genuinely widely-adopted editors (some 900 files across 63 composers here)
 
 **The Graffity flagship: GMC → DMC (1990–91).** The Hungarian group **Graffity**
 (Brian / Balázs Farkas) produced the era's — and the whole collection's —
-heaviest-used family. [[gmc]] (Game Music Creator, Dec 1990) came first; its
+heaviest-used family. [[gmc]] (Game Music Creator, Dec 1990) came first (its runtime is now `verified`, register-write-exact against two independent real files); its
 `successor_of` and `derives_from` [[dmc]] (Demo Music Creator, 1991) became the
 single most-used player in the entire corpus — **10,491 files across 365
 composers**, often called "ProTracker for the C64," with V5.0 eventually placed
@@ -374,6 +374,14 @@ Era III crossroads), and Aleksi Eeben (Heatbeat / CNCD), who — finding the
 existing tools "unintuitive" — coded his own native tracker [[john-player]]
 (2001–02). Sweden gives Tomas Danko, and the Oneway group (Moppe,
 Zizyphus) behind [[system6581]].
+
+**US commercial and disk-mag outliers** — outside the European demoscene:
+[[master-composer]] (Paul Kleimeyer, Access Software Inc., 1983–84; runtime now
+`verified`, register-write-exact against two independent real files) is the
+earliest commercial boxed music editor in the dataset, and
+[[loadstar-songsmith]] (distributed via the US Loadstar disk magazine; runtime
+now `verified`, register-write-exact against two non-silent real files) shows
+the same editor culture reaching the American hobbyist press.
 
 **Cross-scene adoptions — where a tool crossed a national boundary.** The most
 telling social findings, because they show the scenes were *not* sealed:

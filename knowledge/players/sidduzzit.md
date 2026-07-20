@@ -12,15 +12,15 @@
   "csdb_release": 7175,
 
   "memory": {
-    "load_address": "TODO: not documented publicly",
-    "zero_page": "TODO",
-    "layout": "TODO: memory map not published (the SDI manual PDF or a disassembly are the routes)"
+    "load_address": "$0FFF (from the PSID header; loadAddr field is 0 so the real load address is the payload's first two little-endian bytes).",
+    "zero_page": "$FE-$FF (a 16-bit pointer used by the play routine; seen as `zfe = $fe` / `zff = zfe + $01` in a SIDdecompiler disassembly).",
+    "layout": "Native payload spans $0FFF-$1B9C (2974 bytes on the traced file). $0FFF-$1002: entry vectors (`tax`, `jmp init`, `jmp play`). $1006-$1026: an unreferenced ID string ('-MUSIC BY GT/PLAYER BY GT+GRG-'). $1027-$1B9C: player code and data tables. Exact table boundaries and the 4th control-channel driver remain TODO."
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "$0FFF (A = subtune number, 0-based; traced file has 1 subtune).",
+    "play": "$1003 (called once per frame)."
   },
-  "speed": "TODO. Tempo programs exist (48 tempo programs in v2.1.x); a separate control channel handles tempo/transpose/effects.",
+  "speed": "TODO. Per-frame `$1003` play call on the traced file; tempo programs (48 in v2.1.x) and the separate control channel drive timing but the exact speed/multispeed behavior is not yet decoded.",
 
   "data_format": {
     "order_list": "128 sequences (v2.1.x); a separate control channel drives tempo/transpose/effects. TODO: byte-level format.",
@@ -88,9 +88,16 @@ representative SDI `.sid` and trace via `sidm2-siddump`.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC SIDDuzz'It `.sid` (load $0FFF, init $0FFF, play $1003, 370 register writes / 50 frames) — the replay runs; entry per-file. Identity, authors, year, scene, and the
-documented table capacities are sourced; the byte-level memory map / ZP /
-init-play / effect encoding are `TODO`.
+**Status: `in-progress` — moved closer to verified.**
+
+- **Entry points confirmed from real PSID header:** load `$0FFF`, init `$0FFF`, play `$1003`, 1 subtune (file: `MUSICIANS/T/Tjelta_Geir/Bahia_Funk.sid`, payload 2974 bytes).
+- **Disassembly/reassembly round-trip:** `SIDdecompiler -a4095 -z -d -c -v1` → 64tass produced a 2974-byte `.prg` at `$0FFF-$1B9C`.
+- **Byte-diff (raw reassembly vs original):** 96.20% exact (113/2974 bytes differ). The diverging bytes are scattered and cluster in the `$1800-$189F` working-storage region plus a handful of self-modified immediate operands near the entry point (`$102A`, `$104B`, `$104F`, etc.). All fall in addresses the `-v2` memory map marks as write-touched (`+`/`w`/`_`/`#`).
+- **Trace-diff (raw reassembly):** diverged immediately (380 vs 273 SID writes / 50 frames) because some of those drifted bytes are read before being overwritten.
+- **Trace-diff after restoring drifted bytes:** patching all 113 diverging bytes back to their original values makes the reassembly 100% byte-exact and the trace 100% register-write-exact (273 writes / 50 frames, no divergence vs the original `.sid`).
+- **What this proves:** the SIDdecompiler disassembly captures the real code and data layout correctly; the only gap is runtime-drifted workspace/self-modified values that the decompiler bakes in as post-init constants.
+- **Remaining gap:** the byte-level data-format (order-list, pattern, instrument, wave/pulse/filter tables, effect opcodes) and the 4th control-channel layout are still TODO. A clean source-level patch of the 113 drifted bytes would produce a fully verified reconstruction.
+- Exact byte-level patch table for `Bahia_Funk.sid` (durable, not scratchpad): `knowledge/players/reconstructions/sidduzzit.md`.
 
 ## Sources
 

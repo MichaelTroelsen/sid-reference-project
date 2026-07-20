@@ -69,7 +69,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 24 `verified` cards belong to it**,
+base's most solid ground: **six of the whole knowledge base's 26 `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |
@@ -330,7 +330,7 @@ active in the whole collection: Hermit (Hungary) with
 the engine of the C64 music revival.
 
 **Polish** — a tightly-knit cohort visible through two tools: their own native
-[[hardtrack-composer]] (Longhair/Brush, Elysium) and [[padua-music-mixer]]
+[[hardtrack-composer]] (Longhair/Brush, Elysium; runtime now `verified`, register-write-exact against two independent real files) and [[padua-music-mixer]]
 (Polonus; Era II) — whose author Polonus also built [[digi-organizer]] (Padua,
 1991), an add-on that bolts a fourth sampled "digi" channel onto an
 independently-composed three-voice SID tune — plus a striking *cross-border
@@ -362,7 +362,7 @@ group Focus, 1989–90) — the latter unusual for being distributed as raw 6502
 assembler source a composer edits and reassembles, not a GUI tracker.
 
 **Norwegian** — the Olav Mørkrid same-author cluster ([[digitalizer]] /
-[[olav-morkrid]] / [[omegasupreme-digi]]; #72), which the [[olav-morkrid]] card
+[[olav-morkrid]] / [[omegasupreme-digi]]; #72 — [[digitalizer]]'s runtime is now `verified`, register-write-exact against two independent real files), which the [[olav-morkrid]] card
 places explicitly in "the Norwegian Panoramic Designs scene." A second Norwegian
 pillar is Geir Tjelta's editor line — [[sidsys]] (1990) and [[sidduzzit]] (SID
 Duzz'It, 1992, co-coded with Glenn Rune Gallefoss under his group SHAPE) — the

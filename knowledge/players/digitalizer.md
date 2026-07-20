@@ -7,18 +7,18 @@
   "aliases": ["Digitalizer_V2.x", "Digitalizer_V3.0", "Digitalizer"],
   "authors": ["Olav Mørkrid (Omega Supreme) / Panoramic Designs"],
   "released": "1989 (V2.x); 1992 (V3.0)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music player/editor. Closed scene tool.",
   "csdb_release": 33646,
 
   "memory": {
-    "load_address": "TODO",
-    "zero_page": "TODO",
-    "layout": "TODO"
+    "load_address": "$1000",
+    "zero_page": "$FC-$FF used as channel pointers/counters (zfc-zff confirmed; full ZP map not yet complete)",
+    "layout": "Code/data loaded at $1000-$~$198e (file-dependent end). SIDdecompiler's -v2 Start is $0334 because the player keeps fixed low-RAM workspace/counters at $0334-$03ff; relocate to $0334 (decimal 820), not $1000, for reassembly."
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "$1003",
+    "play": "$1006"
   },
   "speed": "TODO",
 
@@ -84,8 +84,40 @@ Digitalizer `.sid`.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Digitalizer_V2.x `.sid` (load $1000, init $1003, play $1006, 289 register writes / 50 frames) — the replay runs; entry per-file. Author, scene, and version history are
-SIDId/CSDb-sourced; all runtime fields `TODO`.
+**`status: verified`** — real disassembly/reassembly/trace-diff on two independent Digitalizer_V2.x HVSC files.
+
+- Files used:
+  - `MUSICIANS/B/Blues_Muz/Roestoeen_Kristian/Budget.sid` — PSID load $1000, init $1003, play $1006, subtunes 1, payload 2447 bytes.
+  - `MUSICIANS/B/Blues_Muz/Roestoeen_Kristian/Calm.sid` — PSID load $1000, init $1003, play $1006, subtunes 1, payload 2339 bytes.
+- Disassembly: `SIDdecompiler.exe <file> -o<out.asm> -a820 -z -d -c -v1` (decimal 820 = $0334, the `-v2` Start address; relocating to the PSID load address $1000 instead places low-RAM workspace data at the start of the file and yields a ~9% byte-diff).
+- Reassembly: `64tass.exe -a --cbm-prg -o out.prg out.asm`.
+- Byte-diff (original payload vs reassembled payload at the file's own $1000-$end region): 2447/2447 bytes exact for `Budget.sid`, 2339/2339 bytes exact for `Calm.sid` after the patch below.
+- Trace-diff: 50-frame `sidm2-sid-trace.exe` output is byte-for-byte identical (210 writes per file) except for the echoed filename line.
+- Required patch: SIDdecompiler emits the *runtime-computed* values of self-modified immediate operands in the filter/voice setup block around $143x-$147x. Patching those bytes back to the pristine cold value before tracing is what makes the reconstruction trace-exact.
+
+  Per-byte patch table (pristine byte taken from the original `.sid` payload; drifted byte from the raw reassembly before patching):
+
+  `Budget.sid` (3 bytes):
+
+  | Address | Pristine | Drifted |
+  |---------|----------|---------|
+  | $143A   | $00      | $01     |
+  | $1463   | $00      | $20     |
+  | $1466   | $00      | $E0     |
+
+  `Calm.sid` (4 bytes):
+
+  | Address | Pristine | Drifted |
+  |---------|----------|---------|
+  | $143A   | $00      | $02     |
+  | $1444   | $00      | $04     |
+  | $146D   | $00      | $09     |
+  | $1470   | $00      | $EF     |
+
+- Status before: `in-progress`. Status after: `verified` because the reassembled code matches the original register writes exactly on multiple real files once the self-modified-operand drift is corrected.
+
+Known remaining gap: the music data-format internals (order-list, pattern/instrument encoding, effects) are still TODO; only the runtime memory map, entry points, and replay fidelity are verified.
+- Exact byte-level patch tables for both files (durable, not scratchpad): `knowledge/players/reconstructions/digitalizer.md`.
 
 ## Sources
 

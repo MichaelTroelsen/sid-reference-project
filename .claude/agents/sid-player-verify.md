@@ -875,6 +875,19 @@ them):
 	   identical across files but the actual dataflow (read-before-write vs
 	   write-before-read) is what determines deadness, and that's not visible from
 	   the map alone.
+43. **Self-modified *immediate-operand* bytes can look like ordinary byte-diff
+    noise but are actually the same drifted-value problem as data tables.** On
+    `digitalizer`, SIDdecompiler emitted runtime-computed operands for
+    immediate-mode instructions in the filter/voice setup block (e.g.
+    `ora #$01`, `ldx #$02`, `lda #$20`, `adc #$e0`) because each of those
+    operand bytes is also the target of a self-modifying `sta label+1` or
+    `stx label+1`. The original cold value in every tested file was `$00`;
+    patching those operand bytes back to `$00` before tracing turned a
+    99.87% byte-diff into 100% byte-exact and a register-write-exact trace on
+    two independent files. The tell is the same as entry 17's drifted-table
+    case, but localized to an instruction operand rather than a data table:
+    the disassembly shows both a read (the immediate-mode instruction itself)
+    and a write (`sta`/`stx label+1`) to the same address.
 </lessons_learned>
 
 <success_criteria>

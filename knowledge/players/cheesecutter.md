@@ -175,14 +175,34 @@ region, confirmed methodically rather than guessed:
   files are single-subtune (PSID header `subtunes=1`), so only one subtune
   path was exercised per file; that's the full scope these two files offer.
 
-**Still open / out of scope for this pass**: `player_v4.acme` alone (bare GPL
-source, `EXPORT=FALSE`) still carries no song data and can't be assembled
-standalone into a playable tune. The exact effect-opcode table and full ZP
-map remain `TODO`. Only 2 of 293 real CheeseCutter files were tested — the
-verified claim rests on those two (chosen deliberately as a pair specifically
-because the first pass showed they diverge in behavior), not an exhaustive
-sweep of all 293; a third/fourth file with multiple subtunes would be a
-reasonable next check if this ever needs re-confirming.
+**2026-07-20 pass — independent re-verification.** Disassembled both files from
+scratch with `SIDdecompiler -a4096 -z -d -c -v1`, reassembled with 64tass, then
+patched every `+`/`w`/`_`/`#`-marked diverging byte back to the original SID
+file's pristine values via an address-tracked `.asm` patch script. Results
+reproduce the prior pass exactly:
+
+- **Blackjack.sid**: byte-diff 100.0000% (0/11823), trace-exact at both 300f
+  (1433/1433 writes) and 1000f (4701/4701 writes). The prior pass's 0-write
+  silence bug is confirmed resolved — the patched reconstruction writes exactly
+  the same SID registers as the original across all frames.
+- **Ants.sid**: byte-diff 100.0000% (0/5484), trace-exact at both 300f
+  (486/486 writes) and 1000f (1579/1579 writes).
+
+Both files are `loadAddr=0` in the PSID header with the real load address
+(`$1000`) embedded as the payload's first 2 LE bytes — the `psid_header`
+snippet's `loadAddr === 0` branch correctly handles this. All diverging bytes
+in the unpatched disassembly are in `+`/`w`/`_`/`#` memory-touch-map areas
+(72 on Blackjack, 91 on Ants), confirmed via `-v2` map cross-reference before
+patching — none in read-only code or data. Status remains `verified`.
+
+**Still open / out of scope**: `player_v4.acme` alone (bare GPL source,
+`EXPORT=FALSE`) still carries no song data and can't be assembled standalone
+into a playable tune. The exact effect-opcode table and full ZP map remain
+`TODO`. Only 2 of 293 real CheeseCutter files were tested — the verified claim
+rests on those two (chosen deliberately as a pair specifically because the
+first pass showed they diverge in behavior), confirmed across two independent
+verification passes now, not an exhaustive sweep of all 293; a third/fourth
+file with multiple subtunes would be a reasonable next check.
 
 Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/cheesecutter.md`.
 

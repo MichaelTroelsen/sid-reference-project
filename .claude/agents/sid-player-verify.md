@@ -859,6 +859,22 @@ them):
     defining the symbol directly) or genuinely untouched territory (a
     deeper gap, entry 9's class) is then a separate question — but the
     address itself is no longer a guess.
+42. **A second-file verification on the same player can confirm the
+	   methodology while revealing a different SCALE of load-bearing workspace —
+	   not invalidating the first file's conclusion.** On sidwizard,
+	   Border_Odyssey needed 2 self-modified operand bytes patched for trace-exact;
+	   Hermyth needed 83 bytes of working storage. Both are the same mechanism
+	   (SIDdecompiler captures post-execution values), but the extent is
+	   file-dependent because different songs/export versions initialize their
+	   workspace differently. The tell for the scale difference: on
+	   Border_Odyssey, init explicitly zeros the header before reading it (making
+	   those bytes dead); on Hermyth, the init routine reads the workspace bytes
+	   before first write (making them load-bearing). The single check that catches
+	   this: always trace-diff a second file before generalizing a "dead byte"
+	   conclusion from file 1 — the `-v2` map's write-touched markers look
+	   identical across files but the actual dataflow (read-before-write vs
+	   write-before-read) is what determines deadness, and that's not visible from
+	   the map alone.
 </lessons_learned>
 
 <success_criteria>

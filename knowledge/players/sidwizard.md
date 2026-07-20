@@ -249,8 +249,46 @@ file at every frame, 0 divergences.** This meets and exceeds this
 project's `verified` precedent (`laxity-newplayer` ~99.9%). Exact byte-level
 patch table (durable, not scratchpad): `knowledge/players/reconstructions/sidwizard.md`.
 
+**2026-07-20 — second-file confirmation (Hermyth.sid, gotcha 41).** To
+validate that the Border_Odyssey result generalizes beyond a single file,
+repeated the full pipeline on a different Hermit export:
+`MUSICIANS/H/Hermit/Hermyth.sid` (PSID `load=$0fd0 init=$0fd0 play=$0fe2`,
+1 subtune, payload 3957 bytes, no undocumented opcodes — clean disassembly).
+Re-disassembled fresh with `-a4048 -z -d -c -v2` (4048 decimal = `$0fd0`;
+`Start: $0fd0` matches the PSID load address — no gotcha 40 trap),
+reassembled to the identical 3957-byte length at `$0fd0-$1f44`.
+
+*Byte-diff*: 3864/3957 identical = **97.65% exact match**. All 93 differing
+bytes land on write-touched `-v2` markers: 80 `+` (read+write working
+storage at `$10ef-$117b`), 7 `_` (SMC operand bytes at `$1258`/`$125a`/
+`$125f`/`$1264`/`$1797`/`$17c8`/`$1819`), 3 `B`, 3 `w`. Same pattern as
+Border_Odyssey — SIDdecompiler captures post-execution values.
+
+*Trace-diff* (50/300 frames): reassembled trace diverges from original in
+frame 0 (different osc frequency initialization values, and osc3_control
+`$40` vs `$20`) and has an extra frame 3 event (3 writes absent from the
+original). Both converge by frame 16 — from frame 16 through 300 the
+register writes are byte-for-byte identical to the original.
+
+*Binary-search patch-isolation* (gotcha 41): tested four patch variants —
+(1) full 93-byte patch → trace-exact; (2) WS cluster only (83 bytes at
+`$10ef-$117b`) → trace-exact; (3) SMC bytes only (10 bytes) → still
+diverges (frame 3 anomaly persists); (4) WS cluster excluded, SMC only →
+diverges. **Conclusion: the 83-byte working-storage cluster at `$10ef-$117b`
+contains load-bearing initial state** (channel frequency/timing defaults,
+not dead as on Border_Odyssey's zeroed header). The 10 SMC operand bytes are
+genuinely dead (entry 10 pattern). Finer bisection within the WS cluster
+shows both halves carry load-bearing state for different channels —
+full WS patch needed for 3-channel trace-exact.
+
+**Full WS-patched trace-diff: 0 diffs at 300 frames (64 writes).** Confirms
+the same methodology (SIDdecompiler disassembly + reassembly + dead-byte
+restoration) works across files, but the *extent* of load-bearing working
+storage is file-dependent — 2 bytes on Border_Odyssey vs 83 bytes on
+Hermyth. Both files trace-exact after patching. `status` remains `verified`.
+
 Remaining `TODO`, unaffected by this pass since none of it was needed to
-reach byte/trace parity on this file: exact license text, an
+reach byte/trace parity on these files: exact license text, an
 absolute/universal memory map (this player is still genuinely
 relocatable per-file — that isn't a gap in analysis, it's how the format
 actually works), the concrete `PLAYERZP` address, the full effect-value

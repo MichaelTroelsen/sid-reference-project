@@ -888,6 +888,23 @@ them):
     case, but localized to an instruction operand rather than a data table:
     the disassembly shows both a read (the immediate-mode instruction itself)
     and a write (`sta`/`stx label+1`) to the same address.
+44. **A player family's load address can vary per file while the player code
+    stays at fixed absolute addresses.** On `gmc`, one file loads at `$1000`
+    and another at `$0A00`, yet both share the same fixed absolute entry
+    points (`init $18EA`, `play $14EA`). The PSID load address is where the
+    song data lands, not where the player code lives; relocating to the
+    `-v2` `Start:` address (which may be inside the file, not at the load
+    base) is required for a clean reassembly. Treating the PSID load address
+    as the relocation base produces a plausible but wrong build.
+45. **A byte-diff at the play-entry point can be a false alarm from a
+    self-modified opcode.** On `loadstar-songsmith`, SIDdecompiler emitted
+    `play rts` at `$CC48` because the pristine opcode is `PHA` ($48), which
+    `init` overwrites/restores at runtime; the post-execution snapshot that
+    SIDdecompiler traced had `RTS` ($60) there instead. The reassembly still
+    traces exactly because `init` restores `$48` before playback. The lesson:
+    when the byte-diff cluster includes the declared init/play entry byte,
+    trust the trace-diff over the byte-diff for that specific address — a
+    self-modifying entry point is common and harmless if init repairs it.
 </lessons_learned>
 
 <success_criteria>

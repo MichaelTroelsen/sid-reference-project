@@ -7,20 +7,20 @@
   "aliases": ["Master_Composer", "Master Composer"],
   "authors": ["Paul Kleimeyer"],
   "released": "1983 (written); ~1984 (published, Access Software Inc.)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64, early US COMMERCIAL boxed product (Access Software). Closed source.",
   "csdb_release": 128699,
 
   "memory": {
-    "load_address": "TODO (driver is RELOCATABLE per VGMPF; exact map unknown)",
-    "zero_page": "TODO",
+    "load_address": "$7580 (per-file; the driver is relocatable, but the sampled HVSC rips load here)",
+    "zero_page": "$FB-$FC (16-bit pointer used as (zfb),Y for table/sequence reads)",
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO (VGMPF confirms only: relocatable driver, does background playback)"
+    "init": "$7580",
+    "play": "$7587 (self-modifying: init writes $01 to the operand byte at play+1 / $7588 to enable the play branch)"
   },
-  "speed": "TODO (tempo is per-block; multispeed unknown)",
+  "speed": "1x (background playback via CIA timer A at $DC04/$DC05; no multispeed evidence in traced files)",
 
   "data_format": {
     "order_list": "TODO",
@@ -86,8 +86,15 @@ the replay's in-memory format.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Master_Composer `.sid` (load $7580, init $7580, play $7587, 12 register writes / 50 frames — sparse but nonzero) — the relocatable driver runs; entry addresses are per-file. Author, publisher, year, feature set, and
-succession history are VGMPF/SIDId-sourced; all runtime fields `TODO`.
+**Disassemble / reassemble / trace-diff VERIFIED (`status: verified`), 2026-07-20.** Two independent HVSC Master_Composer files were run through the full verification pipeline:
+
+- `MUSICIANS/0-9/2121/Troop.sid` — PSID header: load $7580, init $7580, play $7587, subtunes 1. Disassembled with `SIDdecompiler.exe -a30080 -z -d -c -v1`, reassembled with `64tass.exe -a --cbm-prg`. Byte-diff: 5116/5116 bytes, 6 differ (99.8827%) at driver runtime variables $7940-$7943, $7945, $7948. Trace-diff over 50 frames: 12 writes, **exact match**.
+- `MUSICIANS/0-9/2121/Allegro_Nr_19.sid` — same PSID header values (load/init $7580, play $7587, 1 subtune). Same disassembly/reassembly method. Byte-diff: 4022/4022 bytes, 3 differ (99.9254%) at $7941-$7942, $7947. Trace-diff over 50 frames: 27 writes, **exact match**.
+
+The diverging bytes all fall in the driver’s runtime working-state block ($7940-$794A) and are initialized/overwritten before they are ever read; they do not affect SID output. Confirmed runtime facts: init $7580, play $7587, ZP pointer $FB-$FC, background-playback timer setup at $DC04/$DC05. Remaining gap: the on-disk/in-memory song format is not yet mapped (VGMPF reports no built-in effects, so the format is likely note/gate data only).
+- Exact byte-level patch tables for both files (durable, not scratchpad): `knowledge/players/reconstructions/master-composer.md`.
+
+Earlier local trace confirmation (2026-07-13, 12 writes/50 frames) is superseded by this round-trip reconstruction.
 
 ## Sources
 

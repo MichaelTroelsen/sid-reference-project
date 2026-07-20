@@ -5,12 +5,11 @@ This file records the exact byte-level patches from the one file examined so
 far, recomputed directly from the original HVSC payload and the surviving
 reassembled `.prg` file.
 
-`sidduzzit` is **not yet `verified`** — the disassembly is code-correct and the
-reassembly reaches 100% byte-exact / trace-exact after patching, but the patch
-has not yet been applied at the `.asm` source level and tested on a second
-independent file. This manifest preserves the decision (which 113 bytes are
-drifted and what their pristine values are) so that next pass does not have to
-re-derive it.
+`sidduzzit` is now **`verified`** — the source-level 113-byte patch was applied to
+`Bahia_Funk.sid`, reassembled, and confirmed 100% byte-exact and trace-exact;
+the same methodology was then repeated on a second independent file
+(`MUSICIANS/B/Bolleman/Geisha_Gong.sid`, 107 song-specific drifted bytes) with
+identical results. This manifest records the original patch table for file 1.
 
 ## File 1: `MUSICIANS/T/Tjelta_Geir/Bahia_Funk.sid`
 
@@ -133,4 +132,122 @@ $18a7: pristine=$80  decompiler-drifted=$83
 $18a8: pristine=$80  decompiler-drifted=$00
 $18a9: pristine=$80  decompiler-drifted=$81
 $18ac: pristine=$00  decompiler-drifted=$80
+```
+
+## File 2: `MUSICIANS/B/Bolleman/Geisha_Gong.sid`
+
+load `$0FFF` (real load read from payload LE header), init `$0FFF`, play
+`$1003`, payload 2,795 bytes. 107 bytes patched at source level (unpatched
+reassembly → 96.17%; patched → 100.0000% byte-exact, trace-exact over 50 frames).
+The addresses differ from file 1 because the song-specific data tables are
+laid out differently, but the drift mechanism is the same:
+
+```
+$101f: pristine=$00  decompiler-drifted=$b1
+$1020: pristine=$00  decompiler-drifted=$1a
+$1022: pristine=$00  decompiler-drifted=$02
+$1026: pristine=$00  decompiler-drifted=$b5
+$1027: pristine=$00  decompiler-drifted=$1a
+$1029: pristine=$00  decompiler-drifted=$02
+$102d: pristine=$00  decompiler-drifted=$b9
+$102e: pristine=$00  decompiler-drifted=$1a
+$1030: pristine=$00  decompiler-drifted=$02
+$1034: pristine=$00  decompiler-drifted=$bd
+$1035: pristine=$00  decompiler-drifted=$1a
+$1037: pristine=$00  decompiler-drifted=$03
+$103b: pristine=$00  decompiler-drifted=$1d
+$103c: pristine=$00  decompiler-drifted=$19
+$103e: pristine=$00  decompiler-drifted=$06
+$103f: pristine=$00  decompiler-drifted=$fe
+$1042: pristine=$00  decompiler-drifted=$1d
+$1043: pristine=$00  decompiler-drifted=$19
+$1045: pristine=$00  decompiler-drifted=$07
+$1046: pristine=$00  decompiler-drifted=$5f
+$1049: pristine=$00  decompiler-drifted=$0b
+$104a: pristine=$00  decompiler-drifted=$05
+$104b: pristine=$00  decompiler-drifted=$03
+$104c: pristine=$00  decompiler-drifted=$08
+$104d: pristine=$00  decompiler-drifted=$3b
+$1050: pristine=$00  decompiler-drifted=$1f
+$1051: pristine=$00  decompiler-drifted=$19
+$1054: pristine=$00  decompiler-drifted=$fe
+$1055: pristine=$00  decompiler-drifted=$ff
+$1058: pristine=$00  decompiler-drifted=$08
+$105c: pristine=$00  decompiler-drifted=$fe
+$105e: pristine=$00  decompiler-drifted=$01
+$105f: pristine=$00  decompiler-drifted=$08
+$1063: pristine=$00  decompiler-drifted=$ff
+$1065: pristine=$00  decompiler-drifted=$02
+$1066: pristine=$00  decompiler-drifted=$08
+$106c: pristine=$00  decompiler-drifted=$04
+$106e: pristine=$00  decompiler-drifted=$fe
+$1071: pristine=$80  decompiler-drifted=$86
+$1074: pristine=$00  decompiler-drifted=$06
+$1075: pristine=$00  decompiler-drifted=$31
+$1076: pristine=$00  decompiler-drifted=$fe
+$1078: pristine=$80  decompiler-drifted=$87
+$107b: pristine=$00  decompiler-drifted=$07
+$107c: pristine=$00  decompiler-drifted=$39
+$107d: pristine=$00  decompiler-drifted=$fe
+$107f: pristine=$80  decompiler-drifted=$88
+$1082: pristine=$00  decompiler-drifted=$08
+$1083: pristine=$00  decompiler-drifted=$3b
+$1084: pristine=$00  decompiler-drifted=$ff
+$1086: pristine=$00  decompiler-drifted=$7f
+$108c: pristine=$00  decompiler-drifted=$e7
+$108d: pristine=$00  decompiler-drifted=$ff
+$1090: pristine=$00  decompiler-drifted=$60
+$1093: pristine=$00  decompiler-drifted=$06
+$109a: pristine=$00  decompiler-drifted=$0c
+$109d: pristine=$00  decompiler-drifted=$05
+$109f: pristine=$00  decompiler-drifted=$08
+$10a0: pristine=$00  decompiler-drifted=$0d
+$10a1: pristine=$00  decompiler-drifted=$0b
+$10a2: pristine=$00  decompiler-drifted=$ff
+$10a4: pristine=$00  decompiler-drifted=$06
+$10a6: pristine=$00  decompiler-drifted=$0a
+$10a7: pristine=$00  decompiler-drifted=$0a
+$10a8: pristine=$00  decompiler-drifted=$04
+$10a9: pristine=$00  decompiler-drifted=$ff
+$10ab: pristine=$00  decompiler-drifted=$06
+$10ad: pristine=$00  decompiler-drifted=$0a
+$10ae: pristine=$00  decompiler-drifted=$0a
+$10af: pristine=$00  decompiler-drifted=$03
+$10b0: pristine=$00  decompiler-drifted=$ff
+$10bb: pristine=$00  decompiler-drifted=$80
+$10c2: pristine=$00  decompiler-drifted=$80
+$10c8: pristine=$00  decompiler-drifted=$08
+$10db: pristine=$00  decompiler-drifted=$11
+$10dc: pristine=$00  decompiler-drifted=$23
+$10df: pristine=$00  decompiler-drifted=$68
+$10e0: pristine=$00  decompiler-drifted=$ff
+$10e2: pristine=$00  decompiler-drifted=$15
+$10e3: pristine=$00  decompiler-drifted=$28
+$10e6: pristine=$00  decompiler-drifted=$20
+$10e7: pristine=$00  decompiler-drifted=$ff
+$10e9: pristine=$00  decompiler-drifted=$15
+$10ea: pristine=$00  decompiler-drifted=$28
+$10ed: pristine=$00  decompiler-drifted=$20
+$10ee: pristine=$00  decompiler-drifted=$ff
+$10f0: pristine=$00  decompiler-drifted=$01
+$117f: pristine=$00  decompiler-drifted=$01
+$1183: pristine=$00  decompiler-drifted=$02
+$1363: pristine=$00  decompiler-drifted=$0c
+$13c3: pristine=$00  decompiler-drifted=$0c
+$141f: pristine=$00  decompiler-drifted=$5f
+$14eb: pristine=$90  decompiler-drifted=$b0
+$14fd: pristine=$00  decompiler-drifted=$09
+$1514: pristine=$00  decompiler-drifted=$08
+$1734: pristine=$00  decompiler-drifted=$4f
+$173c: pristine=$00  decompiler-drifted=$ff
+$175e: pristine=$00  decompiler-drifted=$02
+$1763: pristine=$00  decompiler-drifted=$08
+$176d: pristine=$00  decompiler-drifted=$01
+$177d: pristine=$00  decompiler-drifted=$06
+$17c7: pristine=$00  decompiler-drifted=$28
+$17cf: pristine=$00  decompiler-drifted=$30
+$17db: pristine=$00  decompiler-drifted=$10
+$17fe: pristine=$00  decompiler-drifted=$07
+$1800: pristine=$00  decompiler-drifted=$f0
+$1807: pristine=$00  decompiler-drifted=$10
 ```

@@ -69,7 +69,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 26 `verified` cards belong to it**,
+base's most solid ground: **six of the whole knowledge base's 31 `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |
@@ -365,7 +365,7 @@ assembler source a composer edits and reassembles, not a GUI tracker.
 [[olav-morkrid]] / [[omegasupreme-digi]]; #72 — [[digitalizer]]'s runtime is now `verified`, register-write-exact against two independent real files), which the [[olav-morkrid]] card
 places explicitly in "the Norwegian Panoramic Designs scene." A second Norwegian
 pillar is Geir Tjelta's editor line — [[sidsys]] (1990) and [[sidduzzit]] (SID
-Duzz'It, 1992, co-coded with Glenn Rune Gallefoss under his group SHAPE) — the
+Duzz'It, 1992, co-coded with Glenn Rune Gallefoss under his group SHAPE; runtime now `verified`, register-write-exact against two independent real files) — the
 latter a Norwegian-scene mainstay maintained clear into the 2010s (979 files here).
 
 **Finnish & Swedish** — smaller but real: Finland gives us Cadaver (Lasse Öörni;

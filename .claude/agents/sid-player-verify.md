@@ -905,6 +905,13 @@ them):
     when the byte-diff cluster includes the declared init/play entry byte,
     trust the trace-diff over the byte-diff for that specific address — a
     self-modifying entry point is common and harmless if init repairs it.
+46. **`sidm2-sid-trace.exe` writes its register-write CSV to stderr, not stdout.**
+    On Windows/Git Bash, redirecting stdout alone (`> file`) silently produces
+    an empty file; capture the trace with `> file 2>&1` or read stderr in the
+    calling process. Alternatively, use the MCP `trace_sid`/`trace_prg` wrappers
+    instead of shelling out directly, since they already return the parsed
+    writes array. This trap only bites when calling the raw executable from
+    Bash/Node; the MCP tools handle it transparently.
 </lessons_learned>
 
 <success_criteria>

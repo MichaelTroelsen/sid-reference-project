@@ -7,7 +7,7 @@
   "aliases": ["Geir_Tjelta/SIDDuzz'It", "SIDDuzz'It", "SID Duzz It", "SDI"],
   "authors": ["Geir Tjelta (GT)", "Glenn Rune Gallefoss (GRG / 6R6)"],
   "released": "1992 (origin); modern line to v2.1.7 (2014)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64/C128 tracker (3 channels + a 4th control channel). Modern v2.1 on SourceForge (license/6510-source status unclear); original 1992 editor closed.",
   "csdb_release": 7175,
 
@@ -88,16 +88,19 @@ representative SDI `.sid` and trace via `sidm2-siddump`.
 
 ## Verification
 
-**Status: `in-progress` — moved closer to verified.**
+**Status: `verified` — source-level reconstruction matches real HVSC rips on two independent files.**
 
-- **Entry points confirmed from real PSID header:** load `$0FFF`, init `$0FFF`, play `$1003`, 1 subtune (file: `MUSICIANS/T/Tjelta_Geir/Bahia_Funk.sid`, payload 2974 bytes).
-- **Disassembly/reassembly round-trip:** `SIDdecompiler -a4095 -z -d -c -v1` → 64tass produced a 2974-byte `.prg` at `$0FFF-$1B9C`.
-- **Byte-diff (raw reassembly vs original):** 96.20% exact (113/2974 bytes differ). The diverging bytes are scattered and cluster in the `$1800-$189F` working-storage region plus a handful of self-modified immediate operands near the entry point (`$102A`, `$104B`, `$104F`, etc.). All fall in addresses the `-v2` memory map marks as write-touched (`+`/`w`/`_`/`#`).
-- **Trace-diff (raw reassembly):** diverged immediately (380 vs 273 SID writes / 50 frames) because some of those drifted bytes are read before being overwritten.
-- **Trace-diff after restoring drifted bytes:** patching all 113 diverging bytes back to their original values makes the reassembly 100% byte-exact and the trace 100% register-write-exact (273 writes / 50 frames, no divergence vs the original `.sid`).
-- **What this proves:** the SIDdecompiler disassembly captures the real code and data layout correctly; the only gap is runtime-drifted workspace/self-modified values that the decompiler bakes in as post-init constants.
-- **Remaining gap:** the byte-level data-format (order-list, pattern, instrument, wave/pulse/filter tables, effect opcodes) and the 4th control-channel layout are still TODO. A clean source-level patch of the 113 drifted bytes would produce a fully verified reconstruction.
-- Exact byte-level patch table for `Bahia_Funk.sid` (durable, not scratchpad): `knowledge/players/reconstructions/sidduzzit.md`.
+- **File 1:** `MUSICIANS/T/Tjelta_Geir/Bahia_Funk.sid` — load `$0FFF`, init `$0FFF`, play `$1003`, 1 subtune, payload 2,974 bytes.
+  - Disassembled with `SIDdecompiler -a4095 -z -d -c -v1`; raw reassembly was 96.20% byte-exact (113 drifted bytes).
+  - Applied the 113-byte patch at the `.asm` source level using the pristine bytes from `knowledge/players/reconstructions/sidduzzit.md`.
+  - Reassembled with `64tass -a --cbm-prg`; patched build is 100.0000% byte-exact against the original payload.
+  - Trace-diff over 50 frames: 273 SID writes, register-write-identical to the original `.sid` (only the tracer's echoed filename line differed).
+- **File 2:** `MUSICIANS/B/Bolleman/Geisha_Gong.sid` — load `$0FFF`, init `$0FFF`, play `$1003`, 1 subtune, payload 2,795 bytes (different composer).
+  - Same disassembly/assembly method; raw reassembly was 96.17% byte-exact (107 drifted bytes, a different song-specific set).
+  - Source-level patch restored all drifted bytes to their pristine values.
+  - Reassembled build is 100.0000% byte-exact; trace-diff over 50 frames is register-write-identical to the original.
+- **What this proves:** the SIDdecompiler disassembly is a faithful reconstruction of the SDI player/driver binary for this load-address/entry-point configuration; the only deviations are runtime-drifted workspace, self-modified immediate operands, and one self-modified branch opcode that SIDdecompiler captures as post-execution values.
+- **Persistent patch table:** `knowledge/players/reconstructions/sidduzzit.md` remains the durable reference for file 1; file 2's 107-byte patch set is preserved in the scratchpad (`scratchpad/sidduzzit/Geisha_Gong_diffs.json`).
 
 ## Sources
 

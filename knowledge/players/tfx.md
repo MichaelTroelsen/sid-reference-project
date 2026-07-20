@@ -7,18 +7,18 @@
   "aliases": ["TFX"],
   "authors": ["Ray (Area Team / Unreal)"],
   "released": "1995 (V1.0, Unreal); V1.2 1996",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor (the .prg/.d64 embeds a playroutine). Closed; binaries only.",
   "csdb_release": 110111,
 
   "memory": {
-    "load_address": "TODO",
+    "load_address": "$1000 (observed on TFX_Test.sid; PSID header loadAddr field was 0)",
     "zero_page": "TODO",
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "$1000",
+    "play": "$1003"
   },
   "speed": "TODO",
 
@@ -80,8 +80,23 @@ the editor `.prg` is the route to memory/format facts.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC TFX `.sid` (load $1000, init $1000, play $1003, 296 register writes / 50 frames) — the replay runs; entry per-file. Author, releasing group, and versions are
-CSDb/SIDId-sourced; all runtime fields, the acronym, and lineage are `TODO`.
+**Verified by disassembly + reassembly + trace-diff (2026-07-20).**
+
+File used: `C64Music/MUSICIANS/P/PCH/TFX_Test.sid`.
+PSID header read directly: dataOffset $7C, loadAddr field $0000 → real load **$1000**, init **$1000**, play **$1003**, subtunes 1, payload 4281 bytes.
+
+Disassembly: `SIDdecompiler.exe ... -a4096 -z -d -c -v2` produced a $1000–$20B8 map with 12,912 trace-node pairs.
+Reassembly: `64tass.exe -a --cbm-prg` produced 4281 bytes at $1000–$20B8.
+
+- **Initial byte-diff:** 64/4281 bytes differed (98.5050%). All divergences were drifted self-modified/working-storage values that SIDdecompiler captured post-execution rather than the file's cold-start constants:
+  - four self-modified immediate operands: `$11B9`, `$11BE`, `$11C5`, `$16D2`;
+  - one read/write working-storage region: `$18ED`–`$1998` (172 bytes, mostly `.byte` tables, with a few inline bytes inside multi-byte directives).
+- **After patching those 64 bytes back to cold-start values in the source:** reassembly is **100.0000% byte-exact**, and a 50-frame `sidm2-sid-trace` run is **register-write exact** — 187 SID writes, 0 divergences vs. the original.
+
+`status` changed from `in-progress` to `verified`. **Honest scope caveat:** this verification is based on a single TFX file (`TFX_Test.sid`). The drift mechanism is the same class already seen on other players (self-modified immediate operands + working-storage table), so the reconstruction is highly likely to generalize, but a second independent TFX file has not yet been tested.
+- Exact byte-level patch table for `TFX_Test.sid` (durable, not scratchpad): `knowledge/players/reconstructions/tfx.md`.
+
+Remaining unknowns (memory map beyond this file, ZP, data-format details, effect encodings, the TFX acronym, lineage) are still `TODO`.
 
 ## Sources
 

@@ -88,8 +88,35 @@ capacity/feature list. Disassembling a Ubik's-tagged `.sid` and tracing via
 **Player location LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.**
 Traced a real HVSC Ubik's Musik `.sid` with `sidm2-sid-trace`: init `$C601`,
 play `$C64E`, **269 register writes / 50 frames** — confirming the documented
-`~$C600` (SYS 50688) player entry and that it plays. ZP map, data format, and
-effect encoding remain `TODO`, so in-progress rather than verified.
+`~$C600` (SYS 50688) player entry and that it plays.
+
+**Disassembly/reassembly pass (2026-07-20).** Target file:
+`MUSICIANS/S/Stone_James/Jax_Music_Demo.sid`. PSID header: load `$B134`
+(decimal 45364), init `$C600`, play `$C603`, subtunes 5. Disassembled with
+`SIDdecompiler.exe ... -a45364 -z -d -c -v1`; reassembled with `64tass.exe
+-a --cbm-prg`. Byte-diff: **98.97%** (7612/7691 bytes match), 79 bytes
+diverge in the single contiguous region `$C71B-$C7B1`. The `-v2` memory map
+marks that region read+write (`+`) — a per-voice working table that
+SIDdecompiler captured as post-execution values rather than cold-start bytes.
+
+Trace-diff on the unpatched reassembly: **diverges at index 0** — the
+original writes `osc1_*` at frame 0, the reassembly writes `osc3_*`, and
+totals differ (85 vs 82 writes/50 frames). After patching all 79 differing
+bytes in the rebuilt `.prg` back to the original cold values, the trace
+became **register-write exact** (85/85 writes, `diff_traces` reports `match:
+true`). This confirms the disassembly itself is structurally correct and the
+only load-bearing gap is the drifted working table.
+
+Status remains **`in-progress`** because the reassembly is not yet byte-exact
+without manual patching. ZP map, data format, and effect encoding remain
+`TODO`.
+
+**Next step:** patch the `.asm` source for the `$C71B-$C7B2` drifted table
+back to pristine cold-start bytes (the 3-voice working table output by
+`SIDdecompiler`) and reassemble, confirming a standalone trace-exact build;
+then repeat on a second Ubik's file to check whether the drift pattern is
+player-family-wide or file-specific.
+- Exact byte-level patch table for `Jax_Music_Demo.sid` (durable, not scratchpad): `knowledge/players/reconstructions/ubiks-musik.md`.
 
 ## Sources
 

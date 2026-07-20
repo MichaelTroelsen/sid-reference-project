@@ -226,13 +226,46 @@ per-file data-format internals). Data-format internals (order-list/pattern/
 instrument/table encoding) remain entirely `TODO` — `verified` here
 certifies the entry-point/runtime reconstruction, not the data format.
 
+**Third file, third pass (2026-07-20) — independent confirmation on a fresh
+composer.** File: `MUSICIANS/A/A-Man/Future_Composer_4-Demo_07.sid`
+(author Steven Diemer / A-Man). PSID header: `loadAddr=0` (real load
+`$1800` embedded as payload's first 2 LE bytes), `init=$1800`, `play=$1806`,
+1 subtune, payload 3443 bytes after stripping the 2-byte embedded load
+address.
+
+*Method*: `SIDdecompiler.exe -a6144 -z -d -c -v2` (decimal for `$1800`; the
+`-v2` map's own `Start:` matched the PSID load address — no gotcha-40
+relocation needed here, unlike file 2). The `-v2` map reports `End: $244a`.
+
+*Byte-diff*: reassembled `.prg` covers `$1800-$244a` (3147 of 3443 payload
+bytes, **91.40%** coverage). The 296-byte unreferenced tail
+(`$244b-$2572`) is 86.5% non-FF (real data, not padding — same pattern as
+file 1's tail, just smaller). Within the covered range: **36 of 3147 bytes
+differ (98.8561% match)**. All 36 diffs fall exactly in `$2121-$217F`, the
+same `+`-marked read+write working-storage region from prior files — the
+now well-characterized self-modified-working-storage drift pattern.
+
+*Trace-diff* (`sidm2-sid-trace.exe`, `init=$1800 play=$1806`): **exact
+match at both 50 and 200 frames** (the only diff line in either run is the
+echoed input filename). At 200 frames: 2221 register writes, byte-for-byte
+identical. 500-frame trace on the original (5513 writes) also never touches
+the tail region.
+
+**Summary across all three files**: three independent files, three different
+composers, three different coverage percentages (73.2% / 91.4% / 99.8%) —
+all three trace-exact on the reconstructed code path. The coverage variation
+is file-specific (different amounts of unreferenced tail data per song), not
+a structural disassembler limitation. The `$2121-$217F` self-modified
+working-storage drift is confirmed inert on all three. The `verified` status
+stands.
+
 **Next step (if continuing)**: decode the order-list/pattern/instrument
 data format itself (currently all `TODO`) — libsidplayfp's FC player source
 is the standing lead for that. Also worth a look, lower priority: identify
-what `Test_in_FC.sid`'s unreferenced $22B2-$26DB tail actually contains
-(leftover editor scratch data vs. genuinely unreachable pattern data), since
-that's still an open, undetermined byte range on that one file even though
-it's now understood not to generalize.
+what the unreferenced tails (1002 bytes on file 1, 296 bytes on file 3)
+actually contain (leftover editor scratch data vs. genuinely unreachable
+pattern data), since the specific tail content varies per file and is still
+undetermined.
 
 ## Sources
 

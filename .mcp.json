@@ -3,6 +3,37 @@
     "sidm2-siddump": {
       "command": "python",
       "args": ["C:/Users/mit/claude/c64server/SIDM2/mcp-siddump/server.py"]
+    },
+    "mcp-c64": {
+      "command": "npx",
+      "args": ["-y", "mcp-c64"],
+      "env": {
+        "ASSEMBLER": "C:\\debugger\\64tass\\64tass.exe",
+        "TOKENIZER": "C:\\winvice\\bin\\petcat.exe",
+        "EMULATOR": "C:\\winvice\\bin\\x64sc.exe",
+        "ASM_PATH": "C:\\c64-projects\\asm",
+        "BASIC_PATH": "C:\\c64-projects\\basic"
+      }
+    },
+    "tdz-c64-knowledge": {
+      "command": "C:/Users/mit/claude/c64server/tdz-c64-knowledge/.venv/Scripts/python.exe",
+      "args": ["C:/Users/mit/claude/c64server/tdz-c64-knowledge/server.py"],
+      "env": {
+        "TDZ_DATA_DIR": "C:/Users/mit/.tdz-c64-knowledge",
+        "USE_FTS5": "1",
+        "USE_SEMANTIC_SEARCH": "1",
+        "USE_BM25": "1",
+        "USE_QUERY_PREPROCESSING": "1",
+        "USE_FUZZY_SEARCH": "1",
+        "FUZZY_THRESHOLD": "80",
+        "SEARCH_CACHE_SIZE": "100",
+        "SEARCH_CACHE_TTL": "300",
+        "USE_OCR": "1",
+        "ALLOWED_DOCS_DIRS": "C:/Users/mit/Downloads/tdz-c64-knowledge-input,C:/Users/mit/.tdz-c64-knowledge/scraped_docs",
+        "LLM_PROVIDER": "anthropic",
+        "LLM_MODEL": "claude-haiku-4-5-20251001",
+        "POPPLER_PATH": "C:/Users/mit/claude/c64server/tdz-c64-knowledge/poppler-25.12.0/Library/bin"
+      }
     }
   }
 }

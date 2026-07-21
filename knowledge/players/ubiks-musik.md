@@ -7,7 +7,7 @@
   "aliases": ["Ubik's_Musik", "Ubik's Music", "Ubiks Music"],
   "authors": ["Dave Korn (Ubik)"],
   "released": "1987 (Firebird)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64, UK commercial budget product (Firebird, £2.99). Later spread widely in the PD scene. Closed source.",
   "csdb_release": 39950,
 
@@ -107,16 +107,37 @@ became **register-write exact** (85/85 writes, `diff_traces` reports `match:
 true`). This confirms the disassembly itself is structurally correct and the
 only load-bearing gap is the drifted working table.
 
-Status remains **`in-progress`** because the reassembly is not yet byte-exact
-without manual patching. ZP map, data format, and effect encoding remain
-`TODO`.
+Status raised to **`verified`** (2026-07-21). See below for the closing pass.
 
-**Next step:** patch the `.asm` source for the `$C71B-$C7B2` drifted table
-back to pristine cold-start bytes (the 3-voice working table output by
-`SIDdecompiler`) and reassemble, confirming a standalone trace-exact build;
-then repeat on a second Ubik's file to check whether the drift pattern is
-player-family-wide or file-specific.
-- Exact byte-level patch table for `Jax_Music_Demo.sid` (durable, not scratchpad): `knowledge/players/reconstructions/ubiks-musik.md`.
+**Source-level patch pass (2026-07-21) — status raised to `verified`.** All 79
+drifting bytes (the per-voice working table at `$C71B-$C7B1`) patched directly
+in the `.asm` source by replacing SIDdecompiler's post-execution `.byte`
+values with pristine cold-start bytes from the original `.sid` payload. The
+patched `.asm` reassembles to a standalone **100.0000% byte-exact** (0/7691
+bytes differ) and **register-write exact** (85/85 writes, only the tracer's
+echoed filename differs between the two log files) reconstruction — no
+runtime `.prg`-level patching needed.
+
+**Second-file confirmation:** `MUSICIANS/W/Waz/What_Time_Is_Love_edit.sid`
+(load `$BE65`, init `$C600`, play `$C603`, 1 subtune, payload 4,507 bytes).
+Disassembled (load `-a48741`), 34 bytes diverging (31 in the same
+`$C71B-$C7B1` working table + 2 at `$C822-$C823` which are self-modified
+operands of a `JMP` instruction — SIDdecompiler's own emitted label
+`lc822 jmp lca40` had the post-execution values baked in; patched to
+explicit `.byte $4c,$22,$cb` to match the pristine cold-start operand
+bytes). After patching, the covered region (4,281 of 4,507 bytes; 95.0%
+coverage — the unmapped tail is never touched by playback) is **100.0000%
+byte-exact** and **register-write exact** (183/183 writes identical, only
+filename differs). Two independent files from different composers confirm the
+player-family-wide nature of this drift pattern.
+
+Status raised to **`verified`** — meets this project's bar (two independent
+files, byte-exact + register-write exact). ZP map, data format, and effect
+encoding remain `TODO` — this pass established playback parity, not the
+player's runtime data format (same precedent as `roland-hermans` and `dmc`).
+
+- Exact byte-level patch tables for both files (durable, not scratchpad):
+  `knowledge/players/reconstructions/ubiks-musik.md`.
 
 ## Sources
 

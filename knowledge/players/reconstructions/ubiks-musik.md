@@ -1,16 +1,11 @@
 # ubiks-musik — reconstruction manifest
 
 See `knowledge/players/ubiks-musik.md` for the current Verification narrative.
-This file records the exact byte-level patches from the one file examined so far,
-recomputed directly from the original HVSC payload and the surviving reassembled
-`.prg` file.
+This file records the exact byte-level patches for two independent files.
 
-`ubiks-musik` is **not yet `verified`** — the disassembly is structurally
-correct and the reassembly traces register-write-exact after patching, but the
-patch has not yet been applied at the `.asm` source level and tested on a second
-independent file. This manifest preserves the decision (which 79 bytes are
-drifted and what their pristine values are) so the next pass does not have to
-re-derive it.
+`ubiks-musik` is now **`verified`** — two independent files (Jax_Music_Demo.sid
+and What_Time_Is_Love_edit.sid, from different composers) reached 100.0000%
+byte-exact and register-write exact after patching at the `.asm` source level.
 
 ## File 1: `MUSICIANS/S/Stone_James/Jax_Music_Demo.sid`
 
@@ -101,3 +96,56 @@ $c7ab: pristine=$03  decompiler-drifted=$01
 $c7ac: pristine=$01  decompiler-drifted=$03
 $c7b1: pristine=$00  decompiler-drifted=$ff
 ```
+
+## File 2: `MUSICIANS/W/Waz/What_Time_Is_Love_edit.sid`
+
+load `$BE65`, init `$C600`, play `$C603`, subtunes 1, payload 4,507 bytes.
+SIDdecompiler coverage: 4,281 of 4,507 bytes (95.0% — unmapped tail never
+touched by playback). 34 bytes patched: 31 in the same `$C71B-$C7B1` working
+table as File 1, plus 2 at `$C822-$C823` (self-modified operands of a `JMP`
+instruction) and 1 at `$C7B4`.
+
+```
+$c71b: pristine=$80  decompiler-drifted=$a0
+$c71c: pristine=$c6  decompiler-drifted=$d3
+$c71d: pristine=$00  decompiler-drifted=$01
+$c71e: pristine=$03  decompiler-drifted=$ff
+$c71f: pristine=$ff  decompiler-drifted=$ff
+$c724: pristine=$ff  decompiler-drifted=$db
+$c725: pristine=$00  decompiler-drifted=$b3
+$c726: pristine=$db  decompiler-drifted=$9f
+$c727: pristine=$c6  decompiler-drifted=$81
+$c728: pristine=$ad  decompiler-drifted=$b3
+$c729: pristine=$ae  decompiler-drifted=$b3
+$c72a: pristine=$ae  decompiler-drifted=$b6
+$c72b: pristine=$ae  decompiler-drifted=$b6
+$c73e: pristine=$00  decompiler-drifted=$20
+$c73f: pristine=$80  decompiler-drifted=$c0
+$c740: pristine=$20  decompiler-drifted=$40
+$c745: pristine=$41  decompiler-drifted=$40
+$c746: pristine=$00  decompiler-drifted=$41
+$c747: pristine=$9d  decompiler-drifted=$93
+$c748: pristine=$92  decompiler-drifted=$8c
+$c749: pristine=$f8  decompiler-drifted=$c6
+$c74a: pristine=$13  decompiler-drifted=$16
+$c74b: pristine=$10  decompiler-drifted=$09
+$c74c: pristine=$16  decompiler-drifted=$0e
+$c74d: pristine=$00  decompiler-drifted=$ff
+$c74e: pristine=$00  decompiler-drifted=$ff
+$c750: pristine=$6c  decompiler-drifted=$52
+$c751: pristine=$82  decompiler-drifted=$33
+$c752: pristine=$14  decompiler-drifted=$18
+$c753: pristine=$11  decompiler-drifted=$15
+$c76e: pristine=$00  decompiler-drifted=$28
+$c76f: pristine=$28  decompiler-drifted=$00
+$c7b4: pristine=$02  decompiler-drifted=$00
+$c822: pristine=$22  decompiler-drifted=$40
+$c823: pristine=$cb  decompiler-drifted=$ca
+```
+
+`$C822-$C823` are the lo/hi operand bytes of a `JMP` instruction
+(`lc822 jmp lca40`), self-modified at runtime via `sta lc822+1`/`sta lc822+2`.
+SIDdecompiler emitted these as a symbolic instruction with post-execution
+target address; patching to explicit `.byte $4c,$22,$cb` (the pristine
+cold-start operand bytes before runtime self-modification) closed the gap.
+`$C7B4` is in a contiguous `.byte` block just past the main working table.

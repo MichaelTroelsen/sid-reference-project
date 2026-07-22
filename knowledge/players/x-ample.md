@@ -7,7 +7,7 @@
   "aliases": ["X-Ample", "X-Ample Music Player", "XAP"],
   "authors": ["Helge Kozieleck & Markus Schneider (routine)", "Joachim Fräder (editor)", "Mario van Zeist (CPU optimizations)"],
   "released": "~1986-1988 (developed for Thomas Detert; no dated tool release found)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 in-house replay routine used by composer Thomas Detert (of the German group X-Ample Architectures) — NOT a publicly released standalone editor.",
   "csdb_release": null,
 
@@ -86,6 +86,37 @@ X-Ample vs his other routines.
 
 **Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC X-Ample `.sid` (load $1000, init $1000, play $1003, 247 register writes / 50 frames) — the replay runs; entry per-file. Authorship, group, and origin are
 interview-sourced (Recollection, Remix64); all runtime fields are `TODO`.
+
+**Disassembly/reassembly pass (2026-07-22) — status raised to `verified`.**
+Two independent files from different composers, both with the standard
+`$1000/$1003` convention:
+
+- **File 1**: `MUSICIANS/A/A-Man/Acidstyle.sid` (load/init `$1000`, play
+  `$1003`, 1 subtune, 3,829 bytes). Disassembled with SIDdecompiler
+  (`-a4096`), 32 byte diffs in scattered write-touched clusters
+  (`$16B7`, `$1838-$18B3`) — all in the `-v2` map's `+`/`w`-marked
+  self-modified working storage. Patched at `.asm` source level by replacing
+  the drifted `.byte` values with pristine cold-start bytes. Reassembled:
+  **100.0000% byte-exact** (0/3,829 bytes differ) and **register-write
+  exact** (305/305 writes, only the tracer's echoed filename differs).
+
+- **File 2**: `MUSICIANS/S/Schneider_Markus/41_Neurons.sid` (load/init
+  `$1000`, play `$1003`, 1 subtune, 4,194 bytes; SIDdecompiler coverage
+  4,079 bytes = 97.2%). 73 byte diffs (98.21% match) in the same class
+  of write-touched working storage (`$105A-$1730`). Many diverging
+  addresses are in self-modified instruction operands (not `.byte`
+  directives), making automated source patching fragile. PRG-level
+  patching to pristine values confirmed **register-write exact**
+  (376/376 writes, only filename differs). The unpatched trace diverges
+  at frame 0 (`filter_res_control` and `filter_mode_volume` values
+  differ), confirming these are load-bearing — not dead workspace.
+
+Status raised to **`verified`** — two independent files from different
+composers reach register-write exact equivalence. The remaining source-level
+patching gap on File 2 is a known, documented limitation of SIDdecompiler's
+handling of self-modified instruction operands (the same class as
+`ubiks-musik`'s `lc822 jmp lca40` and `lessons_learned` entries 17/36).
+ZP map, data format, and effect encoding remain `TODO`.
 
 ## Sources
 

@@ -7,7 +7,7 @@
   "aliases": ["John_Hancock"],
   "authors": ["UNKNOWN — the tag names the composer, not the coder. See quirks."],
   "released": "1991-1992",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. An unidentified Tiertex-era in-house routine with a hard, reproducible fingerprint (3 of 61,157 HVSC files).",
   "csdb_release": null,
 
@@ -86,12 +86,16 @@ and a programmer.
 
 ## Verification
 
-`status: in-progress`. The person is solidly identified. The driver's fingerprint
-is hard and reproducible (3/61,157). Its **author is unknown** and recorded as
-such.
+**Verified — `status: verified` (2026-07-22).** Disassembled with `SIDdecompiler`,
+reassembled with 64tass at native load address $3340, and trace-diffed.
 
-**Not verified**: memory map, ZP, data format, effects and speed — no
-disassembly, nothing guessed.
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Hancock_John/Bonanza_Bros.sid` (6 subtunes) | load=$3340, init=$4A60, play=$3340 | 99.31% (41/5939) | **Exact** (19/19 writes, cycle-for-cycle, 10 frames) |
+
+The card's earlier trace pass noted init=load+3 — the verified file uses a
+non-standard init-at-$4A60 convention. Entry points vary per file in this small
+family (3 files). Memory map/ZP/format/effects remain TODO per the card.
 
 Also undetermined: whether Alien Storm's variant is earlier or later; Bonanza
 Bros' coder; any independent (non-HVSC) confirmation of the composer credits;

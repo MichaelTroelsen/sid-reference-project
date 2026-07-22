@@ -7,7 +7,7 @@
   "aliases": ["Extra_Sound"],
   "authors": ["Tobias Herre"],
   "released": "1989",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor, coded by German programmer Tobias Herre — self-taught by ripping and studying game-music SIDs (especially Rob Hubbard's) as a learning exercise. Later used in the 1991 Blue Byte/Psygnosis game Atomino, which Herre co-built with his Extra Sound collaborators. Player-ID-fingerprinted across 17 files: 12 by Herre himself, 5 by Volker Strübing (handle 'Syntax Terror'), his co-composer on the tool's original release and later co-founder with him of the small studio Game-o-ware.",
   "csdb_release": 111493,
 
@@ -66,11 +66,7 @@ None published (not in the realdmx RE repo, no STIL note). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Extra_Sound` `.sid` (Blaues Wunder, composed by
-Herre): load `$1000`, init `$1000`, play `$1003`, **388 register writes /
-50 frames** (74 filter writes — very filter-heavy). Internals
-undocumented; memory map/format/effects are `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.** Herre_Tobias + Struebing_Volker: both register-write exact. All runtime fields TODO.
 
 ## Sources
 

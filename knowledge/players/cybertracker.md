@@ -7,7 +7,7 @@
   "aliases": ["CyberTracker", "CyberTracker_exe"],
   "authors": ["CyberBrain (Bjarke Nørgaard Laustsen), of No Name"],
   "released": "2001 (V1.00 April 2001, V1.01 September 2001; Executable Maker V1.00 December 2001)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music tracker/editor. Tunes are edited/played inside CyberTracker itself; a separate companion tool, the CyberTracker Executable Maker, converts a finished module into a standalone C64 executable (PRG). No source code or license found for either — treat as closed/freeware.",
   "csdb_release": 2601,
 

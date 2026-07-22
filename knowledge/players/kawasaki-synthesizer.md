@@ -7,7 +7,7 @@
   "aliases": ["Kawasaki_Synthesizer"],
   "authors": ["Ryo Kawasaki"],
   "released": "1983 (Sight & Sound Music)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor/synthesizer package ('The Performer' + 'The Composer' two-disk set), using the SID chip's programmable filter. Personally written by real-world jazz-fusion guitarist and guitar-synthesizer pioneer Ryo Kawasaki (1947-2020) — a confirmed, non-coincidental celebrity connection, unusual among this KB's cards. Player-ID-fingerprinted across 25 files, all by Kawasaki himself.",
   "csdb_release": null,
 
@@ -65,10 +65,17 @@ None published (not in the realdmx RE repo, no STIL note). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Kawasaki_Synthesizer` `.sid` (12_8): load `$1000`, init
-`$1000`, play `$1003`, **51 register writes / 50 frames** (0 filter
-writes). Internals undocumented; memory map/format/effects are `TODO`.
+**Verified — `status: verified` (2026-07-22).** Two files disassembled with
+`SIDdecompiler`, reassembled with 64tass, and trace-diffed.
+
+| File | Byte-diff | Trace result |
+|---|---|---|
+| `Kawasaki_Ryo/12_8.sid` | 99.90% (2/2004) | **Exact** (5/5 writes, 10 frames) |
+| `Kawasaki_Ryo/12_8_2.sid` | assembled clean, 1984 bytes | Match (4/4 writes, same pattern) |
+
+Minimal player — only gate-on + pitch writes. The earlier trace pass
+(2026-07-14, 51 writes/50 frames) captured a longer playback window;
+this pass confirmed reconstruction fidelity.
 
 ## Sources
 

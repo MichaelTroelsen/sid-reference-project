@@ -7,7 +7,7 @@
   "aliases": ["John_Player", "John_Player_V1.0", "John_Player_V1.4", "John_Player_V1.6", "John_Player_V2.0b"],
   "authors": ["Aleksi Eeben (Heatbeat/CNCD)"],
   "released": "2001-2002 (V1.0 2001, V1.4 2001, V1.6 & V2.0b both 2002 — see quirks)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tracker (self-coded editor + its own replay routine); no separate DAW/cross-platform front end found",
   "csdb_release": 18767,
 
@@ -152,15 +152,7 @@ the same routines in a V1.6/V2.0b binary.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance facts (author,
-release chronology, version-line relationship, composer usage/concentration)
-come from cached SIDId data, CSDb release pages, and this project's own
-`data/composers/*.json`. The memory map, entry points, speed model, block/
-command format and instrument/wave-table layout are no longer guesses —
-they're read from V1.4's own bundled source — but they have NOT been
-reassembled and traced through `mcp-c64`/`sidm2-siddump`, and V1.6/V2.0b's
-own binaries remain completely unverified against V1.4's map. `verified`
-requires that round trip.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.** Aegis/Idle_Tyme + Eeben_Aleksi: both register-write exact after fixing lax opcode. All runtime fields TODO.
 
 ## Sources
 

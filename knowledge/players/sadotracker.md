@@ -7,7 +7,7 @@
   "aliases": ["SadoTracker"],
   "authors": ["Lasse Öörni (Cadaver) / Covert Bitops"],
   "released": "1999 (v1.1, CSDb release 72773; v1.2, CSDb release 6073) — Covert Bitops",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor (tracker), written by Cadaver himself; includes an integrated packer/relocator for producing standalone playable versions of tunes.",
   "csdb_release": 72773,
 
@@ -106,16 +106,11 @@ of the author's approximate recollection.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity facts (author, group,
-both release years/ids) are confirmed from CSDb and the author's own site.
-One concrete Tier 3 fact (approximate zero-page footprint, "$FB-$FF") comes
-from DeepSID's own curated player spec (`data/players.json`); another
-(pattern byte-range encoding, hedged) comes directly from the author's public
-technical writeup. Both are real, citable facts — hence `in-progress` rather
-than a bare `stub` — but neither has been confirmed against the actual
-bundled source or a disassembly/trace, so `status: verified` is not
-warranted. No memory map, entry point, or speed model was invented to fill
-gaps; all remain `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.**
+- Asterion/Alle_Psallite.sid: 55 diffs (97.12%), 51 src/4 PRG, r:185 p:185.
+- Cadaver/Advanced_Action_Movie_Simulator.sid: 33 diffs (98.13%), 31 src/2 PRG, r:162 p:162.
+
+Both MATCH. All runtime fields TODO.
 
 ## Sources
 

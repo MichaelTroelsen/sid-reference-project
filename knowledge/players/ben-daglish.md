@@ -7,7 +7,7 @@
   "aliases": ["Ben_Daglish/Gremlin", "Ben_Daglish"],
   "authors": ["Ben Daglish"],
   "released": "~1985-1990 (per-game; Gremlin era onward)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Ben Daglish's own hand-coded 6502 in-game music driver (Gremlin-era and freelance), per-game. Player-ID-fingerprinted across 54 files by several Gremlin-associated composers.",
   "csdb_release": null,
 
@@ -70,11 +70,10 @@ would need an original disassembly of a Daglish `.sid` + trace.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Ben_Daglish` `.sid` (720 Degrees): load `$C000`, init
-`$CF40`, play `$CF46`, **305 register writes / 50 frames** (filter writes
-present). Driver internals are undocumented; memory map/format/effects are
-`TODO`.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.**
+- Daglish_Ben/Blasteroids.sid (21 diffs, 99.31%, 15 src/6 PRG, r:186 p:186) + Pridmore_Dave/Rick_Dangerous.sid (46 diffs, 98.86%, 40 src/6 PRG, r:313 p:313)
+
+Two files from different composers. All runtime fields TODO.
 
 ## Sources
 

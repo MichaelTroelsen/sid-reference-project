@@ -7,7 +7,7 @@
   "aliases": ["EMS/Odie", "EMS_V7.03", "EMS_V9.x", "EMS_V10.x", "(EMS_V10.x)", "The Electronic Music System"],
   "authors": ["Sean Connolly (Odie)"],
   "released": "1997 (V7.03, 18 Jan 1997); V9.x / V10.x later",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor+replay. Open-source status unknown (Cosine site may host downloads).",
   "csdb_release": 4649,
 
@@ -56,8 +56,11 @@ Cosine site / c64.com Odie interview (both blocked during research).
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC EMS/Odie `.sid` (load $7000, init $7000, play $7003, 356 register writes / 50 frames) — the replay runs; entry addresses are per-file. Author, name, and version line confirmed;
-all runtime fields `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — .**
+- Dan_Gillgrass/Name_Is.sid: 83 diffs (97.90%), all 83 source-patched. **Register-write exact** (415/415).
+- Jaymz_Julian/Christmas_Demo_tune_2.sid: 15 diffs (99.59%), all 15 source-patched. **Register-write exact** (239/239).
+
+All diffs resolved at source level — no PRG-level patching needed. Two files from different composers. All runtime fields .
 
 ## Sources
 

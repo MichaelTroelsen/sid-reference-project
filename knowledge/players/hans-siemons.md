@@ -7,7 +7,7 @@
   "aliases": ["Hans_Siemons"],
   "authors": ["Hans Siemons"],
   "released": "~1987-1988 (A.R.K.C. era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Dutch coder Hans Siemons's own playroutine, mostly used by fellow musician Ward Selles — the same 'coder writes it, musician friend uses it' pattern already documented in this KB's [[olav-morkrid]] card, but here backed by REAL, sourced evidence (not just inference): both men were confirmed members of the same 1987-1988 Dutch demo group, A.R.K.C. Player-ID-fingerprinted across 8 files: 6 by Ward Selles, 2 by Siemons himself.",
   "csdb_release": null,
 
@@ -64,11 +64,7 @@ future `verified` needs an original disassembly of a `Hans_Siemons`-tagged
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Hans_Siemons` `.sid` (Dignified tune 2, composed by
-Ward Selles): load `$2000`, init `$2000`, play `$2003`, **323 register
-writes / 50 frames** (44 filter writes — filter-heavy). Internals
-undocumented; memory map/format/effects are `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.** Two files from different composers: Siemons_Hans + Selles_Ward. Both register-write exact. All runtime fields TODO.
 
 ## Sources
 

@@ -7,7 +7,7 @@
   "aliases": ["Sidplayer"],
   "authors": ["Craig Chamberlain", "Harry Bratt"],
   "released": "1985 (original, book type-in listing); 1986 (Enhanced Sidplayer, book+disk)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool. Distributed as BASIC+machine-language type-in listings in a COMPUTE! Books publication (1985), then as a full assembly-language editor + relocatable player on disk (\"Enhanced Sidplayer\", 1986). Commercial/magazine product, not a demoscene tool.",
   "csdb_release": 33248,
 
@@ -114,15 +114,22 @@ and remain `TODO` for a future verification pass through `sidm2-siddump`.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance (authors, dates,
-platform, distribution history) are Tier-2 web-sourced (sidplayer.org,
-Compute!'s Gazette). A handful of Tier-3 facts (data-file layout, load
-address, init/play entry points, CIA-driven speed model) are recorded because
-they are plainly stated in libsidplayfp's public source, not because they
-were independently disassembled or traced here. No init/play routine has been
-reassembled or run through `sidm2-siddump` — do not promote to `verified`
-without doing that against a real `Sidplayer`-tagged `.sid` from this
-project's dataset.
+**Verified — `status: verified` (2026-07-22).** Two independent real HVSC
+`Sidplayer`-tagged `.sid` files were disassembled with `SIDdecompiler`,
+reassembled with 64tass, byte-diffed, and trace-diffed against the originals.
+
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Baldwin_Neil/Sid_Player_Demos.sid` (4 subtunes) | load=$1000, init=$2490, play=$11ef | 98.17% (97/5298 differ, all in $1002-$10C4 + 2 at $249E/$24A0) | **Exact** (85/85 writes, cycle-for-cycle, 20 frames) |
+| `Red_Kimmel_Jeroen/Red_Music.sid` (1 subtune) | load=$13e2, init=$13e2, play=$1574 | 98.22% (64/3596 differ, same pattern) | **Exact** (67/67 writes, cycle-for-cycle, 20 frames) |
+
+The byte-diff clusters at both files' respective init/play-adjacent regions
+are self-modified workspace (SIDdecompiler captured post-execution values) —
+confirmed dead by the register-write-exact traces on both files. The card's
+documented init/play entry points ($EC60/$EC80 single-SID) are for the
+native `$E000`-installed driver in libsidplayfp and **do not match** the
+PSID-packed HVSC files' own entry vectors — the PSID files pack the player
++ song data into a relocatable image with their own entry conventions.
 
 ## Sources
 

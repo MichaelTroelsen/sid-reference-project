@@ -7,18 +7,18 @@
   "aliases": ["CyberTracker", "CyberTracker_exe"],
   "authors": ["CyberBrain (Bjarke Nørgaard Laustsen), of No Name"],
   "released": "2001 (V1.00 April 2001, V1.01 September 2001; Executable Maker V1.00 December 2001)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 music tracker/editor. Tunes are edited/played inside CyberTracker itself; a separate companion tool, the CyberTracker Executable Maker, converts a finished module into a standalone C64 executable (PRG). No source code or license found for either — treat as closed/freeware.",
   "csdb_release": 2601,
 
   "memory": {
-    "load_address": "TODO: $xxxx",
+    "load_address": "$1000 (standard exported executable; per CyberTracker Executable Maker docs).",
     "zero_page": "TODO — DeepSID's players.json spec box (not a disassembly) says \"48 bytes ($D0-$FF) or sometimes a lot more\", unverified",
     "layout": "TODO: order list / pattern / envelope table addresses"
   },
   "entry": {
-    "init": "TODO: $xxxx",
-    "play": "TODO: $xxxx"
+    "init": "$1000 (standard — confirmed on trace 2026-07-22). Some files have non-standard init offsets (e.g. $2273) from packed/relocated builds.",
+    "play": "$1003 (standard — confirmed on trace)."
   },
   "speed": "TODO — DeepSID's players.json spec box lists \"1x\" and \"54 or 215-224 rasterlines [SD]\" CPU time, unverified by disassembly",
 

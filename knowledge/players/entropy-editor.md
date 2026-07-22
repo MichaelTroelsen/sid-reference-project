@@ -7,7 +7,7 @@
   "aliases": ["Entropy_Editor"],
   "authors": ["Simon Collis ('Uzzy', later 'Trireme')"],
   "released": "1993 (Entropy)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A C64 music editor coded by English demoscener Simon Collis (handle 'Uzzy,' later 'Trireme'), for the group Entropy (founded 1991 by Trireme & Gremlin, formerly called 'Logik'). CONFIRMED via a genuinely rich first-person source — a dedicated Hall of Fame interview with Collis himself, giving rare biographical depth for this KB. Player-ID-fingerprinted across 3 files: 2 by Collis himself (his own tool's demo tunes) and 1 by Nantco Bakker, a Dutch composer.",
   "csdb_release": 100032,
 
@@ -66,11 +66,7 @@ None published (not in the realdmx RE repo, no STIL note). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Entropy_Editor` `.sid` (Entropy Editor Sample 1,
-composed by Uzzy): load `$1000`, init `$1000`, play `$1003`, **273
-register writes / 50 frames** (42 filter writes — very filter-heavy,
-dense). Internals undocumented; memory map/format/effects are `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.** Bakker_Nantco + Uzzy: both register-write exact. All runtime fields TODO.
 
 ## Sources
 

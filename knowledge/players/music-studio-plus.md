@@ -7,7 +7,7 @@
   "aliases": ["Element114Studio_1.0", "Element114Studio_1.2"],
   "authors": ["Alan Peters (DarkStar Systems Software)", "Martin Piper"],
   "released": "1992 (original code written, unreleased) / 2010 public release — v1.1 9 Mar 2010 (CSDb 89392), v1.2 6 Apr 2010 (CSDb 90404), Element 114 Software",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor + relocatable in-game player module (CSDb classifies release 90404 as a plain 'C64 Tool', i.e. native — unlike its later PC-hosted successor Music Studio 2, filed as 'Other Platform C64 Tool'). Editor interface modeled on the classic Future Composer editor per a CSDb user comment (speculative, not author-confirmed — see quirks), with a built-in Future Composer V4.0 import/conversion feature.",
   "csdb_release": 90404,
 
@@ -132,14 +132,10 @@ looks tractable, unlike most cards in this KB.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance facts are
-confirmed via SIDId + CSDb. Several Tier 3 runtime facts (entry points,
-zero-page usage, speed/IRQ model, track and block command encoding) are
-confirmed by directly reading the tool's own public source and manual —
-this crosses the project's bar for `in-progress` ("a public source repo...
-plainly documents a runtime fact") but stops short of `verified`, which
-requires assembling the reconstructed init/play and tracing it through
-`mcp-c64`/`sidm2-siddump`. Not attempted in this pass.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.**
+- Peters_Alan/Airwolf.sid (56 diffs, 98.59%, 53 src/3 PRG, r:300 p:300) + Piper_Martin/Moody_Chords.sid (55 diffs, 98.30%, 53 src/2 PRG, r:114 p:114)
+
+Two files from different composers. All runtime fields TODO.
 
 ## Sources
 

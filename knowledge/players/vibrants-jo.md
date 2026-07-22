@@ -13,7 +13,7 @@
   "aliases": ["Vibrants/JO"],
   "authors": ["Poul-Jesper Olsen (JO, aka Technic, Rock)"],
   "released": "TODO: exact year unknown. SIDId has no `released` field for this tag. JO was an active C64 composer from the AMOK era (~1988-1991) and joined Vibrants c. 1992 (per CSDb; Demozoo's JO scener page confirms Vibrants membership but gives no join date); files tagged with this player in the local dataset span JO's own catalogue through at least a 2017-dated HJE tune, so the routine's own first-write date cannot be pinned down from this evidence alone.",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 player routine, hand-coded by the composer himself rather than released as a standalone tool/editor — CSDb's Vibrants group profile states \"JCH, JO and Laxity coded their own players and editors on the C64\" (three separate, independently-authored in-house routines, not one shared tool).",
   "csdb_release": null,
 

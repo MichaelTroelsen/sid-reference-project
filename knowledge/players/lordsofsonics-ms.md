@@ -14,7 +14,7 @@
   "aliases": ["LordsOfSonics/MS"],
   "authors": ["Markus Schneider"],
   "released": "1988 (driver written for Jens Blidon; group Lords of Sonics founded by Schneider in 1988, per CSDb)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 in-house replay driver, coded by Markus Schneider for composer Jens Blidon within the two-man German group Lords of Sonics — not a publicly released standalone editor (no CSDb tool release, no SIDId reference link found).",
   "csdb_release": null,
 
@@ -24,8 +24,8 @@
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "$1000 (standard — confirmed on trace 2026-07-22). Some files use non-standard init=load+3 (e.g. Shock.sid, Babes_Boogie.sid).",
+    "play": "$1003 (standard — confirmed on trace)."
   },
   "speed": "TODO",
 

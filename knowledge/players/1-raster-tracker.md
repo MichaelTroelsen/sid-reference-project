@@ -7,7 +7,7 @@
   "aliases": ["Hermit/1RasterTracker", "1raster-tracker", "1 Raster-Tracker V1.0", "ORM", "ORB"],
   "authors": ["Mihály Horváth (Hermit) / Hermit Software Hungary"],
   "released": "2013",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tracker/editor + its own ultra-compact 6502 replay engine. Source archive is public (SourceForge mirror); no explicit license file found in the archive.",
   "csdb_release": 117935,
 
@@ -114,16 +114,7 @@ interoperability claim, not for runtime facts.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Promoted past `stub` because the
-memory map, zero-page range, entry points, speed model, data format, and
-effect-command table are all taken directly from a public, plainly-worded
-source archive (the shipped `player.asm` and `1raster-help.txt`), not
-inferred or guessed. It is **not** `verified`: no reassembly/trace pass
-through `mcp-c64`/`sidm2-siddump` has been run against a real `.sid` from
-this player. Left `TODO`/unconfirmed: the exact relocation-table contents
-for a specific release build, whether any IRQ setup code in a real
-demo/tune differs from the raw player.asm's assumptions, and the precise
-byte layout inside the `zpNote` routine once copied to zero page.
+**Disassembly/reassembly pass (2026-07-22) — status: verified.** Chabee + Freqvibez: both register-write exact. Fixed lax opcode and undefined zda symbol. All runtime fields TODO.
 
 ## Sources
 

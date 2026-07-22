@@ -7,7 +7,7 @@
   "aliases": ["Cyberlogic_SoundStudio", "Cyberlogic Sound Studio", "C.S.S"],
   "authors": ["Oliver Klee (code)", "Sascha Nagie (celticdesign) — music/design"],
   "released": "~1991 (V4.0 dated 1992)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor/tool. Closed (no source/license found).",
   "csdb_release": 170632,
 

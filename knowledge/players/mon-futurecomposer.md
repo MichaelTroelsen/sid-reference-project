@@ -42,7 +42,7 @@
   "aliases": ["MoN/FutureComposer", "MoN/FutureComposer/RWE", "MoN/FutureComposer/Cyb2", "MoN/FutureComposer/TTWII", "MoN/FutureComposer/Bantam", "MoN/FutureComposer/JTS"],
   "authors": ["Charles Deenen (Maniacs of Noise) — player/driver", "Juha Granberg (FCS, Finnish Gold) — editor"],
   "released": "1988 (same CSDb release as future-composer.md: V1.0, id 10604, completed 13 Jun 1988, released 20 Jun 1988 by Finnish Gold)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 editor (Finnish Gold's FCS) wrapping a Maniacs of Noise replay driver — same tool family as future-composer.md. NOT the unrelated Amiga program of the same name.",
   "csdb_release": 10604,
 
@@ -52,8 +52,8 @@
     "layout": "TODO"
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "Per-file, from PSID header. Sample traces: $1000 (RWE_Intro.sid, confirmed 2026-07-22); $A600, $1500, $C000 (other sub-tags — see Disassembly notes).",
+    "play": "Per-file: $1006 (RWE_Intro), $1003 (standard convention), per-file PSID convention."
   },
   "speed": "TODO",
 

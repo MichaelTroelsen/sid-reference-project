@@ -7,7 +7,7 @@
   "aliases": ["Guy_Shavitt", "GS"],
   "authors": ["Guy Shavitt"],
   "released": "~1991+ (prolific 1991-2026)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Guy Shavitt's own in-house C64 replay routine (he was a coder + musician). Player-ID-fingerprinted across 90 files. No published spec.",
   "csdb_release": null,
 
@@ -65,10 +65,11 @@ layout.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC Guy_Shavitt `.sid`: load `$4000`, play routine at `$1003`,
-**315 register writes / 50 frames**. Identity is well-sourced; all driver
-internals are `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — .**
+- Guy_Shavitt/Am_I_Right.sid (87 diffs, 97.23%, 83 src/4 PRG, 283/283)
+- JVD/Summer_Time.sid (47 diffs, 98.63%, 46 src/1 PRG, 270/270)
+
+Two files from different composers reach register-write exact. All runtime fields .
 
 ## Sources
 

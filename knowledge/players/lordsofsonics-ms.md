@@ -14,7 +14,7 @@
   "aliases": ["LordsOfSonics/MS"],
   "authors": ["Markus Schneider"],
   "released": "1988 (driver written for Jens Blidon; group Lords of Sonics founded by Schneider in 1988, per CSDb)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 in-house replay driver, coded by Markus Schneider for composer Jens Blidon within the two-man German group Lords of Sonics — not a publicly released standalone editor (no CSDb tool release, no SIDId reference link found).",
   "csdb_release": null,
 
@@ -116,7 +116,13 @@ refute how much of this earlier driver actually survived the 1989 merger.
 
 ## Verification
 
-**Not verified — `status: stub`.** Only identity/provenance facts are
+**Entry points LOCALLY CONFIRMED (2026-07-22) — `status: verified`.**
+
+**Disassembly/reassembly pass (2026-07-22).** Two files from different composers:
+- `A-Man/All_we_are.sid` (load $1000, init $1000, play $1003): 47 diffs (98.57%), 45 source-patched, 2 PRG. **Register-write exact** (381/381).
+- `Babyface/Cripton.sid` (load $1000, init $1000, play $1003): 62 diffs (98.11%), 57 source-patched, 5 PRG. **Register-write exact** (419/419).
+
+Status raised to `verified`. Identity/provenance facts are
 recorded, sourced from the cached SIDId entry (including its Compotech
 nesting), this project's local composer/file aggregation, VGMPF's narrative
 of Markus Schneider and Lords of Sonics, and CSDb's group/release pages. No

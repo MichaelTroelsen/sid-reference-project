@@ -7,7 +7,7 @@
   "aliases": ["Ariston"],
   "authors": ["Ian Crabtree", "Philip Brabbin", "Wally Beben"],
   "released": "1987-1988 (Ian Crabtree's original driver, ~1987; an improved version co-credited to Philip Brabbin and Wally Beben, released 1988)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 tool — a commercial UK games-industry music editor/driver (DeepSID distribution: \"Commercial\"), not a scene-published tracker. No public source code or format documentation was found.",
   "csdb_release": 119920,
 

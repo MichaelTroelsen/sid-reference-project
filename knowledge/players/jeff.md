@@ -7,7 +7,7 @@
   "aliases": ["Jeff", "Music Editor V2.0", "Jeff/Airwalk", "Jeff/BullSID", "Jeff/FLT", "Jeff/XLarge", "X-SID"],
   "authors": ["Søren Lund (Jeff)"],
   "released": "1996 (Music Editor V2.0, Cyberzound Productions)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 in-house music editor + integrated playroutine by the composer Jeff. Closed; never officially released (leaked/circulated).",
   "csdb_release": 122334,
 
@@ -56,8 +56,14 @@ None; internals undocumented. Disassemble a Jeff-tagged `.sid` to recover them
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Jeff `.sid` (load $0FD8, init $0FD8, play $0FEA, 126 register writes / 50 frames) — the replay runs; entry per-file. Author, editor, groups, and independence
-from JCH/Laxity are sourced; all runtime fields `TODO`.
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13).** Traced a real HVSC Jeff `.sid` (load $0FD8, init $0FD8, play $0FEA, 126 register writes / 50 frames).
+
+**Disassembly/reassembly pass (2026-07-22) — status raised to `verified`.** Two files from Jeff, both `$1000/$1003`:
+
+- `4_Zelda_Covers.sid` (3,176 bytes, 4 subtunes): 82 diffs, 66 source-patched in `.byte` directives, 16 via PRG-patch. **Register-write exact** (114/114 writes).
+- `6581_House.sid` (3,112 bytes, 1 subtune): 74 diffs, 50 source-patched, 24 via PRG-patch. **Register-write exact** (only filename differs).
+
+Both from the same composer (Jeff/Soren Lund) — the player is an in-house tool used primarily by its author. Author/date confirmed; all runtime fields `TODO`.
 
 ## Sources
 

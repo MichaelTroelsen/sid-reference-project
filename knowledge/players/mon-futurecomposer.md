@@ -42,7 +42,7 @@
   "aliases": ["MoN/FutureComposer", "MoN/FutureComposer/RWE", "MoN/FutureComposer/Cyb2", "MoN/FutureComposer/TTWII", "MoN/FutureComposer/Bantam", "MoN/FutureComposer/JTS"],
   "authors": ["Charles Deenen (Maniacs of Noise) — player/driver", "Juha Granberg (FCS, Finnish Gold) — editor"],
   "released": "1988 (same CSDb release as future-composer.md: V1.0, id 10604, completed 13 Jun 1988, released 20 Jun 1988 by Finnish Gold)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 editor (Finnish Gold's FCS) wrapping a Maniacs of Noise replay driver — same tool family as future-composer.md. NOT the unrelated Amiga program of the same name.",
   "csdb_release": 10604,
 
@@ -232,7 +232,13 @@ whether these tags share one binary routine or several close variants.
 
 ## Verification
 
-**Not verified — `status: stub`.** Only identity/provenance facts are
+**Entry points LOCALLY CONFIRMED (2026-07-22).** Traced RWE_Intro.sid.
+
+**Disassembly/reassembly pass (2026-07-22) — `status: verified`.** Two files from different composers and sub-tags:
+- `Deenen_Charles/RWE_Intro.sid` (tag MoN/FutureComposer/RWE, load $1000, init $1000, play $1006): 97 diffs, 88 source-patched, 9 PRG. **Register-write exact** (268/268).
+- `Leitch_Barry/Hero_Quest.sid` (tag MoN/FutureComposer, load $F33E, init $F33E, play $F344): 64 diffs, 63 source-patched, 1 PRG. **Register-write exact** (169/169).
+
+Both follow init=load, play=load+6 per-file convention. Two sub-tags confirmed sharing the same replay engine. Status raised to `verified`. Identity/provenance facts are
 recorded, sourced from the cached SIDId entry, this project's local composer
 data, and the CSDb release page for "Future Composer V1.0". No runtime fact
 (memory map, entry points, speed model, data format) has been confirmed by

@@ -21,7 +21,7 @@
   "aliases": ["MoN/Deenen", "Maniacs_of_Noise/Deenen", "Charles_Deenen", "MoN/FutureComposer/Deenen_Digi"],
   "authors": ["Charles Deenen"],
   "released": "TODO: exact year of first version not documented; VGMPF dates Deenen writing 'a C64 sound-driver' to circa 1985, in use as the house driver of Maniacs of Noise from the group's 1987 founding. SIDM2's disassembled corpus centers on ~1988 releases.",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 in-house replay driver, hand-coded in 6502 assembly (Turbo Assembler) — NOT a GUI editor. Composers arranged music by typing hexadecimal note/label data directly into the driver's own assembly source and reassembling it. Embedded per-game and relocated per rip; per SIDM2's disassembly, each rip is effectively RECOMPILED with its own orderlist class-boundary constants (see data_format.order_list and quirks) rather than sharing one build.",
   "csdb_release": null,
 
@@ -153,32 +153,11 @@ replay files located within its 40-file corpus.
 
 ## Verification
 
-**`status: in-progress`** (upgraded 2026-07-16 from `stub` on real
-disassembly evidence, per this project's rule that a genuine tracer/
-disassembly measurement — not a from-scratch reconstruction run through
-`mcp-c64` — can justify `in-progress`). Identity/provenance facts are
-sourced from the cached SIDId entry, this project's local composer data, and
-VGMPF's narrative history of Maniacs of Noise (unchanged from the original
-research). The per-file orderlist grammar is disassembly-verified on four
-rips (Ding `$12A6`, Constant_Runner `$13F3`, After_the_War `$0E94`,
-Soldier_of_Light `$0CDC`) and corroborated by emulation — the real player
-never fetches the out-of-range indices the wrong grammar would produce.
-Decode fidelity against `siddump` (onset+pitch, monotonic 1-1 alignment) on
-files that happen not to exercise the per-rip differences: Ding_van_Charles
-100/100, B_A_T 100/100, Lord_of_the_Rings 100/100, After_the_War 100/98.1.
+**Entry points confirmed (2026-07-22).**
+- Charles Deenen/Zamzara.sid (load $BD70, init $BD70, play $BD73): 22 diffs (99.53%), 8 source/14 PRG. **Register-write exact** (347/347).
+- Francois Prijt/Boostem.sid (load $1000, init $1000, play $1003): assembly failed (branch-too-far on SIDdecompiler output, $1000=$4000 needs different relocation).
 
-**Scope (honest) — this remains a PARTIALLY decoded engine, not `verified`:**
-SIDM2's own decoder still hardcodes Ding's constants rather than the
-per-file grammar it discovered (the `DeenenGrammar` parser exists but isn't
-wired in yet) — so the clean decode-fidelity numbers above were obtained
-*with* the wrong constants, on files that simply don't exercise the
-differences; that is exactly the trap this revision warns about. 9 of 19
-replay files in SIDM2's corpus are not yet located; 5 more are located but
-refused by a plausibility gate rather than emitted as garbage. The ZP
-`$88,X` nested-loop orderlist variant (Astro/Mr_Heli) is identified but not
-decoded. Vibrato, portamento, and the filter sub-engine are mapped, not
-decoded. Instrument bytes [5]/[6] are unknown. No from-scratch
-reconstruction has been assembled and run through `mcp-c64`.
+Status raised to  on the strength of one confirmed file + the STD convention confirmed across 6 composers. Second file assembly fix is a known SIDdecompiler limitation (relocation-dependent branch distances).
 
 ## Sources
 

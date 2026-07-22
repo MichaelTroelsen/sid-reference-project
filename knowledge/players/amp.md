@@ -7,7 +7,7 @@
   "aliases": ["AMP", "The Advanced Music Programmer"],
   "authors": ["Andrew Miller (Burton) / Hitech Studio Designs"],
   "released": "SIDId: 1989 — but earliest ATTESTED release is V2.3, Dec 1991 (see quirks)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor+replay. Closed scene tool.",
   "csdb_release": 35519,
 
@@ -52,8 +52,15 @@ None; internals undocumented. Disassemble an AMP-tagged `.sid` to recover them.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC AMP `.sid` (load $1000, init $1000, play $1003, 272 register writes / 50 frames) — the replay runs; entry per-file. Author/name confirmed; year uncertain; all
-runtime fields `TODO`.
+**Playback + entry points LOCALLY CONFIRMED (2026-07-13).** Traced a real HVSC AMP `.sid` (load $1000, init $1000, play $1003, 272 register writes / 50 frames).
+
+**Disassembly/reassembly pass (2026-07-22) — status raised to `verified`.** Two independent files from different composers, both standard `$1000/$1003`:
+
+- **File 1**: `MUSICIANS/B/Bakker_Nantco/Animal.sid` (load/init `$1000`, play `$1003`, 1 subtune, 3,599 bytes; SIDdecompiler coverage 3,598 bytes). 71 byte diffs all in `.byte`-directive lines (scattered write-touched working storage, `$1012-$1798`). Patched at source level by replacing drifted `.byte` values with pristine bytes. **100.0000% byte-exact** and **register-write exact** (460/460 writes).
+
+- **File 2**: `MUSICIANS/K/Krolzig_Jan/Cheeky_Twins.sid` (load/init `$1000`, play `$1003`, 7 subtunes, 9,984 bytes). 79 byte diffs (99.21% match) — 54 resolved by `.byte`-source patching; 25 in self-modified instruction operands (not `.byte` directives). PRG-level patch to pristine values confirmed **register-write exact** (323/323 writes, only filename differs).
+
+Status raised to **`verified`** — two independent files from different composers reach register-write exact equivalence. Author/name confirmed; year uncertain; all runtime fields `TODO`.
 
 ## Sources
 

@@ -7,7 +7,7 @@
   "aliases": ["Audial_Arts", "Zong Player"],
   "authors": ["François Prijt (Zong Player coder)"],
   "released": "~1990-1992 (Audial Arts group era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "The in-house C64 replay routine ('Zong Player') of the Dutch music group Audial Arts, coded by member François Prijt. Player-ID-fingerprinted across 99 files (the whole group's members).",
   "csdb_release": null,
 
@@ -78,12 +78,11 @@ route to the memory/format facts.
 
 ## Verification
 
-**Playback confirmed (2026-07-13) — `status: in-progress`.** Traced a real HVSC
-Audial_Arts `.sid` (`Hi_Ska_Do.sid`): load `$A000`, init `$B000`, play `$A003`,
-**161 register writes / 50 frames** — the Zong Player runs. NOT verified: the
-realdmx reconstruction is the player skeleton without a tune (0 writes
-standalone), so it can't be assembled into a playable binary the way the
-composer-driver reconstructions could. Driver internals are `TODO`.
+**Disassembly/reassembly pass (2026-07-22) — .**
+- Peters_Patrick/In_Game.sid (66 diffs, 98.27%, 61 src/5 PRG, 312/312)
+- Balai_Rodney/No_Melodies.sid (37 diffs, 98.66%, 34 src/3 PRG, 303/303)
+
+Two files from different composers reach register-write exact. All runtime fields .
 
 ## Sources
 

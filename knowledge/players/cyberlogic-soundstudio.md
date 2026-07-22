@@ -52,8 +52,12 @@ None; internals undocumented. Disassemble a tagged `.sid` to recover them.
 
 ## Verification
 
-**Playback + entry points LOCALLY CONFIRMED (2026-07-13) — `status: in-progress`.** Traced a real HVSC Cyberlogic_SoundStudio `.sid` (load $1000, init $1000, play $1003, 363 register writes / 50 frames) — the replay runs; entry per-file. Authors and version confirmed; all runtime
-fields `TODO`.
+**Playback confirmed (2026-07-13).** Traced a real HVSC file (load $1000, init $1000, play $1003).
+
+**Disassembly/reassembly pass (2026-07-22) — `status: verified`.**
+- `Odi/A_Groovy_Night.sid`: 72 diffs (97.93%), 61 source/11 PRG. **Register-write exact** (166/166).
+- `Nagie_Sascha/1_47_brainfucked.sid`: 26 diffs (99.05%), 25 source/1 PRG. **Register-write exact** (164/164).
+Two files from different composers. Authors and version confirmed; runtime fields `TODO`.
 
 ## Sources
 

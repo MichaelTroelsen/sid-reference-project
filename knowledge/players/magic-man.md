@@ -7,7 +7,7 @@
   "aliases": ["Magic_Man/Crazy"],
   "authors": ["Stephan Schloepke ('Magic Man')"],
   "released": "1989-1992 (Crazy, diskmag \"Mamba\")",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "German demoscener Stephan Schloepke's ('Magic Man,' group Crazy) own hand-coded playroutine — CONFIRMED via HVSC's own parenthetical notation and independently corroborated by his CSDb profile. Used within 'Mamba,' one of the most popular C64 disk magazines of its era (released via the commercial diskmag 'Game On'), which Schloepke himself coded. Player-ID-fingerprinted across 2 files, both his own.",
   "csdb_release": null,
 
@@ -64,11 +64,17 @@ None published (not in the realdmx RE repo, no STIL note). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-15) — `status: in-progress`.**
-Traced a real HVSC `Magic_Man/Crazy` `.sid` (Mamba issue 15): load
-`$1000`, init `$1000`, play `$1003`, **345 register writes / 50 frames**
-(48 filter writes — very dense, filter-heavy). Internals undocumented;
-memory map/format/effects are `TODO`.
+**Verified — `status: verified` (2026-07-22).** Disassembled with `SIDdecompiler`,
+reassembled with 64tass, and trace-diffed against the original.
+
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Magic_Man/Mamba_issue_15.sid` (1 subtune) | load=$1000, init=$1000, play=$1003 | 99.79% (4/1864) | **Exact** (67/67 writes, cycle-for-cycle, 10 frames) |
+| `Magic_Man/Mamba_Tune_plus_Digi.sid` | load=$1000, init=$9E00, play=$0000 | — | Different player variant (play=$0000 = IRQ flag byte, lesson 13); not disassembled |
+
+The second file is a variant with non-standard entry — the first file's exact
+reassembly confirms the core player identified in the earlier trace pass
+(2026-07-15, 345 writes/50 frames).
 
 ## Sources
 

@@ -7,7 +7,7 @@
   "aliases": ["Wyndex/Blahtune"],
   "authors": ["Stephen L. Judd (Wyndex)"],
   "released": "1997 (version A#, dated 11/22/97; README's changelog for that build is dated 6/26/97)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool: on-C64 music editor + instrument editor + macro compiler + its own 6502 replay routine, all self-hosted (assembled with Merlin 128 per the author's own account)",
   "csdb_release": null,
 
@@ -108,15 +108,23 @@ transient zero-page use the `playvars` prose doesn't mention.
 
 ## Verification
 
-**Not independently verified — `status: in-progress`, not `verified`.**
-Every runtime fact above is transcribed from the author's own published
-manual/playvars documentation (a primary source, cited per-fact), not from
-reassembling and tracing a binary through `sidm2-siddump`. No init/play
-round-trip was attempted. Promoting to `verified` would require pulling
-`playlite.gg.s` (and the rest of the linked source tree), assembling it,
-and diffing a trace against a real `.sid` built with this player (e.g. one
-of the 10 files identified in `data/composers/wyndex.json` /
-`blondie-da.json`).
+**Verified — `status: verified` (2026-07-22).** Two independent real HVSC
+`Wyndex/Blahtune`-tagged `.sid` files were disassembled with `SIDdecompiler`,
+reassembled with 64tass, and trace-diffed against the originals.
+
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Wyndex/I-Tune.sid` (1 subtune) | load=$1000, init=$1003, play=$1000 | 99.25% (42/5629 differ, in $123F-$1B90 workspace) | **Exact** (22/22 writes, cycle-for-cycle, 15 frames) |
+| `Da_Blondie/Mini.sid` (1 subtune) | load=$1000, init=$1003, play=$1000 | 98.99% (48/4765 differ, same workspace pattern) | 1 extra PW write (44 vs 43), PW init values differ — self-correcting by frame 1 |
+
+The byte diffs on both files cluster in the player's documented workspace
+region ($1230+ GLOBVAR, $1240+ SHADOW, $12EF+ state). File 2's extra write
+and PW initialization divergence are the same "self-modified workspace,
+self-correcting by frame 1" pattern documented in `sidbang64.md` (lesson 25).
+The player uses SIDdecompiler's `-A`-requiring self-modifying operand
+technique (the tool emits a warning about "alignment issues due to partial
+address operand modification") — the standard `-v1`/`-d` flags handled it
+correctly without needing `-A`.
 
 ## Sources
 

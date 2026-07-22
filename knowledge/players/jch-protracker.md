@@ -7,7 +7,7 @@
   "aliases": ["JCH_Protracker"],
   "authors": ["Jakub Kosinski (Kosa)"],
   "released": "1995 (Protracker V1.1, Tridam & Tonic)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "NOT a fourth independent tool by Jens-Christian Huus (JCH) — despite the tag name, this is Polish coder Jakub Kosinski's ('Kosa') own tracker-style GUI ('Protracker'), built as a front-end wrapping JCH's EXISTING player/replay engine (already carded in this KB as [[jch-newplayer]] and [[jch-oldplayer]]). A CSDb user comment on the tool's own release page states plainly: 'It's JCH player with Protracker GUI.' Player-ID-fingerprinted across 91 files: 89 by Kosa himself, 2 by fellow Polish coder Phobos (Krzysztof Malczewski).",
   "csdb_release": 97901,
 
@@ -65,11 +65,11 @@ version this GUI actually wraps.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `JCH_Protracker` `.sid` (100 Wolt, composed by Kosa):
-load `$1000`, init `$1000`, play `$1003`, **362 register writes / 50
-frames** (53 filter writes — filter-heavy). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Entry points CONFIRMED (2026-07-22).** Two files from different composers:
+- Kosa/100_Wolt.sid: 113 diffs (96.71%), 87 source/26 PRG. Register-write exact (420/420).
+- Phobos/Iron_Gate.sid: 109 diffs (96.96%), 85 source/24 PRG. Register-write exact (300/300).
+
+Status raised to .
 
 ## Sources
 

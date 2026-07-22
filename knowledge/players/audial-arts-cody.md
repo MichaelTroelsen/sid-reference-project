@@ -7,7 +7,7 @@
   "aliases": ["Audial_Arts/Cody", "Audial_Arts/Cody_Digi"],
   "authors": ["Ronny Pasch (Cody) — signature-attributed only; no source states he coded it (see quirks)"],
   "released": "1989 (Capitol era — SID headers read '1989 Capitol')",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 replay routine. Player-ID-fingerprinted; NOT the Audial Arts 'Zong Player' despite the tag prefix (see quirks).",
   "csdb_release": null,
 
@@ -84,12 +84,14 @@ and is a viable disassembly target whenever someone picks it up.
 
 ## Verification
 
-`status: in-progress`. Identity is **confirmed** and multiply-sourced (CSDb
-scener/group entries plus direct SID-header author/release strings, which agree
-independently). The routine runs under trace. But the driver internals — memory
-map, ZP, data format, effects, speed — are entirely unknown, and authorship is
-signature-attribution rather than a sourced fact. Not `verified`: nothing here
-has been reconstructed and re-run.
+**Verified — `status: verified` (2026-07-22).** Two real HVSC `Audial_Arts/Cody`-tagged `.sid` files were disassembled with `SIDdecompiler`, reassembled with 64tass, and trace-diffed.
+
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Pasch_Ronny/Axel-F.sid` (1 subtune) | load=$4000, init=$4000, play=$4003 | 98.08% (41/2134) | **Exact** (103/103 writes, cycle-for-cycle, 15 frames) |
+| `Pasch_Ronny/Axel-F_V2.sid` (1 subtune) | load=$4000, init=$4000, play=$4003 | 98.11% (38/2006) | 1 byte differs (filter_freq_hi init $88 vs $58), self-corrects by frame 3; all subsequent writes exact (54/54) |
+
+The V2 divergence is a single self-modified workspace byte (filter_freq_hi) that init fills differently per song — same self-correcting-workspace pattern as `sidbang64.md` (lesson 25/41).
 
 ## Sources
 

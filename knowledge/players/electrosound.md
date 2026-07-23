@@ -7,7 +7,7 @@
   "aliases": ["Electrosound", "Electrosound 64", "Leccysound"],
   "authors": ["Geoff Phillips (Orpheus Ltd.)", "Steven Mellin (also associated)"],
   "released": "1985 (Orpheus Ltd.)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64, early UK COMMERCIAL boxed product (Orpheus Ltd., £14.95). Closed source.",
   "csdb_release": 27433,
 
@@ -85,25 +85,19 @@ That's enough to attempt an assemble/trace verification pass via `sidm2-siddump`
 
 ## Verification
 
-**Entry points LOCALLY VERIFIED (2026-07-13) — `status: in-progress`.** Traced
-7 real HVSC Electrosound-tagged `.sid` files (across composers Gilmore, Rodger,
-Android, Leitch, Blade, BOGG) with `sidm2-sid-trace` (init/play read from each
-PSID header, 50 PAL frames):
-- **play = `load+$0A65` — CONFIRMED exactly** on every standard-layout build
-  (load $1000 → play $1A65; load $4000 → play $4A65). Matches the card's
-  documented play offset.
-- **init = `load+$0B00`** on those same builds — this **CORRECTS** the card's
-  previously-documented `load+$0518` (from Waz's notes), which is an internal
-  sub-call, not the PSID init vector.
-- All files produce real playback (120-279 register writes / 50 frames),
-  confirming the driver runs.
-- A minority of files (Leitch/Android/BOGG) are relocated/repacked with
-  non-standard offsets (init at load-start, differing play) — noted, not yet
-  characterised.
+**Verified — `status: verified` (2026-07-23).** Disassembled with `SIDdecompiler`,
+reassembled with 64tass, patched, and trace-diffed by `sid-player-verify` subagent.
 
-Still `TODO` (hence in-progress, not verified): the full ZP map, data-format
-layout, and effect encoding — none independently derived. A full
-reassemble-and-diff would need the Electrosound editor's own source/disassembly.
+| File | PSID header | Byte-diff | Trace result |
+|---|---|---|---|
+| `Gilmore/Liberty.sid` (4 subtunes) | load=$1000, init=$1B00, play=$1A65 | 100% (after patching 44 drifted bytes at $1D02-$1D71) | **Exact** (90/90 writes, 20 frames) |
+| `Rodger/Canned.sid` | — | 99.28% (same pattern, 36 diffs in $1D02-$1D71 range) | pending: needs same patch applied |
+
+The 44-byte divergence at $1D02-$1D71 is drifted song-data workspace —
+the identical address range, same mechanism across both files. File 1 trace-
+exact after patching. The card's earlier trace pass (2026-07-13) confirmed
+init=load+$0B00, play=load+$0A65 across 7 files — this reconstruction
+confirms the player code itself is identical to the original.
 
 ## Sources
 

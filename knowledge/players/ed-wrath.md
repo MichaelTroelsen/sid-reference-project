@@ -47,15 +47,18 @@
     "'Wrath' in the tag name is almost certainly Ed's demoscene group, Wrath Designs (Swedish; Eddie + his twin brother James, joined 2/2-2007 per CSDb), not a second author — CSDb credits Eddie with the 'Coder' function within the group, and an 8bittoday.com profile states plainly 'James is the visual artist and Eddie does both audio and programming', consistent with Ed writing his own in-house player rather than using someone else's named 'Wrath'.",
     "SIDId's sidid.nfo entry for both 'Ed/Wrath' and 'Ed/Wrath_Digi' carries only an AUTHOR line — no NAME, RELEASED, REFERENCE, or COMMENT field — confirmed by reading the raw deepsid_dl/sidid.nfo bundled in this project (lines 360-364), matching data/sidid.json's byTag entries exactly. This is the thinnest identity record short of no entry at all: the routine was fingerprinted by SIDId's byte-signature scanner but was never independently researched/documented by that project either.",
     "'Ed/Wrath_Digi' (1 file) and 'Ed/Wrath_Digi_2' (2 files) are SEPARATE SIDId/Player-ID signatures from 'Ed/Wrath' (distinct COVERAGE.md rows — 'Ed/Wrath' is rank #8, 69 files; 'Ed/Wrath_Digi' is rank #199, 3 files combined), NOT consolidated onto this card's aliases despite the shared name/author/composer-exclusive usage — no source confirms they share code with the main routine, only that Eddie Svärd made both. Presumably a sample/digi-playback variant, but that stays a hypothesis, not an asserted fact.",
-    "No CSDb tool/release page, no public source repository, and no format documentation were found for this routine during this pass — it looks like an embedded, never-separately-released in-tune driver rather than a published tracker/editor, similar in kind (if not scale) to the classic hand-coded in-game drivers like Rob Hubbard's."
+    "No CSDb tool/release page, no public source repository, and no format documentation were found for this routine during this pass — it looks like an embedded, never-separately-released in-tune driver rather than a published tracker/editor, similar in kind (if not scale) to the classic hand-coded in-game drivers like Rob Hubbard's.",
+    "Confirmed on a second pass: Ed's own CSDb scener page (id 1671) lists his full 'Tool' release credits — 'The Miracle Writer' (1995, V2.17), 'Diamoneditor' (1997), '16 Pattern Animeditor' (2001), 'ED-itor Preview' (2001) — none typed as a music editor/routine on CSDb; no release anywhere in his catalogue is literally named 'Ed', 'Wrath', or 'Ed/Wrath'. This is direct (if negative) confirmation that the SIDId-fingerprinted routine was never packaged/released as a named tool.",
+    "CSDb holds Eddie Svärd under two separate scener IDs that both show 'Wrath Designs' membership with conflicting join dates — id 17435 ('Eddie Svärd') shows 2/2-2007, id 1671 ('Ed') shows 2-1992 — and the group's own page (csdb.dk/group/?id=274, founded October 1990) lists both as distinct inactive member rows for what is evidently the same person. Not resolved further; doesn't affect the player-identity facts above, but flagged so a future pass doesn't treat the two IDs as different people."
   ],
   "sources": [
     "Local dataset: data/composers/ed.json — 69 files tagged 'Ed/Wrath' + 3 files tagged 'Ed/Wrath_Digi'/'Ed/Wrath_Digi_2', all authored by Eddie Svärd (Ed); see knowledge/COVERAGE.md rows #8 (Ed/Wrath, 69 files) and #199 (Ed/Wrath_Digi, 3 files)",
-    "data/sidid.json byTag['Ed/Wrath'] and byTag['Ed/Wrath_Digi']: author 'Eddie Svärd (Ed)', no other fields",
+    "data/sidid.json byTag['Ed/Wrath'] and byTag['Ed/Wrath_Digi']: author 'Eddie Svärd (Ed)', no other fields (re-checked this pass, unchanged)",
     "SIDId project source (raw sidid.nfo, upstream of the cached copy): https://github.com/cadaver/sidid/blob/master/sidid.nfo",
-    "CSDb scener profile (Eddie Svärd / Wrath Designs, id 17435): https://csdb.dk/scener/?id=17435 — handles incl. 'Ed' (1989-present); group Wrath Designs (2007-); functions Coder/Diskmag Editor/Graphician/Musician",
-    "CSDb group-linked scener page (id 1671, matches data/composers/ed.json profile.csdb_id): https://csdb.dk/scener/?id=1671",
-    "8bittoday.com profile ('The work of Ed and Joe'): https://www.8bittoday.com/articles/32/the-work-of-ed-and-joe/ — 'James is the visual artist and Eddie does both audio and programming'",
+    "CSDb scener profile (Eddie Svärd / Wrath Designs, id 17435): https://csdb.dk/scener/?id=17435 — handles incl. 'Ed' (1989-present); group Wrath Designs (2/2-2007-); functions Coder/Diskmag Editor/Graphician/Musician",
+    "CSDb group-linked scener page (id 1671, matches data/composers/ed.json profile.csdb_id): https://csdb.dk/scener/?id=1671 — full release/tool credit list checked this pass, no music-editor/routine release found",
+    "CSDb group page, Wrath Designs (id 274): https://csdb.dk/group/?id=274 — founded October 1990; lists both Eddie Svärd id-17435 and Ed id-1671 as distinct member rows",
+    "8bittoday.com profile ('The work of Ed and Joe'): https://www.8bittoday.com/articles/32/the-work-of-ed-and-joe/ — 'James is the visual artist and Eddie does both audio and programming'; re-checked this pass for technical/tool detail, found none",
     "DeepSID composer profile embedded locally (data/composers/ed.json): full_name Eddie Svärd, country Sweden, active 2012, csdb_id 1671"
   ]
 }
@@ -81,6 +84,12 @@ belong to one composer** (the strongest personal-routine signal available —
 contrast with Rob Hubbard's 51-composer reuse spread), and **SIDId's own
 record for this tag is minimal** (author only, no release/reference/comment),
 meaning even the upstream identification project never researched it further.
+A second research pass (2026-07) re-checked Ed's full CSDb tool-release
+credits directly — his four registered 'Tool' releases are a text editor, a
+graphics/animation editor, and a diskmag editor, none typed as music software,
+and no release anywhere is literally titled 'Ed', 'Wrath', or 'Ed/Wrath' —
+reinforcing rather than changing the original conclusion that this is an
+unreleased in-tune driver, not a distributed product.
 
 ## Disassembly notes
 
@@ -95,7 +104,10 @@ here: authorship (Eddie Svärd), the exclusive single-composer usage pattern
 (from this project's local `data/composers/ed.json`), the raw SIDId record
 (author-only, cross-checked against the upstream `cadaver/sidid` repo), and
 Eddie's group/role context from CSDb and an independent interview (8bittoday).
-No runtime behaviour has been confirmed or reconstructed.
+A follow-up pass (2026-07) re-confirmed all of the above against live CSDb
+pages and the interview, and additionally checked Ed's complete CSDb tool
+credit list and found no music-editor/routine release — still no runtime
+behaviour has been confirmed or reconstructed, so `status` stays `stub`.
 
 ## Sources
 

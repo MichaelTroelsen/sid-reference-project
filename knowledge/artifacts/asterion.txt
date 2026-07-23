@@ -1,0 +1,505 @@
+Source: ast11.txt, bundled inside the official CSDb release download
+ast11.zip (https://csdb.dk/release/?id=13228 ->
+https://csdb.dk/getinternalfile.php/61628/ast11.zip). This is the tool
+author's own plain-text manual for Asterion Sid-Tracker v1.1, shipped
+alongside the v1.1 disk image (ast11.d64) on the official release. Saved
+here verbatim as a durable citation target for knowledge/players/asterion.md
+(data_format / effects fields) — see that card's `sources` array.
+
+Retrieved 2026-07-23 via direct download of the CSDb release's own hosted
+zip; not a third-party transcription.
+
+-------------------------
+Asterion Sid-Tracker v1.1
+
+      Instructions
+-------------------------
+
+General Keybindings
+-------------------
+F1	play/stop
+F2	continue playing
+F3	enter sound table
+F4	play (loop) current patterns
+F5	toggle tune parameters (change with +,-)
+F6	enter indexes' table
+F7	brief help
+F8	directory
+
+CRSR	move around
+RET	toggle track & macrocommand table / pattern tables ($01-$7f)
+	while in track & macrocommand table - toggle wave & arpegio table / pulse table / filter table
+	while in indexes table - toggle 9xAx/BxCx/4xFx indexes
+: ;	change sound number
+, .	change octave number in trackerlike mode
+INS&DEL insert or delete rows (track & macrocommand tables, pattern tables)
++ -	fast scrolling (track & macrocommand tables, pattern tables)
+sh+i	edit tune info
+
+left	toggle keyboardmode - trackerlike/note writing
+arrow
+	trackerlike -  2 3   5 6 7   9 0
+		      Q W E R T Y U I O P
+		       S D   G H J
+		      Z X C V B N M
+
+	note writing - A,B,C,D,E,F,G
+		     Shift +A,+C,+D,+F,+G
+		      (for halftones)
+		     0-7 octave number
+
+left arrow switches between pattern keyboardmodes. <trackerlike> mode is
+similar to the one used in most of the trackers. the keyboard is organized
+just like a real music keyboard; jamming is automatically activated in this
+mode: current instrument (changed with : and ;) is played when entering
+notes. pitch of the note depends on actual octave number (changed with , and
+.). <note writing> mode allows entering notes and octave numbers directly.
+in AST v1.1, 94 notes are available (c#0 - a#7).
+
+		Pattern Table
+		-------------
+
+pattern position     --- pattern number
+	|            |
+	|  PTR01 PTR02 PTR03
+	00 ---01 ---00 ---00
+	01 C#400 ===00 ---00
+           ^^^    ^     ^  ^
+note---------     -     -  --------effect command
+                  -     -
+release command----     -----------do nothing
+
+by "pattern" we consider a column of notes and effects ordered to one
+track-channel - unlike in PC trackers, where one pattern controls all
+channels at once. a pattern has 64 positions and it can be shortened by
+writing the ending marker ($ff) in fx column in a desired row.
+
+	---------
+	| ---00 |
+	| ---00 |
+	| ..... |
+	----------------pattern
+
+space   insert the note release command (===)
+sh+1-3  mute channels 1-3
+sh+*	transpose the whole pattern halftone up
+sh+@	transpose the whole pattern halftone down
+sh+t	take pattern to copybuffer; works also in the track table
+sh+p	paste pattern from copybuffer; works also in the track table
+sh+k	kill pattern; works also in the track table
+
+		Disk commands
+		-------------
+
+sh+l	load tune
+sh+s	save tune
+
+the editor can handle only files saved by itself. packed files and files
+saved with older AST versions cannot be loaded succesfully.
+
+		Sound table
+		-----------
+
+sound number		octave number
+------                  ---------
+     |   SOUND TABLE    |
+     |--SND 01 OCT 04---|
+	00 A/D 00 WAS
+	00 S/R 00 PUL
+	00 WAV 00 FLT
+	00 ARP 00 MCP
+	00 VDE 00 DTN
+	00 VDS 00 REG
+
+a/d xy - attack/decay
+s/r xy - sustain/release
+wav xx - wave macrocommand
+arp xx - arpegio macrocommand
+vde xx - vibrato delay
+vds xy - vibrato depth/speed
+was xy - wave/arpegio executing speed
+pul xx - pulse macrocommand
+fct xx - filter macrocommand
+mcp xy - multicutoff/multipulse speed
+dtn xx - detuning level
+reg xy - x. 1. enable vibrating arpegio & portamento
+	    2. restart wave & pulse on tie note
+	    4. restart wave & pulse on portamento
+	    8. enable hardrestart
+	 y. 1-F. frames before note restart
+
+A/D, S/R - envelope setings
+
+WAV, ARP - point to specified rows in respective macrocommand tables
+
+PUL, FLT - point to specified rows in respective macrocommand tables. $00
+value will not work - player interprets it as if no pulse/filter should be
+executed.
+
+VDE - number of frames before vibrato starts.
+
+VDS - right nybble - defines the speed of vibrato direction changes. the
+lower the value, the higher the speed.
+		    0-7 starting upwards
+		    8-F starting downwards ($8 works as a neutral value)
+    - left nybble - points to an 8-bit vibrato depth value placed in a
+indexes table (4x indexes). this weird solution allows overriding this value
+from pattern. in indexes table you can define from $1 to $e index. $0 has
+always zero value (no vibrato). $F is always the highest ($FF). values from
+indexes table are multiplied by 4 and add/subtract each frame.
+
+WAS - right nybble - number of frames the player should wait until the next
+value from waveform macro table is executed.
+    - left nybble - number of frames the player should wait until the next
+value from arpegio macro table is executed.
+
+MCP - multicourses -  they allow cyclic switching of a pulse/filter scheme
+declared by an instrument definition with another value declared in a
+pattern. You can therefore create asynchronous courses of pulse and filter.
+static value is declared in pattern. that value is interlaced with the
+normal scheme from pulse/cutoff table.
+- right nybble - 0. multipulse disabled, player executes pulse table.
+		1-F. non-zero value actives multipulse mode and defines
+number of frames before switching between table pulse and 2nd pulse.
+- left nybble - 0. multicutoff disabled, player executes filter table.
+	       1-F. non-zero value actives multicutoff mode and defines
+number of frames before switching between table filter and 2nd cutoff.
+
+second pulse and cutoff are declared in pattern with Bx and Cx effect
+commands... more on this later.
+
+DTN - it detunes specific sound. if we write e.g. $02 here the note played
+with this instrument on first channel will stay unchanged (it always
+stays), on second channel it will be detuned by $02, on third channel by
+$04. the calculated value is 8-bit, so if we write $81 the level of
+detuning for each channel will be as follows: 1 = $00, 2 = $81, 3 = $02.
+
+REG - right nybble - defines the number of frames during which ADSR
+registers are cleared before new note restarting. changes here will work
+only when hardrestart is enabled. $1-$f values equal 2-16 frames. zero
+cannot be used as it will cause channel blocking; for obvious reasons the
+tempo value cannot be exceeded too.
+    - left nybble - 1. enables vibrating arpegio and vibrating portamento.
+normally these are blocked.
+            	    2. enables pulse and waveform restarting during tie
+note (AST v1.0 bug emulation)
+		    4. enables pulse and waveform restarting during
+portamento (AST v1.0 bug emulation)
+		    8. enables hardrestart, the effect which fixes note
+restarting
+
+AST v1.1 allow vibrating portamento which should work 100% correctly. The
+vibrating arpegio is also possible, but it is quite an experimental
+feature and it works fine with $00 VDE level. slight detuning might be
+audible with other values, so the effect should be used with care.
+anyway, it can be really helpful in producing various frequentional
+oddities.
+
+		Track & macrocommands table
+		---------------------------
+
+track/macro position
+-------
+      -  ---track/channel numbers
+      -  -
+      -  - TRACKS&MACROS
+      -  ->01 02 03  WV AR---type of the macrocommand (WV - wave, AR - arpegio, PULSE, FLT - filter)
+      ->00 c0 c0 c0  41 00
+      ->01 00 00 00  fe fe
+      ->02 ff ff ff  00 00
+      ->03 01 01 01  00 00
+	   ^^-^^-^^  ^^-^^----macrocommands part
+		  -
+		  ----------tracks part
+
+
+		Tracks data
+		-----------
+
+00	   unchangeable blank pattern, contains 64 blank positions; it can
+be used in song structure as e.g. an empty channel.
+01-7F      pattern number
+80-EF      transpose (c0 - middle/neutral value) - affects subsequent
+patterns
+FF         loop track to the position specified in the next row, as in
+the example above (loop to position $01)
+
+		Wave macrocommand data
+		----------------------
+
+this table is independent from the arpegio table and its executing speed
+depends on instrument's WAS value (left nybble)
+
+		WV
+pulse		41
+end		fe
+triangle	11
+saw		21
+loop...		ff
+...to 02	02
+set ADSR	e0
+AD		14
+SR		88
+pulse+gateoff	40
+end		fe
+
+00-df	values written to SID control registers, $d404...etc.
+e0	change ADSR. next two values should contain the new AD & SR level.
+it overrides ADSR in instrument declaration. it happens the same way as in
+patterns so the value isn't restarted unless a new instrument in pattern
+is set. therefore, when making "echo" effects, it is good to change ADSR
+in the beginning of the macrocommand for instrument in order to be
+restarted properly.
+e1-fd	wait 1 - 29 frames
+fe	end macro, last value stays
+ff	loop macro to the position specified in the next row
+
+		Arpegio macrocommand data
+		-------------------------
+
+this table is independent from the wave table and its executing speed
+depends on instrument's WAS value (right nybble)
+
+			AR
+don't transpose		00
+transpose -1		61
+end			FE
+minor chord		00
+			03
+			07
+			03
+loop... 		ff
+...to $03		03
+absolute...		DF
+...transpositions	c8
+wait 4 frames		e4
+skydive starting value	af
+skydive	execution	e0
+
+00-5f	relative transposition up
+60-7f	relative transposition down, $60 works like $00
+80-df	absolute transposition (doesn't depend on note)
+e0	skydive, a fast frequency slide down with speed dependent on WAS
+value declared in instrument definition. this value ends the
+macrocommand. you should always enter a starting value ($00-$df) before
+this effect.
+e1-fd	wait 1 - 29 frames
+fe	end macro, last value stays
+ff	loop macro to the position specified in the next row
+
+		Pulse macrocommand data
+		-----------------------
+
+				00 00
+set pulse to $0848 		00 48---nybbles reversed
+add $13 for $60 frames		13 60
+subtract $13 for $c0 frames	93 c0<--
+add $13 for $C0 frames		13 c0  -
+wait $20 frames			7f 20  -
+loop to position $03		ff 03---
+
+00    xx	set the highest pulse nybbles to xx (nybbles reversed!)
+01-7e xx	add 01-7e for xx frames to the lowest pulse nybbles
+7f    xx	wait xx frames
+80-fe xx	subtract 00-7e for xx frames from the lowest pulse nybbles
+ff    xx	loop to position xx
+
+		Filter macrocommand data
+		------------------------
+
+				 	 FLT
+					00 00
+set resonance & filter type	80 f1
+set cutoff to $0190		00 23<-------------
+add $30 for $10 frames		30 10<-- 	  -
+subtract $30 for $10 frames	b0 10  - 	  -
+wait $40 frames			7f 40  - 	  -
+loop to position $03		ff 03---   	  -
+					 	  -
+because nybbles are reversed $23 => $32 and then:--
+
+  $d416    $d416         cutoff value
+00110010 xxxxx000  =>  xxxxx001 10010000
+   $32	    $00  equal   $01      $90
+
+...boohoo it doesn't really matter
+
+00    xx	set the highest cutoff nybbles ($d416) to xx (nybbles reversed!)
+01-7e xx	add 01-7e for xx frames to the lowest cutoff nybbles ($d415 - 3 bits & $d416 - 5 bits)
+7f    xx	wait xx frames
+80    xy	filter macrocommand should be started with this, unless you
+don't want the filter to be active when the note starts playing!!! of
+course you can change it through the filter execution later on.
+		x.set resonance
+		y.set filter type (1.lo pass, 2.by pass, 4.hi pass)
+81-fe xx	subtract 01-7e for xx frames from the lowest cutoff nybbles
+($d415 - 3 bits & $d416 - 5 bits)
+ff    xx	loop to position xx
+
+		Pattern effects
+		---------------
+
+AST v1.1 player remembers all recently declared values of individual
+effects.
+
+00    - no effect
+0x-1x - set the instrument number - a tune should always be started with
+an instrument declaration in order to prevent strange suprises.
+2x    - individual bits has various meaning; they can be used together,
+of course.
+	1.tie note (legato) new note will only change the frequency -
+unless REG 5th bit of the current instrument is set.
+	2.synchronize - overrides current waveform
+	4.modulation - overrides current waveform
+	8.no pulse restarting - after a new note has been reached, the
+pulse scheme position will not be reset (current position of the scheme
+is remembered)
+3x    - portamento to target note with speed of x
+	0. end portamento
+	succesive notes will be toneportamented until the effect is
+zeroed. portamento will be one-timely leaved on new instrument
+declaration. portamento changes only frequency, unless REG 6th bit of
+current instrument is set.
+4x    - vibrato depth, with speed declared in VDS
+	0. VDS depth
+	vibrato depth takes 8-bit value from corresponding indexes table
+(4x). if the effect is zeroed, vibrato depth is reset to the instrument's
+original value.
+5x    - change attack
+6x    - change decay
+7x    - change sustain
+8x    - change release
+	note: instrument declaration ($0x-$1x) restarts ADSR values
+9x    - execute waveform from index number x
+        0.normal waveform
+	until the effect is zeroed, new waveform scheme is executed. it
+executes the sequence from the wave macro table starting from the row
+defined in the corresponding table of indexes (9x)
+	F.coding event - executes inc $04 for audiovisual synchronization.
+doesn't affect the sound in any way.
+Ax    - execute arpegio from index number x
+        0.normal arpegio
+	until the effect is zeroed, the new arpegio scheme is executed.
+it executes the sequence from the arpegio macro table starting from the
+row defined in the corresponding table of indexes (Ax)
+Bx    - set pulse
+	0.pulse from instrument
+	if MCP's (instrument definition) right nybble = 0 then it
+switches to a new pulse scheme executing the sequence from the pulse
+table starting from the row defined in the corresponding table of
+indexes (Bx) until the effect is zeroed
+	if MCP's (instrument definition) right nybble <> 0 then x becomes
+2nd-static multipulse and it is dumped to the pulse's highest nybble
+Cx    - set cutoff
+	0.cutoff from instrument
+	if MCP (instrument definition) left nybble = 0 then it switches
+to a new filter scheme executing the sequence from the filter table
+starting from the row defined in the corresponding table of indexes (Cx)
+until the effect is zeroed
+	if MCP (instrument definition) left nybble <> 0 then x becomes
+2nd-static multicutoff value and it is dumped to the cutoff's highest
+nybble
+Dx    - set volume - default F
+Ex    - toggle filtering - individual bits of this effect, except the
+last one, correspond with respective tracks (channels). setting on any
+of these bits will cause enabling or disabling the filter on a given
+channel - depending on its current status.
+		1.enable/disable filter on 1st channel
+		2.enable/disable filter on 2nd channel
+		4.enable/disable filter on 3rd channel
+		8.no cutoff restarting - after a new note has been reached,
+the filter scheme position will not be reset (current position of the
+scheme is remembered)
+Fx    -	0    stop tune
+	1-E  set tempo, 8-bit value is taken from corresponding indexes
+table (Fx)
+	F    end of pattern - affect all tracks, you can shorten pattern
+execution with this effect
+
+		Indexes table
+		-------------
+
+starting index
+---------      =========$92,$93,$94 ...
+	|      |  |  |
+	91 00 00 00 00 00 00 00
+	98 00 00 00 00 00 00 00<--$9e
+	a1 00 00 00 00 00 00 00
+	a8 00 00 00 00 00 00 00
+
+9x	- points to the waveform macro table row, executed with 9x
+pattern effect
+Ax	- points to the arpegio macro table row, executed with Ax pattern
+effect
+Bx	- points to the pulse macro table row, executed with Bx pattern
+effect
+Cx	- points to the filter macro table row, executed with Cx pattern
+effect
+4x	- defines the 8-bit value of vibrato depth. AST v1.0 values are
+used by default. executed with 4x pattern effect and/or with instrument
+definition
+Fx	- defines the 8-bit tempo value. AST v1.0 values are used by
+default. executed with Fx pattern effect and with tune parameters for
+the initial tempo setting.
+
+		Tune parameters
+		---------------
+
+tune no  - tune number (0-7)
+tempo    - initial tempo (1-e), the 8-bit value is taken from the
+corresponding indexes table (Fx)
+multispd - set tune frame speed
+tnstartx - the tune starting position for each track pointing to track
+table positions; can be also set by pressing space in desired position
+of the track table
+
+		Useful hints
+		------------
+
+- filter is controlled by the lowest channel so the 1st channel has the
+highest control priority.
+- each pattern shorter than $3f should end with $ff (in the effect row),
+even if that position wouldn't be played. the packer always looks for
+the first $ff value.
+- vibrato pattern effect ($4x) will work fine only with non-zero vibrato
+speed (VDS left nybble).
+- you can cut desired note with the release command (===) and setting
+release level to zero with $80 simultaneously.
+- if editor crashes you can reanimate it with sys5143.
+
+		Ast v1.1
+		--------
+
+		Code by Asterion
+		Music & Tutorial by
+		Asterion & Trompkins of Tinnitus
+
+		(c) 2004 Tinnitus
+
+		contact:
+
+		asterionc64@o2.pl
+
+---
+
+Separately observed (not from this manual, from direct inspection of the
+official release disk images' own directory + PRG headers -- file-format
+metadata reading, not disassembly):
+
+ast10.d64 (V1.0, csdb.dk/release/?id=11576) directory: main editor PRG
+"!A.S.T. V1.0!!" loads at $0801; a bundled utility "PACK&RELOC V1.0!"
+loads at $0801; 16 bundled example tunes (by Asterion/Trompkins/Borgon)
+each individually load at $46F0 regardless of their size (4242-10770
+bytes).
+
+ast11.d64 (V1.1, csdb.dk/release/?id=13228) directory: main editor PRG
+"AST V1.1" loads at $0801; a bundled utility "PACK&RELOC 1.1" loads at
+$0801; 3 bundled example tunes (JITTERBUG, SEVEN WINDS, DAOINHE SIDHE)
+each individually load at $46F0.
+
+All 19 example tunes across both official release disks share the same
+$46F0 PRG load address, independent of tune size -- consistent with them
+being pre-packed/relocated output of the bundled PACK&RELOC utility
+(player + song data combined into one loadable block at a fixed base),
+though this was not confirmed by disassembling PACK&RELOC or the packed
+tunes themselves.

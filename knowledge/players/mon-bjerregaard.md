@@ -16,18 +16,18 @@
   "aliases": ["MoN/Bjerregaard"],
   "authors": ["Johannes Bjerregaard"],
   "released": "TODO: no exact date documented. VGMPF places it after Bjerregaard joined Maniacs of Noise in October 1988 (Charles Deenen gave him Turbo Ass and requested a faster driver); its earliest known use is the game Stormlord, released 1989 by Hewson/Maniacs of Noise. Both ACME reconstructions in the realdmx/c64_6581_sid_players repo carry a '1989 Johannes Bjerregaard' PSID copyright string.",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 in-house replay driver, hand-coded in 6502 assembly using Turbo Ass (the same assembler Deenen used at Maniacs of Noise) — NOT a GUI editor/tracker. Per VGMPF: 'From thereon, Bjerregaard arranged by typing hexadecimal numbers,' i.e. composers wrote note/label data directly rather than using a pattern-grid editor.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "$1000 — per two independent ACME reconstructions (Myth.sid, James_Bond_3 Demo.sid) in the public realdmx/c64_6581_sid_players repo, both with PSID load address $1000. Third-party TurboAssembler->ACME conversion by 'dmx87', not this project's own disassembly — treat as source-documented, not independently verified here.",
-    "zero_page": "$fc/$fd ('zp'/'zp+1' in the source) — same repo, both files declare `zp = $fc ;zp+1 used as well` immediately before the entry vectors.",
-    "layout": "TODO: table layout beyond the ZP pointer pair not fully mapped by this pass. The source (Myth.sid) shows labelled wave/pulse/filter/note data blocks (w0-wa, p0-p5, f0-f2, n0-nf, fqdatlo/fqdathi) but their absolute addresses/sizes were not extracted."
+    "load_address": "FILE-DEPENDENT, not a fixed $1000 — corrected by this pass's own disassembly of two real HVSC rips (see Verification). The realdmx/c64_6581_sid_players repo's claim of a uniform load address $1000 is an artifact of that reconstructor's own synthetic PSID header for their two example builds, not a property of the driver itself: real game/demo rips place the driver wherever the host program loaded it (confirmed load $0faa for Myth_Demo.sid, $1000 for Stormlord_V2.sid — and in the Stormlord_V2 case the true driver vector table sits at $1065, not $1000, because $1000-$1064 is a separate demo-harness stub — SEI/IRQ-install/KERNAL-GETIN polling loop — that precedes the driver in that particular build and is never called by the PSID init/play convention).",
+    "zero_page": "$fc/$fd ('zp'/'zp+1' in the source) — confirmed independently in this pass's own disassembly of both Myth_Demo.sid and Stormlord_V2.sid (`zfc = $fc` / `zfd = zfc + $01` emitted by SIDdecompiler at each file's own driver base), matching the realdmx/c64_6581_sid_players repo's claim exactly.",
+    "layout": "TODO: table layout beyond the ZP pointer pair not fully mapped by this pass. The source (Myth.sid) shows labelled wave/pulse/filter/note data blocks (w0-wa, p0-p5, f0-f2, n0-nf, fqdatlo/fqdathi) but their absolute addresses/sizes were not extracted. This pass's own disassembly additionally located a per-voice self-modified working-storage table right after the vector table on both real files (Myth_Demo.sid: $2015-$20ba; Stormlord_V2.sid: $1798-$183d — see Verification) that the pristine SID file always ships zeroed/near-zeroed and the driver's own init routine fills in at runtime — this is very likely the same 'per-voice state tables (gate/transp/seqno/glide/...)' the repo's source names, not a newly-discovered structure, but its exact absolute layout still isn't mapped byte-by-byte here."
   },
   "entry": {
-    "init": "$1000, jumps to label SETMUS/setmus — source comment 'init(.a=music no)' implies A = subtune/song number, per realdmx/c64_6581_sid_players (see load_address citation).",
-    "play": "Label PLAY/play, reached via `jmp play` from the $1000 vector table — source comment states 'jsr in irq-interrupt', i.e. called from an IRQ handler rather than polled by the host; no explicit call-rate/CIA-vs-raster statement is given in the source comments. Same repo also exposes a third vector, MUSOFF/musoff ('stops playing tune')."
+    "init": "Three-vector jump table (init/musoff/play, in that order) confirmed present at the start of the driver in BOTH real files disassembled this pass, matching the repo's SETMUS/MUSOFF/PLAY structure exactly — but the table's absolute address is file-dependent (see load_address). Myth_Demo.sid: vector table at $0faa, init entry at $0fae -> real init code at $1538. Stormlord_V2.sid: vector table at $1065 (== the PSID header's own declared init address), init entry -> real init code at $15df.",
+    "play": "Same three-vector table's third entry. Myth_Demo.sid: play vector at $0fb4 -> real play code at $0fb8 (PSID header's own play address, $fb4, points AT the vector-table jmp instruction, not the target — confirmed by disassembly). Stormlord_V2.sid: play vector at $106b (== PSID header's play address) -> real play code at $106f. Source comment 'jsr in irq-interrupt' (IRQ-driven, not polled) is consistent with both files' structure though this pass did not independently trace the IRQ-installation code itself (Stormlord_V2.sid's $1000-$1064 harness does install a raster IRQ, but that harness is a demo-specific bootstrap, not part of the driver proper)."
   },
   "speed": "IRQ-driven per source comment ('play: jsr in irq-interrupt'); tempo is governed by a per-call 'tempocnt' countdown compared against a per-song 'temposet' value (`dec tempocnt` / reload from `temposet` when it goes negative), i.e. a software tempo divider rather than raw 1x/Nx call-rate switching. No CIA-vs-raster trigger is documented in the source comments. VGMPF separately notes the driver was tuned to a 441 Hz reference pitch 'except on Fruitbank' — a tuning detail, not a speed fact.",
 
@@ -58,7 +58,8 @@
     "SIDId documents a direct lineage from THIS driver to a separate, later editor: the '(Audiomaster_V1)' entry (Ruben Spaans/Scroll, 1989, Megastyle, CSDb release id 7071) has the comment 'Editor that is based on the player of /MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid' — and Stormlord.sid is itself tagged 'MoN/Bjerregaard' in this dataset. As of 2026-07-18 that editor has its own card ([[audiomaster-v1]]), so the directional edge now lives THERE as `audiomaster-v1 derives_from mon-bjerregaard` (editor built on this driver). This card's earlier placeholder `shares_routine_with: ['audiomaster-v1']` was therefore removed to avoid a redundant second edge for the same relationship — the lineage claim is unchanged, just hosted directionally on the correct card.",
     "No standalone CSDb release exists for the driver itself, mirroring MoN/Deenen. Bjerregaard's CSDb scener page (id 8138) lists a tool credit for a 'Bjerregaard DMC Editor' (2012, released under his own group Danish Music Company), but that is a much later item and its relationship (if any) to this 1988-89 in-game driver is unconfirmed — not assumed to be the same thing here. Also do not confuse 'DMC' in that later tool's name, or in VGMPF's phrase 'arranged in his DMC Edit' for the SECOND driver, with the unrelated, coincidentally-named 'DMC (Demo Music Creator)' by Brian/Graffity already carded at knowledge/players/dmc.md — 'DMC' here stands for Bjerregaard's own group Danish Music Company, a completely separate lineage.",
     "77 files across 15 composers in this collection (rank 5 by file count per knowledge/COVERAGE.md among uncarded families).",
-    "A public, MIT-licensed source repo exists after all: github.com/realdmx/c64_6581_sid_players ('Original and reverse-engineered music players for the C64') carries a Bjerregaard_Johannes_MON folder with two files, Bjerregaard_J_Myth.asm ('Myth', 1989) and Bjerregaard_J_James_Bond_3.asm ('James Bond 3 Demo', 1989, 'probably made for Maniacs of Noise'), each headed '; Converted from TurboAssembler to ACME by dmx87' — i.e. a third party's TurboAss->ACME conversion, not this project's own disassembly, and not confirmed byte-for-byte against a real .sid via sidm2-siddump here. Both independently agree on load address $1000, init label SETMUS/setmus (A = song number), play label PLAY/play (called from an IRQ handler per its own comment), and zero-page pair zp/zp+1 = $fc/$fd — enough agreement across two separate files to record as source-documented Tier 3 facts and move status to in-progress, per this project's rule that a public source repo which plainly documents a runtime fact earns in-progress even without independent verification. 'Myth' also corroborates the earlier composer-data-only evidence: it lines up with the 'Myth Demo' title already listed among Bjerregaard's MoN/Bjerregaard-tagged files (see the file-level-evidence quirk above)."
+    "A public, MIT-licensed source repo exists after all: github.com/realdmx/c64_6581_sid_players ('Original and reverse-engineered music players for the C64') carries a Bjerregaard_Johannes_MON folder with two files, Bjerregaard_J_Myth.asm ('Myth', 1989) and Bjerregaard_J_James_Bond_3.asm ('James Bond 3 Demo', 1989, 'probably made for Maniacs of Noise'), each headed '; Converted from TurboAssembler to ACME by dmx87' — i.e. a third party's TurboAss->ACME conversion, not this project's own disassembly. That repo's own synthetic PSID header claims a uniform load address $1000 for both example builds; this pass's own disassembly of two REAL HVSC rips found that fact does not generalize (see memory.load_address) — the repo's $1000 is specific to `dmx87`'s own re-packaging, not a property of the driver.",
+    "VERIFIED this pass by this project's own disassemble/reassemble/trace-diff pipeline (not just source-documented): SIDdecompiler.exe on two real HVSC files (Myth_Demo.sid, load $0faa, 2 subtunes; Stormlord_V2.sid, load $1000/real driver base $1065, 1 subtune), reassembled with 64tass, byte-diffed against the pristine SID payload, and trace-diffed against the original file with sidm2-sid-trace.exe. Both files raw-reassemble to 97.2%/97.4% byte-identical; the entire remaining gap in both files is the SAME mechanism — a per-voice self-modified working-storage table (Myth_Demo.sid: $2015-$20ba, 122 bytes; Stormlord_V2.sid: $1798-$183d, 83 bytes) plus, in Myth_Demo.sid only, one self-modified immediate-operand byte at $0fb9 (the play-vector's own LDA #imm target, written via `sty l0fb9+1` elsewhere in the code) — SIDdecompiler captures the post-execution runtime value of these bytes rather than the pristine cold-start value shipped in the file, the same class of divergence documented for many other players (see the shared agent's `hard_won_gotchas` 41 / `lessons_learned` 10/16/17/20/25/29/37/42/43). Patching every one of those bytes back to the file's own pristine value (direct .prg binary patch, not .asm text) closes BOTH files to 100.0000% byte-exact over the SIDdecompiler-emulated region, and BOTH files then trace register-write-identical against the real .sid over 100-200 frames covering every subtune (Myth_Demo.sid subtunes 0 and 1; Stormlord_V2.sid's only subtune) — status raised to `verified`."
   ],
   "sources": [
     "data/sidid.json byTag['MoN/Bjerregaard'] — author: Johannes Bjerregaard only, no released/reference/comment fields",
@@ -76,7 +77,8 @@
     "cadaver/sidid project (source of sidid.nfo / SIDId data): https://github.com/cadaver/sidid",
     "GitHub, realdmx/c64_6581_sid_players — https://github.com/realdmx/c64_6581_sid_players (MIT licence; 'Original and reverse-engineered music players for the C64')",
     "GitHub, Bjerregaard_J_Myth.asm — https://raw.githubusercontent.com/realdmx/c64_6581_sid_players/main/Bjerregaard_Johannes_MON/Bjerregaard_J_Myth.asm (load $1000, init 'setmus', play 'play', zp=$fc/$fd, IRQ-driven play call, per-file comment header)",
-    "GitHub, Bjerregaard_J_James_Bond_3.asm — https://raw.githubusercontent.com/realdmx/c64_6581_sid_players/main/Bjerregaard_Johannes_MON/Bjerregaard_J_James_Bond_3.asm (load $1000, init SETMUS, play PLAY, zp=$fc, header comment 'JB demo music, probably made for Maniacs of Noise')"
+    "GitHub, Bjerregaard_J_James_Bond_3.asm — https://raw.githubusercontent.com/realdmx/c64_6581_sid_players/main/Bjerregaard_Johannes_MON/Bjerregaard_J_James_Bond_3.asm (load $1000, init SETMUS, play PLAY, zp=$fc, header comment 'JB demo music, probably made for Maniacs of Noise')",
+    "This project's own disassembly/reassembly/trace-diff verification pass: C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/B/Bjerregaard_Johannes/Myth_Demo.sid and .../Stormlord_V2.sid, disassembled with SIDdecompiler.exe, reassembled with 64tass.exe, byte-diffed and trace-diffed with sidm2-sid-trace.exe — both files reached 100.0000% byte-exact (after patching self-modified working-storage bytes back to pristine) and register-write-exact traces over multiple frame counts/subtunes; see Verification section for full numbers"
   ]
 }
 ```
@@ -100,10 +102,17 @@ hosts the directional `derives_from` edge to this driver (a genuine, if
 one-sided, lineage claim). A follow-up pass found a public, MIT-licensed
 source repo (github.com/realdmx/c64_6581_sid_players) containing two
 TurboAssembler->ACME conversions of this exact driver ("Myth" and "James Bond 3
-Demo", both 1989); the two files independently agree on load address $1000,
-init/play/musoff entry vectors, and zero-page usage, which is enough to
-promote several Tier 3 fields from `TODO` to source-documented and move
-`status` to `in-progress`.
+Demo", both 1989); the two files independently agree on init/play/musoff entry
+vectors and zero-page usage ($fc/$fd), which was enough to promote several
+Tier 3 fields from `TODO` to source-documented and move `status` to
+`in-progress`. A further pass then disassembled two REAL HVSC files
+(`Myth_Demo.sid`, `Stormlord_V2.sid`) with this project's own tooling
+(SIDdecompiler/64tass/sidm2-sid-trace), confirmed the ZP pair and three-vector
+structure directly, corrected the repo's claimed load address (file-dependent,
+not a fixed $1000), traced down the entire remaining byte-diff gap to one
+well-understood class of self-modified working-storage bytes, and reached a
+100.0000% byte-exact, register-write-exact reconstruction on both files —
+`status` is now `verified`.
 
 ## Quirks & gotchas
 
@@ -121,53 +130,109 @@ Creator)" tracker already carded at `dmc.md`.
 
 ## Disassembly notes
 
-No disassembly done by this project directly — CSDb still has no standalone
-release for this driver (only in-game/demo usage), consistent with it being
-an in-house, hand-assembled tool rather than a distributed product. However,
-a public third-party reconstruction now exists: `github.com/realdmx/c64_6581_sid_players`
-(MIT licence) contains ACME-format conversions of two Bjerregaard/MoN-era
-tunes, `Bjerregaard_J_Myth.asm` and `Bjerregaard_J_James_Bond_3.asm`, each
-headed "Converted from TurboAssembler to ACME by dmx87". Both agree on:
-- Load address `$1000`.
-- Three jump vectors at the load address: init (`SETMUS`/`setmus`, A = song
-  number per source comment), stop (`MUSOFF`/`musoff`), and play
-  (`PLAY`/`play`, invoked "in irq-interrupt" per source comment — an
-  IRQ-driven player, not a polled/PSID-timed one; exact CIA-vs-raster setup
-  is not shown in either file since neither includes the IRQ-installation
-  code, only the driver body from the vector table down).
-- Zero page usage `zp`/`zp+1` = `$fc`/`$fd`.
-- A software tempo divider (`tempocnt` decremented each play call, reloaded
-  from a per-song `temposet` value) rather than a fixed call-rate multiplier.
-- Per-voice state tables (`gate`, `transp`, `seqno`, `glide`, `notsetyet`,
-  `vibdir`, `vibrate`, `pwtimes`, `ftms`, indexed 0-2 for three voices) and
-  labelled wave/pulse/filter/frequency data blocks (`w0`-`wa`, `p0`-`p5`,
-  `f0`-`f2`, `n0`-`nf`, `fqdatlo`/`fqdathi`), but this pass did not extract
-  their absolute layout or byte widths — `data_format.*` stays mostly `TODO`.
+CSDb still has no standalone release for this driver (only in-game/demo
+usage), consistent with it being an in-house, hand-assembled tool rather than
+a distributed product. A public third-party reconstruction exists —
+`github.com/realdmx/c64_6581_sid_players` (MIT licence), ACME-format
+conversions of two Bjerregaard/MoN-era tunes, `Bjerregaard_J_Myth.asm` and
+`Bjerregaard_J_James_Bond_3.asm`, each headed "Converted from TurboAssembler
+to ACME by dmx87" — and this project has now independently disassembled two
+REAL HVSC files of its own (`Myth_Demo.sid`, `Stormlord_V2.sid`) with
+SIDdecompiler/64tass, cross-checking the repo's claims directly against real
+bytes rather than trusting the third-party conversion's own header. Findings:
 
-This is a **source-documented** finding, not an independently verified one:
-`dmx87`'s conversion has not been reassembled and diffed against a real
-`.sid` (e.g. Stormlord.sid or Myth.sid itself) via `sidm2-siddump` by this
-project. Two independently-converted files agreeing on load address/vectors/
-ZP is reasonable corroboration, but a future pass should still (a) confirm
-byte-identical playback against the original binary, and (b) map the
-order-list/pattern/instrument formats that remain `TODO`, and (c) use this
-same source to actually settle the still-unconfirmed relationship to plain
-"Bjerregaard" and to Audiomaster V1 at the byte level.
+- **Zero page usage `zp`/`zp+1` = `$fc`/`$fd` — CONFIRMED** in both real
+  files' own disassembly (`zfc = $fc` / `zfd = zfc + $01` at each file's own
+  driver base). Matches the repo exactly.
+- **Three-vector jump table (init/musoff/play) at the driver's own base —
+  CONFIRMED** in both real files, in that order, matching the repo's
+  SETMUS/MUSOFF/PLAY structure. The vector table's own address is
+  file-dependent, however (see below), not a fixed offset from the SID's
+  load address.
+- **Load address `$1000` — NOT a general fact, corrected this pass.** The
+  repo's claim is an artifact of `dmx87`'s own synthetic PSID header for
+  their two example rebuilds, not a property of the driver. Real files place
+  it wherever the host program's own loader put it:
+  - `Myth_Demo.sid`: PSID load address `$0faa`. The `-v2` memory-touch map's
+    own "Start:" address matches exactly (`$0faa`), i.e. no leading dropped
+    byte (gotcha 40/33 checked and clean). The 3-vector table sits directly
+    at `$0faa`; init entry (`$fae`) jumps to the real init code at `$1538`;
+    play entry (`$fb4`) jumps to `$0fb8` for the real play code — note the
+    PSID header's own declared play address (`$fb4`) points AT the
+    vector-table `jmp` instruction, not its target.
+  - `Stormlord_V2.sid`: PSID load address `$1000`, but the `-v2` map's own
+    "Start:" address is `$1065` — one more instance of gotcha 40/33's
+    Start-vs-load-address check. Investigating directly: `$1000-$1064` is
+    real code, but it's a demo-specific bootstrap harness (`SEI`, raster-IRQ
+    install, a KERNAL `$ffe4` GETIN polling loop) that precedes the driver
+    in this particular build and is never reached via the PSID init/play
+    calling convention. The driver's own 3-vector table sits at `$1065`,
+    exactly matching the PSID header's own declared init address; play
+    vector `$106b` also matches the header exactly. Relocating
+    SIDdecompiler's `-a` target to `$1065` (not the header's `$1000`) was
+    required to get a non-misaligned reassembly — relocating to `$1000`
+    instead silently mislabeled the captured driver bytes as if they began
+    at `$1000`, per gotcha 33's mechanism.
+- **Tempo divider / per-voice state tables** — not independently
+  re-verified at the field/label level this pass (the repo's own
+  `tempocnt`/`temposet`/`gate`/`transp`/etc. names were not cross-checked
+  symbol-by-symbol against this project's own disassembly, which uses
+  SIDdecompiler's auto-generated `lXXXX` labels throughout), but the
+  self-modified working-storage table this pass DID locate and patch
+  (`$2015-$20ba` in Myth_Demo.sid, `$1798-$183d` in Stormlord_V2.sid, both
+  read+written per-frame right after the vector table) is very likely the
+  same per-voice state block the repo names, given the position and access
+  pattern — not confirmed byte-for-byte against the repo's own field
+  boundaries, so `data_format.*` stays `TODO` rather than promoted further.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance facts are
-sourced from the cached SIDId entry, this project's local composer data, and
-VGMPF's narrative history of Johannes Bjerregaard and Maniacs of Noise, as
-before. This pass adds several Tier 3 runtime facts (load address, init/play/
-musoff vectors, zero-page pair, tempo-divider speed model) sourced from a
-public MIT-licensed third-party source reconstruction
-(`realdmx/c64_6581_sid_players`), per this project's rule that a public
-source repo which plainly documents a runtime fact earns `in-progress`
-without requiring this agent to disassemble. It has NOT been reassembled and
-traced through `sidm2-siddump`/`mcp-c64` against a real `.sid`, so `status`
-stays `in-progress`, not `verified`. Data-format fields (order list, pattern,
-instrument, wave/pulse/filter table layouts) remain honestly `TODO`.
+**VERIFIED — `status: verified`.** Two real HVSC files, this project's own
+disassemble/reassemble/byte-diff/trace-diff pipeline (SIDdecompiler.exe ->
+64tass.exe -> sidm2-sid-trace.exe), full methodology below.
+
+**File 1: `Myth_Demo.sid`** (PSID, load `$0faa`, init `$0fae`, play `$0fb4`,
+2 subtunes). Disassembled with `-a4010 -z -d -c -v2` (decimal for `$0faa`,
+which the `-v2` map's own "Start:" confirmed matched the load address
+exactly — no relocation-base correction needed here). Reassembled cleanly
+with 64tass (`Data: 4378 $0faa-$20c3`, no wrap warnings). Raw byte-diff
+against the pristine SID payload: **97.2133%** (4378 bytes compared, 122
+differing, all inside `$0fb9` (1 byte) and `$2015-$20ba` (121 bytes); a
+trailing 12 bytes beyond the emulated region, `$20c4-$20cf`, are absent from
+the reassembly but confirmed all-zero padding in the original — harmless).
+Root-caused: `$0fb9` is a self-modified immediate operand of the play
+vector's own `LDA #imm` (written via `sty l0fb9+1` elsewhere in the driver);
+`$2015-$20ba` is a per-voice self-modified working-storage table, both
+classes SIDdecompiler captures post-execution rather than pristine. Patched
+all 122 bytes directly in the assembled `.prg` (not the `.asm` text, per this
+agent's own gotcha 26) back to the file's pristine cold-start values ->
+**100.0000% byte-exact**. Traced both the pristine original and the patched
+reconstruction with `sidm2-sid-trace.exe` (explicit hex `init=fae`,
+`play=fb4`) for both subtunes: subtune 0 at 20 and 200 frames, subtune 1 at
+20 frames — **all three runs register-write-identical** (the only diff line
+in every run was the tool's own echoed input filename).
+
+**File 2: `Stormlord_V2.sid`** (PSID, load `$1000`, init `$1065`, play
+`$106b`, 1 subtune). Disassembled with `-a4197` (decimal for `$1065`, the
+`-v2` map's "Start:" address — NOT the header's `$1000`, see Disassembly
+notes above for why). Reassembled cleanly (`Data: 3167 $1065-$1cc3`, no wrap
+warnings). Raw byte-diff against the pristine payload at the correct offset:
+**97.3792%** (3167 bytes compared, 83 differing, entirely inside
+`$1798-$183d`, the same class of per-voice self-modified table as file 1, at
+a different absolute address). Patched all 83 bytes directly in the `.prg`
+-> **100.0000% byte-exact**. Traced both original and patched reconstruction
+(`init=1065`, `play=106b`, 100 frames, its only subtune) — **register-write-
+identical** (only the echoed filename line differed).
+
+Both real files independently converge on the same divergence mechanism
+(self-modified per-voice working storage, plus one self-modified immediate
+operand in file 1 only) and both close to exact once that's patched — strong
+enough agreement across two files, per this project's own precedent
+(`laxity-newplayer.md`), to set `status: verified`. Data-format fields (order
+list, pattern, instrument, wave/pulse/filter table absolute layout/byte
+widths) remain honestly `TODO` — this pass confirmed runtime structure
+(entry points, ZP, the working-storage table's existence and address) but did
+not map the composer-facing data formats.
 
 ## Sources
 

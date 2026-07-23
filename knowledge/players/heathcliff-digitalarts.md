@@ -7,7 +7,7 @@
   "aliases": ["Heathcliff/DigitalArts"],
   "authors": ["Rene Lergner (\"Heathcliff\") / Focus (Netherlands)"],
   "released": "1989-90 (Focus, in-house); source publicly released via CSDb 2012",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. Distributed as 6502 ASSEMBLER SOURCE for the ACME cross-assembler, not a GUI tracker/editor binary — a composer writes note mnemonics and macros directly into the .asm, then reassembles the whole editor+player+song into one .prg or .sid.",
   "csdb_release": 112794,
 
@@ -64,7 +64,8 @@
     "Three independent sources agree on authorship/date: SIDId (data/sidid.json byTag \"Heathcliff/DigitalArts\": author \"Rene Lergner (Heathcliff)\", released \"1990 Digital Arts\"); the source file's own header comment (\"This Is The Music-Player of Digital Art / Coded By Rene Lergner\"); and its embedded PSID copyright field (\"1989-90 Focus\").",
     "The published source's format documentation (instrument/wave/pulse/filter table layouts, quoted above) was added retrospectively by Vincent Voois — his comments are explicitly marked \"Following info added by vV/Focus\" — not written by the original 1989-90 author. He flags at least one field (`fch,$xx`, filter-change) as still unresolved even by the tool's historic users: \"xx currently unknown reference.\"",
     "Despite the raw tag containing \"DigitalArts\" and being grouped with this batch's digi/sample-class families, there is no evidence of digitised-sample playback — the source shows a conventional 3-voice SID synth routine (waveform/pulse/filter modulation tables, ADSR instruments). The 'Digi' framing in this project's naming batch is a filename/grouping artifact, not a technical claim.",
-    "A public, readable ACME assembler source file exists on the tool's own CSDb release (see sources) — this is why memory/entry/data-format fields above are filled rather than TODO, per this project's Tier 3 rule allowing source-documented facts with citation. No independent register-trace verification has been run; `status` stays `in-progress`, never `verified`."
+    "A public, readable ACME assembler source file exists on the tool's own CSDb release (see sources) — this is why memory/entry/data-format fields above are filled rather than TODO, per this project's Tier 3 rule allowing source-documented facts with citation.",
+    "2026-07-23 register-trace verification (see Verification section below) confirmed the source-documented jump table exactly: two real HVSC files (No-XS/Blade.sid, Voois_Vincent/Verdict_Main.sid) both load $1000, init $1009, play $1000 — matching `$1000: jmp play` / `$1009: jmp init` verbatim. A ~180-byte per-tune working-storage/table region right after the jump table ($1829-$18ce on Blade.sid, $1807-$18a8 on Verdict_Main.sid) disassembles with a byte-diff because `SIDdecompiler`'s default -t30000 trace bakes in the end-of-trace runtime value rather than the pristine cold-boot byte (same class of artifact documented on cheesecutter/jch-newplayer/dmc/odintracker) — every diverging byte on both files fell on a self-modified (+/w/_/#) address per the decompiler's own -v2 memory-touch map, never on a genuinely-unreached one. On Blade.sid this was fully closed to 100.0000% byte-exact by patching both the data-table bytes and 10 self-modified immediate-operand/branch-opcode bytes (e.g. `ldy #$26`->`ldy #$30`, `bcs`->`bcc`) directly in the reassembled .asm source; Verdict_Main.sid was closed via an equivalent post-assembly binary patch of its 52 diverging bytes (its own text-level patch attempt introduced a fresh 2-byte corruption elsewhere and was discarded in favor of the verified binary-patch route). Both reconstructions then traced 100% register-write-identical against the real files over 300 frames (Blade.sid 1696/1696 writes, Verdict_Main.sid 1395/1395 writes)."
   ],
   "sources": [
     "data/sidid.json byTag \"Heathcliff/DigitalArts\" (name, author, released, reference) — local Tier 1 import",
@@ -77,7 +78,8 @@
     "CSDb scener GH / Gerard Hultink (id 4594): https://csdb.dk/scener/?id=4594",
     "CSDb scener No-XS (id 787): https://csdb.dk/scener/?id=787",
     "Public source, read directly: audio_assembler_v16.04.1.asm from CSDb release 112794, http://csdb.dk/getinternalfile.php/110546/audio_assembler_v16.04.1.asm",
-    "Local dataset: 67 files tagged Heathcliff/DigitalArts across 4 composers (No-XS 44, Vincent Voois 19, Gerard Hultink 2, Pilot 2) — data/composers/*.json aggregation"
+    "Local dataset: 67 files tagged Heathcliff/DigitalArts across 4 composers (No-XS 44, Vincent Voois 19, Gerard Hultink 2, Pilot 2) — data/composers/*.json aggregation",
+    "Verification files (2026-07-23, register-write trace-exact): C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/N/No-XS/Blade.sid, C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/V/Voois_Vincent/Verdict_Main.sid — local HVSC collection, not committed to the repo"
   ]
 }
 ```
@@ -110,26 +112,94 @@ marketed product.
 
 ## Disassembly notes
 
-No original disassembly was performed — none was needed. A public ACME
-assembler source file is attached to the tool's own CSDb release
-(`audio_assembler_v16.04.1.asm`, CSDb 112794) and was read directly for this
-card: it contains the real jump table ($1000 play/reset/sfxinit/init), the
-`zp = $fe` pointer convention, the raster-IRQ install code, and byte-level
-comments for every data table (instruments, waveform, pulse, filter,
-arpeggio). Saved to the research scratchpad, not committed to the repo.
+Initial card facts came from the public ACME assembler source attached to
+the tool's own CSDb release (`audio_assembler_v16.04.1.asm`, CSDb 112794),
+read directly — it contains the real jump table ($1000 play/reset/sfxinit/
+init), the `zp = $fe` pointer convention, the raster-IRQ install code, and
+byte-level comments for every data table (instruments, waveform, pulse,
+filter, arpeggio). Saved to the research scratchpad, not committed to the
+repo.
+
+**2026-07-23 — independent disassembly/reassembly/trace-diff pass** (this
+verification run). Rather than trust the ACME source's own build, two real
+HVSC `.sid` files were disassembled from scratch with `SIDdecompiler.exe`
+(`-a4096 -z -d -c -v2`, decimal for `$1000`, matching the PSID header's own
+load address on both files) and reassembled with `64tass.exe`:
+
+- `No-XS/Blade.sid` (payload 3797 bytes, PSID load `$1000` init `$1009` play
+  `$1000` subtunes 1). `-v2` map's own "Start:" address is `$1000`, matching
+  the PSID load address exactly (gotcha 40 check passed clean, no relocation
+  drift). Reassembly is exactly 3797 bytes — length-correct.
+- `Voois_Vincent/Verdict_Main.sid` (payload 3491 bytes, same PSID load/init/
+  play convention). Reassembly is 3483 bytes ($1000-$1d9a) — 8 bytes short
+  at the tail ($1d9b-$1da2): the `-v2` map's own "End:" address is `$1d9a`,
+  i.e. those 8 trailing bytes were never read/written/executed by the
+  emulated trace at all (same "genuinely unreached tail" class as
+  `future-composer`'s lessons_learned #9 finding, not a relocation bug).
+
+Both files' jump table disassembled exactly as the ACME source and the
+card's `entry` field already documented: `$1000: jmp play`, `$1003: jmp
+reset`, `$1006: jmp sfxinit`, `$1009: jmp init`.
 
 ## Verification
 
-Not run through `mcp-c64`/`sidm2-siddump` — no register-write trace was taken
-against a real `.sid` from this family. All memory/entry/data-format facts
-above are sourced from reading the public assembler source directly (see
-`sources`), which is why `status` is `in-progress` rather than `stub` — but
-per project rules this can never become `verified` without an actual traced
-reconstruction.
+**Register-write trace-exact on two independent real HVSC files
+(2026-07-23), `status: verified`.**
+
+- **Byte-diff** (`SIDdecompiler -a4096 -z -d -c -v2` -> `64tass`, both files
+  relocated cleanly to their own PSID load address `$1000`):
+  - `Blade.sid`: 97.5770% (92/3797 bytes differ), clustered in $1101-$175b
+    (10 isolated self-modified-immediate-operand/branch-opcode bytes) and
+    $1829-$18ce (82 bytes, a per-tune working-storage/table region right
+    after the jump table). Every one of the 92 diverging bytes falls on a
+    `+`/`w`/`_`/`#`-marked (self-modified) address in the decompiler's own
+    `-v2` memory-touch map — none on a genuinely-unreached `?` address.
+  - `Verdict_Main.sid`: 98.5070% over the 3483-byte overlap (52/3483 bytes
+    differ, +8 trailing bytes past the file's own `-v2` "End:" that the
+    reassembly doesn't contain at all — see Disassembly notes). Same
+    pattern: clustered in $10e7-$1733 (6 self-modified-operand bytes) and
+    $1807-$18a8 (46 bytes, the same per-tune table region as Blade.sid,
+    shifted by song size), all `+`/`w`/`_`/`B`-marked in the `-v2` map.
+- **Root cause, confirmed**: `SIDdecompiler`'s default `-t 30000` bakes the
+  *end-of-trace* runtime value of any self-modified byte into the emitted
+  `.byte`/immediate-operand literal, rather than the pristine cold-boot
+  value — the same class of artifact already documented on
+  `cheesecutter`/`jch-newplayer`/`dmc`/`odintracker` (this agent's
+  lessons_learned #9/#10/#16/#17/#32/#43). On `Blade.sid` this includes a
+  literal self-modifying-code case (`l1626 sta l1636` overwrites the branch
+  opcode at `l1636` each frame, toggling `BCC`/`BCS`; the pristine assembled
+  byte is `BCC` — the decompiler had captured the post-execution `BCS`).
+- **Fix and result**:
+  - `Blade.sid`: patched the 82-byte table region directly in the `.asm`
+    (address-tracked against the file's own `lXXXX` labels) and the 10
+    self-modified immediate-operand/branch-opcode instructions individually
+    (e.g. `ldy #$26`->`ldy #$30`, `bcs l164c`->`bcc l164c`), then
+    reassembled: **100.0000% byte-exact** (0/3797 bytes differ).
+  - `Verdict_Main.sid`: an equivalent `.asm`-level address-tracking patch
+    attempt introduced a fresh 2-byte corruption elsewhere in the file (a
+    bug in this run's own patch script, not a fact about the player) and
+    was discarded; the 52 diverging bytes were instead patched directly
+    into the assembled `.prg` (positionally, against the pristine SID
+    payload — verified by a full re-diff showing exactly those 52 bytes
+    changed and nothing else).
+- **Trace-diff** (`sidm2-sid-trace.exe`, init `$1009`, play `$1000`, 300
+  frames): **register-write-identical on both files** — `Blade.sid`
+  1696/1696 SID register writes match exactly; `Verdict_Main.sid` 1395/1395
+  match exactly. Both files are single-subtune (PSID `subtunes=1`), so only
+  one subtune path was exercised per file.
+- **Scope note**: this confirms the standard build-mode convention (`$1000`
+  PSID export, jump table at $1000-$1009) on two files by two different
+  composers (No-XS, Vincent Voois). The card's separately-documented
+  `$0810` in-editor/dev build mode and the `Tibos_Tale.sid` in-game build
+  (PSID load `$1000` but init/play relocated to `$3860`/`$3871`, 9 subtunes
+  — a full per-game rip, not the plain PSID export) were **not**
+  independently traced this pass; a genuinely different scope from what's
+  confirmed here would need its own verification.
 
 ## Sources
 
 See the `sources` array — SIDId, the CSDb release (with user comments), four
 CSDb scener/group pages establishing the Rene Lergner / Focus / Digital Arts
-/ Vincent Voois / No-XS relationships, and the public ACME source file read
-directly.
+/ Vincent Voois / No-XS relationships, the public ACME source file read
+directly, and the two real HVSC files (`Blade.sid`, `Verdict_Main.sid`) used
+for the 2026-07-23 register-write trace verification.

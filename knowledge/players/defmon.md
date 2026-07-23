@@ -51,7 +51,8 @@
     "Speed model is per-step tick duration, not a global song speed. Each step in every pattern carries its own tick-duration nibble (4-5 bits). Changing the global tempo requires editing every step in every pattern individually — defMON 'solves' this with vim-like edit modes that can apply operations (clear, edit every Nth line, etc.) across the whole song at once. (Per Frantic on CSDb forums topic 131839.)",
     "The play routine supports two entry points: $1003 (full: sequence + sound parsing) and $1006 (sound-only). Alternating calls between them at the same rasterline produces 0.5x sequence speed while keeping sound at 1x — a non-standard multispeed mechanism discovered by iAN CooG's RE of Anticitizen 64. The author Frantic confirmed this and noted sequence parsing is 1x by default.",
     "The `defmon-driver` GitHub project (github.com/anarkiwi/defmon-driver) is a third-party Python automation framework that drives defMON headlessly inside VICE (`asid-vice`). Its source code (particularly field_setter.py, defmon.py, keycode_table.py, smoke_coverage.py) is the primary public documentation of defMON's memory layout, editor state structure, and data format — it is NOT defMON's own source code but a reverse-engineered automation layer. The defMONRelocator (github.com/dkt64/defMONRelocator, by DKT/Samar) independently confirms the player code layout and ZP usage.",
-    "The two official defMON wikis (toolsforscholars.com/defmon and defmon.vandervecken.com) are both down as of July 2026 — the toolsforscholars instance returns 404s and the vandervecken instance crashes with a DokuWiki TypeError. This means the 'callingtheplayer' wiki page referenced by defmon-driver source is inaccessible for now. The defmon-driver and defMONRelocator repositories are the best surviving technical documentation."
+    "The two official defMON wikis (toolsforscholars.com/defmon and defmon.vandervecken.com) are both down as of July 2026 — the toolsforscholars instance returns 404s and the vandervecken instance crashes with a DokuWiki TypeError. This means the 'callingtheplayer' wiki page referenced by defmon-driver source is inaccessible for now. The defmon-driver and defMONRelocator repositories are the best surviving technical documentation.",
+    "SIDdecompiler.exe (SIDM2's disassembler) cannot process real defMON exports — confirmed on 3 independent real HVSC files across 2 composers (Antispeed.sid and Automatas.sid by goto80; Cave.sid by Martin Demsky), tried at relocation $1000 (-a4096) with default flags, -z -d -c -v2, -v1, -v0, -t1, -t100, and explicit -I4096 -P4099 overrides matching the PSID header. Two distinct, reproducible failure signatures, neither a fluke: (1) Antispeed.sid crashes immediately with exit code 1 and zero output — no usage banner, no error text; (2) Automatas.sid and Cave.sid hang indefinitely, still running and actively burning CPU past 120s (confirmed via `wmic process ... get UserModeTime` showing CPU time still growing between two successive checks — genuinely spinning, not deadlocked). This held even at -t1 (one play call), ruling out a runaway play-loop trace as the cause — the hang begins during INIT or the very first PLAY call. Likely mechanism (not directly confirmed, since the tool never produces inspectable output): the play routine at $1022 is a per-note SID-register-write template whose immediate operands (LDA #$05 / #$1A / #$17 / ... at $1022-$1053) match a real traced frame-0 write burst — osc1_pw_hi/osc1_freq_lo/osc1_freq_hi etc. — strongly suggesting those operand bytes are self-modified per note/sound-program-row before each call, the class of self-modifying-immediate-operand code known to blow up a hybrid static/dynamic disassembler's internal trace state (cf. lessons_learned 43 in the sid-player-verify agent). A second, smaller self-modifying trick was hand-confirmed by direct byte inspection at the $1006 alternate entry: it temporarily patches the opcode at $10D8 from $AD (LDA absolute) to $60 (RTS), JSRs into $1022, then restores $AD — an early-return trick that on its own looks bounded, but corroborates the routine is genuinely self-modified at runtime, not just data-driven. Separately confirmed the rip itself is not corrupted: `sidm2-sid-trace.exe` on the raw original .prg (built from the PSID payload per this project's own `psid_header` convention) plays cleanly and produces real, non-trivial SID writes at frame 0 (12 changes) and frame 1 (2 changes) before going quiet — this is a disassembler-tool limitation, not a bad file. No successful disassembly, byte-diff, or register-write trace-diff was possible this pass as a direct result."
   ],
   "sources": [
     "sidid:DefMon (author 'Mats (Frantic of Hack'n'Trade)', released 2013, comment 'Made in 2008, released in 2013', reference https://csdb.dk/release/?id=120965) — data/sidid.json",
@@ -66,7 +67,8 @@
     "Independent description of the chunk-based instrument/effect design and goto80's heavy use: electro.pizza (2019) — https://electro.pizza/2019/07/defmon-vice-chip/",
     "Interview with goto80 describing defMON's origin, Frantic building it solo for years, and the weekly 'defJAMS' testing sessions: Recollection interviews — https://www.atlantis-prophecy.org/recollection/?load=interviews&id_interview=189",
     "Pouet.net prod entry (leak framing, 'The best music-editor for C64 ever made'): https://www.pouet.net/prod.php?which=62178",
-    "Local dataset: 102 files tagged `DefMon` across 10 composers (see knowledge/COVERAGE.md; composer breakdown computed from data/composers/*.json in this research pass)"
+    "Local dataset: 102 files tagged `DefMon` across 10 composers (see knowledge/COVERAGE.md; composer breakdown computed from data/composers/*.json in this research pass)",
+    "2026-07-23 verification attempt: real HVSC files examined -- MUSICIANS/G/Goto80/Antispeed.sid, MUSICIANS/G/Goto80/Automatas.sid, MUSICIANS/D/Demsky_Martin/Cave.sid. Hand-disassembly of Antispeed.sid's payload bytes (this pass, not a public source) confirmed entry-point structure. SIDdecompiler.exe (C:/Users/mit/claude/c64server/SIDM2/tools/SIDdecompiler.exe) fails on all three -- see quirks array and Disassembly notes."
   ]
 }
 ```
@@ -115,19 +117,95 @@ this is the most significant gap. The official defMON wikis are both down as of
 July 2026, so the wiki page "callingtheplayer" referenced by defmon-driver source
 is inaccessible.
 
-A future verification pass would: disassemble a representative DefMon-tagged .sid
-(e.g. from goto80's catalogue), confirm the entry points by tracing through
-`sidm2-siddump`, and reverse-engineer the sound program row encoding.
+**2026-07-23 verification attempt (this pass):** picked three real HVSC files
+(Antispeed.sid, Automatas.sid -- goto80; Cave.sid -- Martin Demsky), read PSID
+headers directly (all: loadAddr=0 -> real load address is the payload's own
+first 2 LE bytes = $1000; init=$1000, play=$1003, subtunes=1 -- matching the
+card's existing entry-point claims). Hand-disassembled the first ~150 bytes of
+Antispeed.sid's payload byte-by-byte (no tool needed for this much):
+- `$1000: 4C FE 14` = `JMP $14FE` (init jumps out to the real init body).
+- `$1003: 4C 22 10` = `JMP $1022` (play, direct jump into the per-note SID
+  write routine).
+- `$1006: AD D8 10 / 48 / A9 60 / 8D D8 10 / 20 22 10 / 68 / 8D D8 10 / 4C BE 12`
+  = the alternate "sound-only" entry: save the byte at $10D8, patch it to
+  `$60` (RTS), `JSR $1022`, restore the saved byte, then `JMP $12BE`. Since
+  $10D8 originally holds `AD` (the opcode byte of `LDA $10CE`, confirmed by
+  reading $10D8 directly), this is a genuine self-modifying early-return
+  trick that truncates $1022's execution mid-routine -- directly confirms the
+  card's existing claim that $1006 "internally calls $1022 for the sound
+  engine".
+- `$14FE`: a 24-iteration `DEY`/`BPL` loop zeroing SID registers $D400-$D417,
+  ordinary init code, not itself infinite.
+- `$1022` onward: a sequence of `LDX #imm` / `LDA #imm` / `STA $D4xx` triples
+  writing pulse-width/frequency/waveform per voice, with immediate operands
+  (`#$05`, `#$1A`, `#$17`, `#$04`, `#$16`, `#$0D`, ...) that match, byte for
+  byte, a real traced frame-0 SID write burst (see below) -- strong
+  circumstantial evidence these operands are self-modified per note before
+  each call (defMON's "sound program row" mechanism), not fixed constants.
+
+Attempted `SIDdecompiler.exe -a4096` (decimal for $1000, per gotcha 1) with a
+sweep of flags (default, `-z -d -c -v2`, `-v1`, `-v0`, `-t1`, `-t100`,
+`-I4096 -P4099`). **All three files failed disassembly**, in one of two
+reproducible ways: Antispeed.sid crashes instantly (exit 1, zero output, no
+error text); Automatas.sid and Cave.sid hang indefinitely, confirmed via
+`wmic process where "name='SIDdecompiler.exe'" get UserModeTime` showing CPU
+time still actively growing between two checks (genuinely spinning, not
+deadlocked) -- reproduced with clean process isolation (no stray/orphaned
+processes) to rule out a Windows-signal-handling false hang. `-t1` (a single
+play call) still hangs, ruling out an unbounded play-loop trace as the cause;
+the failure begins in INIT or the very first PLAY call.
+
+Separately confirmed the files themselves are not corrupted: built a raw
+`.prg` from Antispeed.sid's PSID payload (per this project's `psid_header`
+convention) and ran it through `sidm2-sid-trace.exe` directly (20 frames,
+init=$1000, play=$1003) -- it played cleanly, producing 12 real SID register
+changes in frame 0 (osc1/2/3 pulse-width and frequency, osc3 waveform,
+filter mode/volume, filter cutoff) and 2 more in frame 1 (osc3 frequency
+updating), then going quiet for the remaining 18 frames traced. The frame-0
+values line up exactly with the immediate operands read at $1022-$1053
+above.
+
+**No disassembly, byte-diff, or trace-diff was possible this pass** -- the
+blocker is `SIDdecompiler.exe` itself, not a missing fact. The most likely
+cause (not directly provable without inspecting the tool's own source or
+using a live emulator instead) is that $1022's self-modified per-note
+immediate operands create a combinatorial explosion in the disassembler's
+internal static/dynamic trace state across the many distinct note values a
+real song's 256 sound-program rows would produce.
+
+A future verification pass should not retry `SIDdecompiler` with more flag
+combinations (exhausted this pass) -- the next real lever is either (a) a
+live emulator with single-stepping (RetroDebugger, see the sid-player-verify
+agent's escalation tier) to manually trace INIT/PLAY register writes without
+requiring a static disassembly at all, or (b) hand-writing a minimal
+from-scratch reconstruction of the $1000/$1003/$1006/$1022 entry-point shell
+(now byte-confirmed above) and trace-diffing *that* against the real file,
+without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
-**Not verified -- `status: in-progress`.** Tier 1 (identity) and Tier 2 (provenance)
-facts are confirmed from SIDId, two CSDb release pages, DeepSID's cached player spec
-box, and external web sources. Tier 3 (runtime) facts come from credible third-party
-reverse-engineering (defmon-driver, defMONRelocator, iAN CooG) but have NOT been
-independently confirmed by assembling and tracing through `sidm2-siddump`. The sound
-program row binary format remains entirely undocumented. Promotion to `verified`
-requires a full disassembly+trace pass.
+**Not verified -- `status: in-progress` (unchanged this pass).** Tier 1 (identity) and
+Tier 2 (provenance) facts are confirmed from SIDId, two CSDb release pages, DeepSID's
+cached player spec box, and external web sources. Tier 3 (runtime) facts come from
+credible third-party reverse-engineering (defmon-driver, defMONRelocator, iAN CooG)
+plus this pass's own hand-disassembly of Antispeed.sid's first ~150 bytes (entry
+points $1000/$1003/$1006, the $10D8 self-modifying early-return trick, and $1022's
+per-note SID-write template) and a real `sidm2-sid-trace.exe` run confirming the
+file plays and produces sane register writes -- but a full disassemble-reassemble-
+byte-diff-trace-diff pass, the bar this project requires for `verified`, was
+**not achievable this pass**: `SIDdecompiler.exe` fails on every one of 3 real
+DefMon files tried (2 composers), either crashing instantly with no output or
+hanging indefinitely under active CPU load, across a full sweep of relocation/
+verbosity/trace-count/entry-override flags. This is a genuine tooling blocker,
+not a knowledge gap or an insufficiently-thorough attempt -- see "Disassembly
+notes" above for the full flag sweep and evidence, and the new quirks-array entry
+for a concise summary. The sound program row binary format also remains entirely
+undocumented, and (with the disassembler unusable on this player) is not close to
+resolvable via the static-disassembly route this project's other cards use.
+Promotion to `verified` still requires a full disassembly+trace pass; the next
+attempt should route around `SIDdecompiler` entirely (live emulator tracing via
+RetroDebugger, or a minimal hand-written entry-point-shell reconstruction) rather
+than retrying it.
 
 ## Sources
 

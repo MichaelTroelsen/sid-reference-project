@@ -60,7 +60,8 @@
     "CSDb search for related Sosperec tooling: \"Sosperec V1.4 Depacker\" (Samar Productions, 1998, id 34081), \"Sosperec Relocator V1.2\" (Chimera, 1994, id 101770), \"Sosperec Relocator\" (Trays, 1991, id 256703), and \"Sosperec Test\" SID (Lukasz Baran/Glover, Samar Productions, release year unknown per CSDb ('199?'), id 13639)",
     "data/players.json (cached DeepSID player entry: developer \"Grabowsky\", start_year 1991, csdb_id 18233, platform \"Native / C64 emulator\", zero_pages \"6 bytes ($FA-$FF)\"; most other fields blank in the source dump)",
     "Local dataset: 91 files tagged Sosperec + 8 files tagged Graffity/Grabowsky (all composer Trays, folded in here as the same tool) = 99 files across the same 13 composers (aggregated from data/composers/*.json, cross-checked directly against data/composers/trays.json)",
-    "No public source code, format spec, or Codebase64/HVSC documentation was found for Sosperec — searches of Codebase64 and general web returned nothing beyond the CSDb release/scener pages and the Lemon64 forum mention above"
+    "No public source code, format spec, or Codebase64/HVSC documentation was found for Sosperec — searches of Codebase64 and general web returned nothing beyond the CSDb release/scener pages and the Lemon64 forum mention above",
+    "2026-07-23 research pass: re-verified the 91+8=99 file / 13-composer split directly against data/composers/*.json (script count matches the card's existing figures exactly); fetched CSDb's scener page for Grabowsky (https://csdb.dk/scener/?id=9937, confirms group timeline 1111 Team -> Smartworks -> Trays 1989-1991 -> Graffity from 1991, and a separate, non-SID collaboration 'The Old Typer' with Hetye — not a music tool, not added as an edge); fetched CSDb's per-file SID pages for six Sosperec-tagged files across five composers (ids 5819, 5824, 5825, 11661, 23233, 29600, 9221) to check PSID load/init/play addresses, finding the binary is relocated per release rather than fixed (see quirks) — no new source code, format spec, or disassembly was found, so status remains stub"
   ]
 }
 ```
@@ -84,7 +85,13 @@ Despite the shared "Graffity" group label, this is NOT the same code as
 2007 Lemon64 forum post recalls its playroutine as unusually advanced for
 1991, with rastertime comparable to GoatTracker 2 running with several
 optimizations disabled — the only qualitative technical claim found for this
-card. No source code, disassembly, or format documentation was located.
+card. No source code, disassembly, or format documentation was located. A
+2026-07-23 check of PSID-header addresses across six files from five
+composers confirms the compiled player binary is relocated per release (load
+addresses seen: $0FFC, $0FFA, $1000, $2500, $BD00) rather than always loaded
+at one fixed location — explaining why no single memory map can be published
+for this tool, and matching the separately-catalogued "Sosperec Relocator"
+tooling already noted below.
 
 ## Quirks & gotchas
 
@@ -103,27 +110,40 @@ code-sharing evidence).
 ## Disassembly notes
 
 None performed. No public Sosperec source was found (searches covered CSDb,
-Codebase64, and general web). The concrete next step to move this card past
-`stub` would be to pull a representative Sosperec-tagged `.sid` (e.g. from
-composer Cane, the largest user) and disassemble its init/play routines from
-the PSID-embedded binary directly, since no separate source archive exists to
-read instead.
+Codebase64, and general web). A 2026-07-23 pass did pull PSID-header
+load/init/play addresses (public metadata on CSDb's per-file SID pages, no
+disassembly required) for six files across five composers, and found the
+compiled binary is **relocated per release** rather than loaded at one fixed
+address — even two tunes from the same 1993 ADSR compilation (Cane vs DOS)
+load at completely different addresses. See `memory`/`entry` fields and the
+matching quirk for the full address table and citations. This rules out
+publishing a single canonical entry point, but doesn't reveal what the code at
+any of those addresses actually does. The concrete next step to move this card
+past `stub` would still be to pull one representative Sosperec-tagged `.sid`
+(e.g. from composer Cane, the largest user) and disassemble its init/play
+routines from the PSID-embedded binary directly, since no separate source
+archive exists to read instead.
 
 ## Verification
 
 **Not verified — `status: stub`.** Only identity/provenance facts (author,
-release year, CSDb release, composer usage) are confirmed, from the cached
-SIDId entry, the CSDb release and scener pages, and this project's own
-composer-tag aggregation. Every runtime/format field is `TODO` because no
-source or disassembly was available; the single non-TODO memory field is
-explicitly attributed to DeepSID's own cached database rather than to any
-verification done here.
+release year, CSDb release, composer usage) and PSID-header metadata
+(load/init/play addresses, shown to be non-fixed/relocated) are confirmed,
+from the cached SIDId entry, the CSDb release/scener/per-file SID pages, and
+this project's own composer-tag aggregation. Every format/routine-behavior
+field is still `TODO` because no source or disassembly was available; the
+zero-page memory field remains explicitly attributed to DeepSID's own cached
+database rather than to any verification done here. None of this pass's
+findings amount to a documented runtime fact strong enough to promote past
+`stub` — quite the opposite, it positively rules out a fixed memory map.
 
 ## Sources
 
 See the `sources` array — the cached SIDId entry, the CSDb release
 (`?id=18233`) and scener (`?id=9937`) pages, a Lemon64 forum mention of its
 playroutine quality, related CSDb tooling entries (relocators/depacker),
-`data/players.json`'s cached DeepSID entry, and this project's local
+`data/players.json`'s cached DeepSID entry, this project's local
 composer-tag aggregation (91 "Sosperec" + 8 "Graffity/Grabowsky" = 99 files,
-13 composers).
+13 composers, re-verified 2026-07-23), and (new this pass) CSDb's per-file SID
+pages for six files across five composers used to check PSID load/init/play
+addresses (`?id=5819,5824,5825,11661,23233,29600,9221`).

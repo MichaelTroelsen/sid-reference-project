@@ -121,22 +121,53 @@ Creator)" tracker already carded at `dmc.md`.
 
 ## Disassembly notes
 
-None done here. No public disassembly, source dump, or format writeup for
-this driver was found — CSDb has no standalone release for it (only in-game
-usage), consistent with it being an in-house, hand-assembled driver rather
-than a distributed product. A future pass would need to disassemble a
-representative `.sid` carrying this tag (e.g. Stormlord.sid or Fruitbank.sid)
-and trace it through `sidm2-siddump` to get real load-address/init/play/ZP
-facts, and to actually confirm or refute the relationship to plain
+No disassembly done by this project directly — CSDb still has no standalone
+release for this driver (only in-game/demo usage), consistent with it being
+an in-house, hand-assembled tool rather than a distributed product. However,
+a public third-party reconstruction now exists: `github.com/realdmx/c64_6581_sid_players`
+(MIT licence) contains ACME-format conversions of two Bjerregaard/MoN-era
+tunes, `Bjerregaard_J_Myth.asm` and `Bjerregaard_J_James_Bond_3.asm`, each
+headed "Converted from TurboAssembler to ACME by dmx87". Both agree on:
+- Load address `$1000`.
+- Three jump vectors at the load address: init (`SETMUS`/`setmus`, A = song
+  number per source comment), stop (`MUSOFF`/`musoff`), and play
+  (`PLAY`/`play`, invoked "in irq-interrupt" per source comment — an
+  IRQ-driven player, not a polled/PSID-timed one; exact CIA-vs-raster setup
+  is not shown in either file since neither includes the IRQ-installation
+  code, only the driver body from the vector table down).
+- Zero page usage `zp`/`zp+1` = `$fc`/`$fd`.
+- A software tempo divider (`tempocnt` decremented each play call, reloaded
+  from a per-song `temposet` value) rather than a fixed call-rate multiplier.
+- Per-voice state tables (`gate`, `transp`, `seqno`, `glide`, `notsetyet`,
+  `vibdir`, `vibrate`, `pwtimes`, `ftms`, indexed 0-2 for three voices) and
+  labelled wave/pulse/filter/frequency data blocks (`w0`-`wa`, `p0`-`p5`,
+  `f0`-`f2`, `n0`-`nf`, `fqdatlo`/`fqdathi`), but this pass did not extract
+  their absolute layout or byte widths — `data_format.*` stays mostly `TODO`.
+
+This is a **source-documented** finding, not an independently verified one:
+`dmx87`'s conversion has not been reassembled and diffed against a real
+`.sid` (e.g. Stormlord.sid or Myth.sid itself) via `sidm2-siddump` by this
+project. Two independently-converted files agreeing on load address/vectors/
+ZP is reasonable corroboration, but a future pass should still (a) confirm
+byte-identical playback against the original binary, and (b) map the
+order-list/pattern/instrument formats that remain `TODO`, and (c) use this
+same source to actually settle the still-unconfirmed relationship to plain
 "Bjerregaard" and to Audiomaster V1 at the byte level.
 
 ## Verification
 
-**Not verified — `status: stub`.** Only identity/provenance facts are
-recorded, sourced from the cached SIDId entry, this project's local composer
-data, and VGMPF's narrative history of Johannes Bjerregaard and Maniacs of
-Noise. No runtime fact (memory map, entry points, speed model, data format)
-has been confirmed by disassembly; all are honestly `TODO`.
+**Not verified — `status: in-progress`.** Identity/provenance facts are
+sourced from the cached SIDId entry, this project's local composer data, and
+VGMPF's narrative history of Johannes Bjerregaard and Maniacs of Noise, as
+before. This pass adds several Tier 3 runtime facts (load address, init/play/
+musoff vectors, zero-page pair, tempo-divider speed model) sourced from a
+public MIT-licensed third-party source reconstruction
+(`realdmx/c64_6581_sid_players`), per this project's rule that a public
+source repo which plainly documents a runtime fact earns `in-progress`
+without requiring this agent to disassemble. It has NOT been reassembled and
+traced through `sidm2-siddump`/`mcp-c64` against a real `.sid`, so `status`
+stays `in-progress`, not `verified`. Data-format fields (order list, pattern,
+instrument, wave/pulse/filter table layouts) remain honestly `TODO`.
 
 ## Sources
 
@@ -144,5 +175,7 @@ See the `sources` array — SIDId's `MoN/Bjerregaard` and `(Audiomaster_V1)`
 entries, `knowledge/COVERAGE.md`, local `data/composers/*.json` aggregation
 (including per-title cross-checking against VGMPF), VGMPF's Johannes
 Bjerregaard and Maniacs of Noise wiki pages, the CSDb Stormlord SID entry and
-Bjerregaard's CSDb scener page, and the sibling `mon-deenen.md`/`dmc.md`
-cards this one cross-references to rule out conflation.
+Bjerregaard's CSDb scener page, the sibling `mon-deenen.md`/`dmc.md`
+cards this one cross-references to rule out conflation, and the newly-found
+public source repo `github.com/realdmx/c64_6581_sid_players` (MIT licence)
+with its two Bjerregaard/MoN-era ACME reconstructions.

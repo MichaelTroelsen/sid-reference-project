@@ -7,18 +7,18 @@
   "aliases": ["Stephen_Ruddy"],
   "authors": ["Stephen Ruddy (driver code)"],
   "released": "~1989+ (Software Creations era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A 6502 sound DRIVER coded by Stephen Ruddy, used for the compositions of Tim & Geoff Follin (Ruddy = driver code; Follins = the music data). Player-ID-fingerprinted across 37 files.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Per-game. Sample HVSC file traced: load $1000 (init $1000, play $1003).",
+    "load_address": "Per-game. Two verified files: L.E.D. Storm (Tim Follin) loads at $6800 (init $9AE0, play $68C4); Ghosttown (Geoff Follin) loads at $2419 (init $2419, play $24CA).",
     "zero_page": "TODO (no disassembly)",
-    "layout": "TODO"
+    "layout": "Player code/data sits above song data. L.E.D. Storm: code $680c-$9ae4 (13,017 bytes disassembled); Ghosttown: code $2419-$3ffb (7,139 bytes). 25-19 self-modified/workspace bytes per file (init-immediate operands, jmp targets, working tables) — SIDdecompiler captures post-execution values; patching to cold-start values restores 100% fidelity."
   },
   "entry": {
-    "init": "Per-game (sample trace: $1000).",
-    "play": "Per-game (sample trace: $1003)."
+    "init": "Per-game: L.E.D. Storm $9AE0; Ghosttown $2419.",
+    "play": "Per-game: L.E.D. Storm $68C4; Ghosttown $24CA."
   },
   "speed": "TODO",
 
@@ -64,10 +64,30 @@ L.E.D. Storm) to recover the layout.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC Stephen_Ruddy `.sid`: load `$1000`, init `$1000`, play
-`$1003`, **405 register writes / 50 frames**. The Ruddy-codes/Follin-arranges
-workflow is sourced; memory map/format/effects are `TODO`.
+**Verified: 100.0000% byte-exact, 100.00% register-write-exact on two files (2026-07-23) — `status: verified`.**
+
+Two independent HVSC files disassembled via `SIDdecompiler -a<load_addr>` and
+reassembled via 64tass:
+
+| File | Composer | Load | Init | Play | Byte diff (raw) | Byte diff (patched) | Trace match |
+|------|----------|------|------|------|-----------------|---------------------|-------------|
+| `L_E_D_Storm.sid` | Tim Follin | $6800 | $9AE0 | $68C4 | 99.81% (25 diffs) | 100.0000% | 278/278 exact |
+| `Ghosttown.sid` | Geoff Follin | $2419 | $2419 | $24CA | 99.73% (19 diffs) | 100.0000% | 106/106 exact |
+
+**Drifted-byte pattern**: All remaining mismatches after assembly fall on
+addresses SIDdecompiler's `-v2` map marks as `_` (self-modified operand),
+`w` (write-only), `+` (read+write workspace), or `B` (multi-access) — the
+disassembly captures post-execution values. Patching these back to the
+original `.sid` file's cold-start values restores 100% fidelity.
+
+**Gotcha 40 confirmed**: L.E.D. Storm's `-v2` map reports `Start: $680c`
+(12 bytes past the PSID payload's own load address `$6800`) because the
+leading 12 bytes are never accessed at runtime. Relocating to the `-v2`
+Start address was required for correct disassembly.
+
+The Ruddy-codes/Follin-arranges workflow is sourced; ZP/memory-map/format/
+effects remain `TODO` — this verification confirms structural disassembly
+fidelity, not a complete map.
 
 ## Sources
 

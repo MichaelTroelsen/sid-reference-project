@@ -7,7 +7,7 @@
   "aliases": ["JCH_OldPlayer"],
   "authors": ["Jens-Christian Huus (JCH)"],
   "released": "TODO: pre-1988 (predates JCH NewPlayer)",
-  "status": "stub",
+  "status": "in-progress",
   "platform": "Native C64 player routine",
   "csdb_release": null,
 
@@ -17,8 +17,8 @@
     "layout": "TODO: not found in SIDM2"
   },
   "entry": {
-    "init": "TODO: not found in SIDM2",
-    "play": "TODO: not found in SIDM2"
+    "init": "= load (init at load address, e.g. $4000 or $8800) — confirmed on 3 HVSC files",
+    "play": "= load+3 (e.g. $4003 or $8803) — confirmed on 3 HVSC files"
   },
   "speed": "TODO: not found in SIDM2",
 

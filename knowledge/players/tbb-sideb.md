@@ -50,14 +50,18 @@
     "SIDId's own index (sidid.nfo) carries only an AUTHOR field for this tag — no Name/Released/Reference/Comment. Confirmed by fetching the raw entry from https://github.com/cadaver/sidid/blob/master/sidid.nfo directly (block reads exactly 'TBB/SideB / AUTHOR: Tero Hilpinen (TBB)', nothing else). This is consistent with an unpublished, in-house routine rather than a distributed tool: no CSDb release ID exists for the player/tool itself (only for individual .sid tunes that use it).",
     "Extremely concentrated usage: 94 files in this collection tag as TBB/SideB, spread across only 4 composers (per data/composers/*.json): Barracuda/Toni Nisula 57 (61%), AMJ/Juha-Matti Hilpinen 21 (22%), TBB/Tero Hilpinen himself 11 (12%), Page/Toni Hilpinen 5 (5%). Per HVSC Musicians.txt, TBB, AMJ, and Page are three siblings surnamed Hilpinen, all members of group Side B ('AMJ (Audio Master J) (Hilpinen, Juha-Matti) / Side B', 'Page (Hilpinen, Toni) / Side B / Deathsector', 'TBB (Hilpinen, Tero) / Side B & Extend' — https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt). This reads as a personal/family routine used inside one group, not a widely published tool — textbook 'small-scene routine' per the concentration heuristic in knowledge/EXTRACTION-TEMPLATE.md.",
     "Barracuda (Toni Nisula, Finland) is the outlier: he is not a Hilpinen, but per CSDb he is credited to group Extend (https://csdb.dk/group/?id=173), the same group TBB himself was a founding member of ('The Beasty Boy' is listed as one of Extend's seven founders, established 1989-12-12) and is explicitly tagged alongside in TBB's own HVSC line ('Side B & Extend'). Barracuda's tunes tagged TBB/SideB in this collection date as late as ~2015-2025 (composer profile active year 2025), decades after TBB's own 1990s tunes — suggesting the routine/tune template was handed down or reused within the Side B/Extend circle long after TBB's own active period, though this is an inference from group overlap, not a documented statement.",
-    "Load/init/play addresses checked on CSDb are NOT consistent across the four composers' tunes, so identical-binary reuse is not confirmed: TBB's 'Tribute 2 Sinatra' (https://csdb.dk/sid/?id=27958) is load $1000 / init $1000 / play $1003, and Barracuda's 'Aerial Core' (https://csdb.dk/sid/?id=52301) matches exactly ($1000/$1000/$1003) — but AMJ's 'SYS4096' (https://csdb.dk/sid/?id=7787) is load $1000 / init $2656 / play $265F, a different init/play pair. Do not assume a single fixed entry point without checking more files."
+    "Load/init/play addresses checked on CSDb are NOT consistent across the four composers' tunes, so identical-binary reuse is not confirmed: TBB's 'Tribute 2 Sinatra' (https://csdb.dk/sid/?id=27958) is load $1000 / init $1000 / play $1003, and Barracuda's 'Aerial Core' (https://csdb.dk/sid/?id=52301) matches exactly ($1000/$1000/$1003) — but AMJ's 'SYS4096' (https://csdb.dk/sid/?id=7787) is load $1000 / init $2656 / play $265F, a different init/play pair. Do not assume a single fixed entry point without checking more files.",
+    "No standalone editor/tool release exists anywhere on CSDb or Demozoo for this routine, reinforcing the 'unpublished in-house routine' reading. Checked directly: the CSDb group page for Side B (Finland, https://csdb.dk/group/?id=140) lists 13 releases, all typed 'Music' (SID tunes only, 1993-1999) — no 'Music Editor' or 'Tool' release. TBB's own Demozoo scener profile (36 productions, 1990-2024, https://demozoo.org/sceners/3303/) and AMJ's (47 productions, https://demozoo.org/sceners/3188/) likewise show only demos/intros/music/musicdisks/one unrelated SEUCK-cracking tool (AMJ's 'SEUCK-Buster', 2006) — nothing resembling a music editor or player-routine release.",
+    "TBB's Demozoo profile lists two earlier scene aliases predating the 'TBB' handle: 'The Beasty Boy' and 'The Big Byte' (https://demozoo.org/sceners/3303/) — consistent with the 'Beasty Boy' founder credit already noted on the Extend group page."
   ],
   "sources": [
     "SIDId sidid.nfo, tag TBB/SideB, author-only entry — https://github.com/cadaver/sidid/blob/master/sidid.nfo ; mirrored locally at data/sidid.json (byTag['TBB/SideB'])",
-    "Local dataset: 94 files across 4 composers tagged TBB/SideB (see knowledge/COVERAGE.md, row 18; counted directly from data/composers/*.json)",
+    "Local dataset: 94 files across 4 composers tagged TBB/SideB (see knowledge/COVERAGE.md, row 18; counted directly from data/composers/*.json — re-verified: AMJ 21, Barracuda 57, Page 5, TBB 11)",
     "HVSC Musicians.txt handle/group entries for TBB, AMJ, and Page — https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt",
     "CSDb group page for Extend (Finland), founding members incl. 'The Beasty Boy' (TBB) — https://csdb.dk/group/?id=173",
-    "CSDb SID entries checked individually: Tribute 2 Sinatra (TBB, 1998) https://csdb.dk/sid/?id=27958 ; Viidakko (TBB, 1996) https://csdb.dk/sid/?id=27959 ; Blasphemy (AMJ, 1994) https://csdb.dk/sid/?id=7771 ; SYS4096 (AMJ, 1995) https://csdb.dk/sid/?id=7787 ; Aerial Core (Barracuda, 2015) https://csdb.dk/sid/?id=52301"
+    "CSDb group page for Side B (Finland), all 13 releases typed 'Music', no tool/editor release — https://csdb.dk/group/?id=140",
+    "CSDb SID entries checked individually: Tribute 2 Sinatra (TBB, 1998) https://csdb.dk/sid/?id=27958 ; Viidakko (TBB, 1996) https://csdb.dk/sid/?id=27959 ; Blasphemy (AMJ, 1994) https://csdb.dk/sid/?id=7771 ; SYS4096 (AMJ, 1995) https://csdb.dk/sid/?id=7787 ; Aerial Core (Barracuda, 2015) https://csdb.dk/sid/?id=52301",
+    "Demozoo scener profiles cross-checked for tool/editor releases: TBB (36 productions) https://demozoo.org/sceners/3303/ ; AMJ (47 productions) https://demozoo.org/sceners/3188/"
   ]
 }
 ```
@@ -82,7 +86,13 @@ See the `quirks` array in the JSON block: the SIDId entry is author-only (no
 release/reference), usage is concentrated in one Finnish family/group
 (Hilpinen siblings TBB/AMJ/Page plus groupmate Barracuda), and spot-checked
 load/init/play addresses on CSDb are inconsistent across composers, so no
-single fixed entry point should be assumed.
+single fixed entry point should be assumed. A follow-up pass cross-checked
+CSDb's Side B group page and both TBB's and AMJ's Demozoo profiles directly
+for any tool/editor release under this or a related name — none exists; every
+production is typed Music/Demo/Musicdisk (one unrelated SEUCK-cracking tool
+by AMJ). This is corroborating evidence, not new identity data, but it
+closes off the obvious "maybe it just isn't linked from SIDId" alternative
+explanation.
 
 ## Disassembly notes
 

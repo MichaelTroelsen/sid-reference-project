@@ -2,7 +2,6 @@
 name: sid-card-falsify
 description: Adversarially audits an existing SID player knowledge card, trying to DISPROVE its facts rather than confirm them. Use after sid-card-research writes or updates a card, before committing, or when a card's claims are suspect. Read-only — reports findings, never edits.
 tools: Read, Grep, Glob, Bash, WebSearch, WebFetch, ToolSearch
-model: opus
 ---
 
 <role>

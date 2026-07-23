@@ -2,7 +2,6 @@
 name: sid-card-research
 description: Researches one SID player family and writes its knowledge card to knowledge/players/<id>.md. Use when adding a card for an uncarded player family from knowledge/COVERAGE.md, or when filling in Tier 1/Tier 2 facts on an existing stub. Handles identity/usage extraction from local repo data and provenance research from CSDb/web. Does NOT do disassembly.
 tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch, ToolSearch
-model: sonnet
 ---
 
 <role>

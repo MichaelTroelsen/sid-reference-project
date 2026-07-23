@@ -64,12 +64,17 @@ Gremlin at all: Steve Rowlands (Apex Computer Productions), Johannes
 Bjerregaard (Denmark), and FCS (Finland Cracking Service). SIDId's own
 comment on the tag — "a few editors are written for this player, see
 subids" — independently signals a shared underlying routine with
-multiple front-end editors, not a personal tool. Given a real
-counter-example already exists in this KB for "same name, different
-driver" (`dave-spicer-v1`/`dave-spicer-v15`), this card treats V3 as
-a genuinely separate, currently unidentified driver rather than
-folding it into the Music Master card on the strength of a shared tag
-prefix alone.
+multiple front-end editors, not a personal tool, and this session
+confirmed that pointer against SIDId's upstream GitHub source: one
+named "subid" is "We-Music Editor" (v1.0/v1.1, 1987-88), an
+independently-authored Finnish tool by Juha Granberg/Finland Cracking
+Service, unrelated to Crowther or Gremlin — accounting for roughly 9 of
+the 83 files here (FCS + Rock). Given a real counter-example already
+exists in this KB for "same name, different driver"
+(`dave-spicer-v1`/`dave-spicer-v15`), this card treats V3 as a
+genuinely separate, currently unidentified driver rather than folding
+it into the Music Master card on the strength of a shared tag prefix
+alone.
 
 ## Quirks & gotchas
 
@@ -88,6 +93,15 @@ See the `quirks` array — the load-bearing ones:
 - **A 7-year usage span** (1986-1993) is unusually wide for one
   actively-developed tool, more consistent with a stable, long-reused
   commercial routine than a versioned line under active revision.
+- **SIDId's "see subids" pointer is now confirmed, not speculative**:
+  upstream `sidid.nfo` (github.com/cadaver/sidid, fuller than this
+  project's locally cached snapshot) lists two named sub-entries,
+  `(FCS_V1.0)`/`(FCS_V1.1)` — "We-Music Editor", an independently
+  authored Finnish tool (Juha Granberg/Finland Cracking Service, Finnish
+  Gold, 1987-88) with no stated Crowther/Gremlin connection of its own —
+  which plausibly explains the FCS (3) and Rock (6) composers in this
+  tag's breakdown. Daglish's and Rowlands' portions remain unexplained
+  by any named subid.
 
 ## Disassembly notes
 
@@ -111,7 +125,9 @@ informed rather than from zero.
 
 ## Sources
 
-See the `sources` array — SIDId's `Antony_Crowther_V3` entry, this
-dataset's own composer/file breakdown, VGMPF's Ben Daglish page, three
-CSDb SID-file pages, the Steve Rowlands Lemon64 interview, and the
-related antony-crowther and dave-spicer-v1 cards.
+See the `sources` array — SIDId's `Antony_Crowther_V3` entry (locally
+cached and, for the subids, the fuller upstream github.com/cadaver/sidid
+copy), this dataset's own composer/file breakdown, VGMPF's Ben Daglish
+page, three CSDb SID-file pages plus the two We-Music Editor release
+pages, the Steve Rowlands Lemon64 interview, and the related
+antony-crowther and dave-spicer-v1 cards.

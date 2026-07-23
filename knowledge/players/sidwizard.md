@@ -13,7 +13,7 @@
 
   "memory": {
     "load_address": "Relocatable / exported (SWP export carries the music-data base in X/Y at init). TODO: no fixed absolute map documented in fetched source excerpts.",
-    "zero_page": "Base `PLAYERZP` (2 pointer locations); the routine SAVES/RESTORES those 2 ZP locations so it can overlap other code. TODO: the concrete address of PLAYERZP.",
+    "zero_page": "PLAYERZP = $FE (base, from player.asm comment `PLAYERZP = $FE` at line 10 — the replay saves/restores 2 bytes at $FE-$FF via PHA/PLA when ZEROPAGESAVE_ON is set). Additional ZP allocation descends from $FC downward: per-SID-channel sequence pointers, JumpTarget, SWP_OFFSET (if SWP export), and further per-channel state — exact depth compile-time dependent on subtune/2SID/3SID/SWP/CHORD_SUPPORT/TEMPO_PRG/FASTSPEED_BIND options.",
     "layout": "SWM module: 64-byte fixed tune header, then Sequences (orderlist), Patterns, Instruments. Per-instrument wave/pulse/filter program tables begin at instrument offset $10. TODO: absolute table addresses (relocatable)."
   },
   "entry": {
@@ -31,7 +31,7 @@
     "filtertable": "Per-instrument filter program, position counter FLTPOSI, same $FE/$FF control bytes."
   },
   "effects": {
-    "encoding": "Hardwired effect-value ranges (notes $00-$5F below them). Anchors confirmed from source: VIBRATOFX=$60, PORTAMFX=$78, GATEONFX=$7D, GATEOFFX=$7E; sync/ring, filter, legato/volume effects in separate ranges; chord/tempo tables use $7E/$7F sentinels. TODO: the full effect-value table (read native/sources/SWM-spec.src).",
+    "encoding": "**Note column** (hardwired, per SWM-spec.src): $00-$5F = notes (SWM_NOTE_MAX=$5F); $60-$6F = vibrato effect values (VIBRATOFX base=$60); $70-$77 = packed NOP compression (PACKEDMIN=$70 = 2 NOPs, PACKEDMAX=$77 = 9 NOPs); $78 = auto-portamento (PORTAMFX, DEFAULTPORTA=110); $79 = sync-on (SYNCONFX); $7A = sync-off (SYNCOFFX); $7B = ring-on (RINGONFX); $7C = ring-off (RINGOFFX); $7D = gate-on / note-start (GATEONFX); $7E = gate-off / note-mute (GATEOFFX). **Other columns** (InstrumentFX, SmallFX, BigFX): see user manual; key sentinels from spec: SWM_VOLUME_SMALLFX=$50, SWM_LEGATO_INSFX=$3F, SWM_VIBRATO_BIGFX=8, SWM_DETUNE_FX=$0D, SWM_NOTEDELAY_FX=$1E. Chord table uses $7E/$7F as separators; tempo table uses bit7=ON bytes as separators.",
     "commands": {}
   },
 
@@ -47,15 +47,15 @@
     "The play loop iterates channels in a fixed INTERLEAVED order (3,6,9,12 / 2,5,8,11 / 1,4,7,10) via DOTRACK, then COMMONREGS writes shared filter/volume — worth knowing if diffing its register-write order against other players.",
     "Flexible per-instrument 'SID-table' program approach: wave/pulse/filter each run as an independent program with its own position counter and $FE jump / $FF terminate control bytes.",
     "The replay saves/restores its 2 ZP pointer locations, so it deliberately overlaps other code's ZP usage.",
-    "LICENSE CONFLICT to resolve before treating source as reusable: forks' README say WTFPL-style 'do what you want'; SourceForge metadata says Public Domain. Confirm from the tree's own LICENSE file.",
+    "Licensed WTFPL per author's README.txt (`let's declare SID-Wizard as a WTF-licensed tool, so you can do WTF you want with it`). SourceForge's 'Public Domain' metadata predates the author's departure from that platform; the authoritative statement is the README in the actively maintained source tree. No separate LICENSE file exists in the repo.",
     "Long-lived and actively maintained (v1.0 2012 -> v1.7 2021 -> v1.93 2025); the anarkiwi fork (Vessel) tracks a 1.97 line. Hermit also authored related tools (3SID, FlexSID, 1RasterTracker) that tag separately."
   ],
   "sources": [
-    "Source tree (player.asm, SWM-spec.src, README/license): https://github.com/anarkiwi/sid-wizard (full-tree mirror); canonical http://hermit.sidrip.com and github.com/hermitsoft/ (exact repo name TODO — direct path 404'd during research)",
+    "Source tree (player.asm, SWM-spec.src, README): https://github.com/anarkiwi/sid-wizard (full-tree fork tracking upstream 1.97; `native/sources/include/player.asm`, `native/sources/SWM-spec.src`). Upstream author: http://hermit.sidrip.com ; GitHub profile https://github.com/hermitsoft/ (SID-Wizard source repo not found at the obvious `hermitsoft/SID-Wizard` path — may be private/renamed; SourceForge https://sourceforge.net/projects/sid-wizard/ has abandoned 1.7 binary only)",
     "SID-Wizard 1.4 User Manual (PDF): https://www.c64.cz/data2/download/x11/113614/SID-Wizard-1.4-UserManual.pdf",
     "CSDb release + author: https://csdb.dk/release/?id=255544 , https://csdb.dk/scener/?id=18806",
     "sidid:Hermit/SidWizard_V1.x (author Mihály Horváth (Hermit); v1.0 2012, CSDb release 110942)",
-    "Local dataset: 988 files tagged Hermit/SidWizard_V1.x (see knowledge/COVERAGE.md)"
+    "Local dataset: 989 files tagged Hermit/SidWizard_V1.x across 156 composers"
   ]
 }
 ```
@@ -66,7 +66,7 @@ SID-Wizard is a native C64 SID tracker/editor by Mihály Horváth (Hermit),
 open source from its first 2012 release and still maintained. It uses its own
 engine — the SWM module format and a jump-table-driven 6502 replay
 (`native/sources/include/player.asm`) — rather than any JCH/Laxity lineage.
-It's a notable modern player (988 tagged files) known for its flexible
+It's a notable modern player (989 tagged files) known for its flexible
 per-instrument "SID-table" programs (independent wave/pulse/filter programs
 with their own position counters and jump/terminate control bytes).
 
@@ -75,9 +75,10 @@ with their own position counters and jump/terminate control bytes).
 See the `quirks` array. The load-bearing ones: **it's its own engine** (not
 JCH/Laxity-derived); the **interleaved channel order** (3,6,9,12 / 2,5,8,11 /
 1,4,7,10) in the play loop, which matters if comparing its register-write
-sequence against other players; the **save/restore-ZP** overlap trick; and a
-**license conflict** (WTFPL vs Public Domain across sources) to resolve from
-the repo's own LICENSE before treating the source as reusable.
+sequence against other players; the **save/restore-ZP** overlap trick
+(PLAYERZP=$FE, saves/restores $FE-$FF via PHA/PLA); and the
+**WTFPL license** (author's README.txt, no separate LICENSE file -
+SourceForge's "Public Domain" metadata is stale/abandoned).
 
 ## Disassembly notes
 
@@ -99,9 +100,10 @@ as "Unreferenced data" (this subtune's trace never called
 embedded ASCII signature, `" SID-WIZARD 1.8 "` (bytes `$100F-$101F`) — a
 concrete, file-confirmed detail not previously in the card. The 64-byte
 tune header described in `data_format.layout` then begins around `$1020`.
-Absolute addresses remain relocatable/per-file as documented; the exact
-effect-value table beyond the confirmed anchors ($60/$78/$7D/$7E) still
-needs a direct read of `SWM-spec.src`.
+Absolute addresses remain relocatable/per-file as documented. The complete
+effect-value table is now transcribed from `SWM-spec.src` in
+`effects.encoding` above — notes $00-$5F, vibrato $60-$6F, packed NOP
+$70-$77, portamento $78, sync/ring on/off $79-$7C, gate on/off $7D-$7E.
 
 **2026-07-19 follow-up — the init routine at `$109f` explicitly zeroes the
 whole `$1021-$1089` tune-header region before using it**: `jsr l1664 / lda
@@ -287,12 +289,25 @@ restoration) works across files, but the *extent* of load-bearing working
 storage is file-dependent — 2 bytes on Border_Odyssey vs 83 bytes on
 Hermyth. Both files trace-exact after patching. `status` remains `verified`.
 
-Remaining `TODO`, unaffected by this pass since none of it was needed to
-reach byte/trace parity on these files: exact license text, an
-absolute/universal memory map (this player is still genuinely
-relocatable per-file — that isn't a gap in analysis, it's how the format
-actually works), the concrete `PLAYERZP` address, the full effect-value
-table beyond the confirmed anchors, and the exact `hermitsoft` repo name.
+**2026-07-23 — provenance TODOs resolved from source tree.** The four
+remaining Tier 2 TODOs from the 2026-07-20 pass are now filled:
+
+- **PLAYERZP**: `$FE` (base, per `player.asm` comment `PLAYERZP = $FE` at line 10).
+  The replay saves/restores 2 bytes at `$FE-$FF`. Additional ZP allocation
+  descends from `$FC` downward, compile-time dependent.
+- **Effect-value table**: fully transcribed from `SWM-spec.src` into
+  `effects.encoding` — notes `$00-$5F`, vibrato `$60-$6F`, packed NOP
+  `$70-$77`, portamento/sync/ring/gate `$78-$7E` (hardwired, not to be modified).
+- **License**: WTFPL per author's README.txt (`"let's declare SID-Wizard as a
+  WTF-licensed tool"`). No separate LICENSE file exists. SourceForge's "Public
+  Domain" metadata is from the abandoned pre-1.7 era — not authoritative.
+- **Repo name**: Active fork is `anarkiwi/sid-wizard`. Upstream author's
+  GitHub is `github.com/hermitsoft/` but the SID-Wizard source repo was not
+  found at the obvious paths (404 at `hermitsoft/SID-Wizard`); SourceForge
+  has abandoned 1.7 binary only.
+  
+The one remaining TODO is the absolute/universal memory map — that is
+genuinely relocatable per-file by design, not a gap in analysis.
 
 ## Sources
 

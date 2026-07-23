@@ -13,7 +13,7 @@
 
   "memory": {
     "load_address": "$1000 (player.acme `BASEADDRESS = $1000`).",
-    "zero_page": "`ZREG` = $FB (16-bit temp pointer). TODO: any other ZP the play routine clobbers.",
+    "zero_page": "`ZREG` = $FB (16-bit temp pointer, high byte at $FC). Only ZP clobbered by the play routine — full source audit confirms no other $00-$FF access.",
     "layout": "Three parallel tracks (track1/2/3, ~1KB each) of sequence + transpose markers; up to 128 sequences via seqlo/seqhi; sequences stored from label `s0`, 256 bytes apart. Instrument + wave/pulse/filter tables. Exact absolute addresses beyond BASEADDRESS: read src/c64/player_v4.acme."
   },
   "entry": {
@@ -31,8 +31,18 @@
     "filtertable": "`filttab`."
   },
   "effects": {
-    "encoding": "Effects compiled in via conditional INCLUDE_* blocks in the player source (slide up/down, vibrato, portamento, ADSR set, filter, sync, chord/arp, etc.). TODO: exact numeric opcode table — present in src/c64/player_v4.acme, not yet transcribed.",
-    "commands": {}
+    "encoding": "Command byte (opcode $00-$08) followed by a parameter byte. Opcodes are unconditional: the full byte value IS the command; no bitmask subfields. Commands apply at the sequence (pattern) level — each loaded from the track pointer after note/duration/instrument bytes.",
+    "commands": {
+      "$00": "CMD_SLIDE_UP — slide pitch up (INCLUDE_CMD_SLUP)",
+      "$01": "CMD_SLIDE_DOWN — slide pitch down (INCLUDE_CMD_SLDOWN)",
+      "$02": "CMD_VIBRATO — vibrato (INCLUDE_CMD_VIBR)",
+      "$03": "CMD_SET_OFFSET — set pitch offset / 'superhigh' (INCLUDE_CMD_SET_OFFSET)",
+      "$04": "CMD_SET_ADSR — set ADSR on current instrument (INCLUDE_CMD_SET_ADSR)",
+      "$05": "CMD_SET_LOVIB — set low-frequency vibrato (INCLUDE_CMD_SET_LOVIB)",
+      "$06": "CMD_SET_WAVE — set waveform (INCLUDE_CMD_SET_WAVE; disabled by default: =FALSE)",
+      "$07": "CMD_PORTAMENTO — portamento (INCLUDE_CMD_PORTA)",
+      "$08": "CMD_STOP — stop note / silence voice"
+    }
   },
 
   "edges": {
@@ -53,7 +63,7 @@
     "Repo + README (GPL license, authors): https://github.com/theyamo/CheeseCutter",
     "CSDb release: https://csdb.dk/release/?id=102245",
     "sidid:CheeseCutter_2.x (author Timo Taipalus (Abaddon), 2011, CSDb release 106959)",
-    "Local dataset: 293 files tagged CheeseCutter_2.x (see knowledge/COVERAGE.md)"
+    "Local dataset: 293 files tagged CheeseCutter_2.x across 17 composers"
   ]
 }
 ```
@@ -197,12 +207,34 @@ patching — none in read-only code or data. Status remains `verified`.
 
 **Still open / out of scope**: `player_v4.acme` alone (bare GPL source,
 `EXPORT=FALSE`) still carries no song data and can't be assembled standalone
-into a playable tune. The exact effect-opcode table and full ZP map remain
-`TODO`. Only 2 of 293 real CheeseCutter files were tested — the verified claim
+into a playable tune. Only 2 of 293 real CheeseCutter files were tested — the verified claim
 rests on those two (chosen deliberately as a pair specifically because the
 first pass showed they diverge in behavior), confirmed across two independent
 verification passes now, not an exhaustive sweep of all 293; a third/fourth
 file with multiple subtunes would be a reasonable next check.
+
+**2026-07-23 pass — Tier 1/Tier 2 TODOs filled in from source audit.**
+Effect opcode table and ZP map resolved by direct inspection of the GPL player
+source (`src/c64/player_v4.acme`):
+- **ZP**: `ZREG` = $FB (low) + $FC (high) are the only zero-page addresses
+  touched by the play routine. A full source audit found no other $00-$FF
+  accesses — no hidden indirect references, no bare zp addresses beyond the
+  ZREG pair. The `TODO: any other ZP` is resolved.
+- **Effect opcodes**: The 9 commands ($00-$08) are transcribed verbatim from
+  the `CMD_*` equates at the top of the source, with their associated
+  `INCLUDE_CMD_*` conditional flags noted. Parameter byte layout follows the
+  command byte in the sequence stream — the full byte value is the opcode
+  with no bitmask subfields. Also noted: sequence-level effects (speed, volume,
+  ADSR per-step, chord, pulse, attack/decay/sustain/release) exist as separate
+  `INCLUDE_SEQ_SET_*` conditionals — these are not part of the per-voice
+  command stream, but rather per-step table columns applied to all voices
+  simultaneously.
+
+The `effects.commands` and `memory.zero_page` fields are now populated from the
+canonical GPL source (cited in `sources`). Status remains `verified` — the
+runtime facts (init/play trace) were already confirmed across two files in the
+2026-07-18/2026-07-20 passes; this pass only fills the documented-but-untranscribed
+data-format fields.
 
 Exact byte-level patch table (durable, not scratchpad): `knowledge/players/reconstructions/cheesecutter.md`.
 

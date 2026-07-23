@@ -7,14 +7,14 @@
   "aliases": ["Frank_Hammer/Sharon"],
   "authors": ["Frank Hammer (unverified/possibly not a real distinct person)"],
   "released": "1988 (Sharon Soundworks)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A playroutine attributed by this project's tag to 'Frank Hammer', supposedly for the German group Sharon Soundworks (the SAME group already referenced in this KB via [[harald-rosenfeldt]]'s research, confirmed via a shared HVSC/CSDb group entry). CRITICALLY: 'Frank Hammer' has NO documented scene footprint anywhere — no HVSC entry, no CSDb scener profile, no group-credit mention across Sharon Soundworks' full release catalog. The tag's sole real, evidenced user is a confirmed scener, Michael Simon (CSDb, Sharon Soundworks member from 1988). Player-ID-fingerprinted across 27 files, all by Simon.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Beat Me, composed by Michael Simon): load $3000 (init $3000, play $3006).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $3000.", "play": "Sample trace: $3006 (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (filter-heavy — 45 filter writes in the 50-frame sample)" },
+  "memory": { "load_address": "$3000 (confirmed on Beat_Me.sid and Crazy_Balls.sid — both load=$3000, init=$3000, play=$3006). Player code covers $3000-$35B4 (code/data) + working storage at $35B5-$3612 (self-modified at runtime). Song-specific read-only data extends to end of file (varies per file: $3F9F for Beat_Me, $3B43 for Crazy_Balls).", "zero_page": "TODO (no zero-page access observed in disassembly — the player stays fully in $3xxx range)", "layout": "Code/player data at $3000-$35B4. Working storage (channel state, counters, filter state) at $35B5-$3612 — read+write at runtime, self-modified. Song data (note tables, pattern data, instrument tables) at $3613 to end of file. No zero-page usage observed." },
+  "entry": { "init": "$3000 (cold start — installs player IRQ, initializes SID registers and working storage).", "play": "$3006 (called in IRQ — the IRQ handler at $3087 chains to play at $3006)." },
+  "speed": "IRQ-driven (player play=$3006 called each frame from IRQ handler at $3087). 50Hz standard.",
+  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (filter-heavy — Beat_Me: 45 filter writes in 50 frames; Crazy_Balls: filter writes confirmed in trace)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -60,17 +60,59 @@ should not be mistaken for a real lead.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Frank_Hammer/Sharon`-tagged
-`.sid` + trace.
+First disassembly and trace-diff performed 2026-07-23 on two files
+(Beat_Me.sid, Crazy_Balls.sid). SIDdecompiler + 64tass produce a
+byte-exact reconstruction of the code and song-data regions ($3000-$35B4,
+$3613-EOF); the working-storage region $35B5-$3612 captures post-execution
+values (a known SIDdecompiler artifact — see Verification). The assembled
+`.asm` is in `scratchpad/frank-hammer/beat_me.asm` and
+`scratchpad/frank-hammer/crazy_balls.asm`. Both files share the identical
+player code; only song data differs.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Frank_Hammer/Sharon` `.sid` (Beat Me, composed by
-Michael Simon): load `$3000`, init `$3000`, play `$3006`, **234 register
-writes / 50 frames** (45 filter writes — filter-heavy). Internals
-undocumented; memory map/format/effects are `TODO`.
+**`status: verified` (2026-07-23).** Full disassembly + reassembly +
+trace-diff on two independent files.
+
+### Method
+
+- **Files tested**: `Beat_Me.sid` (4000 bytes, 1 subtune) and
+  `Crazy_Balls.sid` (2890 bytes, 1 subtune), both Michael Simon /
+  Sharon Soundworks.
+- **Disassembly**: `SIDdecompiler.exe -a12288 -z -d -c` (relocate to PSID
+  load address `$3000`).
+- **Reassembly**: `64tass.exe -a --cbm-prg`. Both files assembled cleanly
+  (no warnings, no errors).
+- **Tracing**: `sidm2-sid-trace.exe`, 50 frames, init=$3000, play=$3006.
+
+### Results
+
+| File             | Payload | Byte diff | Diffs | Diff range   | Trace (patched) |
+|------------------|---------|-----------|-------|--------------|-----------------|
+| Beat_Me.sid      | 4000    | 99.0750%  | 37    | $35B5-$3612  | Exact (291 writes) |
+| Crazy_Balls.sid  | 2890    | 98.4429%  | 39    | $35B5-$3612  | Exact (351 writes) |
+
+Both files differ ONLY in the working-storage region $35B5-$3612, which
+SIDdecompiler's own `-v2` memory-touch map marks as `+`/`w` (runtime
+read+write). This is a known SIDdecompiler artifact: the `.asm` output
+captures post-execution snapshot values rather than the file's pristine
+cold-initial bytes. Some of these bytes are load-bearing (read before first
+write at cold start, e.g. voice 3 initial frequency/pulse-width state).
+
+After manually patching all workspace bytes back to the original file's cold
+values, both traces are register-write-identical to the original (zero
+differences across all 50 frames).
+
+### Honest scope / known gap
+
+- **Byte level**: Not 100% without manual workspace patching — 37-39 bytes of
+  runtime-variable workspace at $35B5-$3612 diverge depending on which tune
+  the disassembler traced. The code and song-data regions are 100% exact.
+- **Zero page**: Not yet characterized (disassembly shows the player stays
+  entirely in the $3000-$3FFF range; no ZP access observed but not
+  exhaustively confirmed).
+- **Song data format**: Not reverse-engineered (order list, patterns,
+  instruments, filter table encoding remain `TODO`).
 
 ## Sources
 

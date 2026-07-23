@@ -18,7 +18,7 @@
   },
   "entry": {
     "init": "`START` (`SEI` first instruction), placed immediately after `ORG $4000` in the published source — i.e. $4000 in this build. `TUNE` is a second entry point that resets driver variables and loads voice program counters from `TUNETABLE` for a tune selected via `LDX #tune_number` / `JSR TUNE`.",
-    "play": "`REFRESH` — called once per raster interrupt from the game's IRQ handler (`JSR REFRESH` every frame, per the source's own header comment). Exact address not extracted (would require assembling the source; not done here)."
+    "play": "`REFRESH` at `$4AD6` (confirmed by assembly 2026-07-23) — called once per raster interrupt from the game's IRQ handler (`JSR REFRESH` every frame, per the source's own header comment)."
   },
   "speed": "Single-speed: REFRESH is called once per raster interrupt (video frame rate). Duration/tempo is table-driven via note-length constants (`TEMPO EQU 5`, `SQ`/`QV`/`CR`/`MN` = semiquaver/quaver/crotchet/minim as multiples of TEMPO) rather than a multispeed CIA scheme.",
 
@@ -96,26 +96,45 @@ dominating the composer breakdown in this project's data.
 
 ## Disassembly notes
 
-Not disassembled here (per this agent's Tier 1+2 scope) — but the published
-`DT88MusicSrc_dasm.asm` is real 6502 assembly source, not a decompile, so the
-facts pulled from it (load address `$4000`, ZP range `$20`-`$3A`, `START`/
-`TUNE`/`REFRESH` entry labels, single-speed per-raster-IRQ call, and the
-REST/JUMP/CALL/VIBON/ARPON/PATCH control-byte constants) are read directly
-from source comments/EQUs, not inferred. What's still missing: the exact
-`REFRESH`/opcode-handler addresses (would need assembling the source with
-DASM), the full pattern-byte opcode table, and the instrument/PATCH table
-layout. A future pass could assemble `DT88MusicSrc_dasm.asm` with DASM and
-trace it through `sidm2-siddump` against a real `MusDriver/Paul_Hughes`-tagged
-`.sid` from the HVSC collection to move this card toward `verified`.
+The published `DT88MusicSrc_dasm.asm` has been assembled with 64tass
+(2026-07-23 pass, DASM-to-64tass conversion) and confirmed to produce valid
+SID output when traced. Key labels: `START`=`$4000`, `TUNE`=`$4A68`,
+`REFRESH`=`$4AD6`. A real HVSC file
+(`Daley_Thompsons_Olympic_Challenge.sid`) was disassembled with
+SIDdecompiler and its REFRESH/TUNE routines are structurally identical to
+the published source — confirming it is the same driver, different build.
+See the Verification section for full details.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Promoted past `stub` because a
-public source (the author's own `DT88MusicSrc_dasm.asm`) plainly documents
-real memory-map/entry-point/speed facts (load address, ZP range, `START`/
-`TUNE`/`REFRESH` labels, single-speed raster-driven playback), each cited
-above. No assembly, execution, or `sidm2-siddump` trace was performed — the
-data-format/effects tables and exact runtime addresses remain `TODO`.
+**Status: `in-progress` (advancing toward, not yet fully verified).** The published source has been assembled, traced, and structurally cross-referenced against a real HVSC rip, but a byte-exact or trace-exact match has not been (and likely cannot be) achieved — see "Honest scope / known gap" below.
+
+### What was done (2026-07-23)
+
+- **Source assembled**: `DT88MusicSrc_dasm.asm` (Paul Hughes's DASM-ported DT88 driver + data, published on pauliehughes.com) was converted to 64tass syntax and successfully assembled: 8174 bytes, load address `$4000`, ending at `$5FED`. Conversion required: DASM `dc.b`→`.byte`, `dc.w`→`.word`, `ds.b`→`.fill`, `EQU`→`=`, `ORG $4000`→`* = $4000`, iterative `.`→`_` in dotted labels (e.g. `DRIVER.END`→`DRIVER_END`), `[...]` grouping→`(...)`, rename reserved symbol `S`→`SCRN`, fix negative literals in `.byte`→hex, fix strings-in-`.byte`→character bytes, and patch `CLI`→`RTS` at offset `$405E` so the init routine returns instead of entering the test framework's infinite display loop.
+- **Key addresses confirmed by assembly** (from `--labels` output):
+  - `START` (init): `$4000`
+  - `TUNE` (tune-selection init, called with tune number in X): `$4A68`
+  - `REFRESH` (per-frame play): `$4AD6`
+  - `R0` (IRQ handler, calls REFRESH each frame): `$46B9`
+- **Trace confirmed execution**: The assembled + patched source traced via `sidm2-sid-trace.exe` with init=`$4000`, play=`$4AD6`, 50 frames: 9 SID changes in frame 0 (osc1/osc2 sustain/control/freq/pw), 273 total register writes. Produces valid, non-trivial SID register writes — the driver code executes correctly.
+- **Structural cross-reference with real file**: A real HVSC rip (`Daley_Thompsons_Olympic_Challenge.sid`, Jonathan Dunn, load=`$1000`, init=`$2780`, play=`$2783`, 8 subtunes) was disassembled with SIDdecompiler (`-I10112 -P10115`, decimal for `$2780/$2783`). The disassembled REFRESH handler at `$28FF` and TUNE handler at `$2898` are structurally identical to the published source at `$4AD6`/`$4A68`:
+  - Same 3-voice playback loop (check MFLA/B/C flags, call MUSICA/B/C)
+  - Same SID clear loop (write `$08` then `$00` to `$D400`+0..22)
+  - Same variable-clear loop (CPY #count, BNE)
+  - Same self-modifying-code technique on operand bytes
+  - Same modulation/drum-flag iteration pattern (LDX VOICE_NUM, decrement through channels)
+  - Same control-byte dispatch (JUMP/CALL/RET/FOR/VIBON/ARPON/etc. opcode handlers visible in both)
+- **SIDdecompiler reassembly gap**: The real file's PSID header points to init at `$2780`, but the file also contains a loader stub at `$1000-$277F` (6016 bytes of compressed/relocated driver data + loader code, confirmed by the presence of duplicate init-code at `$1000`). SIDdecompiler's `-v2` memory map reports "Start: $2780" — it correctly skips the loader region. Reassembling the SIDdecompiler output produces only 5503 bytes (`$2780-$3CFE` coverage, 47.8% of the full payload), with the loader stub entirely absent. A byte-diff of the overlapping `$2780-$3CFE` region via SIDdecompiler reassembly was not attempted because the SIDdecompiler `.asm` output relocates to `$1000` (the PSID load address) but only contains code from `$2780+`, producing a structurally misaligned binary.
+
+### Honest scope / known gap
+
+- **Byte-exact verification is not achievable** between the published source and any real HVSC rip, because:
+  1. The published source is ONE specific game's build (DT88 test framework) at ONE specific address (`$4000`), including the full display/IRQ test harness.
+  2. Real HVSC rips are PSID files with per-game loader stubs, different load addresses (`$1000` in the tested example), and completely different song data — structurally the same driver, but not the same binary.
+  3. The published source is a full test framework (init calls TUNE then enters an infinite display loop); a PSID-compatible init must RTS, so code differences at the init boundary are by design.
+- **What IS verified**: The published source assembles, runs, and produces valid SID output. The real file's disassembled driver code matches the published source structurally. The published source is the same Music Driver by Paul Hughes used in Ocean/Imagine games — it is not a different driver or a reconstruction.
+- **What would close the gap toward `verified`**: Taking the SIDdecompiler disassembly of a real file, fixing the relocation to start at the `-v2` Start address (`$2780`, not the PSID load address `$1000`), and completing the byte-level patching of self-modified/working-storage bytes to achieve a trace-exact match with the original file. This would verify the SPECIFIC PSID rip's binary against its disassembly — a different goal from confirming the published source corresponds to the same driver, which this pass has done.
 
 ## Sources
 

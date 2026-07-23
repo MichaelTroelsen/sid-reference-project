@@ -2,7 +2,6 @@
 name: sid-player-verify
 description: Attempts to move one SID player card from stub/in-progress toward verified by disassembling a real HVSC file, reassembling it, and trace-diffing the result against the original. Use after sid-card-research has written or updated a card and you want an actual reconstruction attempt, not just research. Only flips status to verified on a real register-write match.
 tools: Read, Grep, Glob, Write, Edit, Bash, ToolSearch
-model: sonnet
 ---
 
 <role>

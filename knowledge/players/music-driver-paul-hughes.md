@@ -7,7 +7,7 @@
   "aliases": ["MusDriver/Paul_Hughes", "Paul_Hughes"],
   "authors": ["Paul Hughes"],
   "released": "1987-1988 (Ocean Software in-house; earliest confirmed use Daley Thompson's Olympic Challenge, C64, 1988; developed after Martin Galway left Ocean, c. 1986-87)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 sound driver, hand-written 6502 assembly, developed in-house at Ocean Software (with an Imagine Software credit on at least one game) — not a standalone GUI editor/tracker. Composers wrote note/pattern data as assembler tables alongside the driver and assembled the two together per game.",
   "csdb_release": null,
 
@@ -103,13 +103,49 @@ SID output when traced. Key labels: `START`=`$4000`, `TUNE`=`$4A68`,
 (`Daley_Thompsons_Olympic_Challenge.sid`) was disassembled with
 SIDdecompiler and its REFRESH/TUNE routines are structurally identical to
 the published source — confirming it is the same driver, different build.
-See the Verification section for full details.
+
+Separately (and this is what actually closed verification): two real HVSC
+files — `Daley_Thompsons_Olympic_Challenge.sid` (load `$1000`, init `$2780`,
+play `$2783`) and `Darkman.sid` (load `$a000`, init `$b300`, play `$a242`) —
+were each disassembled directly with SIDdecompiler at their own native PSID
+load address (no relocation-mismatch trap on either file — the `-v2` map's
+`Start:` address matched the PSID header's load address both times) and
+reassembled with 64tass. Both reassemble to a register-write-exact trace
+match against the real files, across every subtune, after patching a
+handful of self-modified/working-storage bytes back to pristine cold-start
+values. See the Verification section for full detail and exact byte counts.
 
 ## Verification
 
-**Status: `in-progress` (advancing toward, not yet fully verified).** The published source has been assembled, traced, and structurally cross-referenced against a real HVSC rip, but a byte-exact or trace-exact match has not been (and likely cannot be) achieved — see "Honest scope / known gap" below.
+**Status: `verified`.** A direct SIDdecompiler disassembly of two independent real HVSC files (not the published source, which is a different per-game build — see the superseded "Honest scope" note below) reassembles to a register-write-exact trace match against the originals, across every subtune tested, after patching a well-localized set of self-modified/working-storage bytes back to their pristine cold-start values. This is the same methodology and same class of result as `jch-newplayer`/`digitalizer`/`cheesecutter` etc.
 
-### What was done (2026-07-23)
+### Disassembly-based verification (2026-07-23, second pass)
+
+Two real HVSC files were disassembled directly (not the published DT88 test-framework source, which is a structurally different build — see below), following `knowledge/playbooks/disassemble-a-player.md`.
+
+**File 1: `Daley_Thompsons_Olympic_Challenge.sid`** (Jonathan Dunn, `MUSICIANS/D/Dunn_Jonathan/`)
+- PSID header: load `$1000`, init `$2780`, play `$2783`, 8 subtunes.
+- `SIDdecompiler.exe dt88.sid -odt88.asm -a4096 -z -d -c -v2` (no `-I`/`-P` override needed — header init/play used by default). `-v2` map: `Start: $1000 End: $3cfe` — matches the header's load address exactly (no relocation-mismatch trap here, gotcha 40 checked and clean).
+- Reassembled with 64tass: 11519 bytes, `$1000-$3cfe`, no `-Wwrap-pc`/`-Wwrap-mem` warnings — full payload length recovered (this supersedes the prior pass's claim of only 47.8% coverage/`$2780` Start — that reading was wrong, likely from a stale earlier run with different flags).
+- Byte-diff vs. the real payload: **97.9165% exact** (240 of 11519 bytes differ), across 80 short ranges. Cross-referencing every diverging address against the `-v2` memory-touch map: **100% of the diffs land on `+` (read+write) or `_` (self-modified operand) marked addresses** — no diff falls on a pristine, never-written byte. This is the drifted-working-storage-table pattern (gotcha 41 / lessons 10/16/17/20/29).
+- Trace-diff (`sidm2-sid-trace.exe`, init=`$2780`, play=`$2783`) at 30-300 frames across subtunes 0-7: **register-write-exact even before patching** — the only difference between the two traces' full output is the printed cold-start memory dump line at `$2784-$2785` (a self-modified JMP-vector operand, `$FFFF` pristine vs. `$106A` snapshot — confirmed dead, never read before being overwritten).
+- Patched the reassembled `.prg`'s 240 diverging bytes back to the original's pristine values (direct binary patch, not `.asm`-text edit — see gotcha 26/29): byte-diff closed to **100.0000% exact**. Re-traced all 8 subtunes at 60 frames: **0 diff lines on every subtune** (register-write-exact). Re-confirmed at 300 frames on 2 subtunes: still exact.
+
+**File 2: `Darkman.sid`** (Jonathan Dunn, same folder) — second file per lesson 42 (never generalize a "dead byte" conclusion from one file alone).
+- PSID header: load `$a000`, init `$b300`, play `$a242`, 4 subtunes.
+- `SIDdecompiler.exe darkman.sid -odarkman.asm -a40960 -z -d -c -v2` → `-v2` map `Start: $a000 End: $b30b` (matches load address; clean).
+- Reassembled: 4876 bytes, `$a000-$b30b` — 20 bytes short of the real 4896-byte payload. The missing tail (`$b30c-$b31f`) is `00 00 00 00 00 00 00 53 48 41 44 45 20 2f 20 49 4d 41 47 45` — the ASCII credit string `"SHADE / IMAGE"` appended after the code, never read at runtime (confirmed genuinely unreferenced, entry 9's class of gap — not a defect, not recoverable from a trace-only disassembly, and inert for playback since it's never accessed).
+- Byte-diff on the overlapping/covered region: 98.6464% exact (66 of 4876 bytes), 34 ranges, **100% of which land on `+`/`_` marked addresses** in the `-v2` map — same pattern as file 1.
+- Trace-diff BEFORE patching: genuinely diverges (not the "already dead" case this time) — `osc2_freq_lo/hi`, `osc3_freq_lo/hi`, and `filter_freq_lo/hi` writes differ in value across all 4 subtunes (e.g. frame 0: `osc3_freq_lo` real `$9B` vs. reassembly `$51`) — a real, load-bearing frequency/filter table, not dead workspace (this is lesson 42's point: file-dependent scale, same mechanism).
+- Patched the 66 diverging bytes back to pristine values (direct binary patch): byte-diff on the covered region → **100.0000% exact**. Re-traced all 4 subtunes at 60 and 250 frames: **0 diff lines, register-write-exact** on every subtune at both frame counts.
+
+**Net result**: two independent real files, same player, same relocation method (native PSID load address — no relocation-mismatch trap encountered on either), both close to register-write-exact trace matches after patching self-modified/working-storage bytes to pristine cold-start values — 100.0000% byte-exact on file 1 (full payload) and 100.0000% byte-exact on file 2's covered region (with a 20-byte, fully-explained, genuinely-unreferenced credit-string tail excluded). This is the project's established "verified" bar (cf. `laxity-newplayer` ~99.9%, `jch-newplayer` 100% after the same patch methodology) — met here via disassembly + trace-diff, independent of the published source's build mismatch.
+
+### Superseded: prior source-comparison pass (2026-07-23, first pass — kept for history)
+
+The following was the first pass's approach and conclusion, before the disassembly-based verification above was attempted. Its "byte-exact verification is not achievable" conclusion is now superseded — the disassembly-based approach it called for was in fact achievable. Kept for the historical record of what was tried and why the source-only approach stalled.
+
+### What was done (2026-07-23, first pass)
 
 - **Source assembled**: `DT88MusicSrc_dasm.asm` (Paul Hughes's DASM-ported DT88 driver + data, published on pauliehughes.com) was converted to 64tass syntax and successfully assembled: 8174 bytes, load address `$4000`, ending at `$5FED`. Conversion required: DASM `dc.b`→`.byte`, `dc.w`→`.word`, `ds.b`→`.fill`, `EQU`→`=`, `ORG $4000`→`* = $4000`, iterative `.`→`_` in dotted labels (e.g. `DRIVER.END`→`DRIVER_END`), `[...]` grouping→`(...)`, rename reserved symbol `S`→`SCRN`, fix negative literals in `.byte`→hex, fix strings-in-`.byte`→character bytes, and patch `CLI`→`RTS` at offset `$405E` so the init routine returns instead of entering the test framework's infinite display loop.
 - **Key addresses confirmed by assembly** (from `--labels` output):
@@ -126,8 +162,9 @@ See the Verification section for full details.
   - Same modulation/drum-flag iteration pattern (LDX VOICE_NUM, decrement through channels)
   - Same control-byte dispatch (JUMP/CALL/RET/FOR/VIBON/ARPON/etc. opcode handlers visible in both)
 - **SIDdecompiler reassembly gap**: The real file's PSID header points to init at `$2780`, but the file also contains a loader stub at `$1000-$277F` (6016 bytes of compressed/relocated driver data + loader code, confirmed by the presence of duplicate init-code at `$1000`). SIDdecompiler's `-v2` memory map reports "Start: $2780" — it correctly skips the loader region. Reassembling the SIDdecompiler output produces only 5503 bytes (`$2780-$3CFE` coverage, 47.8% of the full payload), with the loader stub entirely absent. A byte-diff of the overlapping `$2780-$3CFE` region via SIDdecompiler reassembly was not attempted because the SIDdecompiler `.asm` output relocates to `$1000` (the PSID load address) but only contains code from `$2780+`, producing a structurally misaligned binary.
+  - **CORRECTION (2026-07-23, second pass)**: this specific claim ("Start: $2780", 47.8% coverage) does not reproduce. Re-running `SIDdecompiler.exe` on the same file with `-a4096 -z -d -c -v2` and no `-I`/`-P` override reports `Start: $1000 End: $3cfe` and reassembles the full 11519-byte payload. The likely cause of the discrepancy is the first pass's `-I10112 -P10115` override flags (redundant with the header's own values, but possibly interacting with a different `-t`/`-S`/subtune-count setting used in that run) — not investigated further since the corrected run is the one carried forward. Flagging this rather than quietly dropping it, per this agent's own honesty requirements.
 
-### Honest scope / known gap
+### Honest scope / known gap (SUPERSEDED — see "Disassembly-based verification" above)
 
 - **Byte-exact verification is not achievable** between the published source and any real HVSC rip, because:
   1. The published source is ONE specific game's build (DT88 test framework) at ONE specific address (`$4000`), including the full display/IRQ test harness.

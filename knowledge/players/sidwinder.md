@@ -10,7 +10,7 @@
     "Levente Hársfalvi (TLC) / Coroners (V01.23 conversion, packer, GPL release)"
   ],
   "released": "1994 (code written); 1999 (V01.22, first public release, Natural Beat); 2000-03-15 (V01.23, TLC/Coroners, GPL v2); 2001 (V01.23++ 017, Unreal); 2011-04-17 (V1.23 Enhanced!!, PCH/KGB'92/Unreal)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool; also Plus/4 with SIDcard (V01.23 by TLC). Cross-assembled with Table Driven Assembler (TASM) + ComLink on DOS PC.",
   "csdb_release": 66494,
 
@@ -98,6 +98,15 @@ found — SidWinder appears to be an original design by Taki, though TLC's
 documentation mentions an earlier abandoned attempt to convert Voicetracker
 (which is not a derivation claim).
 
+The V01.23 GPL archive (`SIDwinder_V0123_src.zip`, ftp.funet.fi mirrored at
+zimmers.net) was re-downloaded and cross-checked against two independent real
+HVSC rips disassembled with `SIDdecompiler.exe` — confirms `PLAYER.ASM`'s
+header structure (3-vector JMP table at pstart+0/+3/+6, identity/version
+text, frequency tables) byte-for-byte matches what both real files' own
+disassemblies show at $1000-$1020. See Verification below for the full
+disassembly/reassembly/trace-diff result (now register-write-exact on both
+files).
+
 ## Quirks & gotchas
 
 See the `quirks` array. The most important points: (1) the name collision with
@@ -111,9 +120,13 @@ design limitation, listed as a desired improvement).
 
 ## Disassembly notes
 
-Not disassembled — facts sourced from the public V01.23 source code
-(PLAYER.ASM). The source is in TASM (Table Driven Assembler) syntax with
-conditional assembly for C64/Plus/4 dual-platform support. Key sections:
+Facts below were originally sourced from the public V01.23 source code
+(PLAYER.ASM, TASM syntax with conditional assembly for C64/Plus/4
+dual-platform support), and have now also been confirmed by real
+disassembly/reassembly/trace-diff (see Verification) on two independent
+HVSC files — `Taki/Classical.sid` and `Factor6/Acid_Candy.sid`, both real
+per-file rips, both loading at $1000 with init=$1000/play=$1003 exactly as
+PLAYER.ASM's header declares. Key PLAYER.ASM sections:
 
 - **Lines 78-80**: Entry point vectors (`p_init`/`p_play`/`p_mult` as
   `jmp m_init`/`jmp irqplr`/`jmp mltspd`)
@@ -134,18 +147,82 @@ also available but not examined in detail for this card.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity, provenance, and Tier 3
-runtime facts (memory map, entry points, ZP usage, speed model, data format)
-are confirmed from the public V01.23 source code and its accompanying
-documentation (GENERAL, HISTORY, SUMMARY, SIDW0122, PROGRAMM). Entry points
-have not been reassembled and traced through `sidm2-siddump` / `mcp-c64` —
-that is the step needed to promote to `verified`.
+**Verified — `status: verified`.** Register-write-exact trace match achieved
+on two independent real HVSC files, via the standard disassemble/reassemble/
+byte-diff/trace-diff pipeline (not the GPL source directly — TASM→64tass
+conversion of PLAYER.ASM was not attempted; the GPL source was instead used
+as a structural cross-check, see Overview).
 
-The source examined is the V01.23 player (PLAYER.ASM), which TLC states is
-"almost identical to the original V01.22" with minor modifications (relocatable
+**Method**: `SIDdecompiler.exe <file>.sid -o<file>.asm -a4096 -z -d -c -v2`
+(decimal 4096 = $1000, matching the file's own PSID load address — the `-v2`
+map's own "Start:" address landed exactly on $1000 on both files, so no
+relocation-offset trap per gotcha 40/entries 18/27/31/33/34/38). Reassembled
+clean with `64tass.exe -a --cbm-prg` (no warnings, no `-Wwrap-pc`).
+
+**File 1 — `Taki/Classical.sid`** (init=$1000, play=$1003, subtunes=1):
+- Raw byte-diff (reassembly vs. original payload, at native alignment):
+  76/3759 bytes differ = **97.98%** raw match. Original payload is 3761
+  bytes; the reassembly (and the decompiler's own `-v2` map, "End: $1eae")
+  covers only 3759 — the trailing 2 bytes ($1eaf-$1eb0, both `$00`) are
+  outside the emulation's captured range entirely (entry 9's class: never
+  read/written/executed by the traced play routine, not a truncation bug).
+- All 76 diverging bytes fell in one contiguous range, **$1622-$168e** —
+  the "variable workspace (~$60 bytes, per-channel state arrays at 7-byte
+  strides for X=0,7,$0E)" the card's `memory.layout` field already names —
+  and the `-v2` map marks that whole range `+` (self-modified: both read
+  via `lda l1622,X` etc. and written via `sta l1622,X` etc. in PLAYER.ASM's
+  per-channel routines). This is the drifted-working-storage pattern
+  documented across many prior cards (`lessons_learned` 10/16/17/20/29/32/
+  42/43) — SIDdecompiler's default `-t 30000` snapshot captured
+  post-execution values, not the pristine cold-start table.
+- **First trace (unpatched reassembly) genuinely diverged** — this table is
+  load-bearing here, not dead: frame 0 alone showed all 3 oscillators'
+  frequency/control bytes different (e.g. `osc1_freq_lo` real=$16 vs.
+  recon=$1B), 1517 differing write-events over 300 frames. Confirms this
+  file needed the patch, not just a cosmetic byte-diff.
+- Patched all 76 bytes back to the original file's pristine values — first
+  as a direct binary patch (confirms the fix), then properly in the `.asm`
+  source itself (label-anchored address tracking, gotcha 26 — validated:
+  0 unresolved tokens) and re-reassembled from source.
+- Result: **100.0000% byte-exact** (3759/3759 compared bytes) from the
+  source-patched build, and **trace-exact over 1000 frames, 0 differing
+  register writes** (`sidm2-sid-trace.exe`, init=$1000/play=$1003/subtune 0).
+
+**File 2 — `Factor6/Acid_Candy.sid`** (init=$1000, play=$1003, subtunes=1,
+independent composer, independent song): same method, same relocation.
+- Raw byte-diff: 44/3293 bytes differ = 98.66% raw match, again entirely
+  concentrated in the same address range, **$1624-$1689** (same
+  per-channel workspace table, same mechanism) — no trailing-byte
+  shortfall this time (orig and recon both exactly 3293 bytes).
+- Patched the same way (binary patch to confirm, then `.asm`-source patch,
+  44/44 bytes resolved, 0 unresolved tokens) and re-reassembled from
+  source: **100.0000% byte-exact**, and **trace-exact over 1000 frames, 0
+  differing register writes**.
+
+Two independent files, same player, same drifted-table mechanism, same fix,
+both closing to full byte- and register-write-exactness — satisfies this
+project's `laxity-newplayer`-style verification bar (here reaching a clean
+100% rather than ~99.9%, since both files' divergence was fully explained
+and eliminated by the one known mechanism).
+
+The source examined earlier (V01.23 PLAYER.ASM) is, per TLC, "almost
+identical to the original V01.22" with minor modifications (relocatable
 labels, conditional assembly for dual-platform, gate-bit masking for channel
-on/off). The V01.22 doc (SIDW0122) confirms the same entry point structure at
-the same offsets ($1003/$1006), so these facts should apply to V01.22 as well.
+on/off); the V01.22 doc (SIDW0122) confirms the same entry-point structure
+at the same offsets ($1003/$1006). Both traced files are V01.22-or-V01.23
+class builds (init=$1000/play=$1003, no multi-speed $1006 vector exercised
+in this pass — see Next steps).
+
+**Next steps for continuing this**: only single-speed playback (play
+vector at $1000+3) was traced on both files; the multi-speed vector
+(pstart+6, $1006) documented in `entry.play` was not separately exercised
+— a file that actually uses multi-speed calls (the card notes 1x-16x is
+supported) would be a good third file to confirm `mltspd`'s dispatch is
+equally exact. Also untested: subsong switching (only subtune 0 was
+traced on both files, both of which only have 1 declared subtune anyway —
+a multi-subtune SidWinder file, if one exists in the 117-file set, would
+exercise `m_init`'s subsong-selection logic that single-subtune files
+never touch).
 
 ## Sources
 

@@ -48,16 +48,20 @@
     "PUBLIC but NOT open-source: the CSDb release (`pollytracker.zip`) ships only compiled .prg/.d64 binaries (`pollytracker.prg`, `modplayer.prg`, `modtoprg.prg`, `modtosid.prg`) plus the readme — no 6502 assembly source. The readme's only ownership statement is '(c)2005 Aleksi Eeben (aleksi@cncd.fi)', i.e. all-rights-reserved copyright, not a stated open license. Distribution is freeware per DeepSID's players.json (`distribution: Freeware`), but 'public' and 'open-source' are not the same thing here.",
     "Composer concentration is spread, not personal: 63 files across 25 different composers in the local dataset, no single composer over ~16% (A-Man and V-12 each 10 of 63) and the author himself (Aleksi Eeben) only 3 — consistent with a genuinely used, published tool rather than a one-off personal routine.",
     "DeepSID's own player spec (`data/players.json`, title 'Polly Tracker') independently confirms the same picture: 'This is a unique editor designed to play four channels of digi samples only. SID channels and their effects are not used at all. Think MOD music, like on the Amiga.'",
-    "Same author (Aleksi Eeben) also made John_Player and, in 2017, Polyanna (CSDb release 153091, V1.00, CNCD) — but no source, manual, or author statement found that states Polyanna derives from or supersedes PollyTracker, so no `edges` entry is asserted here despite the shared authorship. (A description of Polyanna as 'the first 8-channel tracker for a single SID C64' could not be verified against the CSDb release page and was dropped rather than repeated unsupported.)"
+    "Same author (Aleksi Eeben) also made John_Player and, in 2017, Polyanna (CSDb release 153091, V1.00, CNCD) — but no source, manual, or author statement found that states Polyanna derives from or supersedes PollyTracker, so no `edges` entry is asserted here despite the shared authorship. (A description of Polyanna as 'the first 8-channel tracker for a single SID C64' could not be verified against the CSDb release page and was dropped rather than repeated unsupported.)",
+    "Minor version chain confirmed but adds nothing runtime-relevant: v1.0 (2005, Aleksi Eeben solo — Internet Archive d64 dump, no group credit) -> v1.1 (2005, released by group 'Carillon & Cyberiad' per its pouet.net NFO, same '(c)2005 Aleksi Eeben' readme text as v1.2) -> v1.2 (19 Aug 2005, CNCD, the CSDb id 18605 / local-dataset version). No source code surfaced at any version; a repeat 2026-07-23 web pass (Wikipedia's Aleksi Eeben article, pouet.net, Demozoo edit history, Internet Archive, general search) found no GitHub/SourceForge mirror, no disassembly, and no lineage statement connecting PollyTracker to John_Player or Polyanna beyond shared authorship."
   ],
   "sources": [
     "CSDb release (Polly Tracker V1.2, Aleksi Eeben of CNCD, 19 Aug 2005): https://csdb.dk/release/?id=18605",
     "Official release archive and its bundled readme, fetched and read directly: http://csdb.dk/getinternalfile.php/18514/pollytracker.zip (contains pollytracker.txt, quoted above)",
     "sidid:PollyTracker (author Aleksi Eeben, released 2005, reference https://csdb.dk/release/?id=18605) — data/sidid.json",
     "DeepSID player spec, title 'Polly Tracker' (developer Aleksi Eeben, start_year 2005, csdb_id 18605, distribution Freeware, digi 'Yes; 4-bit (4 channels mixed from 8-bit)', zero_pages 'Almost all of it') — data/players.json",
-    "Demozoo production page: https://demozoo.org/productions/101055/",
+    "Demozoo production page: https://demozoo.org/productions/101055/ (and edit/version history: https://demozoo.org/productions/101055/history/, checked 2026-07-23, no version numbers recorded there)",
     "Lemon64 forum thread ('Polly tracker: Paula for the C64!') describing the tool's channel/sample-rate specs: https://www.lemon64.com/forum/viewtopic.php?t=17708",
-    "Local dataset: 63 files tagged PollyTracker across 25 composers (see knowledge/COVERAGE.md and data/composers/*.json)"
+    "Wikipedia, 'Aleksi Eeben' (checked 2026-07-23): confirms John_Player and Polly Tracker as separate tools, no stated lineage between them: https://en.wikipedia.org/wiki/Aleksi_Eeben",
+    "pouet.net NFO for Polly Tracker v1.1, credited to group 'Carillon & Cyberiad': https://www.pouet.net/prod_nfo.php?which=18134",
+    "Internet Archive d64 dump of Polly Tracker v1.0 (2005, Aleksi Eeben, no group credit): https://archive.org/details/d64_Polly_Tracker_v1.0_2005_Aleksi_Eeben",
+    "Local dataset: 63 files tagged PollyTracker across 25 composers, re-confirmed 2026-07-23 by grepping data/composers/*.json directly (knowledge/COVERAGE.md no longer lists this family individually now that 100% of families are carded)"
   ]
 }
 ```

@@ -13,7 +13,7 @@
 
   "memory": {
     "load_address": "$1000 — confirmed by disassembly on 3 independent HVSC files (Eighth.sid, Ninth.sid, Chemical_Plant_Zone.sid); PSID header load address matches SIDdecompiler's own -v2 emulated-access-map 'Start:' address exactly on all three (no dropped-leading-byte trap, see knowledge base gotcha 40).",
-    "zero_page": "CONFIRMED by disassembly: $F0-$F7, used as three (or four, $f6/$f7) 16-bit indirect-indexed pointer pairs (zf0/zf2/zf4 = $f0/$f2/$f4, each read via `lda (zfN),Y`) — matches DeepSID's documented range exactly.",
+    "zero_page": "CONFIRMED by disassembly: $F0-$F7, used as three 16-bit indirect-indexed pointer pairs (zf0/zf2/zf4 = $f0/$f2/$f4, each read via `lda (zfN),Y`) plus $f6/$f7 as a fourth pair — matches DeepSID's documented range exactly.",
     "layout": "Player code (init+play+subroutines) occupies roughly $1000-$18B3 (~2227 bytes, consistent with DeepSID's 'under ~2500 bytes' figure). A working-storage/table block follows immediately at $18B4-$193C (~137 bytes, self-modified at runtime — see quirks) before song/pattern data begins around $1940 (read-only per the -v2 map). Exact table/order-list byte layout within $18B4+ still TODO — not decoded field-by-field, only confirmed as a byte-for-byte-reproducible block."
   },
   "entry": {

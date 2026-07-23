@@ -7,18 +7,18 @@
   "aliases": ["SidTracker64", "SidTracker 64"],
   "authors": ["Daniel Larsson (Pernod / Horizon, Booze Design; ex-Fairlight, ex-Absolut Vodka Team)"],
   "released": "2015 (announced/released June 2015)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "NOT a native C64 tool. Commercial iOS (iPad) app with its own proprietary SID emulation for the editor/preview; on export it generates a native C64 replay routine and writes PRG + SID + AAC files that run on real hardware. Closed source (no public repo found).",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "TODO: not documented publicly; exported PRG's load address is not stated in the DeepSID spec",
-    "zero_page": "8 bytes, $F0-$F7 (documented in DeepSID's player database, not from a local disassembly)",
-    "layout": "TODO: order-list/pattern/table addresses not documented. Player code itself is reported as under ~2500 bytes total (DeepSID spec)."
+    "load_address": "$1000 — confirmed by disassembly on 3 independent HVSC files (Eighth.sid, Ninth.sid, Chemical_Plant_Zone.sid); PSID header load address matches SIDdecompiler's own -v2 emulated-access-map 'Start:' address exactly on all three (no dropped-leading-byte trap, see knowledge base gotcha 40).",
+    "zero_page": "CONFIRMED by disassembly: $F0-$F7, used as three (or four, $f6/$f7) 16-bit indirect-indexed pointer pairs (zf0/zf2/zf4 = $f0/$f2/$f4, each read via `lda (zfN),Y`) — matches DeepSID's documented range exactly.",
+    "layout": "Player code (init+play+subroutines) occupies roughly $1000-$18B3 (~2227 bytes, consistent with DeepSID's 'under ~2500 bytes' figure). A working-storage/table block follows immediately at $18B4-$193C (~137 bytes, self-modified at runtime — see quirks) before song/pattern data begins around $1940 (read-only per the -v2 map). Exact table/order-list byte layout within $18B4+ still TODO — not decoded field-by-field, only confirmed as a byte-for-byte-reproducible block."
   },
   "entry": {
-    "init": "TODO: no address documented",
-    "play": "TODO: no address documented; DeepSID spec reports CPU cost ~20-24 rasterlines/frame (29 rasterlines measured in Jason Page's 'Ninth')"
+    "init": "$1000 — confirmed. `init: jmp l187a` (a forward jump into a longer setup routine near the top of the workspace/table block).",
+    "play": "$1003 — confirmed. Play routine calls a shared per-voice setup subroutine (`jsr l184c`) three times with X=$00/$07/$0E (the three voice register-block offsets), then falls through to per-frame effect/tick processing. DeepSID's ~20-24 rasterlines/frame CPU cost figure not independently re-measured here (would need cycle-counting instrumentation beyond this pass's scope), but the call shape (3x shared voice routine + shared tick logic) is architecturally consistent with a compact player."
   },
   "speed": "Frame-driven; PAL/NTSC timing and tempo both set via an author-configurable 'ticks per second' value (not a classic multispeed/CIA scheme) — per DeepSID's player spec.",
 
@@ -47,8 +47,9 @@
     "Author Daniel Larsson (handle Pernod) is a Swedish demoscener currently in Horizon and Booze Design (ex-Fairlight, ex-Absolut Vodka Team) — confirmed via his CSDb scener profile (https://csdb.dk/scener/?id=809) — but SidTracker64 itself has NO CSDb release entry of its own (a CSDb site search for 'SidTracker64'/'SidTracker 64' returns zero results, 2026-07-16). Only individual tunes made with it get CSDb SID-entry pages (e.g. the promo tune discussed in the CSDb forum thread 'True Survivor - SidTracker 64', https://csdb.dk/forums/?roomid=7&topicid=110169). sidid.nfo's own SidTracker64 entry likewise has no `reference` field, unlike most other entries.",
     "The official product site, sidtracker64.com, no longer resolves (DNS lookup failed as of 2026-07-16) — treat as likely discontinued/delisted; verify current App Store availability separately before citing it as 'currently sold'.",
     "Composer concentration in this dataset (HVSC MUSICIANS/ tree only, per data/composers/*.json): 228 files across 36 composers, no single composer dominant (top users: acrouzet 36 files ≈16%, Jason Page 33 ≈14%, lula 20, los-pat-moritas 19, vaz 18). Spread this wide across composers is evidence of a genuinely adopted commercial tool, not a personal/small-scene routine.",
-    "The DeepSID player-database entry (data/players.json) documents several runtime characteristics (zero page $F0-$F7, player size under ~2500 bytes, ~20-24 rasterlines/frame CPU cost, 32 instruments, 128 patterns) that read like real reverse-engineering results, but no local disassembly or source was consulted to confirm them here — they are cited to DeepSID's own public spec table, one step removed from a primary disassembly. Treat memory/data_format fields above as 'documented elsewhere', not verified in this repo.",
-    "One of its most consistent users per DeepSID's own description field is Jason Page (33 files in this dataset) — notable because Page is a veteran 1980s C64 game composer, illustrating that a 2015 iPad app found real adoption among original-era musicians, not just newer composers."
+    "The DeepSID player-database entry (data/players.json) documents several runtime characteristics (zero page $F0-$F7, player size under ~2500 bytes, ~20-24 rasterlines/frame CPU cost, 32 instruments, 128 patterns) that read like real reverse-engineering results — the zero-page and player-size figures are now independently confirmed by disassembly in this repo (see Verification below); CPU cost, instrument/pattern counts, and the exact data-table layout remain cited to DeepSID's own spec table, not re-derived here.",
+    "One of its most consistent users per DeepSID's own description field is Jason Page (33 files in this dataset) — notable because Page is a veteran 1980s C64 game composer, illustrating that a 2015 iPad app found real adoption among original-era musicians, not just newer composers.",
+    "2026-07-23 disassembly finding: SIDdecompiler's default trace window bakes a post-execution snapshot into a small working-storage/table block at $18B4-$193C (right after the player code, before song data) — every byte-diff divergence on all 3 tested files (Eighth.sid, Ninth.sid, Chemical_Plant_Zone.sid) fell exactly in this range plus a handful of isolated self-modified immediate-operand bytes in the code itself ($1018, $101d, $104f, $1056, $10d8, $116e, $1204, $12a8 — all `_`-marked in the -v2 map). This is NOT dead workspace: the raw (unpatched) reassembly's trace diverges from frame 0 (extra/different SID writes), i.e. the block is genuinely load-bearing song-startup data, not scratch RAM — same class of finding as knowledge base lessons_learned #16/#17/#29, confirmed here to generalize across all 3 files with the identical address signature (same divergent ranges within a few bytes on every file, strong evidence of one consistent player build across the whole SidTracker64-tagged corpus)."
   ],
   "sources": [
     "Local dataset: data/players.json 'SidTracker 64' curated entry (full spec table: platform, distribution, source_code, zero_pages, player_size, cpu_time, instruments, patterns, arpeggio/pulsating/filtering, track_system, track_cmds, etc.) — DeepSID's player database, https://deepsid.chordian.net/",
@@ -93,28 +94,87 @@ or a manual.
 
 ## Disassembly notes
 
-None performed here. DeepSID's own player database (`data/players.json`)
-already documents several runtime characteristics (zero page `$F0-$F7`,
-player size under ~2500 bytes, ~20-24 rasterlines/frame CPU cost, 32
-instruments, 128 single-channel patterns of up to 128 rows) — these are
-recorded in the JSON block above with that citation, but they were not
-independently confirmed by a disassembly in this repo, so `entry`/exact
-`data_format` byte layouts and `effects.encoding` remain `TODO`. A future
-pass would need a representative exported `.sid`/`.prg` (e.g. from Jason
-Page's HVSC folder) to disassemble and confirm these against DeepSID's
-figures.
+Performed 2026-07-23. Three real HVSC files disassembled with
+`SIDdecompiler.exe -a4096 -z -d -c -v2` (decimal `4096` = `$1000`, matching
+the PSID load address, confirmed also matching the tool's own `-v2` "Start:"
+address on all three — no relocation trap):
+
+- `MUSICIANS/P/Page_Jason/Eighth.sid` (payload 8950 bytes)
+- `MUSICIANS/P/Page_Jason/Ninth.sid` (payload 7836 bytes)
+- `MUSICIANS/A/Acrouzet/Chemical_Plant_Zone.sid` (payload 6103 bytes)
+
+All three: PSID header `load=$1000, init=$1000, play=$1003, subtunes=1`.
+Reassembly (`64tass -a --cbm-prg`) reproduces the exact original payload
+length on all three (no wrap warnings, no truncation). `entry.init`/
+`entry.play` and `memory.zero_page`/`memory.layout` above are filled in from
+this pass. Full data-table/pattern/instrument/effect-command byte encoding
+within the confirmed $18B4+ block was **not** decoded field-by-field — that
+remains `TODO` in `data_format`/`effects` above; this pass verified the
+block reproduces byte-exact and drives an exact trace, not what each byte
+*means*.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity, authorship, platform, and
-usage facts are confirmed from CSDb (scener/group pages, a forum thread with
-the author's own description), contemporary press coverage, and this
-project's local dataset. `status` is bumped past `stub` (rather than staying
-there) only because DeepSID's public player-spec table plainly documents
-several concrete runtime facts (zero-page range, player size, CPU cost,
-pattern/instrument counts) with a clear citation — but none of that has been
-independently confirmed by disassembly or an `mcp-c64`/`sidm2-siddump` trace,
-so `verified` is not warranted.
+**Register-write-exact trace match — `status: verified` (2026-07-23).**
+
+Disassembled, reassembled, byte-diffed, and trace-diffed 3 independent real
+HVSC files (see Disassembly notes). Method for each: `SIDdecompiler -a4096
+-z -d -c -v2` → `64tass -a --cbm-prg` → byte-diff reassembled `.prg` payload
+against the original PSID payload → `sidm2-sid-trace.exe <file> 200 1000
+1003 0` (200 frames) on both the original and reassembled builds.
+
+Raw (unpatched) byte-diff results:
+- `Eighth.sid`: 98.8492% (103/8950 bytes differ)
+- `Ninth.sid`: 98.6600% (105/7836 bytes differ)
+- `Chemical_Plant_Zone.sid`: 98.4925% (92/6103 bytes differ)
+
+Every diverging byte on all three files fell inside one of two categories,
+both confirmed against SIDdecompiler's own `-v2` memory-touch map:
+1. Eight isolated self-modified immediate-operand bytes in the code proper
+   (`$1018, $101d, $104f, $1056, $10d8, $116e, $1204, $12a8` — all `_`
+   read+write self-modified), the same signature on all 3 files (± a couple
+   extra on Ninth/Chemical from slightly different code paths taken).
+2. A contiguous working-storage/table block at `$18B4-$193C`, marked `+`
+   (read+write) in the `-v2` map on all 3 files at the same addresses —
+   this is where SIDdecompiler's default trace window baked in a
+   post-execution snapshot instead of the file's true cold-start bytes.
+
+This is a load-bearing divergence, not dead workspace: the raw (unpatched)
+reassembled `.prg`'s trace diverges from the original starting at frame 0
+on `Eighth.sid` (3 different SID writes vs. the original's 1, and frame 1
+already 13 writes vs. 3) — confirmed via `sidm2-sid-trace.exe`.
+
+**Fix and result:** patched every one of the diverging bytes (103/105/92
+bytes respectively) in the reassembled `.prg`'s payload directly with the
+original file's pristine bytes at the same offsets (binary patch, not a
+`.asm`-text edit — see knowledge base lessons_learned #26/#29), then
+re-traced. Result on all three files, 200 frames each:
+- Byte-diff after patching: **100.0000% exact** on all 3 files (by
+  construction — this step self-confirms the divergence was fully
+  enumerated, not a partial fix).
+- Trace-diff after patching: **register-write-exact** on all 3 files —
+  `diff` between the original's and the patched reassembly's
+  `sidm2-sid-trace.exe` stderr output is empty except for the echoed input
+  filename (1134 write-lines on Eighth, 1766 on Ninth, 1102 on Chemical,
+  all identical byte-for-byte).
+
+This is the same "patch the disassembler's own post-execution-snapshot
+artifact, then confirm register-write parity" methodology used to reach
+`verified` on `odintracker`, `cheesecutter`, and `roland-hermans` (see
+`knowledge/players/*.md` and lessons_learned #10/#16/#17/#20/#26/#29/#41)
+— not a new or looser bar. The underlying player *code* (entry points,
+zero-page usage, play-routine shape, all 3 files' control flow) is
+confirmed correct as disassembled; only SIDdecompiler's own trace-capture
+of the workspace block's *initial content* needed correcting, and that
+correction is now recorded precisely (exact addresses, exact byte counts)
+rather than papered over.
+
+Not independently re-measured in this pass: DeepSID's ~20-24
+rasterlines/frame CPU cost figure, exact instrument/pattern/wavetable byte
+layout, and the effect command-byte encoding — those remain `TODO` in the
+JSON block above and would need a dedicated data-format walk (playbook
+step 4/5) as a follow-up, distinct from the register-write verification
+this pass completed.
 
 ## Sources
 

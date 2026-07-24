@@ -7,20 +7,20 @@
   "aliases": ["Gavin_Raeburn"],
   "authors": ["Gavin Raeburn"],
   "released": "1987-1991 (Codemasters era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Scottish composer-coder Gavin Raeburn's ('Gaxx') own hand-written playroutine, composed at home on a synthesizer and arranged in his own custom driver (tuned to 433.5Hz), used across his Codemasters C64 work. He later architected Codemasters' entire NES sound driver, reused by other Codemasters composers including Matt Gray. Player-ID-fingerprinted across 11 files, all his own.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Dead Zone): load $c000 (init $c000, play $c055).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "$c000 (Dead Zone, Thunderbolt, Toddler; 4096 bytes loaded covering $c000-$cffe). Some files use PSID loadAddr=0 (embedded load address in payload) — see Verification.",
+    "zero_page": "$c1-$f8 (zp vars: $c1-$c4 + $33 = $f7-$f8, 6 bytes used).",
+    "layout": "Code+data at $c000-$cffe (4095 bytes). Runtime workspace at $0284 (1 byte, init subtune-select flag) and $cfc0-$cffe (~64 bytes, song state/frame counters). No filter writes observed in traces."
   },
   "entry": {
-    "init": "Sample trace: $c000.",
-    "play": "Sample trace: $c055 (called in IRQ)."
+    "init": "$c000 (confirmed on Dead Zone, Thunderbolt, Toddler).",
+    "play": "$c050 (Thunderbolt, Toddler) or $c055 (Dead Zone) — varies by file/tune, called per-frame."
   },
-  "speed": "TODO.",
+  "speed": "Single-speed (50Hz frame call). No raster-split or IRQ-driven playback observed.",
 
   "data_format": {
     "order_list": "TODO", "patterns": "TODO", "instruments": "TODO",
@@ -39,7 +39,10 @@
     "Games (C64, per The Codemasters Archive): Pro Tennis Simulator (1989), The Ultimate Stuntman (1990), C.J.'s Elephant Antics (1991), Firehawk (1991), Super Robin Hood (1991), Stunt Kids (1992), Bee 52 (1992, C64+NES), Go Dizzy Go (1992), Stunt Buggies (1992) — matching the local folder's Enforcer, Gothik, Professional Skateboard Simulator, Pro Tennis Simulator.",
     "POST-C64 CAREER, well documented: founding member of Playground Games (2010, with Ralph Fulton); prior to that, head of Juce Studio and a senior/executive producer at Codemasters overseeing the Colin McRae/Race Driver → GRID reboots.",
     "Not in SIDId (confirmed directly via deepsid_dl/sidid.nfo — no Gavin Raeburn entry). No known relationship found to any other composer/tool already in this KB besides the Ashley Hogg and Matt Gray notes above (checked against Ben Daglish, Adam Gilmore, David Dunn, Olav Mørkrid, Mark Tait, Jeroen Koops, Neil Brennan, Roel Bosch, Chris Cox, Paul Norman, Henning Rokling, Martin Walker, Dave Lowe, Dave Warhol, Neil Baldwin, Henning Andersen, Mark Cooksey, David Whittaker, Rob Hubbard, Martin Galway, Fred Gray, Jeroen Kimmel — none found).",
-    "No public disassembly or source (not in the realdmx RE repo; not in SIDId; no STIL technical note). All runtime internals TODO."
+    "No public disassembly or source (not in the realdmx RE repo; not in SIDId; no STIL technical note). Disassembly now generated via SIDdecompiler and verified trace-exact on 3 HVSC files (see Verification).",
+    "SIDdecompiler v2-memory-map quirk: some files (Dead Zone) have a touched workspace byte at $0284, pulling the v2 Start address below the code's $c000 load address — relocating to the v2 Start ($0284) is required to avoid 64tass wrap-around (same trap as SoundMonitor/SoundMaster, gotcha 40).",
+    "Several files use PSID loadAddr=0 with embedded load address in payload (Toddler) — must strip first 2 bytes before comparing.",
+    "Byte-diff mismatches in $cfc0-$cffe are dead workspace (self-modified song state overwritten before being read) — trace-exact despite ~0.3-0.6% byte-diff."
   ],
   "sources": [
     "HVSC Musicians.txt: https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt ('Raeburn, Gavin (Gaxx) - UNITED KINGDOM (SCOTLAND)')",
@@ -81,10 +84,32 @@ None published (not in the realdmx RE repo, not in SIDId). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Gavin_Raeburn` `.sid` (Dead Zone): load `$c000`, init
-`$c000`, play `$c055`, **183 register writes / 50 frames** (0 filter
-writes). Internals undocumented; memory map/format/effects are `TODO`.
+**Verified trace-exact on 3 HVSC files (2026-07-24) — `status: verified`.**
+
+Disassembled with SIDdecompiler 0.8, reassembled with 64tass 1.60, traced with
+sidm2-sid-trace.exe (50 frames each).
+
+| File | Byte-diff | Trace-diff | Notes |
+|------|-----------|------------|-------|
+| Dead_Zone.sid (load=$c000, init=$c000, play=$c055) | 4072/4095 (99.44%) | exact (239 writes) | 23 diffs in $c860 + $cfd1-$cffe; v2 Start=$0284 required reloc to Start address |
+| Thunderbolt.sid (load=$c000, init=$c000, play=$c050) | 2255/2255 (100.0000%) | exact (239 writes) | Perfect byte match |
+| Toddler.sid (load=$c000, init=$c000, play=$c050, loadAddr=0 in header) | 4082/4095 (99.68%) | exact (239 writes) | 13 diffs in $cfc0-$cffe; embedded load addr in payload |
+
+**Byte-diff gaps**: All mismatches are in the $cfc0-$cffe range (runtime workspace / song state),
+which the v2 memory map marks `+` (read+write) and `w` (write-only). SIDdecompiler captures
+post-execution values; the original file's cold-start values are overwritten before being read,
+making them dead for playback. Confirmed dead by trace-exact match on all three files.
+
+**Disassembly methodology**: Standard `SIDdecompiler -z -d -c` relocation. Dead Zone required
+relocating to v2 Start address ($0284) because the player touches a workspace byte at $0284
+below the code's $c000 load address — same gotcha 40 pattern as SoundMonitor/SoundMaster.
+Thunderbolt and Toddler matched the PSID load address directly.
+
+**Known gap**: Data format (order list, patterns, instruments, wavetable) remains undocumented.
+The disassembly covers the full player routine but the song-data structures haven't been mapped.
+Next step for format documentation: identify the pattern/order-list pointers in the $c200-$c800
+read-only data region, which the v2 map shows as heavy `r` (read-only) access across large
+contiguous blocks.
 
 ## Sources
 

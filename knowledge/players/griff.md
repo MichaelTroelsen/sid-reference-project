@@ -48,7 +48,8 @@
     "SIDId (data/sidid.json) actually records two separate tags for this author's tool: plain 'Griff' (identity fields only — author, no name/released/reference) and '(LightVoices)' (author + released '1990 FBI Crew' + CSDb reference 72915, i.e. the V1.0 release). Only 'Griff' was found as an actual raw player tag in this project's local dataset (data/composers/*.json) — '(LightVoices)' matched zero files, so it appears to be a SIDId-catalogued alias that isn't the string Player-ID actually stamps on these files.",
     "DeepSID's curated players.json entry ('Light Voices v1.x', search key 'griff') records 'relocator': \"Using separate tool\" — i.e. the replay/data is not self-relocating and depends on an external relocation step, per DeepSID's own spec table.",
     "Two dated CSDb releases exist for the tool itself: 'Light Voices V1.0' (1990, group Chromance, code+music by Griff, credited also to FBI Crew) at csdb.dk/release/?id=72915, and 'Light Voices V1.1' (1992, group Chromance, linking by Alex) at csdb.dk/release/?id=98412 — DeepSID's players.json start_year/end_year (1990/1992) match this release span exactly.",
-    "No public source code, GitHub/SourceForge repo, or technical format documentation was located (CSDb, Codebase64, general web search) — only the two CSDb tool-release pages and composer/memorial bio pages. Treat as a closed classic scene tool."
+    "No public source code, GitHub/SourceForge repo, or technical format documentation was located (CSDb, Codebase64, Lemon64, Forum64, general web search) — only the two CSDb tool-release pages and composer/memorial bio pages. Treat as a closed classic scene tool.",
+    "CSDb's own memorial forum thread for Griff's scener handle (csdb.dk/forums/?roomid=12&topicid=39948) states he \"left us at 22\" but also that \"we don't even now his year of birth\" and \"no one is in the know about the details surrounding his death\" — i.e. even the scene community that mourned him lacks basic biographical facts, reinforcing that no author-side source/documentation recovery is possible."
   ],
   "sources": [
     "sidid:Griff (author Péter Varga (Griff), identity only, no released/reference) — data/sidid.json",
@@ -59,7 +60,9 @@
     "CSDb release 'Light Voices V1.1' (Chromance, 1992; code+music Griff, linking Alex): https://csdb.dk/release/?id=98412",
     "CSDb scener profile, Griff / Péter Varga (Hungary, Chromance/FBI Crew founder-member, deceased): https://csdb.dk/scener/?id=2532",
     "Composer profile in local dataset (country Hungary, active 1994, csdb_id 2532): data/composers/griff.json",
-    "Biography page: https://8bitlegends.com/griff-chromance/"
+    "Biography page: https://8bitlegends.com/griff-chromance/",
+    "CSDb memorial forum thread, 'Handle id #2532 : Griff': https://csdb.dk/forums/?roomid=12&topicid=39948",
+    "Re-research pass (2026-07-24): additional CSDb, Codebase64, Lemon64, and Forum64 searches for source code, format documentation, or a lineage/derivation claim for Light Voices found nothing beyond what is already cited here — no public source, no technical write-up, no author-attributed derivation from or to another tool."
   ]
 }
 ```
@@ -88,7 +91,11 @@ tool across **two differently-scoped tags** ('Griff' identity-only vs.
 '(LightVoices)' with a CSDb reference), but only the plain 'Griff' tag
 actually appears as a raw Player-ID value in this project's dataset; and
 DeepSID's own spec table notes the tool's data is relocated by a **separate
-external tool**, not a self-relocating replay.
+external tool**, not a self-relocating replay; and CSDb's own memorial forum
+thread for Griff admits even the scene community that mourned him doesn't
+know his year of birth or the details of his death (only that he died at
+22) — there is no community-held knowledge to recover either, not just no
+author to ask.
 
 ## Disassembly notes
 
@@ -115,4 +122,8 @@ See the `sources` array — SIDId's two cached tags for this author, DeepSID's
 curated `players.json` entry, this project's local composer-file aggregate
 (`data/composers/griff.json`, `data/composers/hermit.json`,
 `knowledge/COVERAGE.md`), the two CSDb Light Voices tool-release pages, the
-CSDb scener profile, and one external biography page.
+CSDb scener profile, one external biography page, and the CSDb memorial forum
+thread. A 2026-07-24 re-research pass (CSDb, Codebase64, Lemon64, Forum64,
+general web search) found no additional source code, format documentation,
+or cited lineage/derivation claim beyond what is already listed here —
+`status` stays `stub`.

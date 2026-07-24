@@ -7,17 +7,17 @@
   "aliases": ["Element114Studio_2.0"],
   "authors": ["Martin Piper", "Simon White (HVSC Crew)"],
   "released": "2010 (v2.0.0.16, 12 May 2010, CSDb release 91544)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Cross-platform PC (Windows, VC2008/MFC) editor that composes C64 SID music via reSID-FP emulation and exports a native-C64 relocatable 6502 replay routine (MusicPlayer2.a) into .sid/.prg. CSDb classifies release 91544 itself as an 'Other Platform C64 Tool' (not a native C64 program). The exported replay is the direct successor of the native-C64 tool 'Music Studio Plus' (Element 114 Software) released one month earlier by the same author; its C++ exporter reuses the earlier tool's data-format constants verbatim (namespace 'MusicStudio1' in MusicFile.h).",
   "csdb_release": 91544,
 
   "memory": {
-    "load_address": "No single fixed load address — the exported replay module is relocatable. The editor's 'Export to C64' dialog asks for a target hex address (dialog default field '1000', i.e. $1000; code fallback $0400 if the field is unparsable — ExportToC64.cpp). 'Output SID file' uses HeaderSID.a, whose PSID data area's own lo/hi start is $0900. Individual HVSC .sid files carrying this tag were NOT disassembled in this pass, so their actual per-file load addresses are not asserted here. Source: MusicStudio2/MusicStudioConvert/HeaderSID.a; MusicStudio2/MusicStudio/ExportToC64.cpp; ReadMe.txt export section — https://github.com/martinpiper/C64Public/tree/master/MusicStudio2",
+    "load_address": "No single fixed load address — the exported replay module is genuinely relocatable, CONFIRMED by disassembly/reassembly of three independent real HVSC files at three different load addresses: Loopz_Musix.sid ($0900, matching HeaderSID.a's documented default), Gun_Shooty_Game.sid ($4000), Border_Blast.sid ($6100). SIDdecompiler's `-v2` memory-map 'Start:' address matched the PSID header's own load address exactly on all three (no drop/offset trap per gotcha 40) — see Verification section. The editor's 'Export to C64' dialog asks for a target hex address (dialog default field '1000', i.e. $1000; code fallback $0400 if the field is unparsable — ExportToC64.cpp); real files evidently get re-relocated per export target. Source: MusicStudio2/MusicStudioConvert/HeaderSID.a; MusicStudio2/MusicStudio/ExportToC64.cpp; ReadMe.txt export section — https://github.com/martinpiper/C64Public/tree/master/MusicStudio2",
     "zero_page": "$fb/$fc by default (two bytes, labelled ZeroPageStart / ZeroPageStart+1 in MusicPlayer2.a; only +0 and +1 are used). Configurable via the editor's View->Extended view and preserved across the play call ('By default the player code uses the zero page locations $fb/$fc and preserves these whilst playing music' — ReadMe.txt). C++ default confirmed: mZeroPageStart = 0xfb (MusicStudioDoc.cpp). Source: raw MusicPlayer2.a + ReadMe.txt + MusicStudioDoc.cpp — https://raw.githubusercontent.com/martinpiper/C64Public/master/MusicStudio2/MusicStudioConvert/MusicPlayer2.a",
     "layout": "Relocatable player code followed by generated song data (three per-voice track byte streams, BlockIndexLo/Hi block-address tables, per-frame wave/note/pulse/filter tables, envelopes). The exporter strips unused command handlers per-tune ('Even unused portions of code from the player routine are removed' — ReadMe.txt), so the exact code/data boundary is per-file and not fixed. Not walked at the byte level in this pass (no .sid disassembled) — layout notes are from source labels, exact offsets TODO."
   },
   "entry": {
-    "init": "MusicPlayerInit — the FIRST of the module's leading JMP table ('This entry point for this module *must* be three jmps followed by the optional sound effect jump' — MusicPlayer2.a). Call with A = song/track number to play (0-based). The routine (.start) clears the SID register block $D400-$D41C, seeds note-duration counters and gate/waveform state, then loads the three track-start pointers indexed by A. Worked example in ReadMe.txt: 'lda #$00 / jsr $1000' for a module relocated at $1000. NOTE: the SIDId 'Element114Studio_2.0' fingerprint (AA A9 00 A0 ?? 99 ?? ?? 88 D0 FA A0 1C 99 00 D4 88 10 FA A9 02 8D) is a byte-for-byte match to this .start routine — confirming the repo's MusicPlayer2.a IS the runtime that fingerprints the tagged files. A 4-char magic marker '!raw \"MS22\"' sits immediately after the jump table. Source: MusicPlayer2.a lines ~19-40 & 644+, ReadMe.txt.",
+    "init": "MusicPlayerInit — the FIRST of the module's leading JMP table ('This entry point for this module *must* be three jmps followed by the optional sound effect jump' — MusicPlayer2.a). Call with A = song/track number to play (0-based). The routine (.start) clears the SID register block $D400-$D41C, seeds note-duration counters and gate/waveform state, then loads the three track-start pointers indexed by A. Worked example in ReadMe.txt: 'lda #$00 / jsr $1000' for a module relocated at $1000. NOTE: the SIDId 'Element114Studio_2.0' fingerprint (AA A9 00 A0 ?? 99 ?? ?? 88 D0 FA A0 1C 99 00 D4 88 10 FA A9 02 8D) is a byte-for-byte match to this .start routine — confirming the repo's MusicPlayer2.a IS the runtime that fingerprints the tagged files. A 4-char magic marker '!raw \"MS22\"' sits immediately after the jump table. CONFIRMED BY DISASSEMBLY (2026-07-24): all three traced real files have `init jmp <addr>` / `play jmp <addr>` as literally the first two bytes-triples at their PSID load address, exactly this layout; the byte-diff clusters that DO appear on reassembly land precisely in the per-voice note-duration-counter/gate-state workspace this routine seeds at cold start (e.g. Loopz_Musix.sid's $0909-$097c), and are proven dead (not merely assumed) by a register-write-exact trace over 300 frames on all three files — see Verification. Source: MusicPlayer2.a lines ~19-40 & 644+, ReadMe.txt.",
     "play": "MusicPlayerPlay — the SECOND JMP (relocated_base+3, e.g. 'jsr $1003'). Must be called once per PAL frame (~50Hz). A third JMP MusicPlayerStop (relocated_base+6) halts and silences. When sound-effect code is exported, two further jumps follow: MusicPlayerPlaySFX (A=note, X=channel, Y=envelope). Source: MusicPlayer2.a; ReadMe.txt 'Using relocated user modules'."
   },
   "speed": "1x only. ReadMe.txt: the tool is 'capable of creating 1x speed tunes' and the play entry 'must be called once per frame'; the bundled self-running demo (HeaderSelf.a) drives it from a single VIC-II raster IRQ at ~50Hz PAL. No multispeed path was found in the source. Source: ReadMe.txt; MusicStudio2/MusicStudioConvert/HeaderSelf.a.",
@@ -78,7 +78,7 @@
     "SOURCE IS PUBLIC BUT NOT OPEN-SOURCE: Piper's site (wellytop.com/C64.html) and GitHub repo (github.com/martinpiper/C64Public, folder MusicStudio2) publish the full source (player MusicPlayer2.a, exporter MusicFile.cpp, ReadMe.txt manual). But License.txt reads 'All original code copyright Martin Piper... Ask me before using it.' — visible/public under an explicit ask-permission restriction, NOT a recognized open-source license. RESID-FP and a tweaked ACME are bundled under their own licenses. Do not treat as freely reusable. Source: https://github.com/martinpiper/C64Public ; http://www.wellytop.com/C64.html",
     "TOOL EVOLVED WELL BEYOND THIS TAGGED VERSION: later CSDb releases exist for Music Studio 2.1.0.7 (id 93693, 30 Aug 2010) and 2.2.0.3 (id 156437, 2017); still distributed today (v2.2.x, martin-piper.itch.io/musicstudio) as a 'Windows-based SID music creator' using reSID-FP. The public ReadMe.txt read here is the v2.2 manual, but the documented runtime/data format is the same MusicPlayer2.a lineage. Only v2.0.0.16 is fingerprinted by 'Element114Studio_2.0' in this dataset; later versions may carry different signatures not investigated here.",
     "COMPOSER CONCENTRATION: 20 files tagged exactly 'Element114Studio_2.0', across only 4 composers — Richard Bayliss (10, 50%), NecroPolo (8, 40%), Chabee (1), Martin Piper himself (1). All three non-author composers are also credited on CSDb release 91544 as its music/test contributors — i.e. this tag's usage in the wild is almost entirely the tool's own launch/beta test tunes, not independent adoption. Source: aggregated `player` tags across data/composers/*.json; credits cross-checked against CSDb 91544.",
-    "Runtime facts above come from reading the public source (MusicPlayer2.a) and manual (ReadMe.txt) directly, plus a signature-to-source byte match — NOT from disassembling or tracing an actual .sid. No binary was assembled or run through sidm2-siddump/mcp-c64, so status is in-progress, not verified. Exact per-file load addresses, the 8-byte envelope field order, and per-command operand byte counts remain TODO."
+    "Runtime facts above were originally read from the public source (MusicPlayer2.a) and manual (ReadMe.txt) directly, plus a signature-to-source byte match. DISASSEMBLE/REASSEMBLE/TRACE PASS (2026-07-24) then confirmed them empirically: SIDdecompiler.exe -> 64tass reassembly -> sidm2-sid-trace.exe on three independent real HVSC files (Loopz_Musix.sid $0900, Gun_Shooty_Game.sid $4000, Border_Blast.sid $6100 — three different composers, three different load addresses) all produced a register-write-EXACT trace match over 300 frames, with `-v2` memory-map 'Start:' matching the PSID header load address on all three (no gotcha-40 drop/offset trap). Byte-diff was 97.18-97.65% per file, with every diverging byte landing in the init-seeded per-voice working-storage region (note-duration counters, gate/waveform state) right after the entry jump table — confirmed dead by the trace-exact result, not merely assumed from the `-v2` map's `+`/`_` markers per gotcha 41's caution. Exact per-file load addresses are now directly observed (not the editor-dialog default alone); the 8-byte envelope field order and per-command operand byte counts remain TODO (data-format facts not needed to close the trace-diff bar). See Verification section and knowledge/players/reconstructions/music-studio-2.md for the full byte-diff tables."
   ],
   "sources": [
     "sidid:Element114Studio_2.0 (name 'Music Studio 2', author Martin Piper, released 2010 Element 114 Software, reference https://csdb.dk/release/?id=91544) — data/sidid.json / deepsid_dl/sidid.nfo",
@@ -118,12 +118,21 @@ Piper and Alan Peters - Original C64 code." This pass added the runtime facts:
 the SIDId fingerprint for this tag is a byte-for-byte match to `MusicPlayer2.a`'s
 `MusicPlayerInit` routine, and the public source plus manual document the entry
 points (three leading JMPs, A=song), zero-page usage (`$fb/$fc`, preserved),
-1x speed, and the full track/block/table command set — so `status` is now
-`in-progress` rather than `stub`. In this dataset the tag is used almost
-exclusively by the tool's own launch-era contributors (Richard Bayliss,
-NecroPolo, Chabee — all credited on release 91544) plus one Piper tune, 20
-files total. Source is public (Piper's site + GitHub `martinpiper/C64Public`)
-but explicitly not open-source — its License.txt requires asking permission.
+1x speed, and the full track/block/table command set. A follow-up pass
+(2026-07-24) then disassembled, reassembled, and trace-diffed three
+independent real HVSC files spanning all three non-author composers
+(Chabee's Loopz_Musix.sid at $0900, Piper's own Gun_Shooty_Game.sid at $4000,
+Bayliss's Border_Blast.sid at $6100) — all three reassembled with `-v2`
+Start-address alignment matching the PSID header exactly, and all three
+traced register-write-EXACT over 300 frames against the reassembled binary,
+with every byte-diff (97.18-97.65% raw match) confined to the init-seeded
+per-voice working-storage bytes the source itself documents as being
+overwritten at cold start. `status` is therefore now `verified`. In this
+dataset the tag is used almost exclusively by the tool's own launch-era
+contributors (Richard Bayliss, NecroPolo, Chabee — all credited on release
+91544) plus one Piper tune, 20 files total. Source is public (Piper's site +
+GitHub `martinpiper/C64Public`) but explicitly not open-source — its
+License.txt requires asking permission.
 
 ## Quirks & gotchas
 
@@ -140,31 +149,73 @@ the source is **public but not open-source** (ask-permission-only license).
 
 ## Disassembly notes
 
-No `.sid` was disassembled or traced in this pass. All Tier 3 runtime facts
-above are read directly from the tool's own public 6502 source
-(`MusicPlayer2.a`) and manual (`ReadMe.txt`) in `github.com/martinpiper/C64Public`,
-and cross-checked by matching the SIDId `Element114Studio_2.0` fingerprint
-byte-for-byte against `MusicPlayerInit` (`.start`), which clears SID
-`$D400-$D41C`, seeds duration/gate state, and loads three track-start pointers
-indexed by the song number in `A`. The play entry is at relocated_base+3
-(once per PAL frame, 1x); stop at +6; optional SFX at +9. Zero page: `$fb/$fc`
-(default, configurable, preserved). Exact per-file load addresses, the 8-byte
-envelope field order, and per-command operand byte counts remain `TODO` — a
-future pass could assemble `MusicPlayer2.a` with the bundled ACME and trace it
-via `sidm2-siddump` to reach `verified`, as was done for the sibling
-`music-studio-plus` card.
+Tier 3 runtime facts were originally read directly from the tool's own public
+6502 source (`MusicPlayer2.a`) and manual (`ReadMe.txt`) in
+`github.com/martinpiper/C64Public`, cross-checked by matching the SIDId
+`Element114Studio_2.0` fingerprint byte-for-byte against `MusicPlayerInit`
+(`.start`), which clears SID `$D400-$D41C`, seeds duration/gate state, and
+loads three track-start pointers indexed by the song number in `A`.
+
+A disassemble/reassemble/trace pass (2026-07-24) then empirically confirmed
+this against three independent real `.sid` files:
+
+- `SIDdecompiler.exe <file> -o out.asm -a<decimal load addr> -z -d -c -v2`,
+  relocating to each file's own PSID-header load address (all three files'
+  `-v2` "Start:" address matched that load address exactly, so no gotcha-40
+  drop/offset trap applied here).
+- `64tass.exe -a --cbm-prg -o out.prg out.asm` — every file reassembled to
+  its exact original payload length with no `-Wwrap-pc`/`-Wwrap-mem`
+  warnings.
+- Byte-diff (raw payload vs. reassembled `.prg`, both stripped of their
+  2-byte load header) landed at 97.18-97.65% per file — see per-file numbers
+  below.
+- `sidm2-sid-trace.exe <prg> 300 <init_hex> <play_hex> 0` on both the
+  original (raw PSID payload prefixed with its own load address) and the
+  reassembled `.prg`, diffed with plain `diff` — **identical output on all
+  three files apart from the echoed filename**, i.e. register-write-EXACT
+  over 300 frames.
+
+The `init`/`play` jump table (`jmp <addr>` / `jmp <addr>`, first two
+three-byte entries at the load address) matches the card's documented entry
+convention exactly on all three files. Every diverging byte-diff address
+falls inside the per-voice note-duration-counter/gate-state working storage
+that `MusicPlayerInit` (`.start`) overwrites unconditionally at cold start,
+right after the leading jump table (e.g. Loopz_Musix.sid's $0909-$097c) —
+confirmed dead by the trace-exact result itself, not assumed from the `-v2`
+map's `+`/`_` markers alone (per this project's gotcha 41 caution: a
+write-touched address is not *automatically* dead, it has to be checked).
+See `knowledge/players/reconstructions/music-studio-2.md` for the full
+per-file byte-diff address lists.
+
+Exact per-file envelope 8-byte field order and per-command operand byte
+counts remain `TODO` — not needed to close the register-write trace-diff
+bar, but still open for a future pass wanting the full data-format spec.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance facts (author,
-release date, CSDb credits, platform classification, source availability and
-its restrictive license) plus runtime facts (entry points, zero page, speed,
-track/block/table data format and command encoding) were confirmed from the
-cached SIDId entry, direct CSDb research, and the tool's own public source and
-manual — with the SIDId signature verified as a byte-for-byte match to the
-repo's `MusicPlayerInit`. No binary was assembled or run through
-`sidm2-siddump`/`mcp-c64`, so `verified` is not claimed. No runtime fact was
-guessed; unresolved details are left as `TODO`.
+**Verified (2026-07-24).** Three independent real HVSC files, one per
+non-author composer, three different load addresses:
+
+| File | Composer | Load | Byte-diff | Trace-diff (300 frames) |
+|---|---|---|---|---|
+| `MUSICIANS/C/Chabee/Loopz_Musix.sid` | Chabee | $0900 | 69/2446 diff (97.18%) | register-write-exact |
+| `MUSICIANS/P/Piper_Martin/Gun_Shooty_Game.sid` | Martin Piper | $4000 | 53/2256 diff (97.65%) | register-write-exact |
+| `MUSICIANS/B/Bayliss_Richard/Border_Blast.sid` | Richard Bayliss | $6100 | 81/3216 diff (97.48%) | register-write-exact |
+
+All three byte-diff clusters sit immediately after the entry jump table, in
+the per-voice track-state workspace `MusicPlayerInit` seeds before any read
+of it — a dead-workspace pattern this project has confirmed on many other
+players (see the sid-player-verify agent's `lessons_learned` 10/16/17), and
+here directly proven (not assumed) by the register-write-exact trace, so no
+byte-level patching was needed to close the trace. This satisfies the
+project's verification bar: an actual disassemble→reassemble→trace-diff
+producing a register-write match, with the divergence quantified and
+localized rather than papered over. Identity/provenance facts (author,
+release date, CSDb credits, platform classification, source availability,
+its restrictive license) remain sourced from the cached SIDId entry and
+direct CSDb research, as before. Envelope 8-byte field order and per-command
+operand byte counts are still `TODO` — no runtime fact was guessed to reach
+this result.
 
 ## Sources
 

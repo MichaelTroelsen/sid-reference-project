@@ -66,7 +66,8 @@
     "Third-party source mirror (MIT-licensed, ACME source V2.7 + V2.8, disk images, README, History.txt): https://github.com/LeshanDaFo/C64-Speech-Basic",
     "Source mirror's structural walkthrough of code/speechbasicV2.8.asm (memory layout, vectors, zero page, command table, EXEC sequencer, V2.7->V2.8 fixes): https://github.com/LeshanDaFo/C64-Speech-Basic/blob/main/STRUCTURE.md",
     "Author's own history post referenced by web search results (not independently re-verified in this pass): https://blog.koehntopp.info/2006/10/26/mut-64er-10-86.html",
-    "Local dataset: 24 files tagged C64_Speech_System, 10 composers (see knowledge/COVERAGE.md); reconfirmed by aggregating data/composers/*.json directly in this pass"
+    "Local dataset: 24 files tagged C64_Speech_System, 10 composers (see knowledge/COVERAGE.md); reconfirmed by aggregating data/composers/*.json directly in this pass",
+    "Verification pass (this session): queried deepsid_dl/DeepSID_Database/hvsc_files.sql directly (31 raw rows tagged C64_Speech_System, 24 under MUSICIANS/ across the same 10 composers, 7 more under DEMOS/ uncredited to a composer -- reconciles the card's existing 24/10 figure against the authoritative dump rather than a re-aggregation); real PSID headers read for Pet_Shop_Boy/Cocaine.sid, Alien-Crackings/Digital_Mix_One.sid, Alien-Crackings/Digital_Mix_Five.sid; SIDdecompiler.exe and sidm2-sid-trace.exe both fail structurally on all three (see Verification section) -- status remains in-progress, not verified"
   ]
 }
 ```
@@ -114,21 +115,100 @@ or are a repacked/relocated extract of just the record/playback routine.
 
 ## Verification
 
-**Not independently verified — `status: in-progress`.** Identity (author,
-year, CSDb release, alternate name) and the general recording/playback
-mechanism (2-bit digitizer input, SID-only playback, up to 18,000
-samples/sec, 4 samples/byte) are confirmed from CSDb and c64-wiki. Several
-Tier 3 runtime facts (load address, init entry point, zero-page usage,
-vector table, sample packing, EXEC effect-encoding) are now filled in,
-sourced to the public GitHub source mirror's own `STRUCTURE.md` walkthrough
-of its ACME source — a public source plainly documenting the facts, per this
-project's rule for promoting `stub` to `in-progress` without a personal
-disassembly. What remains unconfirmed: none of this was traced through
-`sidm2-siddump` against a real `.sid` file's PSID init/play, and it is
-unknown whether any tagged file's actual code matches this BASIC-extension
-layout exactly (e.g. relocated/repacked for use inside a demo/game rather
-than run as the full extension). Order-list/pattern/instrument/pulse/filter
-fields remain `TODO` (n/a — this is a sample player, not a synth tracker).
+**Still not independently verified — `status: in-progress` (unchanged).**
+Identity (author, year, CSDb release, alternate name) and the general
+recording/playback mechanism (2-bit digitizer input, SID-only playback, up
+to 18,000 samples/sec, 4 samples/byte) are confirmed from CSDb and c64-wiki.
+Several Tier 3 runtime facts (load address, init entry point, zero-page
+usage, vector table, sample packing, EXEC effect-encoding) were filled in
+from the public GitHub source mirror's `STRUCTURE.md` walkthrough — a
+public source plainly documenting the facts, per this project's rule for
+promoting `stub` to `in-progress` without a personal disassembly. Order-
+list/pattern/instrument/pulse/filter fields remain `TODO` (n/a — this is a
+sample player, not a synth tracker).
+
+**A real verification pass was attempted this session and could not close
+the gap — reported honestly rather than rounded up.** Ground truth: queried
+`deepsid_dl/DeepSID_Database/hvsc_files.sql` directly (`scripts/lib/sql-dump.js`)
+for every row with `player = 'C64_Speech_System'` — 31 rows total, of which
+24 sit under `MUSICIANS/` across exactly the same 10 composers the card
+already names (7 more live under `DEMOS/`, uncredited to a composer, which
+is why the composer-folder aggregation undercounts relative to the raw
+dump — the two figures measure different things, not a discrepancy). This
+independently reconfirms the card's "24 files, 10 composers" figure against
+the authoritative source rather than a re-aggregation of `data/composers/*.json`.
+
+Picked 3 real HVSC files spanning the two distinct load-address shapes seen
+across those 24 rows and read their actual PSID headers directly (not
+inferred): `Pet_Shop_Boy/Cocaine.sid` (load=$0820, init=$1210, play=$0000,
+RSID v2) and `Alien-Crackings/Digital_Mix_One.sid` /
+`Digital_Mix_Five.sid` (load=init=$1500, play=$0000, RSID v2). The
+`Cocaine.sid` load address ($0820) is an exact, independent confirmation of
+`STRUCTURE.md`'s documented `SYS(2080)` entry point — real evidence, not
+assumed — for at least the Pet_Shop_Boy sub-population (8/24 files, all
+load=$0820 per the same SQL query).
+
+**Both available tools fail structurally on every file tried, for a reason
+that traces directly back to `STRUCTURE.md`'s own documentation, not a
+wrong parameter:**
+- `SIDdecompiler.exe` (`-a2080 -z -d -c -v2`, no `-e`) hangs indefinitely —
+  confirmed still alive via `tasklist` well past any plausible completion
+  window, not merely slow (killed manually both times).
+- `sidm2-sid-trace.exe` with the file's own `play=$0000` (RSID convention)
+  fails fast and honestly: `"FAILED: self-installing IRQ vector never
+  resolved after 2,000,000 steps"` — for all three files tried. This *isn't*
+  a wrong address: `STRUCTURE.md` states plainly that `CMD_PLAY` is "a
+  tight, self-timed polling loop," not IRQ-driven, so no IRQ vector is ever
+  installed — the tracer's play=0 heuristic (built for Galway-style
+  raster-IRQ players) doesn't fit this player's real architecture at all.
+- Forcing the alternative (non-IRQ) code path — `sidm2-sid-trace.exe
+  Cocaine.prg 1 1210 1210 0`, i.e. calling `$1210` as a bare synchronous
+  routine the way `STRUCTURE.md`'s "loop until end address, then RTS"
+  description implies it should work — hung for 90+ seconds with zero
+  progress (never even printed "INIT done"), vs. a genuinely-completing
+  2,000,000-single-step probe on the same file finishing in 0.26s. That gap
+  (2M raw CPU steps in a quarter-second vs. never returning in 90+ seconds)
+  is real evidence of a true infinite loop in emulation, not just a slow
+  but finite computation. Likely root cause: the self-timed delay in
+  `CMD_PLAY` probably polls a CIA timer or similar hardware register
+  directly for its sample-rate delay (this is how you'd hand-time a
+  ~18kHz playback loop in 1986 assembly without invoking KERNAL/IRQ
+  overhead) — and neither tool's CPU-only `call()`/`callSidTrace()` model
+  advances CIA/VIC timers autonomously, so a loop gated on one never
+  terminates. This is a different concrete mechanism from the project's
+  known raster-IRQ hang case (`hard_won_gotchas`/`lessons_learned` 23,
+  SidBang64) but the same *class* of structural gap: a player whose timing
+  model this tracer's bare-CPU-call architecture cannot deliver.
+- One tagged file, `Walk_This_Way_BASIC.sid`, has PSID/RSID
+  **`init=$0000`** — meaning even the "give SIDdecompiler/sid-trace a
+  numeric entry address" model doesn't apply to it at all; its real entry
+  is a BASIC program line that must be interpreted/RUN, not a discrete
+  machine-code address. Further, independent evidence that at least part of
+  this player's real corpus needs a full BASIC interpreter, not a 6502
+  disassembler/tracer, to verify — genuinely outside the toolset available
+  for this pass.
+
+**Net result: no byte-diff and no trace-diff were possible on any of the 31
+real `C64_Speech_System`-tagged HVSC files with the tools available this
+session.** `status` stays `in-progress`, not `verified` — per this agent's
+own constraints, a hang/fail on every attempt is not a lower bar to round
+up from, it's the honest result. The `STRUCTURE.md`-sourced facts remain
+credible (plainly-documented public source, and the one fact checkable
+without full tracing — the $0820 load address — did independently confirm
+against a real file's own header) but are still unconfirmed at the
+register-write level this project's `verified` status requires.
+
+**Next step for whoever picks this up:** a live emulator with real
+CIA/VIC timer advancement (RetroDebugger, per this agent's
+`tools_and_locations` — not available in this session) is very likely
+required to get past the self-timed polling loop at all; a static
+disassembly or bare-CPU-call tracer structurally cannot drive this
+player's timing model no matter how the parameters are tuned. Start from
+`Cocaine.sid` (init=$1210) or `Digital_Mix_One.sid` (init=$1500) — both
+already confirmed to reach and spin inside the same kind of loop, so
+either is a valid next attempt; a live single-step through the loop body
+around $1210/$1500 would show directly what hardware register it's
+polling and settle whether the CIA-timer hypothesis above is right.
 
 ## Sources
 

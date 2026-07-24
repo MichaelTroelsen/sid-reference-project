@@ -46,8 +46,9 @@
     "100% single-composer concentration: all 19 files tagged \"Artlace\" in the local dataset (data/composers/artlace.json) belong to Artúr Bujdosó (Artlace) himself — no other composer's files use this player tag. Classic signature of a personal/home-grown routine rather than a widely-adopted tool (per this project's CLAUDE.md guidance on composer concentration as signal).",
     "The CSDb release (id 152723, \"ARL-Editor V2.2\" aka \"Artlace-Editor V2.2\") is typed as a generic \"C64 Tool\", not a dedicated music-editor category, and its Code/Music/Docs credits are all Artlace alone (data/csdb/artlace.json, CreditType entries for Release 152723).",
     "Artlace's own output is NOT exclusively tied to this player: other tunes by the same composer in the same folder are tagged DMC, DMC_V4.x, Music_Assembler, and GoatTracker_V2.x (data/composers/artlace.json) — so ARL-Editor was one of several tools he used across his career, not his only routine.",
-    "A later CSDb release, \"Artlace Editor V26x\" (id 168740, found via web search but NOT cross-checked against the local dataset's tags), may represent a further revision — not confirmed to be the same player family as this stub covers; flagged for a future pass rather than merged here without evidence.",
-    "No public source code or disassembly was found for this player (WebSearch for \"Artlace Editor\"/\"ARL-Editor\" source/disassembly returned no matches) — only a D64 disk image and an unencrypted PRG binary are distributed from CSDb."
+    "A later CSDb release, \"Artlace Editor V26x\" aka \"The Ultimate Version\" (id 168740), lists NO credits and no releasing group at all (csdb.dk/release/?id=168740, checked 2026-07-24) — it also does not appear among Artlace's own credited releases on his CSDb scener profile (csdb.dk/scener/?id=327, checked 2026-07-24), which lists only ARL-Editor V2.2. Its authorship and its relation to this card's player family therefore remain unconfirmed; not merged into this card's facts.",
+    "Artlace himself left a comment on the ARL-Editor V2.2 release page describing the code informally: \"The code is 'whoelse?'. Please ignore the crap in the note and enjoy the editor—there's not much to it.\" (csdb.dk/release/?id=152723, checked 2026-07-24) — a direct author statement, but it makes no lineage claim to any other player and does not name a source it derives from.",
+    "No public source code or disassembly was found for this player (WebSearch for \"Artlace Editor\"/\"ARL-Editor\" source/disassembly returned no matches, and a further check for a codebase64/format-spec article also found none) — only a D64 disk image and an unencrypted PRG binary are distributed from CSDb."
   ],
   "sources": [
     "sidid:Artlace — data/sidid.json byTag.Artlace (name, author, released, reference; matches github.com/cadaver/sidid sidid.nfo verbatim, fetched 2026-07-16)",
@@ -55,7 +56,10 @@
     "CSDb release page — https://csdb.dk/release/?id=152723 (\"ARL-Editor V2.2\", type C64 Tool, released 1993-09-19 by Rebels, credits: Artlace — Code/Music/Docs)",
     "Cached CSDb scener data — data/csdb/artlace.json (Credits.Credit entries for Release 152723; group memberships)",
     "Local file listing — data/composers/artlace.json (19 files tagged player \"Artlace\", all authored by Artlace)",
-    "knowledge/COVERAGE.md — rank 16, 19 files, single grouped raw tag \"Artlace\""
+    "knowledge/COVERAGE.md — rank 16, 19 files, single grouped raw tag \"Artlace\"",
+    "CSDb release comments — https://csdb.dk/release/?id=152723 (Artlace's own comment on the code; iAN CooG's 2017 unencrypted-PRG upload note)",
+    "CSDb scener profile — https://csdb.dk/scener/?id=327 (\"Artlace/Active/Chorus/Lethargy\", country Hungary, credited releases list; checked 2026-07-24, no V26x listed)",
+    "CSDb release page (unconfirmed relation) — https://csdb.dk/release/?id=168740 (\"Artlace Editor V26x\" aka \"The Ultimate Version\", no credits/group listed; checked 2026-07-24)"
   ]
 }
 ```
@@ -85,8 +89,13 @@ See the `quirks` array. The headline fact is the composer concentration
 and provenance for a small personal routine, not to document a widely-used
 family. A possible later revision, "Artlace Editor V26x" (CSDb release
 168740), was found during research but is not corroborated against any file
-in the local dataset, so it is noted as an open question rather than merged
-into this card's facts.
+in the local dataset, and (as of a second research pass, 2026-07-24) carries
+no credits or releasing group on CSDb and is absent from Artlace's own
+credited-releases list on his scener profile — so it remains an open
+question rather than merged into this card's facts. That second pass also
+turned up an informal comment from Artlace himself on the V2.2 release page
+calling his own code "whoelse?" — a genuine author statement, but not a
+lineage claim, so it is recorded as a quirk only.
 
 ## Disassembly notes
 

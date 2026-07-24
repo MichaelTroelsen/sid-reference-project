@@ -33,7 +33,8 @@
     "Strong corroborating evidence tying the original tool release to this dataset: id=199016's own credited demo/example music is by 'Matthias Steffens' — and Matthias Steffens is by far the dominant composer using this tag in the tracked collection (10 of 19 files, 53%), with two of his tagged titles ('Passion' and 'Timemaniac') matching the exact track names CSDb's id=199016 page names as the tool's own bundled music. This is not a coincidence — Steffens' involvement in the tool's original release plausibly explains why he authored the bulk of tunes using it afterward.",
     "Composer concentration: only 5 composers across 19 files in this dataset — Matthias Steffens (10), Dirk Wilberg/Willi (5), Matthias Deutsch (2), Rene Griebel/Bleed Into One (1), Maarten Vellinga/Warrior (1). A small, semi-personal user base typical of a demoscene tool that never reached wide adoption outside its own circle, consistent with the tool's Warriors-of-Time origin.",
     "Not one of DeepSID's curated 129 `players.json` entries — this card is seeded from the SIDId `sidid.nfo` fingerprint plus CSDb release research, with zero DeepSID spec data to check against.",
-    "No public source or disassembly of the Time-Composer editor/player was found. Every runtime field below is honestly TODO."
+    "No public source or disassembly of the Time-Composer editor/player was found. Every runtime field below is honestly TODO.",
+    "RE-RESEARCH PASS (2026-07-24, second look): targeted searches for 'Time-Composer'/'Timecomposer' + 'Rhodan'/'Warriors of Time' on lemon64.com and forum64.de (via WebSearch site: filters) found no dedicated scene-forum thread on either site — same negative result as the sibling tfmx.md card's own Lemon64/Forum64 search. Pagetable.com's '62 Reverse-Engineered C64 Assembly Listings' index (a curated list of publicly disassembled C64 programs) was also checked directly and does not include Timecomposer, Time-Composer, TFMX, or Rhodan. CSDb release id=199016's own page was re-fetched and confirms it carries no Production Notes/User Comments content and no source-code or format-documentation links — only the credits already recorded below, plus a note that no original download exists ('original release version needed - cracks available', with an external link to Pokefinder.org for a crack). No new facts changed the card; recorded here so a future pass doesn't repeat the same searches expecting a different outcome."
   ],
   "sources": [
     "Local dataset: data/sidid.json byTag.'TFMX/TimeComposer' — author 'Oliver Hoeller (Rhodan)', released '1990', reference https://csdb.dk/release/?id=62502 (no comment field)",
@@ -44,7 +45,10 @@
     "CSDb group (Warriors of Time): https://csdb.dk/group/?id=663 — Germany, demo/cracker group active ~1987-1991, Rhodan listed as founder",
     "CSDb search for other 'Time-Composer V4.0' entries: ids 101891 (Fantastic 4 Cracking Group crack, 1994), 208646 (Hysteric crack), 235874 (Playboy and Twins crack) — all later re-releases/cracks of the same tool, none the original",
     "VGMPF, 'TFMX Editor': https://www.vgmpf.com/Wiki/index.php?title=TFMX_Editor — establishes that the demoscene built Mastercomposer (1989/90, Bierfront) then Timecomposer (1990) as independent replacement editors because Hülsbeck's own TFMX Editor was never released; does not name Rhodan/Oliver Hoeller/Playboy",
-    "Sibling card knowledge/players/tfmx.md — establishes the three-way tag split (TFMX / TFMX/MasterComposer / TFMX/TimeComposer) and records this discrepancy as an open question this card resolves"
+    "Sibling card knowledge/players/tfmx.md — establishes the three-way tag split (TFMX / TFMX/MasterComposer / TFMX/TimeComposer) and records this discrepancy as an open question this card resolves",
+    "Re-fetch of CSDb release id=199016 (2026-07-24 second pass): confirms no Production Notes/User Comments, no source/format documentation, download status 'original release version needed - cracks available' with an external crack link to Pokefinder.org",
+    "Lemon64 (lemon64.com) and Forum64 (forum64.de) searched directly (2026-07-24 second pass) via WebSearch site: filters for 'Time-Composer'/'Rhodan'/'Warriors of Time' — no dedicated thread found on either, matching the sibling tfmx.md card's own negative result",
+    "Pagetable.com, '62 Reverse-Engineered C64 Assembly Listings': https://www.pagetable.com/?p=904 — checked directly (2026-07-24); does not list a Timecomposer/Time-Composer/TFMX/Rhodan disassembly"
   ]
 }
 ```
@@ -89,6 +93,13 @@ was found during this research pass.
 model, data format, effect encoding) is honestly `TODO` pending a real
 disassembly of a representative file (e.g.
 `MUSICIANS/S/Steffens_Matthias/Passion.sid`).
+
+A second research pass (2026-07-24) re-checked Lemon64, Forum64, and CSDb
+release id=199016 directly, plus pagetable.com's reverse-engineered-listings
+index, looking for a public source/disassembly or additional provenance.
+None was found — the card's identity/provenance facts stand as previously
+established, and it correctly stays `stub` rather than advancing to
+`in-progress`.
 
 ## Sources
 

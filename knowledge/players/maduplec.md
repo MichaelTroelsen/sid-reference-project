@@ -52,16 +52,18 @@
     "Almost certainly a personal, hand-coded play routine rather than a published tool: of the 37 files in this project's local dataset tagged with the raw player tag \"Maduplec\", 36 (97%) are in Martin Arentoft's own HVSC composer folder (data/composers/maduplec.json). The 1 remaining file (\"Mad4.sid\") is in Jens-Christian Huus's (JCH) own composer folder — that record's `author` field reads \"Jens-Christian Huus\", NOT Arentoft, so this is a second, distinct composer independently carrying the same raw Player-ID tag, not a JCH tune crediting Maduplec as its origin. Usage is 97% one composer, not literally 100%.",
     "Martin Arentoft did not use his own routine for his entire catalogue: his composer folder shows a mix of players across his output — \"Maduplec\" for most of his 1990-93 BUDS/NATO-era tunes, but also JCH_NewPlayer_V5/V6/V9 and FutureComposer_V1.0 for other tracks in the same folder — so \"Maduplec\" identifies only a subset of his work, not a career-long personal engine.",
     "SIDId's sidid.nfo entry for this tag has only an AUTHOR field (\"Martin Arentoft (Maduplec)\") — no NAME/RELEASED/REFERENCE/COMMENT — confirming it was catalogued purely from Player-ID signature scanning, not from a documented/released tool with its own CSDb release page. Verified directly against the upstream sidid.nfo (github.com/cadaver/sidid), which matches this project's local data/sidid.json byte-for-byte on this entry.",
-    "The PSID load address differs between sampled .sid files ($1000 vs $3400) while the play-minus-load offset (+3) stays constant — treat this as circumstantial (2-file sample, read from CSDb's rendered header, not from a disassembly), not a confirmed entry-point convention."
+    "The PSID load address differs between sampled .sid files ($1000 vs $3400) while the play-minus-load offset (+3) stays constant — treat this as circumstantial (2-file sample, read from CSDb's rendered header, not from a disassembly), not a confirmed entry-point convention.",
+    "2026-07-24 re-research pass: CSDb's scener bio for Martin Arentoft (https://csdb.dk/scener/?id=701) states that during his 1989-1992 B.U.D.S./NATO period 'all graphics and music was made by Maduplec' himself — an author statement corroborating (not proving beyond doubt, but supporting) the 'hand-coded personal routine, not a distributed tool' framing already used in this card. No new technical/runtime facts were found: a third-party Lemon64 thread (lemon64.com/forum/viewtopic.php?t=51865) only lists the same load/init/play addresses already on file, CSDb's rendered SID-entry pages show no programmer/player credit distinct from the composer, and targeted searches of Forum64 (forum64.de), Codebase64, and GitHub (including the realdmx/c64_6581_sid_players reverse-engineered-player archive, which does not cover Maduplec) turned up no source code, disassembly, or format documentation for this routine."
   ],
   "sources": [
     "data/sidid.json byTag.Maduplec (author only; no reference/comment) — matches upstream https://github.com/cadaver/sidid/blob/master/sidid.nfo",
     "data/composers/maduplec.json — local HVSC/DeepSID-dump snapshot of Martin Arentoft's composer folder (folderSource: deepsid-dump), 36 of 48 files tagged \"Maduplec\" (the folder also carries JCH_NewPlayer_V5/V6/V9 and FutureComposer_V1.0 tags on other tracks)",
     "data/composers/jch.json — 1 additional \"Maduplec\"-tagged file (\"Mad4.sid\") in Jens-Christian Huus's own folder; that record's `author` field reads \"Jens-Christian Huus\", not Arentoft",
     "data/hvsc/musicians.json — Musicians.txt entry: handle Maduplec, real name Arentoft, Martin, group \"NATO / BUDS\", country Denmark",
-    "CSDb scener profile (Martin Arentoft / Maduplec): https://csdb.dk/scener/?id=701 — groups Crest, B.U.D.S. (founder), Fairlight, NATO, Noise, Sidewize, The Pulse Magazine Staff; coder/graphician/musician",
+    "CSDb scener profile (Martin Arentoft / Maduplec): https://csdb.dk/scener/?id=701 — groups Crest, B.U.D.S. (founder), Fairlight, NATO, Noise, Sidewize, The Pulse Magazine Staff; coder/graphician/musician; bio states 'all graphics and music was made by Maduplec' during the BUDS/NATO period",
     "CSDb SID entry (PSID header sample 1): https://csdb.dk/sid/?id=18967 (\"Tripler (tune 5)\", 1990 NATO/BUDS, load $1000 / init $1000 / play $1003)",
-    "CSDb SID entry (PSID header sample 2): https://csdb.dk/sid/?id=18951 (\"BUDS Intro\", 1991 NATO/BUDS, load $3400 / init $3400 / play $3403)"
+    "CSDb SID entry (PSID header sample 2): https://csdb.dk/sid/?id=18951 (\"BUDS Intro\", 1991 NATO/BUDS, load $3400 / init $3400 / play $3403)",
+    "Negative-result searches performed 2026-07-24 (no findings, cited for completeness): lemon64.com (forum/viewtopic.php?t=51865 mentions only load/init/play addresses, no routine detail; searches for a dedicated Maduplec thread found none), forum64.de (no results for \"Maduplec\"), codebase64.org (no results), github.com/realdmx/c64_6581_sid_players (reverse-engineered player archive; does not include Maduplec)"
   ]
 }
 ```
@@ -81,6 +83,12 @@ comment) and no CSDb release entry for the routine itself, this reads as a
 personal in-house routine rather than a published/distributed editor —
 Arentoft used other tools (JCH NewPlayer, FutureComposer) for other tracks in
 the same folder, so it covers only part of his output, not his whole career.
+A 2026-07-24 re-research pass added one corroborating author statement (his
+CSDb scener bio notes that during the BUDS/NATO period "all graphics and
+music was made by Maduplec" himself) but found no public source code,
+disassembly, or format documentation anywhere searched — CSDb, Lemon64,
+Forum64, Codebase64, and GitHub all came back empty on the technical side;
+see the last `quirks` entry for the full list of what was checked.
 
 ## Quirks & gotchas
 
@@ -104,11 +112,15 @@ flagged as such in `quirks` and left largely `TODO`.
 
 **Not verified — `status: stub`.** Only identity/provenance facts are
 confirmed (author, scene affiliations, file-count/composer-concentration from
-local data, and the sparse upstream SIDId entry). Every runtime field is
-`TODO`; a future pass would need to disassemble a representative Maduplec-
-tagged `.sid` (e.g. csdb.dk/sid/?id=18967) directly rather than relying on
-CSDb's rendered header fields, then trace it through `sidm2-siddump` before
-any of memory/entry/data-format/effects facts could be filled in.
+local data, and the sparse upstream SIDId entry). A 2026-07-24 re-research
+pass (CSDb, Lemon64, Forum64, Codebase64, GitHub) confirmed no public source,
+disassembly, or format documentation exists for this routine, so `stub`
+remains the honest ceiling — there is nothing in-progress-worthy to promote
+to. Every runtime field is `TODO`; a future pass would need to disassemble a
+representative Maduplec-tagged `.sid` (e.g. csdb.dk/sid/?id=18967) directly
+rather than relying on CSDb's rendered header fields, then trace it through
+`sidm2-siddump` before any of memory/entry/data-format/effects facts could be
+filled in.
 
 ## Sources
 

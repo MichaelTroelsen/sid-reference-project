@@ -50,13 +50,16 @@
     "TWO CSDb RELEASES for the same tool, both dated/grouped identically (Legend, V1.0, 1990): csdb.dk/release/?id=7536 (the plain version, credits Code/Graphics/Design/Idea/Concept: Midas, Music+Testing: Lyon) and csdb.dk/release/?id=130186 (a variant \"with an intro and different example tunes\", per a CSDb user comment on 7536; credits Code/Design/Idea/Concept: Midas, Music+Testing: Lyon, Graphics: Spook). SIDId's `reference` points at 7536; DeepSID's players.json `csdb_id` points at 130186. Both are recorded in `sources`; 7536 is used as the card's canonical `csdb_release` since that is what SIDId cites.",
     "Composer-level corroboration: the CSDb release's credited musician, Lyon (of group Legend), matches this dataset's composer \"Legend Lyon\", who has 4 files tagged Soundbooster — independent confirmation the tag maps to the right tool. The author Midas is also a user of his own tool (6 of Midas's 10 catalogued files use Soundbooster).",
     "Small, concentrated usage: 31 files across only 6 composers (Gerpsnot 12 — 100% of Gerpsnot's own catalogued files; Midas 6; G-Fellow 4; L Mr 4; Legend Lyon 4; Madaco 1). Consistent with a small-scene tool tied to the Legend group's circle rather than a widely-published editor.",
-    "No public source code or disassembly was found (searched CSDb, Codebase64, GitHub) — every Tier 3 runtime field is honestly TODO except the single `zero_pages` fact DeepSID's own players.json curated database states outright."
+    "No public source code or disassembly was found (searched CSDb, Codebase64, GitHub, zimmers.net's C64 audio-editors archive, Lemon64, Forum64) — every Tier 3 runtime field is honestly TODO except the single `zero_pages` fact DeepSID's own players.json curated database states outright.",
+    "A THIRD CSDb entry exists for the tool: csdb.dk/release/?id=136121, \"Soundbooster V1.0 by Spiders-Crew\" — a separate repackaging (not just another copy of 7536/130186) crediting \"Midas (from Acid Crew, Legend, Verca)\" for code and bundling 8 SID tunes by Midas/Lyon/JCH, released by group Spiders-Crew rather than Legend. Confirms Midas was active in multiple groups (Acid Crew, Legend, Verca) beyond just Legend, but adds no new provenance/technical facts, so it is noted here rather than promoted to `csdb_release`.",
+    "Lemon64 (lemon64.com) and Forum64 (forum64.de) were searched explicitly for \"SoundBooster\"/\"Midas\"/\"Legend\" — no thread on either forum discusses this tool; no additional provenance found there."
   ],
   "sources": [
     "data/sidid.json byTag: Soundbooster — name \"Soundbooster\", author \"Stephan Swertvaegher (Midas)\", released \"1990\", reference https://csdb.dk/release/?id=7536 (sourced from deepsid_dl/sidid.nfo, https://github.com/cadaver/sidid/blob/master/sidid.nfo)",
     "data/players.json entry \"SoundBooster\" — developer Midas, start_year 1990, csdb_id 130186, platform \"Native / C64 emulator\", zero_pages \"3 bytes ($F7-$F9)\" (DeepSID players export)",
     "CSDb release 7536: https://csdb.dk/release/?id=7536 (Soundbooster V1.0, group Legend, 23 July 1990, C64 Tool; credits Code/Graphics/Design/Idea/Concept: Midas, Music+Testing: Lyon; 397 downloads)",
     "CSDb release 130186: https://csdb.dk/release/?id=130186 (Soundbooster V1.0 variant with intro + different example tunes, group Legend; credits Code/Design/Idea/Concept: Midas, Music+Testing: Lyon, Graphics: Spook)",
+    "CSDb release 136121: https://csdb.dk/release/?id=136121 (Soundbooster V1.0 by Spiders-Crew, a separate repackaging; Code: Midas (Acid Crew, Legend, Verca), Music: JCH/Lyon/Midas, 8 SID files bundled)",
     "Local dataset: 31 files across 6 composers (G-Fellow, Gerpsnot, L Mr, Legend Lyon, Madaco, Midas) tagged Soundbooster, aggregated from data/composers/*.json — matches knowledge/COVERAGE.md's rank #12, 31 files"
   ]
 }
@@ -110,4 +113,8 @@ all left `TODO` rather than guessed.
 ## Sources
 
 See the `sources` array — SIDId (`sidid.nfo`), DeepSID's `players.json`
-export, and two CSDb release pages (7536 and 130186) fetched directly.
+export, and three CSDb release pages (7536, 130186, and 136121, the last a
+separate Spiders-Crew repackaging) fetched directly. Lemon64 and Forum64 were
+searched explicitly (queries for "SoundBooster"/"Midas"/"Legend") and turned
+up no threads about this tool; zimmers.net's C64 audio-editors FTP archive
+index was also checked and has no SoundBooster entry.

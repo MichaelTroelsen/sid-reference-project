@@ -95,12 +95,72 @@ from first.
 
 ## Verification
 
-Not verified — no trace/reconstruction performed here (Tier 1/2 provenance
-work only). The one runtime-adjacent fact recorded (`zero_page`, 4 bytes at
-$A4-$A5/$A8-$A9) is taken as-is from DeepSID's curated `players.json`, which
-this project's own documentation notes was checked field-by-field against
-DeepSID's live player pages — not independently confirmed by disassembly or a
-register trace here, hence `status: in-progress` rather than `verified`.
+**Attempted, genuinely blocked — `status` remains `in-progress`.** All 14
+files tagged `Assassin_Sample_Mixer` in the local dataset (JFK 6, Puma 7,
+Mamba 1) were checked directly against the HVSC collection at
+`C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/` (all 14 present and
+readable). PSID/RSID header inspection (per this project's `psid_header`
+convention) on all 14 files shows every one is an **RSID** file (magic
+`"RSID"`, v2) with `playAddress = 0x0000` — a real, structural signal, not a
+per-file oddity: an RSID with `play=0` means the player is entirely
+**interrupt-driven**; there is no discrete, callable per-frame play routine
+at all, only an `init` that installs its own IRQ/CIA handler as part of cold
+start. Two representative files were carried through disassembly/trace:
+`MUSICIANS/J/JFK/Man_Machine.sid` (init=`$1000`=load address, payload 45568
+bytes) and `MUSICIANS/P/Puma/Das_Boot.sid` (init=`$13AD`, load=`$0B30`,
+payload 57581 bytes).
+
+**Root cause of the block, confirmed directly on both files, two
+independent tools:**
+- `SIDdecompiler.exe` (`-a<decimal load addr> -z -d -c -v2`, and separately
+  with `-I`/`-P` overrides forcing init=play=load address) **hangs
+  indefinitely** on every attempt, including at `-t1` (call the play routine
+  only once) — confirmed via `tasklist` that the process is genuinely stuck,
+  not merely slow (same hang signature as gotcha 23/entry 23, a different
+  player family but the same underlying cause: a player that installs a
+  custom hardware IRQ vector and expects that interrupt to actually fire
+  during its own init).
+- `sidm2-sid-trace.exe` (built from the PSID header per this project's
+  convention, run directly since the `mcp__sidm2-siddump__*` MCP tools are
+  not registered in this session — see gotcha 8) does NOT hang, and instead
+  fails cleanly with an explicit, load-bearing diagnostic on both files:
+  ```
+  play=$0000: bounded INIT @ $1000 (subtune 0), deriving IRQ from $FFFE
+  FAILED: self-installing IRQ vector never resolved after 2000000 steps
+  (installed=false, handler=$0000). This player's INIT likely waits on its
+  own IRQ firing as a handshake before finishing setup; this tracer has no
+  autonomous VIC/CIA interrupt delivery so that can never happen here.
+  Not a 0-write tune — untraceable with this tool.
+  ```
+  (identical failure text and mechanism on `Das_Boot.sid`, only the
+  addresses differ: `init=$13AD`, `handler=$0000` again after 2,000,000
+  steps).
+
+**Conclusion**: this is the same category of block flagged in this agent's
+own instructions as a legitimate reason to stop — the player's cold-start
+sequence genuinely requires a live, interrupt-capable emulator (real VIC/CIA
+IRQ delivery) to even complete `init`, which is a hard prerequisite before
+any play-routine tracing could begin. Neither `SIDdecompiler`'s internal
+6502 emulator nor `sidm2-sid-trace.exe`'s tracer implement autonomous
+interrupt delivery, so both are structurally unable to get past this player's
+own cold-start handshake — this is not a per-file quirk (confirmed
+identically on two files, two different composers, two different
+init/load addresses) and not fixable by any combination of flags tried
+(`-t`, `-C1`, `-I`/`-P` overrides). RetroDebugger (a live, interrupt-capable
+6502/C64 emulator) is the only tool in this project's toolkit that could
+plausibly get past this, but it is out of scope for this run (reserved for
+solo sessions, not this parallel batch — see this agent's own constraints).
+The one runtime-adjacent fact recorded (`zero_page`, 4 bytes at
+$A4-$A5/$A8-$A9) remains taken as-is from DeepSID's curated `players.json`,
+not independently confirmed here.
+
+**Next step for a future solo session**: re-run this exact
+disassemble/trace pass through RetroDebugger (`mcp__retrodebugger__*`) on
+`MUSICIANS/J/JFK/Man_Machine.sid` — load the file, single-step or run past
+`init` with real interrupt delivery active, and confirm the IRQ handler
+installs and fires; from there, byte-diff/trace-diff exactly as this
+agent's standard workflow describes. Static disassembly alone cannot close
+this card.
 
 ## Sources
 

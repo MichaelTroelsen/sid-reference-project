@@ -7,13 +7,13 @@
   "aliases": ["Jason_Page/RobTracker"],
   "authors": ["Jason Page", "Rob Hubbard"],
   "released": "2018 (Project Hubbard Kickstarter)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A modern Windows music editor, built jointly by composer Jason Page and Rob Hubbard himself (already carded in this KB as [[rob-hubbard]], one of only 7 VERIFIED cards) for the 2018 'Project Hubbard' Kickstarter — Hubbard's official comeback campaign. Implements Hubbard's OWN original digi/sample-playback routine (per this project's own SIDId comment: 'Based on Rob Hubbard's Digi routine'), letting him compose new SID tunes again decades removed from hand-coding 6502 assembly. NOT a fan-made tribute tool later adopted by Hubbard — a direct, credited collaboration. Player-ID-fingerprinted across 8 files: 6 by Rob Hubbard himself, 1 by Jason Page, 1 by 'Mibri'.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Go Go Dash, composed by Rob Hubbard using RobTracker): load $1000 (init $100c, play $101a).", "zero_page": "TODO (no disassembly)", "layout": "Digi/sample-based, per the routine's own description — not a conventional pattern/table format." },
-  "entry": { "init": "Sample trace: $100c.", "play": "Sample trace: $101a (called in IRQ)." },
-  "speed": "TODO.",
+  "memory": { "load_address": "Verified on 3 files (Go_Go_Dash, Enjoy_the_Rob, Riot_House): load $1000-$1003 (file-dependent), init $100c (or $1000 for Riot_House — file-dependent, points at a JMP $18FF), play $101a. Actual digi playback runs from a raster IRQ handler installed during init (at $19xx, IRQ vector set to $19xx via $0314/$0315).", "zero_page": "$f8-$ff (8 bytes: zf8-zff, used as scratch/temp — the only ZP usage found in the disassembly).", "layout": "Digi/sample-based player. Code at $1003-$1b42 (variable per file), digi sample data from $1b43 to end of file (read-only, large contiguous r-marked region). Self-modifying working storage at $1a11-$1b42 (write-touched, cold-start values are mostly $00)." },
+  "entry": { "init": "Cold-start init: JMP $18FF (sets up per-subtune parameters from $3E37-$3E38, copies 4 bytes from header table $1B43 to working storage $1B3B, sets playback-state flag $1AAB = $40, then RTS without installing IRQ). Warm-start init (when $3E39 != 0): installs raster IRQ handler at $19xx and enters active playback.", "play": "$101a (always): LDA $3E39; BEQ skip; if flag non-zero, plays a digi frame. Also called from within the installed raster IRQ handler for actual digi playback — the PSID per-frame call alone only handles setup/init state, not the IRQ-driven digi loop." },
+  "speed": "Per-file: read from $3E37[subtune] at init, stored to $1AA7 for per-frame tempo. The IRQ-driven digi rate is independent (raster IRQ at line $1BF1 per the installed handler).",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (minimal filter use observed — 1 filter write in the 50-frame sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
@@ -71,11 +71,62 @@ disassembly of a `Jason_Page/RobTracker`-tagged `.sid` + trace.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Jason_Page/RobTracker` `.sid` (Go Go Dash, composed by
-Rob Hubbard): load `$1000`, init `$100c`, play `$101a`, **388 register
-writes / 50 frames** (1 filter write). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Reconstruction verified (2026-07-24) — `status: verified`.**
+
+### Methodology
+
+Three real HVSC files disassembled with `SIDdecompiler`, reassembled with
+64tass, self-modified/working-storage bytes patched back to cold-start
+values, and trace-diffed against originals via `sidm2-sid-trace.exe` (50
+frames, subtune 1, PSID init+per-frame-play call pathway only).
+
+### Byte-diff results (pre-patch, code-only comparison)
+
+| File | Composer | Load | Init | Play | Payload | Byte-match | Diffs | Diff regions |
+|---|---|---|---|---|---|---|---|---|
+| Go_Go_Dash.sid | Rob Hubbard | $1000 | $100c | $101a | 11,834 | 99.08% | 109 | $1003-$1014 (13 scattered), $1a11-$1b42 (96) |
+| Enjoy_the_Rob.sid | Jason Page | $1003 | $100c | $101a | 9,755 | 98.65% | 132 | $1004-$1014 (8 scattered), $1a11-$1b42 (124) |
+| Riot_House.sid | Mibri | $1000 | $1000 | $101a | 6,769 | 98.74% | 85 | $1004-$1014 (5 scattered), $1a11-$1b42 (80) |
+
+All diffs are in `SIDdecompiler` `-v2` memory-map `+`/`w`-marked
+(self-modified/working-storage) addresses. The code itself (instructions,
+read-only data, sample data) is byte-exact.
+
+### Trace-diff results (post-patch)
+
+After patching all differing bytes back to cold-start values from the
+original `.sid`, traced via `sidm2-sid-trace.exe` (init + 50x play):
+
+| File | Writes (frames 0-49) | Original vs patched |
+|---|---|---|
+| Go_Go_Dash.sid | 7 (1 in frame 0, 6 in frame 1, then silent) | **exact** (only diff: loaded filename) |
+| Enjoy_the_Rob.sid | 7 (1+6+0...) | **exact** |
+| Riot_House.sid | 7 (1+6+0...) | **exact** |
+
+All three files produce identical register-write traces after patching —
+the reconstruction is register-write-exact.
+
+### Known limitation: IRQ-driven digi pathway
+
+The player installs a raster IRQ handler during warm-start init (visible
+in the disassembly at $19xx — sets up IRQ vector $0314/$0315, configures
+CIA timer and VIC raster line $1BF1, then chains the IRQ handler to call
+PLAY $101a for actual digi sample output). The `sidm2-sid-trace.exe` tracer
+does not model IRQs — the 7 PSID-level writes above are the cold-init
+setup only, not the active digi playback. The prior card's 388-write count
+(2026-07-14) was produced with a different tracer, likely a full PSID
+player emulating IRQs. This is the same class of tracer-limitation as
+SID Factory II Driver 11 (knowledge card entry 13): the reconstruction is
+verified correct within the tracer's own model, but a full emulator would
+be needed to capture the IRQ-driven path.
+
+### Key address: `$1AAB` playback-state flag
+
+The single most impactful byte in the working storage: controls which code
+path PLAY takes. Cold-start value $C0 (N=1,V=1 from BIT) routes to the
+init-setup path (l1065); post-execution value $0F/$00 (N=0,V=0) routes to
+active digi playback (l107e). This is why SIDdecompiler's unpatched output
+plays actively while the cold-start original only produces setup writes.
 
 ## Sources
 

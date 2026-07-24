@@ -12,7 +12,7 @@
   "csdb_release": null,
 
   "memory": {
-    "load_address": "$0801 (standard Commodore BASIC program start) — each file is its own standalone BASIC program. In HVSC these are wrapped as RSID files with loadAddress = 0 (reserved) and the C64 BASIC flag set; per the SID file format spec initAddress MUST be 0 for such files (source: HVSC SID_file_format.txt).",
+    "load_address": "$0801 (standard Commodore BASIC program start) — each file is its own standalone BASIC program. In HVSC these are wrapped as RSID files with loadAddress = 0 (reserved) and initAddress=0 (RSID C64 auto-boot convention); per the SID file format spec initAddress MUST be 0 for such files (source: HVSC SID_file_format.txt). NOTE: the RSID flags field at $7A was read as 0x0 (no C64 BASIC flag set) on all 4 files checked (M4_Yankee, Happy_Birthday, Moonlight_Sonata, Fuer_Elise) — contrary to an earlier assumption. This is still valid RSID; a player that supports RSID should treat initAddress=0 as auto-boot regardless of the BASIC flag.",
     "zero_page": "N/A — this is BASIC-interpreter-driven, not a machine-code play routine; the play logic runs inside the C64 BASIC/KERNAL ROM, which uses its own normal zero page. There is no dedicated play-routine ZP allocation to document.",
     "layout": "Confirmed from Butterfield's own published listing (Commodore Power/Play, Spring 1983, lines 110-140): three variables hold the three SID voice base addresses — L1=54272 ($D400), L2=54279 ($D407), L3=54286 ($D40E); H1/H2/H3 = L+1 (frequency high byte per voice); V1/V2/V3 = L+4 (voice control register per voice); master volume via POKE 54296 ($D418),15. Note data lives in inline BASIC DATA statements. This matches the Player-ID signature bytes exactly (see quirks)."
   },
@@ -109,17 +109,61 @@ listing byte-for-byte.
 
 ## Verification
 
-**`status: in-progress`.** Not `verified` and cannot be — verification here
-would require reassembling/tracing a machine-code init/play, and there is none:
-the "player" is a BASIC program run by the C64 ROM interpreter (RSID with the
-C64 BASIC flag, `initAddress=0`, song number at `$030C`). The upgrade from
-`stub` to `in-progress` this pass is justified by **primary public sources**:
-Jim Butterfield's own complete BASIC listings in Commodore Power/Play (Spring
-1983) and COMPUTE! Issue 53 (Oct 1984), which document the memory layout, speed
-model (jiffy-clock `TI` timing), and DATA format outright — so those fields are
-cited transcriptions rather than TODO guesses. Fields that remain `N/A` are
-genuinely inapplicable (no ZP allocation, no order list, no instrument table,
-no filter use per the listing), not unknowns.
+**`status: in-progress`.** The standard trace-diff verification workflow (disassemble a real
+`.sid` file, reassemble the machine-code play routine, trace both, diff the
+register writes) **cannot be applied** to this player — there is no machine-code
+play routine to disassemble. Each file is a standalone tokenized BASIC V2
+program (RSID, `loadAddr=0` with embedded `$0801` in the payload's first 2 LE
+bytes, `initAddress=0`, `playAddress=0`) that the C64 ROM's BASIC interpreter
+executes; the SID register writes come from POKE statements interpreted at
+runtime, not from a replay loop in the file itself.
+
+**What this pass attempted (2026-07-24):**
+
+1. **Tracer attempt**: `sidm2-sid-trace.exe` on `M4_Yankee_BASIC.sid` (RSID,
+   Butterfield's own file, 1328 bytes).
+   - With `init=0, play=0`: FAILED — "self-installing IRQ vector never resolved".
+     The tracer cannot deliver autonomous interrupts (no VIC/CIA emulation), so
+     init=0 (which requires the C64 ROM to boot) is untraceable.
+   - With `init=$0801, play=$0801` (pointing at the tokenized BASIC bytes as if
+     they were machine code): produced 0 SID writes over 30 frames. The tracer's
+     CPU interpreted tokenized BASIC opcodes as 6502 instructions (the BASIC
+     tokens were "executed" but performed nonsense operations, never reaching a
+     POKE to $D400+).
+
+2. **Player-ID signature verification**: Extracted tokenized BASIC from 4
+   independent HVSC RSID files and confirmed the Player-ID signature bytes match
+   exactly in all of them:
+   - `M4_Yankee_BASIC.sid` (Butterfield, 1328 bytes): line 110 (`L1=54272...`)
+     at $82B, line 130 (`V1=L1+4...`) at $866.
+   - `Happy_Birthday_BASIC.sid` (Butterfield, 8335 bytes): signature at $2301.
+   - `Moonlight_Sonata_BASIC.sid` (Wayne Pace, 21756 bytes): signature at $805.
+   - `Fuer_Elise_BASIC.sid` (Wayne Pace, 19377 bytes): signature at $877.
+   All 4 files contain the exact hex sequence matching the Player-ID config's
+   `sidid.cfg` entry for `Basic/Jim_Butterfield`.
+
+3. **Detokenization (petcat)**: Ran `petcat -2` on M4_Yankee's tokenized BASIC
+   payload. The output matches Butterfield's published "Skiffle Band" listing
+   (Commodore Power/Play, Spring 1983, p.21) line-for-line: lines 100-290 with
+   the expected `L1=54272:L2=54279:L3=54286` setup, per-voice `V1/H1` variable
+   derivation, fixed ADSR/waveform POKEs, and jiffy-clock (`T=TI`) timed play
+   loop.
+
+4. **RSID flags field**: Re-read at offset $7A. Contrary to an earlier
+   assumption, the C64 BASIC flag (bit 4) is NOT set — flags = 0x0 on all 4
+   files. This is still valid RSID; initAddress=0 alone signals auto-boot.
+
+**Conclusion**: The card's identification of this as a published BASIC V2
+program pattern (not a machine-code player) is correct and confirmed by
+cross-file signature verification + detokenization. The upgrade from `stub` to
+`in-progress` remains justified by the primary published sources and by the
+now-verified Player-ID signature. A full register-write trace of the BASIC
+program's SID output would require a complete C64 emulator with SID dump
+support (e.g., VICE x64sc with `-siddump` or RetroDebugger) and would confirm
+"the file produces SID output" but would not be a "reconstruction-vs-original"
+diff — there is no separate machine-code player to reconstruct. For this card,
+`status: verified` requires rethinking what "verified" means for a
+BASIC-program-based player that has no replay routine to disassemble.
 
 ## Sources
 

@@ -130,19 +130,95 @@ runtime inside the editor only, not in exported tunes.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Promoted past `stub` because the
-memory map, zero-page layout, entry points, speed model, data format, and
-full effect-command table are all taken directly from the public source
-archive's `player.asm`/`playerspec.asm`/`playmemory.asm`/`runexe.asm` and the
-shipped user manual, not inferred or guessed. It is **not** `verified`: no
-reassembly/trace pass through `mcp-c64`/`sidm2-siddump` has been run against
-a real `.sid` produced by this player. Left `TODO`/unconfirmed: the concrete
-absolute zero-page addresses for a specific built variant (the VARBLOCK1/2/3
-chain in player.asm resolves them at assemble time, not read out numerically
-here), the exact byte offset of `playEntry` relative to `PLAYER` for each of
-the 5 variants, and whether PSID-embedded (as opposed to standalone .prg/.exe)
+**Attempted, genuinely blocked — `status` remains `in-progress`.** A real
+disassemble/reassemble/trace-diff pass was run against two real HVSC files
+(picked to cover both compile-time variants tagged in this dataset):
+`MUSICIANS/H/Hermit/HeheHaha.sid` (tagged `Hermit/FlexSID`, PSID load/init=
+`$1000`, play=`$1010`, payload 1073 bytes) and
+`MUSICIANS/H/Hermit/MajomTanc.sid` (tagged `Hermit/FlexSID-Bare`, load/init=
+`$1000`, play=`$100a`, payload 510 bytes), both single-subtune. Tools:
+`SIDdecompiler.exe` (reports itself as version 0.8) at
+`C:\Users\mit\claude\c64server\SIDM2\tools\SIDdecompiler.exe`, relocated with
+`-a4096` (matches the PSID header's own load address — no `-v2` Start:/load
+mismatch here, gotcha 40 doesn't apply); `64tass.exe` for reassembly.
+
+**Root cause of the block, confirmed directly, not inferred from the user
+manual's warning:** `SIDdecompiler`'s disassembler-labeling logic correctly
+recognizes and prints the mnemonics for the illegal/undocumented opcodes this
+player's own source uses (`lax`, `isc`, `axs`, `alr` all appear correctly
+named in the generated `.asm` where reached), but its internal 6502
+*emulator* — the one that actually walks the code at trace time to discover
+what's code vs. data — cannot execute them: every run logged repeated
+`Unimplemented opcode: <hex> at address <addr>` lines, one per attempted
+play-routine call, with the **same address repeating for the entire trace
+budget** (confirmed at both the default `-t 30000` and an inflated
+`-t 500000`) — the emulated PC never advances past that one instruction, so
+no downstream code or data is ever discovered by tracing. For `HeheHaha.sid`
+this happens at `$1020` (opcode `$f7` = `ISC zp,X`), only 16 bytes into
+`play`; for `MajomTanc.sid` at `$1043`/`$107a` (`$cb` = `AXS #imm`, `$4b` =
+`ALR #imm`), 57/112 bytes into its `play`. Tried `-C1` (speculative static
+disassembly) plus the inflated `-t`: identical final coverage boundary in
+both files, byte-for-byte — confirming the shortfall is a hard execution
+block, not an under-traced-length issue fixable per entry 9's `-t` playbook.
+
+**Consequence: SIDdecompiler can only capture the file bytes from the load
+address up to wherever its (very short) successful trace/static scan
+reached, and drops everything after that boundary entirely** — not marked
+"unreferenced data" (that would still be included), just absent from the
+`.asm`/`.prg` output. `HeheHaha.sid`: captured 442 of 1073 bytes (`$1000`-
+`$11b9`, **41.19%** of the file). `MajomTanc.sid`: captured 441 of 510 bytes
+(`$1000`-`$11b8`, **86.47%**). Within the captured range, the raw byte
+values (whether printed as real instructions or as `.byte "Unreferenced
+data"`) reassemble **100.0000% byte-exact** against the original payload in
+both files — 64tass with `--m6502` (NMOS 65xx target, required for `lax`/
+`isc`/`axs`/`alr` to assemble at all; the default `--m65xx` target rejects
+them as invalid mnemonics) reproduces every captured byte correctly. But
+this partial match is not meaningful on its own: the missing 58.8%
+(HeheHaha) / 13.5% (MajomTanc) of each file is almost entirely the
+InsFxTable/OrderList/Pattern music data (see `memory.layout`) that the real
+play routine reads via table lookups a few instructions past the illegal
+opcode — table data no static/speculative scan can discover without first
+executing past the block. A reassembly built from this output has no
+complete `play` routine to trace at all (everything past the first ~16-112
+bytes of `play` is either missing outright or mislabeled data, never real
+instructions) — running `trace_prg`/`sidm2-sid-trace.exe` against it would
+not produce a meaningful comparison, so no trace-diff was attempted.
+
+This directly and concretely confirms this card's own `quirks` entry
+("Player code uses illegal/undocumented 6502 opcodes extensively... the
+manual warns emulation frameworks that don't support them will likely fail
+to play the tunes") — it's true of `SIDdecompiler`'s own built-in trace
+emulator specifically, not just of end-user playback frameworks, and it
+blocks this project's standard disassemble→reassemble→trace-diff pipeline
+structurally, on **every** file of this player (the illegal opcode sits in
+the first few bytes of `play` on both tested files/variants, not a rare
+deep-code edge case). No `SIDdecompiler` flag exists to work around it (full
+`-h`/`--help` output checked; no illegal-opcode-emulation toggle). A live,
+interrupt- and illegal-opcode-capable emulator (RetroDebugger) is the only
+tool in this project's kit that could plausibly get past this, and it is
+explicitly off-limits for this dispatch (parallel-batch singleton
+restriction) — left for a solo-session follow-up. Leaving `status` as
+`in-progress`, not regressing it: the source-derived facts above are
+unaffected by this finding, only the reassembly/trace-diff verification step
+remains blocked.
+
+Left `TODO`/unconfirmed (unchanged from before this pass, since the block
+prevented any progress toward closing them): the concrete absolute zero-page
+addresses for a specific built variant (the VARBLOCK1/2/3 chain in
+player.asm resolves them at assemble time, not read out numerically here),
+the exact byte offset of `playEntry` relative to `PLAYER` for each of the 5
+variants, and whether PSID-embedded (as opposed to standalone .prg/.exe)
 tunes use the same CIA1-timer IRQ setup or rely on the host player's own call
 convention instead.
+
+**Next step for whoever picks this up:** a solo (non-parallel-batch) session
+with RetroDebugger access is the concrete unblock — set a breakpoint at the
+PSID play address and single-step through the illegal-opcode instructions a
+real/accurate emulator handles correctly, to manually recover the
+instruction-by-instruction control flow SIDdecompiler's own emulator cannot
+trace through, then hand-annotate the `.asm` before reassembling. Don't
+retry with different `SIDdecompiler` flags — `-C1` and a 16x-inflated `-t`
+were both tried here and neither moved the coverage boundary at all.
 
 ## Sources
 

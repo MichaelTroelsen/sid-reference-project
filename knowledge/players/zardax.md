@@ -54,6 +54,8 @@
     "'Sound Killer' is a real, dated CSDb release. V3.7 (10 Jul 1991, CSDb 99054) bundles a player + TuneSqueezer V1.3 + TuneRelocator V3.0, published by Topaz Beerline. V3.6B (Mar 1991, per Demozoo scener profile) is also credited to Scapegoat & Zardax. Both are credited to 'Scapegoat (Studio 3, Topaz Beerline) and Zardax (Elysion, Origo Dreamline)' under Code. Demozoo's production page for V3.6B lists finer credits: Scapegoat — Code (intro, editor) + Graphics (additional); Zardax — Code (player); d'Arc — Graphics (giant charset); music by Coax (Mikko Paronen), to whose memory it was dedicated.",
     "PSID HEADER OBSERVATION: 7 Zardax/SoundKiller-tuned tunes sampled (Coax x3, Antti Piirainen x2, Ati x1, Touldie x1): all use play = init + 3, with load addresses varying ($1000 in 6 tunes, $4800 in 1). 5 bare Zardax-tuned tunes sampled: load/init/play vary ($1000/$1000/$1003, $1000/$1000/$1006, $0808/$0808/$0818, $E300/$E300/$E303, $1000/$1000/$1003). These are PSID header fields, NOT disassembly-confirmed entry points; offsets alone do not prove shared code.",
     "No public source code or format documentation was found for either tag during this pass — all Tier 3 fields are honestly TODO.",
+    "A further companion release exists: 'TuneSqueezer V2.0 for Soundkiller V3.7' (1992 Tool), credited to Scapegoat on his CSDb scener profile — a later relocator/packer utility, not a new player version. No separate CSDb release page content beyond the credit line was found.",
+    "Explicit Lemon64 (lemon64.com) and Forum64 (forum64.de) searches for 'Sound Killer'/'Zardax'/'Soundkiller' (incl. a full read of Lemon64's 'Comparison of C64 Music Editors' thread, https://www.lemon64.com/forum/viewtopic.php?t=67248) turned up no technical/provenance detail beyond what's already cited here — only unrelated composer-discography mentions of Zardax's tunes. github.com/realdmx/c64_6581_sid_players (a public reverse-engineered-player repo) was also checked and does not include Sound Killer. No community thread worth flagging for a maintainer to ask about was found.",
     "Ari-Pekka Paljakka (Zardax) is a Finnish (later Spain-based) composer/scener active from 1988 onward — groups include Origo Dreamline, Elysion, Albion, Brains, Frame, Artline Designs (per Demozoo). Demozoo lists 184 productions across C64, Amiga, Atari ST, and other platforms. He was ranked 20th best musician in Revealed #1 (Sep 1993). This is composer biography, not player provenance; it does not establish when the bare 'Zardax' routine first appeared."
   ],
   "sources": [
@@ -63,7 +65,10 @@
     "data/players.json curated entry 'Sound Killer v3.x' (csdb_id 99054, zero_pages field) — this repo's cached copy of DeepSID's player database (deepsid.chordian.net)",
     "Local dataset: file counts aggregated from data/composers/*.json — 71 'Zardax' + 42 'Zardax/SoundKiller' = 113 total files; composer breakdown: Zardax 70, Oeie_Karl_Bjoernar 1 (bare tag); Coax 24, Antti Piirainen 16, Ati 1, Touldie 1 (SoundKiller tag)",
     "CSDb SID entries (PSID header survey): Anastasia (6148), A Quiet Life (6149), Black Christmas (6150), Autentic (23342), Basebeat (23343), For Highlife (29547), Delicious 3 tune 2 (52175) — all Zardax/SoundKiller; Animotion (44530), Adtestsongcrap (32624), After the Party (32710), Alka (32625), Anglia Spirit (32626), Proven Futile (32665) — bare Zardax",
-    "Demozoo production page for Soundkiller V3.6B: https://demozoo.org/productions/364415/"
+    "Demozoo production page for Soundkiller V3.6B: https://demozoo.org/productions/364415/",
+    "CSDb scener profile (Scapegoat/Extend, id 892) — confirms 'TuneSqueezer V2.0 for Soundkiller V3.7' (1992 Tool) code credit: https://csdb.dk/scener/?id=892",
+    "Lemon64 negative-result checks: https://www.lemon64.com/forum/viewtopic.php?t=67248 (C64 music editor comparison, no Sound Killer mention); Forum64 (forum64.de) web search likewise returned no relevant thread",
+    "github.com/realdmx/c64_6581_sid_players (public reverse-engineered SID player source repo) checked — does not include Sound Killer/Zardax"
   ]
 }
 ```

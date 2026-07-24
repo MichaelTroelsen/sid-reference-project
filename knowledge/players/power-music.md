@@ -45,6 +45,8 @@
   "quirks": [
     "Type-in listing, not a distributed binary release in the usual scene sense: DeepSID's description says 'This was written as a type-in listing for the German magazine 64'er' (data/players.json), and a CSDb user comment on the V1.6 release corroborates this first-hand ('I remember typing this one in from a magazine, possibly 64'er... I did use it for several tunes'). This explains why usage in the dataset is concentrated on a handful of composers rather than spread widely like a scene-distributed tracker.",
     "Two distinct CSDb releases exist for the same author/tool: V1.0 (csdb.dk/release/?id=61127, group Matrix, 1989, code by Raster Buster / music demos by Michael Winterberg) and V1.6 (csdb.dk/release/?id=61126, group 'ACT 501', 17 September 1989). SIDId's single 'Power_Music' tag does not distinguish between them, and the local dataset only carries the one unversioned raw tag — so the two releases cannot currently be told apart from file data alone.",
+    "CSDb lists at least 7 'Power Music Editor' releases total, not just the two SIDId tracks: V1.0/Matrix (id 61127, Tool, 1989), V1.6/ACT 501 (id 61126, Tool, 17 Sep 1989), V1.6/X-Rated (id 124192, Tool, 1989), V1.6/The Joker Crew (id 101278, Tool, Sep 1989), V1.6/Triumwyrat & X-Rated (id 262628, Crack, 1989), V1.6/Internationaler Raubkopierer Ring (id 134488, Crack), and V1.8/Abstract (id 162569, Crack, 9 Apr 1990) — the last confirms a V1.8 existed even though no unversioned SIDId tag or CSDb 'Tool' entry for it was found (only a later crack). The repeated V1.6 tool releases under different group names look like the same type-in-listing binary being repackaged/re-released by multiple groups, consistent with the magazine-listing origin below, not independent development.",
+    "A user comment on the X-Rated V1.6 tool release (csdb.dk/release/?id=124192, Fred, 16 Nov 2013) independently corroborates both the magazine origin and gives a scene-group affiliation not found elsewhere: \"This is not a crack. According to Power Music Editor V1.6, Michael Kukat is from X-Rated Designs and this tool is published by 64'er.\" No other source in this research pass names 'X-Rated Designs' as Kukat's group.",
     "Composer concentration in this dataset (39 files, 8 composers) is heavy: 'Syndrom The' alone accounts for 16/39 files (41%), and the top two composers ('Syndrom The' + 'Sonki') account for 26/39 (67%). Combined with the type-in-listing origin, this reads as a small handful of people who typed the listing in and kept using it, not a widely-adopted scene tool (see data/composers/*.json aggregation).",
     "No source code, disassembly, or format documentation was found in this research pass — searches for a Power Music source repo, Codebase64 article, or format writeup came up empty. Every runtime field is left TODO rather than guessed."
   ],
@@ -53,7 +55,12 @@
     "DeepSID player spec (data/players.json, title 'Power Music v1.x'): developer 'Michael Kukat', start_year 1989, end_year 1990, csdb_id 61126, distribution 'Type-in listing + Freeware', zero_pages '4 bytes ($FC-$FF) + sometimes also $02'",
     "CSDb release V1.0: https://csdb.dk/release/?id=61127 (group Matrix, code: Raster Buster, music: Michael Winterberg; includes demo SIDs Axel-F, Delta-Music, Musique Nonstop)",
     "CSDb release V1.6: https://csdb.dk/release/?id=61126 (group ACT 501, 17 September 1989; user comments confirm type-in-listing origin and note poor rastertime efficiency)",
-    "Local dataset: 39 files tagged 'Power_Music' across 8 composers (composer counts derived from data/composers/*.json for this card)"
+    "CSDb search 'Power Music Editor': https://csdb.dk/search/?search=Power+Music+Editor (7 releases: ids 61127, 61126, 124192, 101278, 262628, 134488, 162569 spanning V1.0-V1.8)",
+    "CSDb release V1.6/X-Rated: https://csdb.dk/release/?id=124192 (user comment names Kukat's group 'X-Rated Designs' and reconfirms 64'er publication)",
+    "CSDb release V1.8/Abstract crack: https://csdb.dk/release/?id=162569 (9 April 1990; only known record of a V1.8)",
+    "GitHub cadaver/sidid, sidid.nfo (upstream source for data/sidid.json): https://github.com/cadaver/sidid/blob/master/sidid.nfo — confirmed the 'Power_Music' entry has no comment field, matching the local cache",
+    "Local dataset: 39 files tagged 'Power_Music' across 8 composers (composer counts derived from data/composers/*.json for this card; re-verified this pass: Syndrom The 16, Sonki 10, Stefan Hartwig 6, Zyron 2, Mermaid 2, Gaston 1, Jeff 1, Man Magic 1)",
+    "Checked and found no new leads: Lemon64 (lemon64.com) forum/site search, Forum64 (forum64.de) site search, Codebase64 sid_programming wiki, and chordian.net's C64 Music Editors comparison table (chordian.net/c64editors.htm, 13 editors listed, Power Music not among them) — no source code, disassembly, or format writeup found anywhere"
   ]
 }
 ```
@@ -64,10 +71,15 @@ Power Music is a native C64 music editor written by Michael Kukat, active under
 the handle "Raster Buster," first released in 1989. DeepSID's spec entry
 states plainly that it began life as a type-in listing published in the German
 computer magazine *64'er* — a first-hand CSDb comment from 2008 corroborates
-this ("I remember typing this one in from a magazine, possibly 64'er"). Two
-CSDb releases exist: V1.0 (group Matrix, 1989, bundled with demo tunes
-including a Michael Winterberg piece) and V1.6 (group "ACT 501," 17 September
-1989). In the local dataset it accounts for 39 files across only 8 composers,
+this ("I remember typing this one in from a magazine, possibly 64'er"). A
+second, independent user comment on a third CSDb release (V1.6/X-Rated) adds
+that Kukat was affiliated with the group "X-Rated Designs." CSDb lists at
+least 7 "Power Music Editor" releases in total (V1.0 through V1.8, spanning
+Matrix, ACT 501, X-Rated, The Joker Crew, Triumwyrat, IRR, and Abstract) —
+most look like the same type-in-listing binary repackaged by different groups
+rather than independent development, and a V1.8 exists only as a later crack
+with no known original "Tool" release. In the local dataset it accounts for
+39 files across only 8 composers,
 with usage heavily concentrated in two of them — consistent with a
 magazine-listing tool that a small number of people typed in and kept using,
 rather than a widely-distributed scene tracker.
@@ -75,10 +87,12 @@ rather than a widely-distributed scene tracker.
 ## Quirks & gotchas
 
 See the `quirks` array. The load-bearing points: it's a **type-in listing**
-(explains the narrow, concentrated usage), there are **two distinct CSDb
-releases** (V1.0/Matrix and V1.6/ACT 501) that the single unversioned SIDId/
-Player-ID tag cannot distinguish between, and **no source or documentation
-was found** — every runtime fact stays `TODO`.
+(explains the narrow, concentrated usage, and independently corroborated by
+two separate CSDb user comments on two different releases), there are **at
+least 7 CSDb releases spanning V1.0-V1.8** across 6 different groups that the
+single unversioned SIDId/Player-ID tag cannot distinguish between, and **no
+source or documentation was found** anywhere searched (CSDb, Lemon64,
+Forum64, Codebase64, chordian.net) — every runtime fact stays `TODO`.
 
 ## Disassembly notes
 

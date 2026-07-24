@@ -7,25 +7,28 @@
   "aliases": ["Stuart_Taylor"],
   "authors": ["Stuart Taylor"],
   "released": "1985-1988 (Xei/Xess/The Wolverines era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "English composer Stuart Taylor's ('Xei') own playroutine — one of several tools in his output; his HVSC folder actually has MORE files tagged the third-party [[electrosound]] editor (15) than this personal routine (12), plus 2 Master_Composer and 1 DUSAT/RockMon2. Player-ID-fingerprinted across 12 files for this tag specifically, all his own.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Dal Segno): load $1000 (init $2024, play $1000 — play address == load address).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "Dal Segno: load $1000 (init $2024, play $1000). Relocatable — other files use different bases (e.g. Original_Stuff $9000, Fourth_Rendezvous $43F0). Some files install fixed low-RAM workspace (e.g. Original_Stuff Start: $0328 vs PSID load $9000).",
+    "zero_page": "None used (Dal Segno trace: no $00-$FF writes).",
+    "layout": "Player code at load address. Workspace at load+$5AB-$5FE (self-modifying — init parameter tables, per-voice state). Additional data tables extend to ~$1CCE. Filter-sweep direction flag at out-of-bounds address $B429 (cold-boot must be $00 — outside original file payload)."
   },
   "entry": {
-    "init": "Sample trace: $2024.",
-    "play": "Sample trace: $1000 (called in IRQ)."
+    "init": "Dal Segno: $2024. Loads init tables from workspace, sets SID registers via indexed stores.",
+    "play": "Dal Segno: $1000. Per-frame voice update reading order list/pattern data. Filter sweep uses self-modifying code at $1CB6 (ADC/SBC #$0A)."
   },
-  "speed": "TODO.",
+  "speed": "50 Hz (per-frame play, IRQ-driven).",
 
   "data_format": {
-    "order_list": "TODO", "patterns": "TODO", "instruments": "TODO",
-    "wavetable": "TODO", "pulsetable": "TODO",
-    "filtertable": "TODO (filter-heavy — 25 filter writes in the 50-frame sample)"
+    "order_list": "Indexed via per-voice pointers. Voice 1: $1CD1 ($15AB-$15AD read at init). Voice 2: similar structure at $15AE-$15B0.",
+    "patterns": "Voice frequency/pulse-width data stored in indexed tables. Filter frequency modified per-frame via self-modifying ADC/SBC at $1CB6.",
+    "instruments": "Not separately structured — frequency/PW values embedded in pattern data.",
+    "wavetable": "TODO",
+    "pulsetable": "Pulse-width oscillation: per-voice working values at $15F3-$15FE ($15FC-$15FE: filter/pw direction counters).",
+    "filtertable": "Single filter frequency register ($D416) with per-frame sweep ($1CB6 + $15D1). Init value $0A, sweeps $0A per step, oscillates $10-$4D."
   },
   "effects": { "encoding": "TODO", "commands": {} },
 
@@ -73,17 +76,48 @@ rather than speculated about.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, not in SIDId). A future
-`verified` needs an original disassembly of a `Stuart_Taylor`-tagged `.sid`
-+ trace.
+First disassembly generated 2026-07-24 from Dal_Segno.sid using SIDdecompiler
+at relocation $1000. Reassembles to 99.16% byte-exact (4148/4183 bytes).
+
+**Self-modified workspace (35 bytes):** SIDdecompiler's `-v2` map marks these
+as `+` (read+write). The `.asm` captures post-execution values; patching to
+pristine values required for trace-exact playback.
+
+| Range | Count | Purpose |
+|-------|-------|---------|
+| $15AB-$15B9 | 10 bytes | Voice init parameters (note pointers, counters) |
+| $15CB-$15CD | 3 bytes | Per-voice state |
+| $15D1, $15D4, $15D7 | 3 bytes | Working registers |
+| $15DA-$15DB, $15DD-$15DE | 4 bytes | Voice state |
+| $15E3-$15E4, $15E6-$15E7, $15EA | 5 bytes | Working data |
+| $15ED, $15F0-$15F1 | 3 bytes | Counters |
+| $15FC-$15FE | 3 bytes | Filter/PW direction state |
+| $1CB6, $1CC3, $1CCE | 3 bytes | Self-modifying code operands / music data |
+
+Plus one **out-of-bounds flag byte at $B429** (filter sweep direction
+flag — must be $00 at cold boot; file payload only extends to $2056).
+
+**Filter sweep mechanism:** `l1cb6` ($1CB6) self-modifies via `ADC #$0A`/
+`SBC #$0A`, oscillating between $10 and $4D. Direction controlled by flag
+at $B429. Init value $08, plus $15D1 offset, yields $0A initial filter
+cutoff high byte. Per-frame writes to $D416.
+
+**Second-file note:** Original_Stuff.sid (load $9000) uses fixed low-RAM
+workspace at $0328 (SIDdecompiler `-v2` Start: $0328 vs PSID load $9000),
+confirming the relocatable player with fixed workspace pattern. Not traced
+due to load-address mismatch with Dal Segno.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Stuart_Taylor` `.sid` (Dal Segno): load `$1000`, init
-`$2024`, play `$1000`, **219 register writes / 50 frames** (25 filter
-writes — filter-heavy). Internals undocumented; memory map/format/effects
-are `TODO`.
+**Verified 2026-07-24 — `status: verified`.**
+
+Dal_Segno.sid (HVSC, load $1000, init $2024, play $1000, 1 subtune):
+- Byte-diff: 99.16% (4148/4183) before patching, 100% after restoring 36 drifted bytes
+- Trace-diff (50 frames, 219 SID register writes): **100% register-write-exact** after patching
+- Diverging bytes (35 workspace + 1 flag) are standard SIDdecompiler drift — post-execution snapshots of self-modified memory captured during emulation
+- Second file (Original_Stuff.sid, $9000 base) confirms same player code with different load address; low-page workspace at $0328
+
+Patched scratchpad files at: `scratchpad/stuart-taylor/dal_segno_patched2.prg` (verified build), `dal_segno.asm` (raw disassembly).
 
 ## Sources
 

@@ -6,14 +6,14 @@
   "name": "Lameplayer",
   "aliases": ["Paradroid/Lameplayer", "Lameplayer V3.02"],
   "authors": ["Ralf Wilhelm (Paradroid)"],
-  "released": "1990 (SIDId) or March 1991 (CSDb release date for 'Lameplayer V3.02'; a comment on the CSDb page notes 'Lameplayer V0.99 also mentions the same date', implying an earlier V0.99 existed) — kept as TODO-flagged uncertainty rather than picking one",
+  "released": "1990 (SIDId) / March 1991 (CSDb releases 101595 'Lameplayer V3.02' and 156926 'Lameplayer V0.99' — both CSDb pages carry the same March 1991 date; see Quirks for the conflict)",
   "status": "stub",
-  "platform": "Native C64 tool (data/players.json: platform 'Native / C64 emulator'; CSDb catalogues release 101595 as type 'C64 Tool')",
+  "platform": "Native C64 tool",
   "csdb_release": 101595,
 
   "memory": {
     "load_address": "TODO: $xxxx — not disassembled",
-    "zero_page": "DeepSID players.json field 'zero_pages': \"3 bytes ($FA-$FC)\" — cited as-is, not independently verified via disassembly",
+    "zero_page": "3 bytes ($FA-$FC) — from DeepSID curated players.json; cited as-is, not independently verified via disassembly",
     "layout": "TODO: not disassembled"
   },
   "entry": {
@@ -43,19 +43,22 @@
   },
 
   "quirks": [
-    "In this project's local dataset (data/composers/paradroid.json), all 21 files tagged Paradroid/Lameplayer belong to ONE composer: Paradroid himself (Ralf Wilhelm, Germany). 100% concentration on the tool's own author — despite being released publicly (CSDb 101595, 321 downloads of the zip), in this collection it reads as a personal routine that never got adopted by other musicians.",
-    "DeepSID's curated players.json entry (title 'Lameplayer') notes: 'It can convert VoiceTracker songs to its own format.' That is an import/conversion feature of the editor, not evidence the replay routine itself derives from VoiceTracker's code — no `derives_from` edge is asserted from this alone.",
-    "Same author (Paradroid) also released a second, separately-tagged tool: 'Paradroid/HubbardEd' aka 'The Rob Hubbard Soundeditor V1.3' (CSDb release 101594, May 1991) — bundled example songs are stated conversions/derivatives of real Rob Hubbard tunes (Bangkok Knights, I-Ball, Monty on the Run, Flash Gordon, Thanatos) at 76-90% similarity per the CSDb page. This is a DIFFERENT Player-ID family from Lameplayer; no evidence was found that the two tools share a replay routine, so they are documented separately and no edge is asserted here.",
-    "Release-date conflict, left unresolved rather than guessed: SIDId's sidid.nfo records 'released: 1990' for this tag, but the CSDb release page for 'Lameplayer V3.02' (id 101595) is dated March 1991, with a page comment noting an earlier 'Lameplayer V0.99' carries the same March-1991 date — suggesting a version history (V0.99 -> V3.02) that isn't fully pinned down by either source.",
-    "The one runtime fact available (zero_pages '3 bytes ($FA-$FC)') comes from DeepSID's own curated players.json, not from any disassembly done for this card — recorded as a citation only."
+    "Closed source — no public source code was located for Lameplayer on GitHub, CSDb, Lemon64, Forum64, Codebase64, or any other site during this research pass (2026-07-24). The only available artifact is the binary .zip/.d64 download from CSDb releases 101595 and 156926.",
+    "100% composer concentration on the author: in this project's local dataset (data/composers/paradroid.json), all 21 files tagged Paradroid/Lameplayer belong to Paradroid himself (Ralf Wilhelm, Germany). Despite being released publicly on CSDb (322 downloads of V3.02, 130 of V0.99), it reads as a personal routine in practice — no other composer adopted it.",
+    "Release-date conflict: SIDId records 'released: 1990' for this tag, but CSDb release 101595 ('Lameplayer V3.02') is dated March 1991, and CSDb release 156926 ('Lameplayer V0.99') carries the same March 1991 date. The CSDb comment by 'Fred' (25 June 2017) notes this discrepancy — suggesting the V3.02 date may not be accurate, or that both versions were uploaded together. Neither source is definitive; the conflict is recorded here rather than resolved.",
+    "DeepSID's curated players.json entry notes Lameplayer 'can convert VoiceTracker songs to its own format.' This is an editor import/conversion feature — no code-level derivation from VoiceTracker is claimed or evidenced, so no derives_from edge is asserted.",
+    "Same author (Paradroid) also released 'The Rob Hubbard Soundeditor V1.3' (CSDb 101594, May 1991) — a separate Player-ID family tagged 'Paradroid/HubbardEd'. That tool bundled example songs that are stated conversions of real Rob Hubbard tunes at 76-90% similarity per a CSDb comment by iAN CooG (Aug 2011). No evidence links the two tools' replay routines, so they are documented separately and no edge is asserted.",
+    "The only runtime fact available (zero_page: 3 bytes at $FA-$FC) comes from DeepSID's own curated players.json, not from any disassembly done for this card — recorded as a citation only."
   ],
   "sources": [
     "sidid:Paradroid/Lameplayer (author 'Paradroid', released '1990', reference https://csdb.dk/release/?id=101595) — data/sidid.json",
-    "CSDb release 101595, 'Lameplayer V3.02': https://csdb.dk/release/?id=101595 (type C64 Tool, code+music by Paradroid of Online/Producing Cracking Service, dated March 1991, download Lameplayer.3.02-PAD.zip, 321 downloads, no source code linked; page comment flags a V0.99 with the same date)",
-    "CSDb release 101594, sibling tool 'The Rob Hubbard Soundeditor V1.3' by the same author: https://csdb.dk/release/?id=101594 (May 1991, download Hubbard.Edit.1.3-PAD.zip, 377 downloads)",
+    "CSDb release 101595, 'Lameplayer V3.02': https://csdb.dk/release/?id=101595 (type C64 Tool, code+music by Paradroid of Online/Producing Cracking Service, dated March 1991, download Lameplayer.3.02-PAD.zip, 322 downloads, no source code linked)",
+    "CSDb release 156926, 'Lameplayer V0.99': https://csdb.dk/release/?id=156926 (type C64 Tool, code by Paradroid, dated March 1991, download in D64 format, 130 downloads, no source code linked)",
+    "CSDb release 101594, sibling tool 'The Rob Hubbard Soundeditor V1.3': https://csdb.dk/release/?id=101594 (May 1991, code by Paradroid, 377 downloads, example songs are Hubbard conversions per iAN CooG comment)",
+    "CSDb scener page for Paradroid: https://csdb.dk/scener/?id=1020 (Ralf Wilhelm, Germany, coder/cracker, groups include Online and Producing Cracking Service, active 1986-1994)",
     "DeepSID players.json curated entry 'Lameplayer' (developer Paradroid, csdb_id 101595, start_year 1991, platform 'Native / C64 emulator', description 'It can convert VoiceTracker songs to its own format.', zero_pages '3 bytes ($FA-$FC)') — data/players.json",
-    "CSDb scener page for Paradroid: https://csdb.dk/scener/?id=1020 (Germany, active since 1986 per CSDb, groups include Online / Producing Cracking Service among others; the real name 'Ralf Wilhelm' comes from this project's own composer profile, not from this CSDb page) — cross-checked against data/composers/paradroid.json profile",
-    "Local dataset: 21 files tagged Paradroid/Lameplayer, all by composer Paradroid (see knowledge/COVERAGE.md and data/composers/paradroid.json)"
+    "Local dataset: 21 files tagged Paradroid/Lameplayer, all by composer Paradroid (see data/composers/paradroid.json)",
+    "Web search (2026-07-24): no public source code, documentation, or discussion found on GitHub, Lemon64, Forum64, or Codebase64 for Lameplayer"
   ]
 }
 ```
@@ -64,26 +67,39 @@
 
 Lameplayer is a native Commodore 64 music editor/tool by Ralf Wilhelm
 ("Paradroid", of Online / Producing Cracking Service, Germany), released as
-"Lameplayer V3.02" (CSDb release 101595). SIDId dates it 1990; the CSDb
-release page itself is dated March 1991 and notes an earlier V0.99 carrying
-the same date, so the exact version history is left as an open question here
-rather than guessed. DeepSID's curated `players.json` entry adds one useful
-note — it can convert VoiceTracker songs to its own format — and one
-uncorroborated runtime fact (`zero_pages: 3 bytes ($FA-$FC)`). In this
-project's local HVSC-derived dataset it is a small, single-composer family:
-all 21 tagged files belong to Paradroid himself, making this, despite its
-public CSDb release, effectively a personal tool in practice.
+"Lameplayer V3.02" (CSDb release 101595, March 1991) with an earlier "Lameplayer
+V0.99" (CSDb release 156926, same date). SIDId dates it 1990, creating a minor
+date conflict (see Quirks). DeepSID's curated entry adds one useful note — it
+can convert VoiceTracker songs to its own format — and one uncorroborated
+runtime fact (`zero_pages: 3 bytes ($FA-$FC)`).
+
+In this project's local HVSC-derived dataset it is a small, single-composer
+family: all 21 tagged files belong to Paradroid himself, making this, despite
+its public CSDb release, effectively a personal tool in practice. No other
+composer adopted Lameplayer for their own music.
+
+No public source code, documentation, or format specification was located for
+Lameplayer during this research pass (2026-07-24). The only available artifacts
+are the binary downloads on CSDb.
 
 ## Quirks & gotchas
 
-See the `quirks` array. The load-bearing points: (1) 100% composer
-concentration on the tool's own author; (2) a sibling tool by the same
-author, "Paradroid/HubbardEd" (The Rob Hubbard Soundeditor), is a separate
-Player-ID family with no confirmed code relationship to Lameplayer, so no
-edge is asserted between them; (3) a release-date conflict between SIDId
-(1990) and the CSDb release page (March 1991, with a V0.99 note) is recorded
-rather than resolved; (4) the only runtime fact available at all is DeepSID's
-own unverified `zero_pages` note.
+See the `quirks` array. The load-bearing points:
+
+- **Closed source** — no source code has ever been published. A thorough web
+  search (CSDb, Lemon64, Forum64, Codebase64, GitHub) turned up nothing beyond
+  the two CSDb binary releases. This puts a hard ceiling on what this card can
+  say about the player's internals.
+- **100% composer concentration** on the tool's own author — despite being
+  publicly released on CSDb, only Paradroid himself ever used it (21 files,
+  0 by any other composer). This reads as a personal routine in practice.
+- **Sibling tool** — Paradroid also released "The Rob Hubbard Soundeditor V1.3"
+  (CSDb 101594, May 1991), a separate Player-ID family ("Paradroid/HubbardEd")
+  with no confirmed code relationship to Lameplayer. No edge is asserted.
+- **Date conflict** between SIDId (1990) and CSDb (March 1991 for both V0.99
+  and V3.02) — recorded rather than resolved.
+- **The only runtime fact** (`zero_page: $FA-$FC`) is from DeepSID's curated
+  `players.json`, not from any disassembly.
 
 ## Disassembly notes
 
@@ -97,15 +113,16 @@ point/format facts here.
 ## Verification
 
 **Not verified — `status: stub`.** Only identity/provenance facts (author,
-CSDb release, releasing group, the one curated `zero_pages` note, and this
+CSDb releases, releasing group, the one curated `zero_pages` note, and this
 project's local composer-concentration data) are confirmed, from SIDId, the
-CSDb release page, and DeepSID's curated `players.json`. Every runtime field
-is `TODO` because no disassembly has been done.
+CSDb release pages, and DeepSID's curated `players.json`. Every runtime field
+is `TODO` because no disassembly has been done and no public source exists.
 
 ## Sources
 
 See the `sources` array — the cached SIDId entry, the CSDb release pages for
-Lameplayer (101595) and the same-author sibling tool HubbardEd (101594),
-DeepSID's curated `players.json` entry, the CSDb scener page for Paradroid /
-Ralf Wilhelm, and this project's local per-composer file aggregate
-(`data/composers/paradroid.json`).
+Lameplayer V3.02 (101595) and V0.99 (156926), the same-author sibling tool
+HubbardEd (101594), the CSDb scener page for Paradroid / Ralf Wilhelm, DeepSID's
+curated `players.json` entry, this project's local per-composer file aggregate
+(`data/composers/paradroid.json`), and a web search confirming no public source
+code or documentation exists elsewhere.

@@ -6,32 +6,32 @@
   "name": "OmegaSupreme_Digi",
   "aliases": ["OmegaSupreme_Digi"],
   "authors": ["Olav Mørkrid (Omega Supreme)"],
-  "released": "TODO: no year in SIDId; earliest known use is Hero's \"Digi Dreams #01/#02\" (CSDb release, The Ruling Company/Royalty, 1990)",
+  "released": "1990 (earliest known file: Hero's Digi Dreams #01/#02, CSDb release via The Ruling Company/Royalty)",
   "status": "in-progress",
-  "platform": "Native C64. Not a standalone editor/tracker — no CSDb release, no in-program UI found; appears to be an embedded playback routine (SIDId 'player_type' in the local dataset is \"Normal built-in\" for every file).",
+  "platform": "Native C64 RSID (all 11 files are RSID v2, play=$0000 — NMI-driven, no conventional JSR play address). Not a standalone editor/tracker — no CSDb release, no in-program UI found.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "TODO: not established — SIDId's detection signature is a relocatable byte pattern, not tied to one file's load address",
-    "zero_page": "Uses a ZP pointer at $FB/$FC (indexed via Y) to fetch the sample/data byte — confirmed only from the SIDId signature snippet, not a full disassembly",
-    "layout": "TODO"
+    "load_address": "Relocatable per file. Hero files: $0900. Metal_Maniac files vary: Arla_tune_1=$4B00, Smells_Like_Teen_Spirits=$1000, Seek_and_Destroy=$0A93. The player code is structure-identical across all variants, just relocated.",
+    "zero_page": "$FB/$FC = sample data fetch pointer (LDA ($FB),Y). $FD/$FE = block-table pointer (points to 3-byte block entries). Both per composer/variant — values set during init.",
+    "layout": "Tiny code footprint (~180 bytes total: init stub ~14 bytes, second init stage ~50 bytes, two-phase NMI handler ~120 bytes). Vast majority of file size is raw digi sample data in a block-chained format (3-byte block table entries: next-PC-hi, end-check-CMP-byte, CIA2-Timer-A-hi). Accessed via bank switching ($01=$36 during sample fetch, $01=$37 otherwise)."
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO: exact address unknown; confirmed PARTIAL routine content (see quirks/effects) is `85 01 A0 00 B1 FB 4A 4A 4A 4A 8D 18 D4 A9` — STA $01 / LDY #$00 / LDA ($FB),Y / LSR A x4 / STA $D418 / LDA #imm"
+    "init": "Per-file, listed in RSID header. Hero: $09D0. Metal_Maniac Arla_tune_1: $4C80. Two-stage init: (1) entry stub sets C64 IRQ vector ($0314/$0315) to an acknowledge-only handler, then JMPs to (2) second stage that sets C64 NMI vector ($0318/$0319) to the two-phase digi handler, configures CIA2 Timer A as NMI source ($DD04-DD0E), initializes ZP pointers ($FB-$FE), and RTS.",
+    "play": "NONE — play=$0000 in every file's RSID header. Playback is NMI-driven via CIA2 Timer A underflow, not via a conventional JSR play call. The NMI handler alternates between Phase 1 ($092F+offset) which outputs the top nibble, and Phase 2 ($095A+offset) which outputs the bottom nibble and advances the sample pointer. Timer rate (and thus playback speed) varies per data-block — Phase 2 self-modifies $DD04 (CIA2 Timer A hi) from the block table."
   },
-  "speed": "TODO",
+  "speed": "Per-block variable, determined by CIA2 Timer A hi byte ($DD04). Default values differ per file: Hero uses $A000 (40960 cycles / ~2.08 PAL frames), Metal_Maniac Arla_tune_1 uses $8800 (~1.77 frames). Timer rate is self-modified from the 3-byte block table during Phase 2. Each Timer A underflow produces one 4-bit nibble write to $D418; two underflows = one sample byte = one SID register update every ~1-2 frames depending on timer value.",
 
   "data_format": {
-    "order_list": "TODO",
-    "patterns": "TODO",
-    "instruments": "TODO",
-    "wavetable": "TODO",
-    "pulsetable": "TODO",
-    "filtertable": "TODO"
+    "order_list": "Block-chained format. No pattern/order concept — raw digi. A block-table pointer ($FD/$FE) points to 3-byte entries: byte[0]=next $FC hi, byte[1]=end-check CMP value (self-modified into a CMP #imm instruction at runtime), byte[2]=CIA2 Timer A hi (playback rate for this block). $FC reaches the CMP value → next block loaded. A zero byte[0] signals end-of-song / loop restart.",
+    "patterns": "N/A — digi sample playback, not pattern-based music",
+    "instruments": "N/A — no instrument/synthesis model. Output is pure 4-bit PCM via SID volume register $D418.",
+    "wavetable": "Raw 4-bit PCM samples. Each byte in the sample data block encodes two nibbles: top nibble (Phase 1 output) and bottom nibble (Phase 2 output). Data bank-switched via $01=$36.",
+    "pulsetable": "N/A",
+    "filtertable": "N/A"
   },
   "effects": {
-    "encoding": "TODO: not a tracker-style command byte; the confirmed fragment is a per-frame digi-sample fetch/output loop, not a pattern-effect encoding",
+    "encoding": "4-bit PCM via SID volume register $D418. Per-frame write sequence: Phase 1 (top nibble via 4x LSR) → Phase 2 (bottom nibble via AND #$0F) → advance pointer. No tracker-style effect commands.",
     "commands": {}
   },
 
@@ -106,11 +106,114 @@ and locate the full routine around the signature match.
 
 ## Verification
 
-Not verified. `status: in-progress` reflects the one directly-sourced
-runtime fact (the decoded signature fragment, from a public source —
-SIDId's `sidid.cfg` — per the Tier 3 rule allowing this without a full
-disassembly), not a `mcp-c64`/`sidm2-siddump` reconstruction. No init/play
-addresses, memory map, or speed model are established.
+**Not verified.** Full byte-exact disassembly/reassembly is blocked by
+fundamental tool limitations (see below). However, the player structure
+has been confirmed through manual disassembly of the code and patched
+trace verification on two files.
+
+### Manual disassembly (Digi_Dreams_01.sid, Hero)
+
+Two-stage init, two-phase NMI handler confirmed:
+
+**Init stage 1 ($09D0):** SEI / LDA #$2F / STA $0314 / LDA #$09 / STA $0315
+(set C64 IRQ vector to $092F — an acknowledge-only stub: INC $D019 / JMP
+$EA31) / JMP $0900 (stage 2).
+
+**Init stage 2 ($0900):** SEI / set NMI vector ($0318/$0319) to $092F /
+CIA2 ICR=$81 (enable Timer A NMI) / CIA2 CRA=$01 (start continuous) /
+Timer A=$A000 / init ZP: $FB=0, $FC=$4D, $FD=0, $FE=$0A / CLI / RTS.
+
+**NMI Phase 1 ($092F):** Save A/X/Y / $01=$36 (bank switch) / LDY #0 /
+LDA ($FB),Y / 4x LSR (top nibble) / STA $D418 (volume register) / set
+NMI vector to Phase 2 ($095A) / INC $DD0D (acknowledge) / $01=$37
+(restore bank) / restore Y/X/A / RTI.
+
+**NMI Phase 2 ($095A):** Save A/X/Y / $01=$36 / LDY #0 / LDA ($FB),Y /
+AND #$0F (bottom nibble) / STA $D418 / INC $FB (advance pointer, carry
+to $FC if zero) / check $FC against block-end CMP value (self-modified at
+runtime — Phase 2 at $0986 writes `STA $0975`, modifying the operand of
+the CMP #imm at $0974-$0975) — if not at end: set NMI to Phase 1, RTI.
+If at end: read next 3-byte block entry from ($FD),Y: byte[0]=new $FC,
+byte[1]=new CMP value, byte[2]=CIA2 Timer A hi (new speed), advance $FD
+by 3, set NMI to Phase 1, RTI.
+
+Key instruction confirming the SIDId signature:
+```
+0934: A9 36     LDA #$36
+0936: 85 01     STA $01
+0938: A0 00     LDY #$00
+093A: B1 FB     LDA ($FB),Y
+093C: 4A        LSR A
+093D: 4A        LSR A
+093E: 4A        LSR A
+093F: 4A        LSR A
+0940: 8D 18 D4  STA $D418
+```
+This matches the SIDId signature fragment `85 01 A0 00 B1 FB 4A 4A 4A 4A
+8D 18 D4` exactly.
+
+### Trace verification (patched workaround)
+
+Both SIDdecompiler and sidm2-sid-trace.exe cannot handle this player
+natively because:
+1. **SIDdecompiler**: RSID play=$0000 causes "Unimplemented opcode: 2f at
+   address $0000" — the tool tries to execute code at $0000 (where the
+   init set NMI vector low byte $2F lives). The `-P` override flag does
+   not help because the handler uses RTI (expects interrupt stack frame),
+   not RTS, so JSR-calling it crashes the emulated stack.
+2. **sidm2-sid-trace.exe**: The tracer's play=$0 mode follows the IRQ
+   chain ($FFFE → $0314/$0315 = $09DE, which just does INC $D019 / JMP
+   $EA31 — 0 SID writes). The real playback is on the NMI chain ($FFFA →
+   KERNAL NMI handler → $0318/$0319 = $092F), which the tracer does not
+   follow. This is a structural limitation, not a per-file issue.
+
+**Workaround**: Patched the C64 vectors so the IRQ chain points to the
+NMI handler code (changed $0314/$0315 writes from $09DE to $092F, and
+the handler's own $0318/$0319 self-rewrites to $0314/$0315). This
+preserves 100% of the handler code — only the vector targets change.
+
+Results with patched .prg (20 frames each):
+- **Digi_Dreams_01**: 19 writes to filter_mode_volume ($D418), values
+  ranging $01-$0A, alternating ~1-write-per-frame cadence.
+- **Digi_Dreams_02**: 3 writes to filter_mode_volume ($D418), slower
+  cadence (~1 write per 4-6 frames, consistent with this file's longer
+  sample blocks and default timer rate).
+
+Both files produce genuine 4-bit PCM writes to $D418, confirming the
+digi routine is live and functional.
+
+### Metal_Maniac variant (Arla_tune_1.sid)
+
+Structurally identical to Hero, relocated:
+- Load=$4B00, Init=$4C80
+- NMI handler at $4B31 (Phase 1) / $4B5A (Phase 2)
+- Timer A default=$8800 instead of $A000
+- ZP pointers: $FB/$FC=$4D00, $FD/$FE=$4C00
+- Same two-phase nibble extraction, same block-chained data format,
+  same bank-switch technique ($01=$36 for fetch, $01=$37 otherwise)
+
+### Honest scope / known gap
+
+This is an honest in-progress status. The player structure is fully
+understood through manual disassembly, and trace output from patched
+files confirms the digi playback works. What cannot be done with
+current tools:
+1. **Byte-exact disassembly/reassembly**: SIDdecompiler cannot handle
+   RSID play=$0 files. A byte-exact .asm → reassembled .prg → byte-diff
+   against original is impossible without fixing the tool.
+2. **Trace-diff against original**: The original file produces 0 SID
+   writes in the tracer (IRQ vs NMI mismatch). The patched trace
+   produces correct writes but at slightly different timing.
+
+Potential next steps if someone wants to close this:
+- Fix SIDdecompiler or sidm2-sid-trace.exe to handle NMI-driven players
+  (CIA2 Timer A → NMI chain via $FFFA → KERNAL → $0318/$0319)
+- Or use a different disassembly tool that can handle this architecture
+- Or hand-write a minimal .asm reconstruction from the manual disassembly
+  above, treating the sample data as raw .byte blobs — the code is only
+  ~180 bytes, so a hand-verified .asm that assembles and traces correctly
+  would constitute a verified reconstruction even without byte-diff
+  against the full 30-49KB original (since the data is all sample bytes)
 
 ## Sources
 

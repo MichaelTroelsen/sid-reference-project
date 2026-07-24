@@ -49,7 +49,8 @@
     "SOURCE IS PUBLIC on CSDb: the 'Second Soundroutine - Assembler composed' release (id 150333) bundles two source-code zips (.a64 6502 assembler sources) plus a help.txt and an '_ass.bat' to reassemble everything, uploaded by the author. License is UNSTATED (CSDb page shows only its own generic site copyright, no explicit terms from Burgstaller) — confirm permission before treating it as reusable, same caveat as odintracker.md.",
     "help.txt gives concrete loading instructions: two-file load at $0F00 + $1000 then 'sys256*15' ($0F00), or a single file at $1000 then 'sys4096' — consistent with the PSID load addresses read off individual CSDb SID pages, but this is file-loading metadata, not a disassembled memory map.",
     "Burgstaller was also a coder (CSDb function: Coder + Musician), and reused this routine in his own unfinished 1989-1992 platform game 'Cydonia' (CSDb release 150328) — several of the 18 files (Cydonia_1..5, Cydonia_ingame, Land5) are that game's music; the rest (China, Disco, Hinu, Iso, Grus4, the *-Trance tunes, etc.) are the standalone 'Second Soundroutine' set. Not in SIDId (data/sidid.json has no 'Burgstaller_B' entry) and not in the older cadaver/sidid.nfo either — it IS present as a raw byte signature in the newer WilfredC64/player-id project's config/sidid.cfg (no accompanying name/author/comment there, just the signature bytes), which is presumably how this dataset's 'Burgstaller_B' tag was assigned.",
-    "gamesthatwerent.com's Cydonia writeup credits 'Sound: Bernhard Burgstaller, Matt Grey, and Chris Huelsbeck' for the overall game project across its multi-year (1989-1992) development — this is a game-credits list spanning the whole unfinished project, not evidence that Burgstaller's own routine derives from Huelsbeck's or Gray's code. Do NOT assert a derivation edge from this alone."
+    "gamesthatwerent.com's Cydonia writeup credits 'Sound: Bernhard Burgstaller, Matt Grey, and Chris Huelsbeck' for the overall game project across its multi-year (1989-1992) development — this is a game-credits list spanning the whole unfinished project, not evidence that Burgstaller's own routine derives from Huelsbeck's or Gray's code. Do NOT assert a derivation edge from this alone.",
+    "2026-07-24 re-research pass: no 'First Soundroutine' or any earlier soundroutine release by Burgstaller exists on CSDb (checked his full scener credit list at csdb.dk/scener/?id=25588, which lists only Second Soundroutine, Cydonia, and unrelated later tools — Disk/Diskimage tool 1998+2013, a 1998 MOS 6502 cross-assembler, 'Melini' 2016) — 'second' really does just number his own prior (unpublished/undocumented) iteration, reinforcing the existing no-derivation-edge call. The WilfredC64/player-id sidid.cfg entry for 'Burgstaller_B' still carries only raw signature bytes, no name/author/comment. Targeted Lemon64 and Forum64 searches for Burgstaller/Cydonia/soundroutine turned up no scene-forum threads about this routine specifically (only unrelated Matt Gray/Cydonia-the-1998-album/Cydonia-the-Mars-mission noise) — nothing to add or contradict."
   ],
   "sources": [
     "Local dataset: 18 files tagged Burgstaller_B, 1 composer (100% Bernhard Burgstaller) — knowledge/COVERAGE.md rank #8; data/composers/bernhard-burgstaller.json",
@@ -60,7 +61,9 @@
     "gamesthatwerent.com Cydonia writeup (1989-1992 dev history, sound credits): https://www.gamesthatwerent.com/gtw64/cydonia/",
     "CSDb SID-tune pages (PSID header samples): China https://csdb.dk/sid/?id=37492 ; Cydonia 1 https://csdb.dk/sid/?id=37494",
     "Player-ID byte signature for 'Burgstaller_B' (no name/author/comment attached): https://github.com/WilfredC64/player-id, config/sidid.cfg",
-    "Checked and NOT found in either SIDId nfo: cadaver/sidid (github.com/cadaver/sidid) and this project's cached data/sidid.json — no author/year/comment entry exists there for this tag"
+    "Checked and NOT found in either SIDId nfo: cadaver/sidid (github.com/cadaver/sidid) and this project's cached data/sidid.json — no author/year/comment entry exists there for this tag",
+    "Re-fetched CSDb release 150333 (2026-07-24): author's own comment on the release page (submitted by Bernhard Burgstaller, Sep 10 2016) reads 'all my sound files using my second soundroutine and composed in assembler from 1990-1991' — confirms the 1990-1991 date range and sole authorship already in this card; no license terms stated anywhere on the page beyond CSDb's own generic site copyright.",
+    "Re-checked WilfredC64/player-id (2026-07-24): raw_github.com/WilfredC64/player-id/master/config/sidid.cfg 'Burgstaller_B' entry is still signature bytes only, no name/author/comment fields."
   ]
 }
 ```
@@ -103,6 +106,18 @@ confirmed (composer, CSDb release, published source existence, one sampled
 PSID load/init/play pair from two files' CSDb SID pages). No disassembly was
 done in this pass; all data-format/effect/zero-page fields are honestly `TODO`
 rather than guessed from the two PSID header samples.
+
+**2026-07-24 re-research pass**: re-confirmed the existing CSDb citations
+still resolve and carry the same facts (release 150333's author comment,
+scener profile's release list), re-checked the WilfredC64/player-id
+signature entry (still bytes-only), and searched Lemon64 and Forum64
+specifically for Burgstaller/Cydonia/soundroutine — no scene-forum
+discussion of this routine exists on either site, and no earlier
+"first soundroutine" release or public source repo (GitHub/SourceForge)
+turned up anywhere. No new Tier 3 fact was found, so `status` stays `stub`;
+nothing here reaches the bar for `in-progress` (a public source that
+plainly documents a runtime fact — the CSDb-hosted `.a64` zips qualify as
+"public source exists" but have not been opened/read in any pass so far).
 
 ## Sources
 

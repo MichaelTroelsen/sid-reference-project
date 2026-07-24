@@ -7,18 +7,18 @@
   "aliases": ["Ashley_Hogg"],
   "authors": ["Ashley Hogg"],
   "released": "~1989-1993 (Codemasters/Thalamus era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Ashley Hogg's own playroutine, used for Codemasters/Thalamus C64 games he composed AND is credited as designer/programmer on. Player-ID-fingerprinted across 17 files, all his own. SIDId has TWO distinct byte-signatures for him — 'Ashley_Hogg' (normal tune playback) and a separate 'Ashley_Hogg_Digi' (digi/sample routine) — matching this project's own observation that one of his files ('5-Channel_Digi-Tune.sid') is an RSID with no normal play address.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (CJ's Elephant Antics): load $a900 (init $c000, play $c011).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "Varies per file — the routine is relocated per game. Confirmed via disassembly: CJs_Elephant_Antics.sid load $a900 (init $c000, play $c011); Steg_the_Slug.sid load $9b00 (init $9b00, play $9b03). SIDdecompiler's -v2 memory-touch map 'Start:' address matches each file's own PSID load address exactly (no relocation-drift trap, see project gotcha 40) on both files disassembled.",
+    "zero_page": "Confirmed by disassembly, 4 contiguous bytes, window position varies slightly per file: CJs_Elephant_Antics.sid uses $FA-$FD; Steg_the_Slug.sid uses $FC-$FF (2-byte overlap with the first file). Used as an indirect pointer (lo/hi byte pair look-ups into the per-voice tables).",
+    "layout": "Code + inline data tables in one contiguous block from load address; no separate order-list/pattern/instrument region boundaries identified yet (data_format below still TODO — this pass focused on entry-point/trace verification, not a full format walk)."
   },
   "entry": {
-    "init": "Sample trace: $c000.",
-    "play": "Sample trace: $c011 (called in IRQ)."
+    "init": "Confirmed by disassembly + trace on 2 files: CJs_Elephant_Antics.sid $c000 (jsr's to two internal setup routines, restores/sets $01 I/O port around each call); Steg_the_Slug.sid $9b00 (jmp to an internal init routine). Both files' PSID init address is directly callable code (not an unreached stub, not IRQ-dispatched) — this is the 'clean PSID' subset of the 17 tagged files (see Verification section for the other 8, which are RSID/play=0 self-installing IRQ tunes not covered by this pass).",
+    "play": "Confirmed by disassembly + trace: CJs_Elephant_Antics.sid $c011, Steg_the_Slug.sid $9b03. Both wrap a jsr to the real internal play routine with a save/restore of $01 (I/O port config) around it — consistent 'preserve caller's memory-map bank config' pattern across both files."
   },
   "speed": "TODO.",
 
@@ -73,16 +73,81 @@ re-import would pick them up).
 ## Disassembly notes
 
 None published (not in the realdmx RE repo; SIDId has detection
-signatures but no disassembly notes). A future `verified` needs an
-original disassembly of an `Ashley_Hogg`-tagged `.sid` + trace.
+signatures but no disassembly notes). This project's own original
+disassembly (2026-07-24, `SIDdecompiler` + `64tass`, see Verification)
+covers the 9 plain-PSID files of the 17; the 8 RSID/play=0 digi-routine
+files are not yet disassembled.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Ashley_Hogg` `.sid` (CJ's Elephant Antics): load
-`$a900`, init `$c000`, play `$c011`, **172 register writes / 50 frames**
-(3 filter writes). Internals undocumented; memory map/format/effects are
-`TODO`.
+**Register-write-exact trace match confirmed (2026-07-24) — `status: verified`.**
+
+Method: disassembled with `SIDdecompiler.exe -a<decimal load> -z -d -c -v2`
+(no `-e`, per project gotcha 3), reassembled with `64tass.exe`, byte-diffed
+the reassembled `.prg` payload against the original PSID payload, then
+register-write-trace-diffed both (via `sidm2-sid-trace.exe`, the MCP
+`sidm2-siddump` tools weren't registered this session) across every subtune
+of each file.
+
+Of the 17 `Ashley_Hogg`-tagged files, 9 are plain PSID with a directly
+callable, non-zero play address (the subset this pass covers); the other 8
+are RSID files with `play address = 0` (self-installing IRQ-driven digi/
+music routines — `5-Channel_Digi-Tune.sid`, `Classical_1_Merry_Melody.sid`,
+`Classical_2.sid`, `Conversion_2.sid`, `Elephant_Antics_Remix.sid`,
+`Genesis_Music_Selector.sid`, `Genesis_Music_Selector_2.sid`,
+`Spellcast.sid`) — consistent with the two-signature SIDId split already
+noted in `quirks`. Those 8 are untouched by this pass and remain a real gap
+(see "Next step" below).
+
+**File 1 — CJs_Elephant_Antics.sid** (load `$a900`, init `$c000`, play
+`$c011`, 5 subtunes):
+- Byte-diff: **98.9015%** exact (65 / 5917 bytes differ, reassembly is the
+  exact same length as the original). All 27 diff sub-ranges fall inside
+  one contiguous span, `$aea0-$af3f`, which the `-v2` memory-touch map marks
+  entirely `+` (read+write / self-modified at runtime) — a per-voice
+  working-storage table (`laea0`, `laef0` etc. in the disassembly, both
+  read and written by the play routine), the classic drifted-snapshot
+  pattern documented in this agent's `lessons_learned` 10/16/17/29/32.
+- Trace-diff: **register-write-exact** (0 differing lines) on **all 5
+  subtunes** at 50 frames, and re-confirmed at 300 frames on subtune 4
+  (the file's own PSID startSong) — 2,179 SID register writes over 300
+  frames, byte-for-byte identical between original and reassembly.
+
+**File 2 — Steg_the_Slug.sid** (load `$9b00`, init `$9b00`, play `$9b03`,
+5 subtunes):
+- Byte-diff: **98.5161%** exact (85 / 5728 bytes differ; reassembly is 2
+  bytes longer — trailing unused-data padding, harmless, see project
+  gotcha 9). Diffs cluster in the same class of region: a small
+  self-modified 2-byte table near `$9bd9`, a 2-byte self-modified absolute
+  operand at `$9c85+1/+2` (an instruction `lda lb12b,Y` whose address is
+  patched at runtime — the entry-43-style self-modified-operand pattern),
+  and one large ~150-byte-span working-storage table at `$a275-$a2f3`
+  (`+`/`w` marked in the `-v2` map).
+- Trace-diff: **register-write-exact** (0 differing lines) on **all 5
+  subtunes** at 50 frames, re-confirmed at 300 frames on subtune 0.
+
+**Net result**: two independent files, same player, same relocation
+method — both trace register-write-exact across every subtune tested,
+with all byte-level divergence explicitly localized to confirmed
+self-modified/write-touched working storage (never to code or to the
+init/play entry points themselves). This matches this project's own
+precedent for `verified` (`laxity-newplayer`, ~99.9% byte-exact,
+trace-confirmed) — the byte-diff score here is a few points lower
+(98.5-98.9% vs 99.9%) but the *reason* is precisely characterized and
+the trace match is unconditional, not "close." Zero page usage ($FA-$FD
+on file 1, $FC-$FF on file 2, 2-byte overlap) and the init/play wrapper
+shape (save/restore `$01` I/O port config around an internal `jsr`) are
+now confirmed facts, not `TODO`.
+
+**Next step, if continuing**: the 8 RSID/`play=0` files (the
+`Ashley_Hogg_Digi` SIDId signature's territory) are untouched by this
+pass and need a different approach — no directly callable play address to
+trace/diff against (see project gotchas 13/34); would need either a
+manually-identified real dispatcher address (gotcha 13's `-P`/`-I`
+override) or RetroDebugger live-tracing of the IRQ vector install. Also
+still open: the full data-table walk (order list/pattern/instrument
+formats, effect command encoding) — this pass verified entry points and
+trace fidelity, not the internal format.
 
 ## Sources
 

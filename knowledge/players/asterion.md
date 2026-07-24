@@ -7,18 +7,18 @@
   "aliases": ["Asterion_V1.x"],
   "authors": ["Rafal Kazimierski (Asterion)"],
   "released": "2004 (V1.0: 26 Jan 2004; V1.1: 31 May 2004)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tracker/editor + its own C64 replay routine embedded in exported tunes. No cross-platform component found.",
   "csdb_release": 11576,
 
   "memory": {
-    "load_address": "TODO (not disassembled): no init/play entry-point disassembly exists. However, direct inspection of the official release disks (ast10.d64/ast11.d64, both downloaded from CSDb) shows all 19 bundled example tunes — packed with the editor's own included PACK&RELOC utility — individually load at PRG address $46F0 regardless of tune size (4-11KB), on BOTH V1.0 and V1.1. Read from each PRG's own 2-byte load-address header (file-format metadata, not code disassembly); plausibly the packer's fixed player+song base address, but init/play offsets within that block are not determined here.",
-    "zero_page": "TODO: DeepSID's players.json spec notes \"Sometimes 2 bytes ($FB-$FC)\" — documented by DeepSID, NOT independently verified here via disassembly; do not treat as confirmed",
-    "layout": "Documented at the editor/source-format level by the tool's own manual (ast11.txt, bundled on the official V1.1 release disk): three parallel per-channel \"tracks\" (order lists) sit alongside independent wave/arpeggio/pulse/filter macrocommand tables and an \"indexes\" table (9x/Ax/Bx/Cx/4x/Fx rows) that pattern effects point into. No absolute addresses given — this is the editor's logical layout, not a memory map; runtime addresses remain TODO (not disassembled)."
+    "load_address": "Confirmed via disassembly on two independent real HVSC files: both `Caer_Aisling.sid` and `Adventure.sid` (MUSICIANS/T/Tinnitus/Asterion/) carry a PSID header with load-address field 0 (real load address = the payload's own first 2 LE bytes) resolving to $1000 for both files, and SIDdecompiler's own `-v2` memory-map \"Start:\" line independently confirms $1000 as the lowest touched address on both — no relocation-base mismatch (see project gotcha 40). This is DIFFERENT from the $46F0 fixed base observed on the official release disks' own PACK&RELOC-packed example tunes (see quirks) — real HVSC rips of this player's tunes load at $1000, not $46F0; the $46F0 figure describes only the specific distribution-disk packaging, not the player's native load address.",
+    "zero_page": "Confirmed via disassembly on both test files: exactly 2 bytes, $FB-$FC, used as a single 16-bit indirect pointer (`lda (zfb),Y`) for order-list/table indexing inside the play routine — matches DeepSID's players.json note (\"Sometimes 2 bytes ($FB-$FC)\") exactly; now independently verified, not just attributed to DeepSID.",
+    "layout": "Documented at the editor/source-format level by the tool's own manual (ast11.txt, bundled on the official V1.1 release disk): three parallel per-channel \"tracks\" (order lists) sit alongside independent wave/arpeggio/pulse/filter macrocommand tables and an \"indexes\" table (9x/Ax/Bx/Cx/4x/Fx rows) that pattern effects point into. Runtime table base addresses are file-specific (each exported tune embeds its own tables at addresses fixed by the packer for that file) — not a single fixed memory map across all tunes; not attempted to generalize beyond the two disassembled files."
   },
   "entry": {
-    "init": "TODO: no public source/disassembly found",
-    "play": "TODO: no public source/disassembly found"
+    "init": "PSID header init vector = $1000 (confirmed via disassembly + trace on 2 files). This address itself is only a 3-byte `JMP` stub in `Caer_Aisling.sid` (`JMP $1746`, the real init routine) — but in `Adventure.sid` there is no stub; the real init routine sits at a different address ($14ba) reached the same way (`JMP $14ba` at $1000). The stub-vs-direct-jump pattern is file-specific (packer/relocation artifact per exported tune), not a fixed convention — always disassemble from the file's own PSID-declared $1000, don't assume a fixed offset to the 'real' init.",
+    "play": "PSID header play vector = $1003 (confirmed via disassembly + trace on 2 files). In `Caer_Aisling.sid` this is a 3-byte `JMP $1040` stub to the real play routine; in `Adventure.sid` $1003 directly IS the first instruction of the real play routine (`lda zfb` / `pha` / ...), no stub at all. Same file-specific caveat as `entry.init`."
   },
   "speed": "TODO: precise model unconfirmed. DeepSID's players.json lists supported speeds as \"1x, 2x, 4x\" and CPU cost as \"Approx 27-36 rasterlines [SD]\" — documented by DeepSID, not independently verified here. The manual's own tune-parameter field \"multispd\" (\"set tune frame speed\") confirms a per-tune multispeed setting exists, consistent with DeepSID's note, but does not state the exact CIA/raster mechanism.",
 
@@ -65,7 +65,9 @@
     "Composer concentration is a strong 'personal/small-scene routine, not a widely published tool' signal: of 67 files in the local dataset tagged Asterion_V1.x, 52 (78%) are by Asterion himself, 13 by Trompkins, and 2 by Tinnitus (the group account) — all three are members of the Polish group Tinnitus / Samar Productions, the tool's own credited authors/publishers. No use outside that circle was found in this dataset.",
     "DeepSID's players.json carries a fuller technical spec table (instrument count, pattern/order-list shape, speed options, ZP usage note, CPU cost estimate) than SIDId does. Most of that is now cross-confirmed at a structural level by the manual (order-list/pattern shape, per-tune multispeed); the exact instrument-slot count (31), ZP usage, and rasterline cost remain attributed to DeepSID only, since the manual doesn't state them.",
     "Both official release disk images (ast10.d64, ast11.d64) bundle example tunes exported via the editor's own included 'PACK&RELOC' utility. All 19 of them (16 on V1.0's disk, 3 on V1.1's) individually load at the same fixed PRG address $46F0 regardless of tune size — read directly from each PRG's 2-byte load header (file-format inspection, not disassembly). This is very likely the packer's fixed player+song base address for distributed tunes, but that inference is not confirmed by disassembling PACK&RELOC or a packed tune's actual code.",
-    "The V1.1 manual explicitly documents behavioural differences from V1.0: two REG-byte bits are labelled 'AST v1.0 bug emulation' (pulse/waveform restart on tie-note and on portamento), and V1.1 adds working vibrating-portamento plus a 94-note range (c#0-a#7) versus V1.0. Anyone reconstructing V1.0 playback specifically should not assume V1.1's manual describes it byte-for-byte identically."
+    "The V1.1 manual explicitly documents behavioural differences from V1.0: two REG-byte bits are labelled 'AST v1.0 bug emulation' (pulse/waveform restart on tie-note and on portamento), and V1.1 adds working vibrating-portamento plus a 94-note range (c#0-a#7) versus V1.0. Anyone reconstructing V1.0 playback specifically should not assume V1.1's manual describes it byte-for-byte identically.",
+    "Disassembly + reassembly (SIDdecompiler.exe -a4096, 64tass.exe) of two independent real HVSC files (Caer_Aisling.sid, Adventure.sid) both relocate cleanly to $1000 with no Start:-vs-load-address mismatch (gotcha 40 does not apply here). Both files' raw disassemblies came back byte-diff 98.37% and 98.55% respectively before any fix — both mismatch clusters landed entirely inside SIDdecompiler's own `-v2` map '+'/write-touched address ranges (the standard 'post-execution snapshot of a data table' signature — project gotchas 40/41). Patching the affected `.byte` table lines in each `.asm` back to the file's own pristine bytes (per the project's established `l<hex> .byte` label-anchored patch method) closed BOTH to 100.0000% byte-exact reassembly.",
+    "Trace-diffing confirmed the two files' drifted-table clusters were NOT equally significant: on Caer_Aisling.sid the unpatched reassembly diverged from the real file's register-write trace starting at frame 0 (2 missing oscillator-frequency writes, then 2 wrong 'old value' pairs at frame 6) — i.e. those particular drifted bytes were genuinely load-bearing cold-start data, not dead workspace. On Adventure.sid the unpatched reassembly was ALREADY register-write-identical to the original over 150 frames despite the same-shaped byte-diff — i.e. that file's drifted bytes were dead. Both patched reassemblies are register-write-exact regardless. This is a fresh confirmed instance of gotcha 41 (write-touched bytes are not reliably dead, file-dependently) inside a single player, on two files disassembled the same way."
   ],
   "sources": [
     "sidid: Asterion_V1.x (author Rafal Kazimierski (Asterion); released 2004; reference https://csdb.dk/release/?id=11576) — data/sidid.json / github.com/cadaver/sidid sidid.nfo",
@@ -75,7 +77,8 @@
     "$46F0 packed-tune load address: observed directly from ast10.d64/ast11.d64 directory listings + PRG headers (19 bundled example tunes, both disks) — see knowledge/artifacts/asterion.txt for the raw observation; not from disassembly",
     "DeepSID players database entry \"Asterion Sid-Tracker v1.x\" (data/players.json, developer Asterion, start_year 2004, csdb_id 13228, site http://tinnitus.prv.pl) — spec table used above for hedged TODO notes (instrument count, ZP, CPU cost) not covered by the manual",
     "CSDb sid entry confirming real name: https://csdb.dk/sid/?id=28523 (\"Caer Aisling\" / Rafal Kazimierski (Asterion) / 2006 HVSC)",
-    "Local dataset: 67 files tagged Asterion_V1.x across 3 composers (asterion.json 52, trompkins.json 13, tinnitus.json 2) — see knowledge/COVERAGE.md (rank 10, 67 files)"
+    "Local dataset: 67 files tagged Asterion_V1.x across 3 composers (asterion.json 52, trompkins.json 13, tinnitus.json 2) — see knowledge/COVERAGE.md (rank 10, 67 files)",
+    "Disassembly/reassembly/trace-diff verification (this pass): SIDdecompiler.exe (C:\\Users\\mit\\claude\\c64server\\SIDM2\\tools\\SIDdecompiler.exe) run at -a4096 -z -d -c -v2 on two real HVSC files (MUSICIANS/T/Tinnitus/Asterion/Caer_Aisling.sid, MUSICIANS/T/Tinnitus/Asterion/Adventure.sid), reassembled with 64tass.exe (C:\\debugger\\64tass\\64tass.exe -a --cbm-prg), byte-diffed and .byte-patched in Node, trace-diffed with sidm2-sid-trace.exe (C:\\Users\\mit\\claude\\c64server\\SIDM2\\tools\\sidm2-sid-trace.exe, stderr output per project lesson 46) over 100-150 frames each — see this card's Verification section for the exact results."
   ]
 }
 ```
@@ -91,57 +94,112 @@ across only 3 composers, 78% of them by Asterion himself, with the rest by
 his two Tinnitus/Samar Productions groupmates (Trompkins, and the Tinnitus
 group account) — the composer-concentration signal described in
 `knowledge/EXTRACTION-TEMPLATE.md` for a personal/small-scene routine.
-Although no binary disassembly exists, the official release disks (both
-downloaded directly from CSDb) bundle the tool's own plain-text manual
-(`ast11.txt`), which documents the tracker's data format and pattern-effect
-command set in real detail — enough to raise `status` from `stub` to
-`in-progress` for the `data_format`/`effects`/`speed` fields, while
-`memory`/`entry` (the actual runtime addresses) remain `TODO`.
+The official release disks (both downloaded directly from CSDb) bundle the
+tool's own plain-text manual (`ast11.txt`), which documents the tracker's
+data format and pattern-effect command set in real detail — this raised
+`status` from `stub` to `in-progress` for the `data_format`/`effects`/`speed`
+fields in an earlier pass. This pass closed the remaining gap: two real HVSC
+files (`Caer_Aisling.sid`, `Adventure.sid`, both by Asterion himself) were
+disassembled with SIDdecompiler, reassembled with 64tass, byte-diffed, patched
+to 100.0000% byte-exact, and trace-diffed to a register-write-exact match
+against the originals over 100-150 frames — closing `entry.init`/`entry.play`/
+`memory.zero_page` and raising `status` to `verified`.
 
 ## Quirks & gotchas
 
 See the `quirks` array. The load-bearing points: **the tool's own manual
 (bundled in the official release download) documents the data format and
-effect commands in full**, even though no code disassembly exists — this is
-the reason `status` moved to `in-progress`; **all 19 example tunes on both
-release disks load at the same fixed PRG address $46F0**, observed directly
-from the disk images' own PRG headers (not disassembly), likely the packer's
-fixed output base; the **SIDId and DeepSID records disagree on which CSDb
-release id represents "the" tool** (V1.0 vs V1.1), and the manual itself
-flags real V1.0-vs-V1.1 behavioural differences (two "bug emulation" REG
-bits); and the **composer concentration (52/67 files by the author
-himself)** marks this as an internal group tool, not a broadly published
-tracker.
+effect commands in full**; **all 19 example tunes on the official release
+disks load at the fixed PRG address $46F0**, which is the packer's
+distribution-disk base and NOT the same as the $1000 native load address
+real HVSC rips of this player's tunes actually use (confirmed this pass —
+see `memory.load_address`); the **SIDId and DeepSID records disagree on
+which CSDb release id represents "the" tool** (V1.0 vs V1.1); the **composer
+concentration (52/67 files by the author himself)** marks this as an
+internal group tool; and (new this pass) **the drifted-table byte-diff
+divergence between the two disassembled files was load-bearing on one file
+and dead on the other**, despite an identical-shaped byte-diff pattern in
+both — a fresh instance of the project's gotcha 41 (self-modified/write-
+touched bytes are not reliably dead, and that has to be re-checked per file,
+not assumed from one file's result).
 
 ## Disassembly notes
 
-No binary/code disassembly was performed. The official release disks (CSDb
-`getinternalfile.php` downloads for both V1.0 and V1.1) were fetched and
-inspected directly during this pass: `ast11.zip` bundles a text manual
-(`ast11.txt`, preserved verbatim at `knowledge/artifacts/asterion.txt`) that
-documents the track table, pattern encoding, wave/arpeggio/pulse/filter
-macrocommand table encodings, the sound/instrument table's 12 parameter
-columns, and the full `$0x`-`$Fx` pattern-effect command set — all now
-transcribed into this card's `data_format`/`effects` fields. Separately, the
-D64 disk images' own directory + PRG headers were parsed (standard C64 PRG
-2-byte load-address header, not code disassembly) to find that all 19
-bundled example tunes load at $46F0. No attempt was made to disassemble the
-packed tunes or the `PACK&RELOC` utility itself, so init/play entry points,
-zero-page usage, and exact table addresses are still `TODO`.
+This pass performed real disassembly, contradicting the previous pass's
+"no code disassembly" note. Two files were used, both from
+`MUSICIANS/T/Tinnitus/Asterion/` in the local HVSC collection:
+`Caer_Aisling.sid` (5165-byte payload) and `Adventure.sid` (3032-byte
+payload). Both carry a PSID header with load-address field 0 (real load
+address embedded as the payload's own first 2 LE bytes) resolving to
+$1000, init=$1000, play=$1003, 1 subtune each.
+
+`SIDdecompiler.exe Caer_Aisling.sid -oCaer_Aisling.asm -a4096 -z -d -c -v2`
+(4096 decimal = $1000, per project gotcha 1) produced a clean, non-wrapping
+disassembly — the `-v2` map's own "Start:" line read $1000, matching the
+PSID load address exactly (no gotcha-40 mismatch on this player).
+Reassembling with `64tass.exe -a --cbm-prg` reproduced the exact original
+length ($1000-$242c, 5165 bytes) with no warnings. Byte-diffing the
+reassembled `.prg` payload against the original SID payload gave 98.3737%
+(84 of 5165 bytes differing, concentrated in two clusters: $1785-$180b and
+$1920-$1930). Both clusters fell entirely inside `-v2`-map `+`/write-touched
+address ranges — the standard "SIDdecompiler captured a post-execution
+snapshot of a data table instead of its pristine cold-start value" pattern.
+A first trace (20 frames, `sidm2-sid-trace.exe`) showed this divergence WAS
+audible: frame 0 was missing 2 SID register writes (osc3/osc2 frequency-lo)
+and frame 6 showed 2 writes with the correct new value but wrong recorded
+old value, both traceable to the same drifted-table region. Patching the
+84 differing bytes back to their pristine values directly in the `.asm`'s
+`l<hex> .byte` lines (address-anchored per the project's established method,
+not sequential-counter-based — see gotcha 26) and reassembling gave
+100.0000% byte-exact (0/5165 diffs), and a 100-frame trace-diff against the
+original came back completely identical (only the echoed filename line
+differed).
+
+The same procedure on `Adventure.sid` (`-a4096`, Start: $1000, no mismatch)
+gave a raw byte-diff of 98.5488% (44 of 3032 bytes, two clusters:
+$14ea-$153e and $161b-$162d), again entirely inside `-v2`-map write-touched
+ranges. Here the UNPATCHED reassembly was already register-write-identical
+to the original over 150 frames — i.e. this file's drifted bytes were dead
+workspace, unlike Caer_Aisling's. The same `.byte`-line patch method was
+still applied for consistency, closing this file to 100.0000% byte-exact
+as well, with the (already-exact) trace unaffected.
+
+Both files' real init/play routines were also read directly off the
+disassembly: `Caer_Aisling.sid`'s PSID-declared $1000/$1003 vectors are
+3-byte `JMP` stubs to $1746 (init) and $1040 (play); `Adventure.sid`'s
+$1000 vector is also a stub (`JMP $14ba`), but its $1003 play vector is NOT
+a stub — the real play routine's first instruction sits directly at $1003.
+Zero-page usage was confirmed identical on both files: exactly $FB-$FC,
+used as one 16-bit indirect pointer (`lda (zfb),Y`) for table indexing
+inside the play routine — matching (and now independently confirming)
+DeepSID's players.json note.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity/provenance facts (author,
-CSDb releases, composer usage) are confirmed as before. This pass adds
-real, citable `data_format`/`effects`/`speed`-adjacent facts sourced
-directly from the tool's own manual (bundled in the official CSDb release
-download, not a third party's re-description) plus one memory fact ($46F0
-packed-tune load address) read from the release disks' own PRG headers.
-Neither of these required disassembling any code, so `entry.init`/
-`entry.play`/`memory.zero_page` remain `TODO`, and `status` stops at
-`in-progress` rather than `verified` — verification requires reassembling
-init/play and tracing it through `sidm2-siddump`, which was out of scope
-for this pass.
+**Verified — `status: verified`.** Two independent real HVSC files
+(`Caer_Aisling.sid`, `Adventure.sid`, both MUSICIANS/T/Tinnitus/Asterion/)
+were disassembled (SIDdecompiler, `-a4096 -z -d -c -v2`, relocation base
+confirmed via `-v2`'s own Start: line, no gotcha-40 mismatch), reassembled
+(64tass), byte-diffed, and — after patching the drifted-table bytes back to
+pristine values directly in the `.asm`'s labeled `.byte` lines — both reached
+**100.0000% byte-exact** reassembly (0 diffs / 5165 bytes and 0 diffs / 3032
+bytes respectively) and a **register-write-exact trace-diff** against the
+real files (100 frames for Caer_Aisling, 150 frames for Adventure, via
+`sidm2-sid-trace.exe`, stderr-captured per project lesson 46) — identical
+output on every SID register write, only the echoed input filename line
+differing. This closes `entry.init`, `entry.play`, and `memory.zero_page`
+(previously `TODO`) with cited, run-verified facts, and confirms
+`memory.load_address` at $1000 for real HVSC-distributed tunes (distinct
+from the $46F0 packer base seen on the official release disks' own bundled
+examples). `data_format`/`effects`/`speed` are unchanged from the prior
+manual-sourced pass. Not independently re-verified: files by the other two
+composers (Trompkins, Tinnitus group account) — the two files tested are
+both by Asterion himself; given the near-identical player-routine structure
+across the two tested files (same entry-point convention modulo the
+stub/no-stub difference, same ZP usage, same drifted-table mechanism), a
+third file by a different composer would be the natural next check if this
+card is revisited, but was not required to reach the register-write-exact
+bar already met.
 
 ## Sources
 
@@ -150,5 +208,6 @@ CSDb release pages (V1.0 id 11576, V1.1 id 13228) and their official
 download links, the tool's own bundled manual (`ast11.txt`, preserved at
 `knowledge/artifacts/asterion.txt`), direct inspection of both disk images'
 PRG headers, DeepSID's players.json spec entry, a CSDb `.sid` entry
-confirming the real name, and the local dataset's 67 tagged files across 3
-composers.
+confirming the real name, the local dataset's 67 tagged files across 3
+composers, and this pass's disassembly/reassembly/trace-diff verification
+(SIDdecompiler.exe, 64tass.exe, sidm2-sid-trace.exe on two real HVSC files).

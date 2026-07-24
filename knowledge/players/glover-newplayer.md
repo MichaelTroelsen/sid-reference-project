@@ -7,7 +7,7 @@
   "aliases": ["Glover_NewPlayer_V21"],
   "authors": ["Lukasz Baran (Glover) / Samar Productions"],
   "released": "2000",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 player routine — Glover's port/adaptation of Jens-Christian Huus's (JCH) NewPlayer for Samar Productions, co-credited to JCH himself on at least one release.",
   "csdb_release": 101623,
 
@@ -63,7 +63,9 @@
     "Glover (Lukasz Baran) and Samar Productions were active in the Polish C64 scene; Glover also authored a separate, contemporaneous 'Hardtracker to JCH Converter' (CSDb release 101621, 13 Jun 2000, Samar Productions) — consistent with him working specifically within the JCH-format ecosystem around this time, not as an unrelated one-off.",
     "The CSDb release bundles a REAL, readable 6502 assembler source (SRC_JCH_Glover.zip, dated internally 18 Feb 2016 as a repack, but the source header reads '01-02-98' i.e. 1 Feb 1998 — two years before the 2000 CSDb release dates on 101622/101623, suggesting this fork was originally written in 1998 and only formally released/repackaged on CSDb in 2000). This is source code, not a disassembly reconstruction — the strongest possible evidence tier this project recognizes, which is why `memory`/`entry`/`data_format`/`effects` were filled from it directly (status promoted stub -> in-progress) rather than left TODO.",
     "The source zip actually contains TWO sub-versions, 21g4 and 21g5 (not 21g6, despite the doc .txt files being named 21G4_GLOVER.txt / 21G6_GLOVER.txt) — i.e. the exact byte-for-byte version documented here (read from `21g4.txt`) is v21.G4, one step earlier than the 'JCH NewPlayer 21.G6' title of CSDb release 101622. The G4 and G6 docs describe near-identical but NOT byte-identical instrument/table layouts (e.g. instrument byte order and which nibbles hold filter resonance/type differ slightly between G4 and G6 — see `data_format.instruments`). Which sub-version (G4/G5/G6) any given one of the 66 cataloged files actually uses is NOT established — treat the filled-in runtime facts as representative of the v21.G4 revision specifically, not proven identical across the whole 66-file family.",
-    "Confirmed cross-check between the prose docs and the actual code: the v21.G4 doc's filtertable note ('line 00 = tempo values') is independently verified in the assembler source itself — the SPECIAL TABLE '4x set tempo' command handler (`sc4`) writes its two tempo-split bytes directly into `filttab`/`filttab+1`, i.e. row 0 of the filter table doubles as tempo storage. Two independent primary sources (doc prose + code) agreeing is why this specific fact is asserted with confidence rather than hedged."
+    "Confirmed cross-check between the prose docs and the actual code: the v21.G4 doc's filtertable note ('line 00 = tempo values') is independently verified in the assembler source itself — the SPECIAL TABLE '4x set tempo' command handler (`sc4`) writes its two tempo-split bytes directly into `filttab`/`filttab+1`, i.e. row 0 of the filter table doubles as tempo storage. Two independent primary sources (doc prose + code) agreeing is why this specific fact is asserted with confidence rather than hedged.",
+    "DISASSEMBLY-CONFIRMED, this pass: a real file's own PSID `init` address does not always equal the source's canonical `$1000` — `Batman.sid` (Phobos) declares `init=$1ac0`, not `$1000`. Disassembly shows `$1ac0` is a tiny 8-byte per-release wrapper (`ldx #$26 / ldy #$63 / stx $dc05 / sty $dc04 / lda #$00 / jmp l1000`) that programs the CIA #2 timer (`$dc04`/`$dc05`, a raster/NMI-independent speed source) before falling straight through into the canonical `l1000 jmp l1040` (`sinit`) entry documented in `entry.init` — i.e. per-file/per-release builds of this player can prepend a small CIA-timer-setup stub ahead of the shared init routine. `Daydream.sid` (Isildur), by contrast, declares `init=$1000` exactly matching the source. Both are the same player underneath; only the outer wrapper differs.",
+    "Byte-diffing a clean SIDdecompiler reassembly (relocated to the file's own PSID load address, no -e, `-v2` Start: == real load address on every file checked) against two independent real files lands at ~98.1-98.2%, not higher — but every one of the ~50-65 diverging bytes on both files falls exactly on a `-v2`-map write-touched/self-modified marker (`w`/`+`/`_`), concentrated in two address bands: a small band right after the play-routine's per-voice-table-setup code (roughly `$100c-$1015`ish through `$11c8`ish — self-modified loop counters/pointers written by `main`'s own per-voice dispatch) and a larger band inside the `filttab`/`pulstab`/`instr` table region (`$16fb-$1790` on Batman, `$1755-$17e9` on Daydream — SIDdecompiler's default trace window snapshotting post-execution table contents rather than pristine cold-start bytes, the same class of divergence documented project-wide, see the disassembly playbook's gotcha 41). A binary-search patch-isolation test (patch the small band alone, re-trace; patch the large band alone, re-trace) on BOTH files independently confirmed the small band is load-bearing (alone, it closes the trace to exact) and the large table band is genuinely dead over an 800-frame playback window (patching it alone changes nothing versus the unpatched baseline)."
   ],
   "sources": [
     "sidid:Glover_NewPlayer_V21 (author Lukasz Baran (Glover); released 2000; reference https://csdb.dk/release/?id=101623) — data/sidid.json",
@@ -76,7 +78,8 @@
     "SRC_JCH_Glover.zip (21g4.txt / 21g5.txt 6502 assembler source, author Glover/Samar/Crystal Sound), bundled with CSDb release 101623: https://csdb.dk/getinternalfile.php/146134/SRC_JCH_Glover.zip",
     "knowledge/players/jch-newplayer.md quirks — corroborating mention of the Glover NewPlayer V21 (2000) fork from the JCH side of the lineage",
     "knowledge/COVERAGE.md — family 'Glover_NewPlayer', rank 12, 66 files, single grouped raw tag Glover_NewPlayer_V21",
-    "Local dataset: data/composers/{phobos,isildur,glover,kosa,g-fellow,tomas-danko}.json — 66 files across 6 composers, matching knowledge/COVERAGE.md exactly"
+    "Local dataset: data/composers/{phobos,isildur,glover,kosa,g-fellow,tomas-danko}.json — 66 files across 6 composers, matching knowledge/COVERAGE.md exactly",
+    "Real HVSC files used for disassembly/trace-diff verification this pass: MUSICIANS/P/Phobos/Batman.sid, MUSICIANS/I/Isildur/Daydream.sid (local HVSC_85 collection)"
   ]
 }
 ```
@@ -113,47 +116,107 @@ family — don't conflate it with `Glover_NewPlayer_V21`.
 
 ## Disassembly notes
 
-No disassembly performed — none needed for this pass. CSDb release 101623
-bundles `SRC_JCH_Glover.zip`, which turned out to be real, readable 6502
-assembler source (`21g4.txt`/`21g5.txt`, ~1000 lines each, author's own
-comments intact, dated internally "01-02-98"), not a binary. It was read
-directly (not disassembled) to populate `memory`, `entry`, `data_format`, and
-`effects` above: player code at `$1000` (`init jmp sinit` / `drive jmp main`),
-one explicit zero-page pointer (`tab = $02`), a chain of `*=`-relocated tables
-(`tpoin` → `arp1`/`arp2`/`filttab`/`pulstab`/`instr`/`lobyt`/`hibyt`/
-`supertab` → three $400-byte order lists `v1`/`v2`/`v3` → per-voice pattern
-data `s00`/`s01`/...), and the full SPECIAL TABLE effect-command dispatcher
-(`sc1`-`sc11`). Cross-checked against the author's own prose format docs
-(`21G4_GLOVER.txt`/`21G6_GLOVER.txt`, same release) — the two agree, including
-a specific and easy-to-miss detail (filtertable row 0 doubling as tempo
-storage) confirmed in both the prose and the code. The source only covers
-sub-versions v21.G4/G5 explicitly; v21.G6 (the CSDb release title) is
-documented in prose but its source wasn't in this particular zip, so the
-exact runtime bytes above are proven for v21.G4 specifically, hedged
-elsewhere as "representative of the family, not proven identical across all
-66 files." `SRC_JCH_Glover.zip` also contains `.seq`/`.prg` files (compiled
-song data / tokenized editor-assembler format) not investigated this pass.
+An earlier pass read the author's own bundled source (`SRC_JCH_Glover.zip` /
+`21g4.txt`) directly rather than disassembling — see below for what that
+established. This pass added an independent, machine-checkable leg: two real
+HVSC files carrying the `Glover_NewPlayer_V21` tag were disassembled with
+`SIDdecompiler.exe` (`-a4096 -z -d -c -v2`, relocated to each file's own real
+PSID load address, no `-e`) and reassembled with `64tass` — both assembled
+cleanly with zero warnings, both `-v2` map "Start:" addresses matched the
+real load address exactly (no gotcha-40-style base-address trap on either
+file). Byte-diffing each reassembled `.prg` against the original file's
+payload came back ~98.1% (`Batman.sid`, 52/2767 diverging bytes) and ~98.2%
+(`Daydream.sid`, 65/3639 diverging bytes) — not 100%, but every single
+diverging byte on both files lands exactly on a `-v2`-map write-touched or
+self-modified marker, never on unambiguous static code/data. A binary-search
+patch-isolation test (patch a small ~10-21-byte band alone and re-trace;
+patch the remaining ~42-44-byte band alone and re-trace) on both files
+independently separated these into a load-bearing subset (self-modified
+loop counters/pointers written early in `main`'s per-voice dispatch, right
+after the shared table-pointer setup) and a confirmed-dead subset (initial
+snapshot values of the `filttab`/`pulstab`/`instr` table region,
+`$16fb-$1790` on Batman / `$1755-$17e9` on Daydream — SIDdecompiler captured
+the post-execution runtime contents of these tables rather than their
+pristine cold-start bytes). See the `quirks` array for the full address
+lists and the CIA-timer init-wrapper finding (Batman's PSID `init=$1ac0`, an
+8-byte per-release stub ahead of the shared `$1000` `sinit` entry the source
+documents — Daydream's `init=$1000` matches the source exactly, confirming
+both files run the same underlying player).
+
+The original source-reading pass established: CSDb release 101623 bundles
+`SRC_JCH_Glover.zip`, real, readable 6502 assembler source (`21g4.txt`/
+`21g5.txt`, ~1000 lines each, author's own comments intact, dated internally
+"01-02-98"), not a binary. It was read directly to populate `memory`,
+`entry`, `data_format`, and `effects`: player code at `$1000`
+(`init jmp sinit` / `drive jmp main`), one explicit zero-page pointer
+(`tab = $02`), a chain of `*=`-relocated tables (`tpoin` →
+`arp1`/`arp2`/`filttab`/`pulstab`/`instr`/`lobyt`/`hibyt`/`supertab` → three
+$400-byte order lists `v1`/`v2`/`v3` → per-voice pattern data `s00`/`s01`/
+...), and the full SPECIAL TABLE effect-command dispatcher (`sc1`-`sc11`).
+Cross-checked against the author's own prose format docs
+(`21G4_GLOVER.txt`/`21G6_GLOVER.txt`, same release) — the two agree,
+including a specific and easy-to-miss detail (filtertable row 0 doubling as
+tempo storage) confirmed in both the prose and the code, and now also
+independently confirmed in the disassembly of both real files traced this
+pass. The source only covers sub-versions v21.G4/G5 explicitly; v21.G6 (the
+CSDb release title) is documented in prose but its source wasn't in this
+particular zip — both files disassembled this pass matched the v21.G4/G5
+source's `$1000`/`$1003` entry-point convention (modulo Batman's init
+wrapper), so this is now confirmed representative of at least those two
+files, not proven identical across all 66. `SRC_JCH_Glover.zip` also
+contains `.seq`/`.prg` files (compiled song data / tokenized
+editor-assembler format) not investigated this pass.
 
 ## Verification
 
-**Not verified — `status: in-progress`.** Identity and lineage facts (author,
-year, CSDb releases, the JCH co-credit, composer usage) are confirmed from
-cached SIDId data and CSDb release pages, as before. This pass additionally
-promoted several runtime facts (memory layout, init/play entry points, data
-format, effect command table) from `TODO` to sourced, because a public,
-author-written 6502 assembler source and matching format-spec text files are
-bundled directly on the CSDb release page (101623) and were read verbatim —
-per this project's Tier 3 boundary rule, a public source that "plainly
-documents a runtime fact" earns `in-progress`, not a guess. It remains
-short of `verified`: nothing here has been reassembled and run through
-`mcp-c64`/`sidm2-siddump`, the exact sub-version (G4 vs G5 vs G6) used by
-each of the 66 cataloged files is unconfirmed, and the `.seq`/`.prg` data
-files in the same zip (real song data, potentially machine-checkable) were
-not touched this pass.
+**Verified — `status: verified`.** Method, following this project's
+disassemble → reassemble → byte-diff → trace-diff pipeline
+(`knowledge/playbooks/disassemble-a-player.md`):
+
+- Two independent real HVSC files: `MUSICIANS/P/Phobos/Batman.sid`
+  (PSID load=$1000, init=$1ac0, play=$1003) and
+  `MUSICIANS/I/Isildur/Daydream.sid` (load=$1000, init=$1000, play=$1003).
+- `SIDdecompiler.exe -a4096 -z -d -c -v2`, relocated to each file's own real
+  PSID load address (`-v2` "Start:" confirmed == load address on both — no
+  base-address relocation trap). `64tass` reassembly: clean, zero warnings,
+  correct length, on both files.
+- Byte-diff (reassembled `.prg` payload vs. original `.sid` payload,
+  same base): **Batman.sid 98.1207% (52/2767 bytes differ)**;
+  **Daydream.sid 98.2138% (65/3639 bytes differ)**. Every diverging byte on
+  both files lands on a `-v2`-map write-touched/self-modified address, never
+  on unambiguous code or static data.
+- Patch-isolation (binary search, per `hard_won_gotchas` 41): on both files,
+  patching only a small subset of the diverging bytes (Batman: 10 bytes at
+  $1009/$100c/$100d/$10b3/$1124/$1125/$11c8/$1589/$15a4/$15a7; Daydream: 21
+  bytes at $100c-$1011/$1015/$101a-$101b/$101e-$101f/$10a3/$10a8/$10cb/
+  $1123-$1124/$11c7-$11c8/$15e0/$15f5/$1600) closes the byte-diff-explained
+  divergence and, when traced, produces a **register-write-exact match
+  against the real file over 800 PAL frames** (`sidm2-sid-trace.exe`,
+  `init=$1ac0/play=$1003` for Batman, `init=$1000/play=$1003` for Daydream;
+  3260 writes/800 frames on Batman, 2531 writes/800 frames on Daydream, 0
+  diff lines on both). Patching only the *remaining* bytes (the larger
+  table-region band) alone, leaving the load-bearing subset untouched, was
+  separately confirmed to leave the trace **unchanged from the unpatched
+  baseline** (888 diverging trace lines on Daydream, matching the unpatched
+  reassembly exactly) — i.e. that band is genuinely dead over this playback
+  window, not merely unexamined.
+- Fully patching every diverging byte on either file (not just the
+  load-bearing subset) reaches **100.0000% byte-exact** reassembly on both.
+
+This is the same "byte-diff short of 100%, but every divergence lands on
+confirmed-dead self-modified/working-storage bytes, and the register-write
+trace is exact once isolated" pattern this project already treats as
+`verified` elsewhere (e.g. `dmc.md`, `cheesecutter.md`, `jch-newplayer-v20.md`)
+— not a rounding-up of a partial match. The exact sub-version (G4 vs G5 vs
+G6) used by the other 64 of 66 cataloged files, and whether the two-band
+divergence pattern found here holds for every file in the family, remain
+untested — a third/fourth file spot-check would be the natural next step if
+this family's fidelity is ever questioned.
 
 ## Sources
 
 See the `sources` array — SIDId's `Glover_NewPlayer_V21` entry, CSDb releases
 101621/101622/101623, the Samar Productions CSDb group page, the corroborating
-mention in `jch-newplayer.md`, and this project's own `data/composers/*.json`
-for usage counts.
+mention in `jch-newplayer.md`, this project's own `data/composers/*.json`
+for usage counts, and the two real HVSC files disassembled/traced this pass
+(`Batman.sid`, `Daydream.sid`).

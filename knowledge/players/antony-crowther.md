@@ -7,12 +7,12 @@
   "aliases": ["Antony_Crowther_V1", "Antony_Crowther_V2"],
   "authors": ["Antony Crowther ('Ratt')"],
   "released": "1984-1986 (V1, Crowther's own pre-publication use); 7 March 1986 published as 'Music Master' in Your Commodore 3/86 (V2, matches SIDId's Antony_Crowther_V2 name/reference exactly)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Well-known Gremlin Graphics coder/designer Antony (Tony) Crowther's own C64 music compiler, 'Music Master' — a BASIC-driven type-in-listing tool released March 1986 in Your Commodore magazine. CONFIRMS, with an important scope correction, the tooling link already noted on [[ben-daglish]]'s card: Ben Daglish used this compiler ONLY during the pre-Gremlin, We M.U.S.I.C. era (through spring 1987) — VGMPF states Daglish 'used another driver' once he joined Gremlin in-house, so his celebrated Gremlin-era scores are NOT confirmed to run on this code (they are tagged Antony_Crowther_V3 instead — see [[antony-crowther-v3]], a DIFFERENT, structurally distinct driver deliberately NOT merged here; see quirks). Player-ID-fingerprinted across 19 files (4 tagged V1 + 15 tagged V2): dominated by Crowther (12: 3 V1 + 9 V2) and Daglish (3: 1 V1 + 2 V2), plus a handful of otherwise-unconnected composers who evidently typed in the same magazine listing (Dale Edgar, Doomdark, Wally Beben) — consistent with the tool's 'Type-in listing' distribution model.",
   "csdb_release": 14590,
 
-  "memory": { "load_address": "Sample HVSC file traced (Monty Mole, 1984, composed by Crowther): load $8500 (init $922e, play $9234).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $922e.", "play": "Sample trace: $9234 (called in IRQ)." },
+  "memory": { "load_address": "Varies per file, not fixed. Disassembled/reassembled 3 real HVSC files (2026-07-24): Monty_Mole.sid (V1, load $8500), Son_of_Blagger.sid (V1, load $3000), Axelf.sid (V2, load $5f90). All three reassemble to a byte-identical (100.0000%) reconstruction of the file's own PSID payload once each file's own true cold-start (pristine) byte is used in place of SIDdecompiler's post-execution snapshot at a small, consistently self-modified set of addresses (see Verification). `-v2` map's Start: address matched each file's own PSID load address exactly on all 3 — no gotcha-40-style relocation trap on this player.", "zero_page": "TODO (no ZP writes identified as load-bearing in the traced play routines; not walked exhaustively)", "layout": "Not documented beyond entry points below." },
+  "entry": { "init": "File-specific, not fixed: Monty_Mole $922e, Son_of_Blagger $4359, Axelf $5f90 (all confirmed correct via trace-exact reconstruction). A recurring compiler idiom found in ALL 3 files: both `init` and `play` open with a `JMP <placeholder>` whose OPERAND is self-modified by `init`'s own tail code to point at the real (often relocated) routine — the pristine on-disk placeholder value differs from the post-init value trace-confirmed harmless in every case tested (see Verification).", "play": "File-specific: Monty_Mole $9234, Son_of_Blagger $4356 (both directly callable per-frame, trace-confirmed). Axelf $5f93 and I_Wanna_Dance $cb5f are declared in the PSID header but produce ZERO SID writes when called synchronously per-frame — on BOTH the pristine original file and the reconstruction, identically, over up to 800 frames — consistent with a genuinely IRQ-driven per-frame convention (an interrupt vector installed during `init`) that the available trace tooling cannot invoke; not confirmed as a real per-frame entry for the V2-tagged files with this shape." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -84,27 +84,115 @@ brief that was caught and corrected, surfacing a genuine fact about
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of an `Antony_Crowther_V1`-
-tagged `.sid` + trace — which could also help confirm whether Daglish's
-1 file under this tag is byte-identical to Crowther's own Music Master
-output, or merely uses the same compiler with different data. A V2
-trace (e.g. one of the four bundled 'Example' tunes) would be the
-cleanest way to confirm V1 and V2 are genuinely the same compiled
-player and not just two similarly-scoped tags — not done this session
-(no disassembly, per this session's Tier 1/2 scope).
+None published (not in the realdmx RE repo, no STIL note) — this session's
+disassembly (2026-07-24) is original. Used `SIDdecompiler.exe -a<decimal
+load addr> -z -d -c -v2` + `64tass.exe -a --cbm-prg` on 3 real HVSC files
+(`Monty_Mole.sid` and `Son_of_Blagger.sid`, both `Antony_Crowther_V1`;
+`Axelf.sid`, `Antony_Crowther_V2`). `-v2`'s own Start: address matched each
+file's PSID load address exactly on all 3 — no relocation trap (gotcha 40)
+here. All 3 reassembled to a byte-identical (100.0000%) reconstruction of
+the file's own on-disk payload, after patching a small, consistent, and
+fully trace-confirmed-dead class of divergence: **all 3 files open `init`
+and `play` with a `JMP <placeholder>` whose 2-byte address operand is
+self-modified by `init`'s own tail code before the routine is ever called a
+second time** (Monty_Mole's entry points happened to have zero divergence
+here; Son_of_Blagger and Axelf both did). SIDdecompiler's emulation
+captures the POST-init value at that operand (matching lessons_learned
+17/43's "self-modified operand" pattern, here specifically at the entry
+point itself, matching lesson 45's precedent) rather than the pristine
+on-disk placeholder; the true placeholder bytes were read directly from
+each file's own header-declared payload and patched back into the `.asm`
+as explicit `.byte` sequences (not the symbolic `jmp <label>` SIDdecompiler
+emitted) to reach a literal 100.0000% byte match. Son_of_Blagger also had
+3 bytes of genuinely dead self-modified per-voice tempo/counter working
+storage at `$3007-$3008`/`$300a` and one more at `$412f` (same class as
+lessons_learned 10/16/17 — a table both read and written by the play
+routine, captured post-execution).
+
+A genuinely open question, not resolved this session: **Axelf's (and, by
+inspection, `I_Wanna_Dance.sid`'s) declared PSID play address produces ZERO
+SID register writes when called synchronously once per frame — on BOTH the
+untouched original file and this reconstruction, identically, tested up to
+800 frames.** `init` (`Axelf.asm` `lcb3f`) does `sei` / calls a small setup
+routine / `cli`, suggesting a real interrupt-driven per-frame convention
+(a raster or CIA timer vector installed during `init`) rather than the
+simple "call play once per synthetic frame" model `sidm2-sid-trace.exe`'s
+harness uses — no `$0314/$0315`/`$fffe/$ffff` vector write was found in the
+disassembled `init` routine, so the actual dispatch mechanism is still
+unidentified. This is a genuine tooling gap (the pristine original fails
+the same way), not evidence the reconstruction is wrong, but it does mean
+the V2-tagged half of this card's register-write behavior was NOT
+independently confirmed the way V1's was — see Verification.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Antony_Crowther_V1` `.sid` (Monty Mole, composed by
-Crowther): load `$8500`, init `$922e`, play `$9234`, **27 register writes
-/ 50 frames** (0 filter writes). Internals undocumented; memory map/
-format/effects are `TODO`.
+**Playback + entry points sample-confirmed (2026-07-14) — status was
+`in-progress`.** Traced a real HVSC `Antony_Crowther_V1` `.sid` (Monty
+Mole): load `$8500`, init `$922e`, play `$9234`.
+
+**Full disassemble/reassemble/byte-diff/trace-diff pass (2026-07-24) —
+`status` raised to `verified`, scoped precisely below.** Used
+`SIDdecompiler.exe`/`64tass.exe` per the project's standard methodology,
+byte-diffed with a Node script, and trace-diffed with
+`sidm2-sid-trace.exe` (the `mcp-sidm2-siddump` MCP tools were not
+registered in this session; used the documented fallback executable
+directly — its register-write CSV goes to **stderr**, not stdout, per
+lessons_learned 46).
+
+- **`Antony_Crowther_V1` — REGISTER-WRITE-EXACT on 2 independent files:**
+  - `Monty_Mole.sid` (load `$8500`, init `$922e`, play `$9234`, 3,404-byte
+    payload): reassembled **100.0000% byte-exact** with zero patches
+    needed. Trace-diff (50 frames, `sidm2-sid-trace.exe`): the two log
+    files differ **only** in the echoed input filename — every one of 18
+    register writes identical.
+  - `Son_of_Blagger.sid` (load `$3000`, init `$4359`, play `$4356`,
+    4,986-byte payload): initial byte-diff 99.8797% (6 bytes, all
+    explained self-modified-operand/working-storage as above); after
+    patching to the true pristine placeholder bytes, **100.0000%
+    byte-exact**. Trace-diff (80 frames): identical in every respect,
+    including the previously-differing pre-execution memory dump line —
+    16 register-write events (frames 0, 40, 49), byte-for-byte identical
+    between original and reconstruction.
+- **`Antony_Crowther_V2` — BYTE-EXACT reconstruction, but register-write
+  trace NOT independently confirmed (tooling gap, not a demonstrated
+  mismatch):**
+  - `Axelf.sid` (load `$5f90`, init `$5f90`, play `$5f93`, 6,288-byte
+    payload): initial byte-diff 99.9682% (2 bytes, same self-modified
+    entry-point-operand class as Son_of_Blagger); after patching to the
+    pristine placeholder, **100.0000% byte-exact**. Trace-diff: the
+    declared play address produces 0 SID writes for both the pristine
+    original and the reconstruction, identically, up to 800 frames — see
+    Disassembly notes for why this is read as an IRQ-driven-play tooling
+    gap rather than a broken reconstruction. **This means V2's register
+    writes are not cited as confirmed** — only its static byte content and
+    its structural identity with V1's self-modifying-entry-point idiom are.
+
+**Net result:** the V1 half of this merged card (4 of 19 files) is
+verified to the project's full register-write-exact bar on 2 independently
+tested files. The V2 half (15 of 19 files) is confirmed byte-exact
+(100.0000% on the one file tested) and shares V1's exact low-level
+compiled-code architecture — real, running-code corroboration of the
+V1+V2 merge decision beyond the prior session's metadata-only evidence —
+but its register-write behavior could not be independently traced due to
+a genuine IRQ-dispatch tooling limitation that affects the pristine
+original file equally. `status: verified` reflects the V1 result actually
+produced; the V2 trace gap is the single most useful next step for anyone
+continuing this card (see below).
+
+**Next step, if continued:** get a working per-frame trace for
+`Axelf.sid`/`I_Wanna_Dance.sid` — needs either a live emulator with real
+IRQ support (RetroDebugger, not available in this session) or an
+IRQ-aware trace harness; the disassembled `init` routine (`Axelf.asm`
+`lcb3f`) is the place to look for how the real per-frame dispatch is
+wired, since no vector write to `$0314/$0315`/`$fffe/$ffff` was found in
+it during this pass.
 
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, VGMPF (3 pages), Lemon64,
 Wikipedia, CSDb (3 entries), Retro Video Gamer, SIDId's `sidid.json`,
 `data/players.json`'s curated 'Music Master' entry, and the related
-ben-daglish and antony-crowther-v3 cards.
+ben-daglish and antony-crowther-v3 cards. This session's disassembly used
+real HVSC files `MUSICIANS/C/Crowther_Antony/Monty_Mole.sid`,
+`MUSICIANS/C/Crowther_Antony/Son_of_Blagger.sid`, and
+`MUSICIANS/C/Crowther_Antony/Axelf.sid`.

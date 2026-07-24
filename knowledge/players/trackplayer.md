@@ -44,13 +44,16 @@
 
   "quirks": [
     "In this project's local dataset (data/composers/*.json), all 23 TrackPlayer-tagged files belong to ONE composer: MHD (Maciej Licbarski, Poland, handles Holn/Skynet/MHD). 100% concentration on a single composer — strong signal this is a small-scene/personal-use tool in practice, even though it was released as a standalone downloadable C64 utility rather than hand-written in-game code. One of the 23 filenames is literally \"Lyon on the Pass\", i.e. MHD named a tune after the tool's author.",
-    "The tool's author (Lyon / Marceli Rzepka, credited on CSDb as 'of Airwolf-Team and Arise') is a DIFFERENT person from MHD, the sole composer using it here — the player was written by one scener and (in this collection) used almost exclusively by another.",
-    "Released by the group Motiv 8 as 'Trackplayer V03.c' (download filename TrackplayerV0.3c-M8.zip, 449 downloads on CSDb) bundled with a 'Motiv 8 Intro'. No release date is recorded on the CSDb page, and no source code link is present there.",
+    "The tool's author (Lyon / Marceli Rzepka, credited on CSDb as 'of Airwolf-Team and Arise') and MHD are NOT strangers: MHD's own CSDb scener profile lists him as an ex-member of Airwolf-Team (1993-June 1995) and later of Motiv 8 (June 1996 onwards) — the same two groups credited on the TrackPlayer release itself (coder's groups Airwolf-Team/Arise; releasing group Motiv 8). They were groupmates before MHD became TrackPlayer's near-exclusive user, which better explains the 100% single-composer concentration than a coincidence.",
+    "Released by the group Motiv 8 as 'Trackplayer V03.c' (download filename TrackplayerV0.3c-M8.zip, 450 downloads on CSDb) bundled with a 'Motiv 8 Intro'. CSDb's own Motiv 8 group page (csdb.dk/group/?id=182) lists this tool's release date as literally '???' (unknown), matching the release page itself showing no date. No source code link is present on either page.",
+    "Circumstantial dating only (not asserted as `released` — no source states a date): MHD's CSDb profile places his Motiv 8 membership as starting June 1996, which is consistent with (but does not prove) a mid/late-1996-or-later release for the tool he used almost exclusively.",
     "DeepSID's curated players.json entry (search key 'trackplayer', title 'Track Player') has almost every spec field blank except platform and 'zero_pages: 2 bytes ($03-$04)' — recorded here as a citation only, not confirmed by any disassembly done for this card."
   ],
   "sources": [
     "sidid:TrackPlayer (author 'Marceli Rzepka (Lyon)', released 'Motiv 8', reference https://csdb.dk/release/?id=90076) — data/sidid.json",
     "CSDb release 90076, 'Trackplayer V03.c': https://csdb.dk/release/?id=90076 (type C64 Tool, code by Lyon of Airwolf-Team and Arise, released by Motiv 8, download TrackplayerV0.3c-M8.zip, no source code linked, no date given)",
+    "CSDb group 182, 'Motiv 8': https://csdb.dk/group/?id=182 (country Denmark; lists 'Trackplayer V03.c' among its tool releases with release date '???' / unknown)",
+    "CSDb scener 730, 'MHD': https://csdb.dk/scener/?id=730 (country Poland; ex-member of Airwolf-Team 1993-June 1995 and Motiv 8 from June 1996 — the same groups credited on the TrackPlayer release)",
     "DeepSID players.json curated entry 'Track Player' (developer 'Lyon', csdb_id 90076, platform 'Native / C64 emulator', zero_pages '2 bytes ($03-$04)') — data/players.json",
     "Local dataset: 23 files tagged TrackPlayer, all by composer MHD (see knowledge/COVERAGE.md and data/composers/mhd.json)"
   ]
@@ -69,17 +72,25 @@ small family — 23 files — and, unusually, every one of those files belongs t
 a single composer, MHD (Maciej Licbarski, Poland). That 100%-one-composer
 concentration is the strongest signal available here: whatever TrackPlayer's
 intended reach as a released scene tool, its actual footprint in this
-collection is essentially one musician's routine.
+collection is essentially one musician's routine. That concentration is not a
+coincidence: MHD's own CSDb scener profile shows he was a groupmate of the
+tool's author, Lyon, in Airwolf-Team (1993-June 1995) before both were
+associated with Motiv 8 — Lyon as the tool's releasing group, MHD as a member
+from June 1996 onwards. TrackPlayer reads as a tool one scener wrote and a
+close associate then adopted, not a widely-picked-up editor.
 
 ## Quirks & gotchas
 
 See the `quirks` array. The load-bearing points: (1) full composer
 concentration on MHD despite the tool being authored and released by someone
-else (Lyon/Motiv 8) — a published tool that in practice reads like a personal
-routine; (2) no CSDb release date and no source code link were found, so
-`released` is honestly `TODO` rather than a guess; (3) the only runtime fact
-available at all is DeepSID's own unverified `zero_pages` note, carried over
-as a citation, not a disassembly finding.
+else (Lyon/Motiv 8) — explained by MHD and Lyon sharing Airwolf-Team and
+Motiv 8 group membership, per MHD's CSDb scener profile, not mere coincidence;
+(2) CSDb itself records the release date as unknown ('???' on the Motiv 8
+group page) and no source code link was found anywhere, so `released` stays
+honestly `TODO` rather than a guess, even though MHD's June-1996 Motiv 8
+membership start is circumstantially consistent with a similar-era release;
+(3) the only runtime fact available at all is DeepSID's own unverified
+`zero_pages` note, carried over as a citation, not a disassembly finding.
 
 ## Disassembly notes
 
@@ -100,6 +111,8 @@ is `TODO` because no disassembly has been done.
 ## Sources
 
 See the `sources` array — the cached SIDId entry, the CSDb release page
-(https://csdb.dk/release/?id=90076), DeepSID's curated `players.json` entry,
+(https://csdb.dk/release/?id=90076), the CSDb Motiv 8 group page
+(https://csdb.dk/group/?id=182), MHD's CSDb scener profile
+(https://csdb.dk/scener/?id=730), DeepSID's curated `players.json` entry,
 and this project's local per-composer file aggregate
 (`data/composers/mhd.json`, cross-checked against `knowledge/COVERAGE.md`).

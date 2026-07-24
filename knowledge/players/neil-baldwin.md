@@ -7,27 +7,30 @@
   "aliases": ["Neil_Baldwin"],
   "authors": ["Neil Baldwin"],
   "released": "~1986-1989 (Borderzone Dezign Team / early commercial era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "British demoscene/games composer-coder Neil Baldwin's ('Demon') own hand-coded playroutine. He also used other tools on other files in his own output (Electrosound, Rob_Hubbard-detection, Sidplayer — separate tags, not this card) — a self-taught coder who built his own tools throughout his career, up to and including later NES/SNES audio engines. Player-ID-fingerprinted across 12 files, 12 his own.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Ala — 1988 shoot-em-up, confirms this is real game music not just a standalone tune): load $6000 (init $6000, play $6006).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "Ala.sid: $6000-$69D2 (2515 bytes). JMP/JMP vector table at $6000 (JMP $658A) + $6003 (JMP $65E9). Verified with SIDdecompiler + 64tass + patch + trace-diff (2026-07-24).",
+    "zero_page": "Not used (verified: -v2 memory map only touches $6000-$69D2 for Ala.sid).",
+    "layout": "Code at $6000-$65BF (init/play/sequencer/sound routines). Self-modifying code at $6382-$6383, $638F (# markers). Working storage (read+write, voice state tables) at $65C0-$673C (+ markers). Song data (read-only pattern/instrument tables) at $6740-$69D2."
   },
   "entry": {
-    "init": "Sample trace: $6000.",
-    "play": "Sample trace: $6006 (called in IRQ)."
+    "init": "$6000 (JMP $658A — actual init routine at $658A).",
+    "play": "$6006 (JMP $65E9 — actual play routine at $65E9). Called per-frame."
   },
-  "speed": "TODO.",
+  "speed": "50Hz (per-frame PLAY call).",
 
   "data_format": {
-    "order_list": "TODO", "patterns": "TODO", "instruments": "TODO",
-    "wavetable": "TODO", "pulsetable": "TODO",
-    "filtertable": "TODO (light filter use observed — 1 filter write in the 50-frame sample)"
+    "order_list": "TODO (embedded in song data at $6740-$69D2 — not disassembled at format level)",
+    "patterns": "TODO",
+    "instruments": "TODO",
+    "wavetable": "TODO",
+    "pulsetable": "TODO",
+    "filtertable": "Light filter use: filter_mode_volume write at frame 0, filter_freq_hi/res_control used for filter sweeps"
   },
-  "effects": { "encoding": "TODO", "commands": {} },
+  "effects": { "encoding": "TODO (three-voice, per-note frequency/pulse-width updates, gate-on/off via control register, ADSR per voice)", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
 
@@ -39,7 +42,8 @@
     "DIRECTLY QUOTED INFLUENCE LINK: 'greatly inspired by Hubbard and Galway' (Lemon64 forum, his own words) — plausibly explains why some of his files got auto-tagged Rob_Hubbard by this project's player-detection (stylistic/structural resemblance), but this is circumstantial, NOT evidence of shared/derived code. Do not assert a code-derivation link from this quote alone.",
     "A weak, explicitly-NOT-confirmed lead: VGMPF's Anthony Lees page mentions Baldwin losing a 1986 ZZAP!64 music competition to Lees, alongside 'Barry Leitch, Jonathan Dunn' — 'Jonathan Dunn' here is NOT confirmed to be this KB's carded [[david-dunn]] (a different, unrelated Dunn per that card's own research). Flagged, not treated as a link.",
     "Not in SIDId (confirmed directly via deepsid_dl/sidid.nfo — no Neil Baldwin entry). No known relationship found to any other composer/tool already in this KB beyond the general Hubbard/Galway influence quote above (checked against Ben Daglish, Adam Gilmore, David Dunn, Olav Mørkrid, Mark Tait, Jeroen Koops, Neil Brennan, Roel Bosch, Chris Cox, Ashley Hogg, Paul Norman, Henning Rokling, Martin Walker, Mark Cooksey, David Whittaker, Fred Gray, Matt Gray, Jeroen Kimmel, Electrosound — none found).",
-    "No public disassembly or source (not in the realdmx RE repo; not in SIDId; no STIL technical note). All runtime internals TODO."
+    "No public disassembly or source (not in the realdmx RE repo; not in SIDId; no STIL technical note). All runtime internals TODO.",
+    "VERIFIED-ONLY-ALA (2026-07-24): Demons_First.sid uses a different player variant — no JMP/JMP vector table, low-RAM workspace at $02A7, different entry convention. The Neil_Baldwin tag likely aggregates multiple hand-coded variants across his career (early demos vs. commercial games); not all 12 files share the same binary routine. Hardcastle.sid was also attempted but SIDdecompiler detected a Rob Hubbard driver instance with a 59KB memory footprint ($0223-$EA1C) — possibly a Hubbard-family driver, not Baldwin's own, or a heavily customized variant."
   ],
   "sources": [
     "HVSC Musicians.txt: https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt ('Baldwin, Neil (Demon) - UNITED KINGDOM (ENGLAND)')",
@@ -80,10 +84,45 @@ None published (not in the realdmx RE repo, not in SIDId). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Neil_Baldwin` `.sid` (Ala): load `$6000`, init `$6000`,
-play `$6006`, **251 register writes / 50 frames** (1 filter write).
-Internals undocumented; memory map/format/effects are `TODO`.
+**Disassembled, reassembled, patched, and trace-diffed — `status: verified` (2026-07-24).**
+
+File used: `Ala.sid` (HVSC, `MUSICIANS/B/Baldwin_Neil/`), a 1988 commercial
+shoot-em-up soundtrack. PSID header: load `$6000`, init `$6000`, play
+`$6006`, 2 subtunes, payload 2515 bytes. Entry convention: JMP/JMP vector
+table at `$6000` (JMP `$658A`) / `$6003` (JMP `$65E9`).
+
+**Disassembly:** `SIDdecompiler -a24576 -z -d -c` produced a 2515-byte `.asm`
+covering `$6000-$69D2` — full payload coverage, no dropped or unreferenced
+regions. TraceNode pairs: 8,824.
+
+**Reassembly:** `64tass -a --cbm-prg` produced 2515 bytes at `$6000`, clean
+(no warnings, no wrap).
+
+**Byte-diff:** 97.30% (2447/2515 matching), 68 diffs across three regions:
+- 63 bytes in `+` (read+write) regions at `$65C0-$673C` — **load-bearing**
+  working storage (voice state tables, song position counters). The
+  decompiler's default emulation (`-t 30000`) captured post-execution values
+  rather than the file's pristine cold-start constants.
+- 3 bytes in `#` (self-modifying code) at `$6382-$6383`, `$638F` — **dead**
+  (overwritten before first read).
+- 1 byte in `x` (execute-only) at `$602B` — **dead** (self-modified opcode
+  restored by INIT before execution).
+- 1 byte in `o` (operand-only) at `$65B4` — **dead**.
+
+**Trace-diff:** After patching the 63 load-bearing bytes back to pristine
+values, register-write trace on both subtunes is **100% exact**:
+- Subtune 0: 251/251 writes match, line-by-line identical (50 frames)
+- Subtune 1: 248/248 writes match, line-by-line identical (50 frames)
+
+**Second file:** `Demons_First.sid` (different player variant — no JMP/JMP
+vector table, low-RAM workspace at `$02A7`, different entry convention).
+Cannot cross-verify with the same disassembly — this tag may cover multiple
+different Baldwin routines from different eras of his career.
+
+**Known gap:** Only verified on 1 of 12 files. The `Neil_Baldwin` player tag
+likely aggregates several hand-coded variants (early demos vs. commercial
+games) that are not the same binary routine. A per-file verification would
+be needed to confirm which files share the same code.
 
 ## Sources
 

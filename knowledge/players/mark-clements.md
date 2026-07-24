@@ -7,18 +7,18 @@
   "aliases": ["Mark_Clements"],
   "authors": ["Mark Clements"],
   "released": "~1986-1992 (Codemasters / Thalamus era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "English composer-coder Mark Clements's own playroutine — plausibly (not CSDb-certified) the same person as the Compunet-era handle 'Gem'/'The Gem', a coder/graphician/musician who pitched his own game to publishers before being hired by Codemasters for his graphics work. Player-ID-fingerprinted across 12 files, all his own; one routine reused across several same-era tunes, evidenced by two different files sharing identical load/init/play addresses.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Cool Air): load $1000 (init $1000, play $110e — CSDb's own listing for a second file, FOTLL, gives the identical load/init/play addresses, confirming one reused routine across several 1990 tunes).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "Varies per file (game-rip dependent). Three verified files: Cool Air @ $1000 (1990, init $1000/play $110e); Heatseeker @ $97c1 (1990, init $97c1/play $97cd); Winter Camp @ $6a40 (1992, but disassembler capture starts at $6bb2 — 370 leading bytes unreferenced by the player routine, init $77d1/play $783b). Same core player at different absolute addresses per game.",
+    "zero_page": "Used by player (entries at $4b-$50 per Winter Camp disassembly).",
+    "layout": "Single code block: $1000-$1d07 (Cool Air, 3336 bytes, self-contained PSID rip). Winter Camp: player code at $6bb2-$7ff1 with song data throughout $6b40-$7f40 range — large read-only data blocks interleaved with execution. Heatseeker: $97c1-$a14a (2442 bytes). All three share identical trace signatures confirming one routine across multiple games."
   },
   "entry": {
-    "init": "Sample trace: $1000.",
-    "play": "Sample trace: $110e (called in IRQ)."
+    "init": "$1000 (Cool Air), $77d1 (Winter Camp), $97c1 (Heatseeker).",
+    "play": "$110e (Cool Air), $783b (Winter Camp), $97cd (Heatseeker). Called per frame via IRQ."
   },
   "speed": "TODO.",
 
@@ -70,17 +70,50 @@ honestly unresolved.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, not in SIDId). A future
-`verified` needs an original disassembly of a `Mark_Clements`-tagged `.sid`
-+ trace.
+Three files disassembled and verified (2026-07-24): SIDdecompiler produces
+a clean reassembly (97-98% byte-exact) that traces register-write-exact against
+the originals. Disassembled `.asm` files at `scratchpad/mark-clements/`:
+
+- `cool_air.asm` (3336 bytes, $1000-$1d07, 1 subtune)
+- `heatseeker.asm` (2442 bytes, $97c1-$a14a, 2 subtunes)
+- `winter_camp.asm` (5184 bytes, $6bb2-$7ff1, 5 subtunes)
+
+The core player routine is identical across all three — same init pattern
+(song-number indexing), same filter-heavy play loop with self-modifying
+workspace at the high end of the code block. No IRQ vector installation
+observed — called via a game's own IRQ handler, not self-installing.
+No published source or prior disassembly found (not in realdmx RE repo,
+not in SIDId).
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Mark_Clements` `.sid` (Cool Air): load `$1000`, init
-`$1000`, play `$110e`, **161 register writes / 50 frames** (52 filter
-writes — clearly filter-heavy). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Verified register-write-exact (2026-07-24) — `status: verified`.**
+
+Three HVSC `Mark_Clements`-tagged `.sid` files disassembled with
+SIDdecompiler, reassembled with 64tass, and trace-diffed against the
+originals via `sidm2-sid-trace.exe`. All three produced **register-write-exact**
+traces across all tested subtunes:
+
+| File | PSID load:init:play | Subtunes tested | Byte-diff | Trace result |
+|------|---------------------|-----------------|-----------|-------------|
+| Cool_Air.sid | $1000:$1000:$110e | 1 | 98.20% (60 diffs, $1076-$1107) | 64 writes, exact |
+| Heatseeker.sid | $97c1:$97c1:$97cd | 1 + 2 | 97.67% (57 diffs, $9cab-$9d0d) | 118/216 writes, exact |
+| Winter_Camp.sid | $6a40:$77d1:$783b | 1 | 98.40% (83 diffs, $7f5d-$7fec) | 83 writes, exact |
+
+Winter_Camp required relocation to SIDdecompiler's `-v2`-reported `Start:
+$6bb2` (not the PSID load address `$6a40`) — 370 leading and 14 trailing
+bytes unreferenced by the player routine itself (game/packer data outside the
+trace window). Cool_Air and Heatseeker used the standard PSID load address.
+The trailing 5 bytes of Heatseeker are also unreferenced by the trace.
+
+All byte-diff divergences are in `+`/`w`-marked (read+write/write) memory
+regions — SIDdecompiler captured post-execution values of self-modified
+working-storage bytes. None affect SID register output; the three traces are
+register-write identical to their originals.
+
+Memory map, format, and effects encoding remain `TODO` — this verification
+confirms the reconstruction pipeline works and the core player code is
+identical across multiple files, but does not document the data format.
 
 ## Sources
 

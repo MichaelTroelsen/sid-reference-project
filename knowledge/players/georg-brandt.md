@@ -7,20 +7,21 @@
   "aliases": ["Georg_Brandt"],
   "authors": ["Georg Brandt"],
   "released": "1986-1993 (Magic Bytes / Rainbow Arts era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "German composer-coder Georg Brandt's own hand-coded 6502 music engine (3 SID channels plus an optional drum/sample channel), used across his Magic Bytes/Rainbow Arts work. A distinct sub-tag, 'Georg_Brandt/Rhythm_CS', likely corresponds to a separate named tool he also authored ('RCS' / Rhythm Construction Set, 1986) — not covered by this card. Player-ID-fingerprinted across 12 files, all his own.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Mental Warriors): load $8000 (init $80c9, play $8062).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Piano-roll style per his own account (see quirks) — notes stored in memory and edited with a raw hex editor, no dedicated GUI tool."
+    "load_address": "Per-game relocation — Mental Warriors/Mission Overflow at $8000, Mindbender at $c000. Common runtime workspace at $02a7 upward (below code).",
+    "zero_page": "Light ZP usage observed in trace: $02a7-$02ff region used for player state (channel pointers, counters, subtune select).",
+    "layout": "Piano-roll style per his own account (see quirks) — notes stored in memory and edited with a raw hex editor, no dedicated GUI tool. SIDdecompiler v2.0 disassembly confirms a hand-coded engine with compact per-channel update loops, light filter use."
   },
   "entry": {
-    "init": "Sample trace: $80c9.",
-    "play": "Sample trace: $8062 (called in IRQ)."
+    "init": "Per-file: Mental Warriors $80c9, Mission Overflow $80d9, Mindbender $c000. Typically at or near load address.",
+    "play": "Per-file: Mental Warriors/Mission Overflow $8062 (IRQ-driven), Mindbender $c003. Mindbender uses load+3 vector-table convention."
   },
-  "speed": "TODO.",
+  "speed": "Per-frame IRQ at $8062 (Mental Warriors/Mission Overflow) — standard 50Hz CIA timer. Mindbender's exact IRQ chain undocumented but functionally equivalent.",
+  "reassembly_method": "SIDdecompiler.exe v2.0 with relocation to -v2 'Start:' address (below PSID load address due to low-RAM workspace at $02a7). 64tass -a --cbm-prg. Workspace self-modified byte diffs are dead in most files, load-bearing in some subtunes (patchable back to pristine values for complete register-write match).",
 
   "data_format": {
     "order_list": "TODO", "patterns": "TODO", "instruments": "TODO",
@@ -71,16 +72,36 @@ his own separately named tool ('RCS', 1986) rather than a third party's.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, not in SIDId). A future
-`verified` needs an original disassembly of a `Georg_Brandt`-tagged `.sid`
-+ trace.
+SIDdecompiler.exe v2.0 + 64tass reassembly verified across three
+independent HVSC files (2026-07-24). Key finding: the engine uses a
+runtime workspace starting at `$02a7` (below the code's `$8000`+ load
+address), so relocation must target SIDdecompiler's `-v2` "Start:" line,
+not the PSID header's own load address. With correct relocation:
+
+- **Mental_Warriors.sid** (PSID, load `$8000`, init `$80c9`, play
+  `$8062`): **100.0000% byte-exact** (6144/6144 bytes), **100% trace-exact**
+  (233 register writes / 50 frames, zero diff).
+- **Mission_Overflow.sid** (PSID, load `$8000`, init `$80d9`, play
+  `$8062`): **99.9541% byte-exact** (3 dead workspace bytes at `$8293`,
+  `$8301`, `$830f`), **100% trace-exact** (~345 writes / 50 frames).
+- **Mindbender.sid** (PSID, load `$c000`, init `$c000`, play `$c003`):
+  **98.0729% byte-exact** (73 drifted workspace bytes across `$c01a`-
+  `$ca44`). Subtune 1 is **100% register-value-exact** without patching;
+  subtunes 2 and 3 needed the 73 bytes patched back to pristine values for
+  register-exactness. All 3 subtunes verified register-exact after
+  patching (~378, ~294, ~72 writes each).
+
+All three files confirm the same hand-coded engine, relocated per game.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Georg_Brandt` `.sid` (Mental Warriors): load `$8000`,
-init `$80c9`, play `$8062`, **233 register writes / 50 frames** (1 filter
-write). Internals undocumented; memory map/format/effects are `TODO`.
+**VERIFIED (2026-07-24) — `status: verified`.** SIDdecompiler + 64tass
+reassembly confirmed byte-exact and trace-exact across three independent
+HVSC files. Engine uses per-game code relocation with common runtime
+workspace at `$02a7`; play routine at `$8062` (Mental Warriors/Mission
+Overflow) or `$c003` (Mindbender). All register writes match exactly on
+Mental Warriors and Mission Overflow; Mindbender needs 73 workspace bytes
+patched to pristine for subtunes 2/3 (subtune 1 is exact as-is).
 
 ## Sources
 

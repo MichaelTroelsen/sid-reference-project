@@ -53,7 +53,8 @@
     "Closed source: DeepSID players.json records source_code = \"No\". No public disassembly or source repo was found; this keeps every Tier 3 runtime field TODO.",
     "Composer concentration in this project's own dataset is very high for a commercial product: of 40 files tagged 'Mssiah' across 6 composers, 32 (80%) belong to a single composer, IGP (see data/composers/igp.json). The remaining 5 composers have 1-2 files each. This lines up with community sentiment that the sequencer is 'pretty cumbersome to use' relative to a DAW (ModWiggler forum, https://www.modwiggler.com/forum/viewtopic.php?t=220678) — a real published/commercial tool, but adopted by very few scene composers.",
     "ADSR envelope can be affected by note strength/velocity (DeepSID players.json 'noteworthy' field) — an MIDI-velocity-driven behaviour with no equivalent concept in classic C64 trackers.",
-    "The cartridge's SID2SID expansion addresses a second SID chip at $DE00 (mssiah.com FAQ, https://mssiah.com/faq.php) — this is the standard SID2SID hardware address, not a fact about the player's own zero-page/memory layout; do not confuse it with a disassembled memory map."
+    "The cartridge's SID2SID expansion addresses a second SID chip at $DE00 (mssiah.com FAQ, https://mssiah.com/faq.php) — this is the standard SID2SID hardware address, not a fact about the player's own zero-page/memory layout; do not confuse it with a disassembled memory map.",
+    "Separately from the cartridge firmware, a companion PC-side standalone/VST MIDI editor for MSSIAH existed (by community developer 'lukasSid', originally sold, then made freeware in 2015, re-hosted via Google Drive in 2022 after the original host c64midi.com went offline) — per a Lemon64 thread, 'Standalone and VST PC Editors for Mssiah now free' (https://www.lemon64.com/forum/viewtopic.php?t=54627). That thread's author states outright: 'I have lost the sources and I'm unable to update any further or make any new plugins' — direct confirmation that no source is available even from a developer who worked on the product, further supporting the closed-source conclusion above. This PC editor is a MIDI-control-surface convenience tool for the cartridge, not the source of this dataset's 40 tagged .sid files (those come from the onboard PRG/SID export tool per the platform note above), so it does not change the `platform` classification."
   ],
   "sources": [
     "DeepSID Players/Editors database (local cache data/players.json, 'MSSIAH' entry — developer, platform, distribution, source_code, and the format/feature fields quoted above), sourced from deepsid.chordian.net's players listing",
@@ -61,7 +62,9 @@
     "Official site: https://mssiah.com/ (and https://mssiah.com/faq.php)",
     "Lemon64 forum, 'MSSIAH Released' (2008): https://www.lemon64.com/forum/viewtopic.php?t=28613 — confirms 8bit Ventures, Nov 2008 pre-orders, and the explicit Prophet64-successor/software-reuse claim",
     "ModWiggler forum thread on the MSSIAH cartridge: https://www.modwiggler.com/forum/viewtopic.php?t=220678",
-    "Local dataset: 40 files tagged Mssiah; composer breakdown from data/composers/*.json (durin-king, igp, lukhash, moellpauk, ocean, ultrasyd)"
+    "Lemon64 forum, 'Standalone and VST PC Editors for Mssiah now free': https://www.lemon64.com/forum/viewtopic.php?t=54627 (lost-sources statement, PC editor history)",
+    "mssiah.com resources page: https://mssiah.com/resources.php (checked in this pass for ROM images/source/technical docs — only user manuals and a keyboard-test utility found, no source or format documentation)",
+    "Local dataset: 40 files tagged Mssiah; composer breakdown from data/composers/*.json (durin-king x2, igp x32, lukhash x1, moellpauk x1, ocean x2, ultrasyd x2) — re-verified against current data/composers/*.json in this research pass, matches the 2026-07 batch-18 figures exactly"
   ]
 }
 ```

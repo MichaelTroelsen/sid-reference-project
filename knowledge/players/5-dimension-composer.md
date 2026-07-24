@@ -44,7 +44,7 @@
 
   "quirks": [
     "Composer concentration in this dataset (HVSC MUSICIANS\\ tree only, per data/composers/*.json): 40 files across only 6 composers, heavily dominated by one — A-Man 25 (62.5%), Surtax 9, Sid_United_Artists 3, Compod 1, Goesta Feiweier 1, MHD 1. This spread (one dominant user, small total) reads as a small-scene tool that saw limited adoption beyond its immediate circle, not a widely-published tracker.",
-    "DeepSID's own curated players.json description hedges the tool's origin: \"Rumor has it this editor may be related to SoundMaker 3. See SoundMaker IV for a conspicuously familiar interface.\" A CSDb release-page comment by iAN CooG (6 Oct 2013) goes further, claiming \"5dim seems related to Soundmaker3/United Artists due to common code\" and citing that A-Man used both editors (e.g. Acid_Feelin.sid tagged A-Man/5_Dimension vs Acieed_Beat.sid tagged SoundMaker_V3/UA). SIDId's own database independently credits the SAME author, 'Pleite Geier', for both the '5_Dimension' tag and the whole 'SoundMaker'/'(SoundMaker_V3)'/'(SoundMaker_V4)' tag family (released via 'United Artists') — a real corroborating data point. Despite this, no `edges` entry is asserted here: the CSDb claim is explicitly hedged ('rumor', 'seems related'), no SoundMaker card exists yet in this knowledge base to link to, and neither claim has been checked against an actual disassembly/binary diff. Worth revisiting once a `soundmaker` card exists.",
+    "DeepSID's own curated players.json description hedges the tool's origin: \"Rumor has it this editor may be related to SoundMaker 3. See SoundMaker IV for a conspicuously familiar interface.\" A CSDb release-page comment by iAN CooG (6 Oct 2013) goes further, claiming \"5dim seems related to Soundmaker3/United Artists due to common code\" and citing that A-Man used both editors (e.g. Acid_Feelin.sid tagged A-Man/5_Dimension vs Acieed_Beat.sid tagged SoundMaker_V3/UA). SIDId's own database independently credits the SAME author, 'Pleite Geier', for both the '5_Dimension' tag and the whole 'SoundMaker'/'(SoundMaker_V3)'/'(SoundMaker_V4)' tag family (released via 'United Artists') — a real corroborating data point. Despite this, no `edges` entry is asserted here: the CSDb claim is explicitly hedged ('rumor', 'seems related'), and neither claim has been checked against an actual disassembly/binary diff. A `soundmaker` card ([[soundmaker]]) now exists in this knowledge base (added after this card) and independently reaches the same conclusion — same-author corroboration only, rumor not resolved to a stated derivation, no edge asserted there either. Revisit both cards together once a disassembly/binary diff of a 5_Dimension file vs. a SoundMaker_V3/V4 file (ideally both by A-Man, who used both) is done.",
     "A second CSDb comment (by 'Fred', same thread, 6 Oct 2013) notes A-Man was already using this player/editor in 1989 — a year before the 1990 CSDb release date credited to Pleite Geier — and asks whether A-Man (rather than Pleite Geier) might actually be the editor's author. Left unresolved; recorded here only as an open provenance question, not a fact.",
     "Distributed as a single scene release (a .t64 tape image on CSDb, 348 downloads at last check) rather than through any documented publishing channel; no manual, format spec, or Codebase64 article was located. Treat as effectively freeware/scene-ware — no explicit licence statement found anywhere searched."
   ],
@@ -106,6 +106,21 @@ this project's own composer data. Every Tier 3 runtime field is `TODO` except
 two DeepSID-sourced approximate figures (zero-page footprint, play-routine
 raster cost), which are cited but not independently verified — an honest gap
 rather than a guessed memory map.
+
+A follow-up research pass re-verified every fact and found nothing new: the
+40-file/6-composer breakdown was re-aggregated directly from
+`data/composers/*.json` and matches exactly (A-Man 25, Surtax 9,
+Sid_United_Artists 3, Compod 1, Goesta Feiweier 1, MHD 1; none of the 40
+files carry a STIL.txt song-info comment); the CSDb release page
+(csdb.dk/release/?id=122330) was re-fetched and its credits/comments are
+unchanged from what's cited below; web searches for a public source,
+disassembly, or format spec ("5 Dimension Composer" / "5_Dimension" +
+disassembly/source/format) turned up nothing beyond CSDb/DeepSID/SIDId
+already cited here. The one change since this card was first written: a
+`soundmaker.md` card now exists — see the updated `quirks` entry — but it
+independently reaches the same "hedged rumor, no edge asserted" conclusion,
+so no `edges` entry is added here either. Remains a `stub`: no public source
+or disassembly plainly documents a Tier 3 runtime fact.
 
 ## Sources
 

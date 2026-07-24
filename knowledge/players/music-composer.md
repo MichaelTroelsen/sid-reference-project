@@ -52,11 +52,12 @@
   "sources": [
     "SIDId (data/sidid.json byTag 'MusicComposer/FlashInc'): name 'Music-Composer', authors 'Fredrik Karlsson (Zodiac) & Anders Elmén (Moon)', released '1991 Flash Inc.', comment 'All programming by Zodiac with assistance by Moon'",
     "DeepSID players.json (data/players.json): 'Flash Music Composer v3.0', developer 'Zodiac|Moon', start_year 1992, csdb_id 10755, platform 'Native / C64 emulator', zero_pages 'Approx 6-12 bytes'",
-    "CSDb release (V3.0, credits Moon+Zodiac of Flash Inc.): https://csdb.dk/release/?id=10755",
+    "CSDb release (V3.0, credits Moon+Zodiac of Flash Inc.; alt title 'Music Editor'; re-verified 2026-07-24): https://csdb.dk/release/?id=10755",
     "CSDb release (V3.0 re-release bundled by Flash Inc. and War Deal Lamers, with crack intro + 2 extra SIDs): https://csdb.dk/release/?id=176616",
     "Demozoo — Flash Inc. group profile (Zodiac co-founder, Moon primary composer, formed June 1989): https://demozoo.org/groups/5028/",
     "Local dataset aggregation: knowledge/COVERAGE.md (ranks #19 at 27 files for V4.0, #91 at 8 files for V3.0, #160 at 4 files for V2.0) and data/composers/*.json per-file 'player' tags",
-    "No public source code, disassembly, or format documentation found (web search: CSDb, Codebase64, general web) — every Tier 3 field below is left TODO rather than guessed."
+    "No public source code, disassembly, or format documentation found (web search: CSDb, Codebase64, general web) — every Tier 3 field below is left TODO rather than guessed.",
+    "Re-checked 2026-07-24: CSDb release id 10755 lists an alternate title 'Music Editor' for the same V3.0 release, and confirms 'Code: Moon of Flash Inc.' and 'Code: Zodiac of Flash Inc.' credits (both listed as coders, not just Zodiac) — a fresh WebSearch/Codebase64 pass again found no source archive, disassembly, or format write-up anywhere: https://csdb.dk/release/?id=10755"
   ]
 }
 ```
@@ -101,6 +102,14 @@ map, entry points, speed model, data formats, effect encoding) has been
 confirmed by disassembly — all are honestly `TODO`. The single non-TODO
 memory note (DeepSID's "Approx 6-12 bytes" zero-page estimate) is flagged in
 the JSON as a secondhand, unverified figure, not a disassembly result.
+
+Re-checked 2026-07-24 (local-data aggregation re-run against
+`data/composers/*.json`, plus a fresh CSDb/Codebase64/general-web pass):
+the 39-file / 3-tag / 2-composer picture is unchanged and confirmed still
+current, and no source code, disassembly, or format documentation has
+surfaced anywhere since the original pass. Still `stub` — nothing found
+that clears the bar for `in-progress` (a public source documenting a
+runtime fact outright).
 
 ## Sources
 

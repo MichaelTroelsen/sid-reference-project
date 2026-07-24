@@ -50,7 +50,8 @@
     "EXTREME composer concentration: all 39 of 39 files tagged 'Equalizer' in this dataset (grep across data/composers/*.json) belong to a single composer, Ronny Nilsen (handle 'Snap'), Norway — data/composers/ronny-nilsen.json. Per this project's own heuristic (CLAUDE.md / knowledge/EXTRACTION-TEMPLATE.md), a single-composer tag is a strong signal of a small-scene or personal player routine rather than a widely-published tool — even stronger than the Rob Hubbard case (51 composers) already flagged elsewhere in this KB.",
     "NOT in SIDId's index (data/sidid.json byTag has no 'Equalizer' key/variant) — so unlike ~247 of the other 496 uncurated tags, this one gets no independent SIDId-sourced author/year/comment. The 'Equalizer' tag comes solely from DeepSID's own per-file database dump (the composer JSON's raw `player` field), not from a SIDId byte-signature match. Also absent from data/players.json (not a DeepSID-curated player) and from knowledge/COVERAGE.md's 'source' column (blank — no known public source flagged there either).",
     "UNCONFIRMED CANDIDATE LEAD: CSDb catalogues a same-named C64 'Tool' release, 'Equalizer' — V1.5 by Omega Supreme (https://csdb.dk/release/?id=132759) and V2.0 credited 'Code .... Olav Mørkrid of Panoramic Designs', Feb 1992 (https://csdb.dk/release/?id=132732). Olav Mørkrid (aka Omega Supreme) is the SAME coder already carded in this KB as knowledge/players/olav-morkrid.md, a distinct personal playroutine used by his Panoramic Designs bandmates. Neither CSDb release page states what the tool does (no 'music editor' description, no linked SID files, no file listing of the disk image), and no source was found connecting Ronny Nilsen (Xentrix/Eternity/Atlantis groups, not Panoramic Designs) to Mørkrid or to this specific release. This is a plausible but NOT confirmed identification — do not treat 'Equalizer' the CSDb tool and 'Equalizer' the Player-ID tag as proven to be the same thing.",
-    "Distinguish from the many unrelated CSDb entries also named 'Equalizer' or 'The Equalizer' found while researching this tag: several 1986-1989 demos (Plasma Grafix, Triad, The Equalizer Team) and unrelated SID tunes literally titled 'The Equalizer' (Sam Roads 1986, Jay Derrett 1986, Matt Gray 1987) — none of these are music editors/players and were ruled out."
+    "Distinguish from the many unrelated CSDb entries also named 'Equalizer' or 'The Equalizer' found while researching this tag: several 1986-1989 demos (Plasma Grafix, Triad, The Equalizer Team) and unrelated SID tunes literally titled 'The Equalizer' (Sam Roads 1986, Jay Derrett 1986, Matt Gray 1987) — none of these are music editors/players and were ruled out.",
+    "RE-CHECKED (2026-07): Ronny Nilsen's own CSDb scener profile (id 945) lists his credited tools as 'ESC V1.6', 'S.A.C. Converter', and 'Note Creator Deluxe' — no tool named 'Equalizer' appears anywhere in his credit list. This does not rule out him having used someone else's 'Equalizer' tool, but it weakens (does not strengthen) the unconfirmed Olav Mørkrid/Panoramic Designs lead: there is still no positive evidence connecting Nilsen to that specific release, only the coincidental tool name and Nilsen's roles are graphician/musician/swapper, not coder, per his own profile. Group affiliations confirmed as Xentrix (from March 1991) → Eternity (co-founder) → Atlantis; a CSDb group search for a Norwegian 'Atlantis' scene group did not surface distinctly from a same-named Swiss group in this pass, so the exact Atlantis group id was not pinned down."
   ],
   "sources": [
     "Local dataset: 39 files tagged 'Equalizer', 1 composer (Ronny Nilsen/Snap) — data/composers/ronny-nilsen.json",
@@ -60,7 +61,8 @@
     "CSDb sid entries sampled for load/init/play (all show $1000/$1000/$1003): Agenda https://csdb.dk/sid/?id=21486, 1995. The Last Song https://csdb.dk/sid/?id=21431, Ambient Try https://csdb.dk/sid/?id=21434, Vandalism News (issue #18) https://csdb.dk/sid/?id=21430, Welcome Home https://csdb.dk/sid/?id=21628",
     "Control sample (same composer, different tag Music_Assembler, to confirm the address pattern is tag-specific not composer-wide): Alphaflight Mix, load $1000 / init $1048 / play $1021 — https://csdb.dk/sid/?id=21433",
     "Unconfirmed candidate-lead sources: CSDb 'Equalizer V2.0' https://csdb.dk/release/?id=132732, 'Equalizer V1.5' https://csdb.dk/release/?id=132759, Panoramic Designs group https://csdb.dk/group/?id=312, Olav Mørkrid scener profile https://csdb.dk/scener/?id=8158",
-    "Existing KB card consulted for the init+3=play structural parallel: knowledge/players/olav-morkrid.md (and knowledge/players/henning-rokling.md)"
+    "Existing KB card consulted for the init+3=play structural parallel: knowledge/players/olav-morkrid.md (and knowledge/players/henning-rokling.md)",
+    "Re-verification pass (2026-07-24): re-grepped data/composers/*.json (39 occurrences of \"player\": \"Equalizer\", all in ronny-nilsen.json, no other composer file), re-checked data/sidid.json and data/players.json (still no entry), re-fetched CSDb scener profile https://csdb.dk/scener/?id=945 (credited tools: ESC V1.6, S.A.C. Converter, Note Creator Deluxe — no 'Equalizer'), re-fetched https://csdb.dk/release/?id=132732 and https://csdb.dk/sid/?id=21486 (both consistent with prior findings, no new detail). WebSearch queries for 'Ronny Nilsen Equalizer player routine' and 'csdb.dk Equalizer music editor Nilsen' returned no relevant results beyond what was already sourced."
   ]
 }
 ```
@@ -109,6 +111,15 @@ concentration, file count) and directly-read CSDb PSID-header addresses
 confirmed. No source code, disassembly, or author statement was found for
 this player; the CSDb "Equalizer" tool candidate is an explicitly unconfirmed
 lead. Every Tier 3 format/effect/zero-page fact is honestly `TODO`.
+
+A 2026-07-24 re-verification pass re-ran the Tier 1 local-data checks (still
+39/39 files, single composer, no SIDId/`data/players.json` entry) and
+re-fetched the CSDb pages already cited, plus Ronny Nilsen's own CSDb credit
+list — his credited tools are "ESC V1.6", "S.A.C. Converter", and "Note
+Creator Deluxe", not "Equalizer", which if anything weakens rather than
+strengthens the unconfirmed Olav Mørkrid tool-identity lead. No new public
+source, author statement, or disassembly surfaced, so `status` stays `stub`
+and no runtime field was promoted out of `TODO`.
 
 ## Sources
 

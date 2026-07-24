@@ -10,7 +10,10 @@
   (same policy as mon-futurecomposer.md's /RWE-vs-/Cyb2 split: merge only
   with per-tag proof of an identical signature, which these lack). They
   remain separate uncarded families in knowledge/COVERAGE.md pending their
-  own research pass.
+  own research pass. UPDATE (2026-07-24 pass): they are no longer uncarded —
+  knowledge/players/tfmx-mastercomposer.md and knowledge/players/
+  tfmx-timecomposer.md both now exist as their own `stub` cards; the
+  "pending their own research pass" line above is stale but left for history.
 -->
 
 ```json
@@ -38,7 +41,9 @@
     "SIDId's own sidid.json entry for the bare 'TFMX' tag carries no `comment`/`reference` field (unlike its two demoscene-editor siblings, which do) — consistent with the driver being Hülsbeck's private, unreleased tool rather than a distributed CSDb release.",
     "Composer concentration corroborates the history: of 37 tagged files in this dataset, all but 5 are by Chris Hülsbeck himself (recorded under two composer-name spellings, 'Chris Huelsbeck' and 'Chris Hülsbeck', 16 files each = 32) and the remaining 5 by Ramiro Vaca — matching VGMPF's statement that 'TFMX Editor was only available to Hülsbeck and Vaca'. Only 2 real people ever used this driver in the tracked collection.",
     "Not one of DeepSID's curated 129 `players.json` entries — this card is seeded entirely from the SIDId `sidid.nfo` fingerprint plus external (VGMPF/Wikipedia) research, with zero DeepSID spec data to check against.",
-    "No public source or disassembly of the C64 TFMX driver was found. Every public 'TFMX' GitHub project found (e.g. mschwendt/libtfmxaudiodecoder, TTK-qmmp/qmmp-tfmx) decodes the later AMIGA module format, not this C64 driver — do not mistake those for documentation of this card's runtime facts."
+    "No public source or disassembly of the C64 TFMX driver was found. Every public 'TFMX' GitHub project found (e.g. mschwendt/libtfmxaudiodecoder, TTK-qmmp/qmmp-tfmx) decodes the later AMIGA module format, not this C64 driver — do not mistake those for documentation of this card's runtime facts.",
+    "CORROBORATION (2026-07-24 pass, CSDb forum thread 'Huelsbeck TFMX?'): ChatGPZ states plainly 'TFMX has neither been spread nor leaked in any way' — independent confirmation, from a well-known scene figure, of VGMPF's claim that the editor/driver was never released, and of this card's own conclusion that no public source/disassembly exists. Same thread has Yodelking dating the C64 editor to '1987' rather than VGMPF's 'summer 1988' — a minor, unresolved date conflict between two secondary sources; VGMPF's month-level detail (tied to Starball/Garrison) is kept as the card's primary date since it is more specific, but this is flagged rather than silently resolved.",
+    "Lemon64 (lemon64.com) and Forum64 (forum64.de) were searched directly (2026-07-24 pass) for a dedicated C64 TFMX driver thread; neither turned up scene discussion beyond what VGMPF/CSDb already cover. Forum64's hits were Amiga-side TFMX threads; Lemon64 has only its HVSC Hülsbeck file-browse page, no driver-specific thread. Recorded here so a future pass doesn't re-search the same ground expecting a different result."
   ],
   "sources": [
     "Local dataset: data/sidid.json byTag.TFMX — name 'The Final Musicsystem eXtended (TFMX)', author 'Chris Hülsbeck', released '1988'",
@@ -48,7 +53,10 @@
     "CSDb release (sibling tag TFMX/MasterComposer): https://csdb.dk/release/?id=4298 — Bierfront, 1990, code: Playboy & Sir Tippitt",
     "CSDb release (sibling tag TFMX/TimeComposer): https://csdb.dk/release/?id=62502 — 'Time-Composer V4.0', 1990, coder credited as Playboy on CSDb (SIDId's sidid.json instead credits 'Oliver Hoeller (Rhodan)' — RESOLVED in knowledge/players/tfmx-timecomposer.md: id=62502 is a later crack by Playboy; the original tool release is a separate CSDb id, 199016, by Warriors of Time, credited to coder 'Rhodan', matching SIDId's author. SIDId's `reference` field simply points at the wrong CSDb entry.)",
     "CSDb scener (Chris Hülsbeck): https://csdb.dk/scener/?id=8645",
-    "Sibling card knowledge/players/chris-huelsbeck.md — establishes the three-way tag split (Chris_Huelsbeck game-player tag vs SoundMonitor editor tag vs this TFMX tag) and the per-game TFMX attribution list"
+    "Sibling card knowledge/players/chris-huelsbeck.md — establishes the three-way tag split (Chris_Huelsbeck game-player tag vs SoundMonitor editor tag vs this TFMX tag) and the per-game TFMX attribution list",
+    "CSDb forum thread 'Huelsbeck TFMX?': https://csdb.dk/forums/?roomid=14&topicid=24627 — ChatGPZ: 'TFMX has neither been spread nor leaked in any way' (corroborates never-released status); Yodelking dates the C64 editor to 1987 (conflicts with VGMPF's 'summer 1988' — noted, not resolved)",
+    "Sibling cards knowledge/players/tfmx-mastercomposer.md and knowledge/players/tfmx-timecomposer.md now exist (both status: stub) — the scope-split note above is current as of this pass",
+    "Lemon64 (lemon64.com) and Forum64 (forum64.de) searched directly, 2026-07-24 — no dedicated C64 TFMX driver thread found on either beyond what VGMPF/CSDb already document"
   ]
 }
 ```

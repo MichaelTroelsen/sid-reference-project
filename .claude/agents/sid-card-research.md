@@ -62,10 +62,22 @@ Research these on the web and cite a URL for each:
 - Release chain and version history — CSDb.
 - Lineage claims — only from real evidence, and quote the evidence.
 
-Search CSDb (`csdb.dk`), the author's site, Codebase64, HVSC docs, and forums.
-The `tdz-c64-knowledge` MCP server indexes existing cards and general C64
-documentation — search it before the open web, and check sibling cards for
-established lineage. Load its tools via ToolSearch if they are not already available.
+Search CSDb (`csdb.dk`), the author's site, Codebase64, HVSC docs, and forums —
+explicitly include Lemon64 (`lemon64.com`, English-language, large scene forum)
+and Forum64 (`forum64.de`, German-language) by name in your search queries, not
+just whatever a generic web search happens to surface; both have turned up real
+provenance (a driver's actual author, a "lost the sources" admission, format
+notes) that plain CSDb pages didn't have. If a CSDb/Lemon64/Forum64 page needs
+a login or JS rendering that `WebFetch` can't get past, the `claude-in-chrome`
+browser tools can load it live instead — load them via ToolSearch
+(`select:mcp__claude-in-chrome__tabs_context_mcp,mcp__claude-in-chrome__navigate,mcp__claude-in-chrome__get_page_text`)
+if you hit a page you can't otherwise read. Never post, reply, or submit any
+form on these forums — you are read-only research; if a genuinely useful fact
+seems to require asking the community directly, say so in your report instead
+of posting yourself. The `tdz-c64-knowledge` MCP server indexes existing cards
+and general C64 documentation — search it before the open web, and check
+sibling cards for established lineage. Load its tools via ToolSearch if they
+are not already available.
 </tier_2_provenance>
 
 <tier_3_boundary>

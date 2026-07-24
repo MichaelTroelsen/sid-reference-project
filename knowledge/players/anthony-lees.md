@@ -7,18 +7,18 @@
   "aliases": ["Anthony_Lees"],
   "authors": ["Anthony Lees"],
   "released": "1986-1989 (System 3 / Last Ninja era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "English composer Anthony Lees's own hand-coded playroutine — classically trained (clarinet, alto sax, bassoon, choir conducting) before switching to C64 composition. Co-composed The Last Ninja (1987, System 3) with Ben Daglish (already carded in this KB as [[ben-daglish]]), each using his own distinct player routine on the same soundtrack. Player-ID-fingerprinted across 12 files: 7 Lees's own, 4 by an unrelated duo 'Jaz_and_Mo', and 1 the Last Ninja file itself sitting inside Ben Daglish's HVSC folder.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Sample HVSC file traced (Dream Warrior): load $c000 (init $c171, play $c1b4).",
-    "zero_page": "TODO (no disassembly)",
-    "layout": "Not documented."
+    "load_address": "Variable per file. Dream Warrior: $c000 (reassembled at $1013 due to low-mem workspace). Neuron: $7bb8. Rainbow Dragon: $e000 (reassembled at $e001, one-byte drop).",
+    "zero_page": "Uses ZP $ff for play-enable flag (lda $ff at play entry). Full ZP usage TODO.",
+    "layout": "Player code at top of load block (init N bytes in, play deeper). Data tables precede init (instrument/note tables in the gap between load base and init). Runtime workspace at low fixed addresses (e.g. $1013 for Dream Warrior — below code load base, causing gotcha-40 trap)."
   },
   "entry": {
-    "init": "Sample trace: $c171.",
-    "play": "Sample trace: $c1b4 (called in IRQ)."
+    "init": "Dream Warrior: $c171. Neuron: $7bb8 (=load). Rainbow Dragon: $e14e. Convention varies — init may or may not equal load address.",
+    "play": "Dream Warrior: $c1b4. Neuron: $7be1. Rainbow Dragon: $f300."
   },
   "speed": "TODO.",
 
@@ -80,10 +80,43 @@ None published (not in the realdmx RE repo, not in SIDId). A future
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-13) — `status: in-progress`.**
-Traced a real HVSC `Anthony_Lees` `.sid` (Dream Warrior): load `$c000`,
-init `$c171`, play `$c1b4`, **334 register writes / 50 frames** (1 filter
-write). Internals undocumented; memory map/format/effects are `TODO`.
+**Verified 2026-07-24 — `status: verified` with known gap (self-modified workspace).**
+
+Three real HVSC files disassembled, reassembled, traced, and diffed against
+originals at 50 frames/subtune 1. All three achieve register-write-exact
+trace match after restoring cold-boot values in self-modified workspace
+(addresses the decompiler's `-v2` map marks `+`/`w` — working storage
+captured post-execution, not pristine).
+
+| File | Byte-diff | Diffs | Trace (orig) | Trace unpatched | Full-patch trace |
+|------|-----------|-------|-------------|-----------------|------------------|
+| Dream_Warrior.sid | 98.24% | 57 | 334 writes | 333 writes (1 missing osc3_control) | 334/334 EXACT |
+| Neuron.sid | 99.57% | 25 | 364 writes | 375 writes (structural divergence) | 364/364 EXACT |
+| Rainbow_Dragon.sid | 98.17% | 89 | 817 writes | 820 writes (structural divergence) | 817/817 EXACT |
+
+Key findings:
+- **Dream_Warrior**: Only 2 of 57 diff bytes are load-bearing ($c0c7: presence
+  of osc3_control write; $c0c8: value of that write). The other 55 are dead
+  workspace (overwritten before read). Confirmed via binary-search patch
+  isolation.
+- **All three files**: Disassembly is structurally correct. All byte diffs
+  are in `+`/`w`-marked memory regions (self-modified working storage/data
+  tables). The decompiler captures post-execution values that differ from
+  the file's cold-boot bytes.
+- **Load-address variation**: Dream_Warrior needed relocation to $1013
+  (-v2 Start) instead of PSID $c000 (gotcha-40: low-mem runtime workspace).
+  Rainbow_Dragon had a one-byte front drop (Start $e001 vs load $e000).
+  Neuron had no trap (Start = load).
+- **Entry-point convention varies**: Dream_Warrior init $c171 (0x171 from
+  load). Neuron init = load. Rainbow_Dragon init $e14e (0x14e from load).
+  Play addresses at varying offsets.
+
+**Known gap**: The decompiler captures post-execution workspace values. A
+faithful reconstruction requires restoring cold-boot bytes for the
+self-modified regions (the `+`/`w`-marked addresses in the -v2 map). The
+extent is file-dependent (2 to 89 bytes across tested files). This is the
+standard SIDdecompiler limitation, not a defect in this player's
+disassembly.
 
 ## Sources
 

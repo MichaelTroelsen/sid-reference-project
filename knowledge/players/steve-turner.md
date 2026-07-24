@@ -7,13 +7,13 @@
   "aliases": ["Steve_Turner"],
   "authors": ["Steve Turner"],
   "released": "~1985-1989 (Graftgold era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Confirmed to be Graftgold co-founder Steve Turner's own sound driver — built on his own SFX routines with a sequencer added, first written for Gribbly's Day Out. This is the SAME Steve Turner who co-founded Graftgold with Andrew Braybrook in 1983 and designed Avalon/Quazatron/Paradroid, not a namesake — confirmed via three independent sources converging on his documented C64 music credits matching this tag's own files exactly (Alleykat, 3D Lunattack). Player-ID-fingerprinted across 10 files: 9 by Turner, 1 by a different composer, Nigel Grieve, on a file titled 'Zynaps_pre-release' — likely reuse of Turner's driver (a tool-name tag, not strictly sole-authorship, the same pattern as this KB's [[rob-hubbard]] card), provenance unresolved.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (3D Lunattack): load $9500 (init $b010, play $b020).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $b010.", "play": "Sample trace: $b020 (called in IRQ)." },
-  "speed": "TODO.",
+  "memory": { "load_address": "Per-file (song data location varies): 3D Lunattack load $9500, Alleykat $a8b0, Morpheus $a000. Player code lives at fixed high absolute addresses per file. Driver keeps a small fixed low-page workspace far below the song's own load address (Alleykat/Morpheus -v2 Start: $02a6) — relocate SIDdecompiler to the -v2 Start:, not the PSID load address.", "zero_page": "TODO (uses low-page/ZP workspace; exact addresses not yet enumerated from the verified disassemblies).", "layout": "Verified byte-exact reconstruction exists (scratchpad/turner/*.asm); data-format layout not yet decoded." },
+  "entry": { "init": "Per-file: 3D Lunattack $b010, Alleykat $a8b0, Morpheus $a000 (read directly from PSID header, confirmed by trace).", "play": "Per-file: 3D Lunattack $b020, Alleykat $a900, Morpheus $a30b (called in IRQ). Play dispatcher uses a self-modified jmp target (Morpheus $a30c) patched by init." },
+  "speed": "1x (single play call per frame; traces are register-write-exact at 1 call/frame).",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use observed — 3 filter writes in the 50-frame sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
@@ -60,16 +60,67 @@ question**, left honestly unanswered rather than guessed at.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Steve_Turner`-tagged `.sid`
-+ trace.
+None published externally (not in the realdmx RE repo, no STIL note). This
+KB now holds its own verified disassemblies: `scratchpad/turner/{lun,alley,
+morph}_probe.asm` reassemble byte-exact (after restoring self-modified
+workspace to pristine) and trace register-write-exact. The data-format
+semantics (order list / patterns / instruments / wavetable) are not yet
+decoded from them — that annotation work is the remaining `TODO`.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Steve_Turner` `.sid` (3D Lunattack): load `$9500`,
-init `$b010`, play `$b020`, **46 register writes / 50 frames** (3 filter
-writes). Internals undocumented; memory map/format/effects are `TODO`.
+**`status: verified` (2026-07-24) — disassemble → reassemble → trace-diff,
+register-write-exact on 3 independent HVSC files across all their subtunes.**
+
+Method (per file): `SIDdecompiler.exe <sid> -o<asm> -a<decimal Start:> -z -d -c`,
+reassemble with `64tass -a --cbm-prg`, byte-diff the reassembled payload
+against the pristine PSID payload, then trace both with `sidm2-sid-trace.exe`
+and diff the register-write CSVs. Relocation base is the `-v2` map's own
+`Start:` address (per gotcha 40), not always the PSID load address.
+
+| File | reloc | init/play | raw byte-match | after pristine-restore | trace-diff |
+|------|-------|-----------|----------------|------------------------|------------|
+| 3D_Lunattack | `$9500` | `$b010`/`$b020` | 99.9888% (1 diff) | 100.0000% | **exact, all 4 subtunes / 200 fr** |
+| Alleykat | `$02a6` | `$a8b0`/`$a900` | 99.5453% (27 diffs) | 100.0000% | **exact, all 74 subtunes / 120 fr** |
+| Morpheus | `$02a6` | `$a000`/`$a30b` | 98.8271% (46 diffs) | 100.0000% | **exact, both subtunes / 200 fr** |
+
+**Every** diverging byte on **all three** files (1 + 27 + 46 = 74 total) is
+marked write-touched (`+`/`w`/`_`) in SIDdecompiler's own `-v2` memory-touch
+map — i.e. self-modified working storage that the disassembler captured at
+its post-execution runtime value rather than the file's pristine cold-boot
+byte (the drifted-table pattern of KB entries 10/17/29/43). Restoring those
+bytes to their on-disk pristine values yields a byte-exact reconstruction, and
+the register-write trace of the raw reassembly (Lunattack) or the
+pristine-restored reassembly (Alleykat, Morpheus) is identical to the original
+across every subtune tested. No real disassembly defect and no unresolved
+region on any of the three.
+
+Divergence localization (all self-modified/workspace, cited for reuse):
+- **3D_Lunattack**: `$999d` only — the init counter operand
+  (`init: clc / adc #$11 / sta $999d`), `+`-marked; the raw reassembly still
+  traced exact (this byte is re-derived by init before use).
+- **Alleykat**: `$aa4e` (`_`, confirmed *dead* by binary-search patch
+  isolation — patching it alone does nothing, patching everything-except it
+  restores the trace), plus a per-subtune sequence-state table at
+  `$bae1-$bb5e` (all `+`) and tail `$bfe0-$bfe1`. Only subtune 20 diverged in
+  the raw reassembly (osc1 frequency); pristine-restore fixes all 74.
+- **Morpheus**: `$a30c` (`_`, the self-modified `jmp` target inside the play
+  dispatcher `$a30b` — init patches it), plus workspace at `$a7a0-$a7cc` and
+  `$a8b0-$a8e1` (all `+`/`w`).
+
+Header ground truth read directly (not card prose): load/init/play/subtunes =
+Lunattack `$9500`/`$b010`/`$b020`/4, Alleykat `$a8b0`/`$a8b0`/`$a900`/74,
+Morpheus `$a000`/`$a000`/`$a30b`/2. Note Alleykat and Morpheus both have their
+PSID init/play well above the `-v2` `Start:` of `$02a6` — the driver keeps a
+small block of fixed low-page workspace far below the song's own load address
+(gotchas 40/41); relocating to `Start:` (`-a678`) rather than the PSID load
+address is required for a clean, non-wrapping reassembly.
+
+Deeper internals (memory map, ZP layout, order-list/pattern/instrument data
+format, effect encoding) remain `TODO` — the verification establishes the
+reconstruction is faithful, but does not itself decode the data-format
+semantics; a future pass wanting the format would annotate the now-verified
+`scratchpad/turner/*.asm` disassemblies.
 
 ## Sources
 

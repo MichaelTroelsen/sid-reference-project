@@ -7,15 +7,15 @@
   "aliases": ["Music_Magic"],
   "authors": ["Mark Riley", "Jon Rami"],
   "released": "1984",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "IMPORTANT SCOPE NOTE: 'Music Magic' (1984) is a music COLLECTION of pop-song/TV/classical cover arrangements (Code: Mark Riley, Music: Jon Rami) — 9 tunes on one disk — not a distributed editor/player tool in the usual sense of other cards in this KB. The 'Music_Magic' DeepSID tag is almost certainly the disk/collection name being used as a de-facto player-tag for Riley's playback code, not a named product. Player-ID-fingerprinted across 9 files, all by Jon Rami (the collection's musician, one of its own two co-creators).",
   "csdb_release": 129644,
 
-  "memory": { "load_address": "Sample HVSC file traced (Africa, a Toto cover): load $11a4 (init $11a4, play $19e2).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $11a4.", "play": "Sample trace: $19e2 (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use observed — 8 filter writes in the 50-frame sample)" },
-  "effects": { "encoding": "TODO", "commands": {} },
+  "memory": { "load_address": "$11a4 on all 9 HVSC files (identical player build). Code+data $11a4-~$24xx (file-dependent length). SID base $d400. Verified by disassemble/reassemble/trace on all 9.", "zero_page": "Uses ZP $14-$8e as workspace (from verified disassembly). Not yet field-by-field annotated.", "layout": "Fixed-address player at $11a4 (init) / $19e2 (play); per-voice runtime working-state table at $2015 and $206c-$20c2; trailing per-file song data. See reconstructions/music-magic.md." },
+  "entry": { "init": "$11a4 (confirmed, directly runtime-called).", "play": "$19e2 (confirmed, called per frame in IRQ)." },
+  "speed": "Single-speed (1x, one play call per frame — trace-confirmed on all 9 files).",
+  "data_format": { "order_list": "TODO (not decoded)", "patterns": "TODO (not decoded)", "instruments": "TODO (not decoded)", "wavetable": "TODO (not decoded)", "pulsetable": "TODO (not decoded)", "filtertable": "TODO (light filter use observed — 8 filter writes in the 50-frame Africa sample)" },
+  "effects": { "encoding": "TODO (not decoded)", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
 
@@ -60,17 +60,41 @@ than asserted.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Music_Magic`-tagged `.sid`
-+ trace.
+None published externally. This card's disassembly was produced here via
+SIDdecompiler on all 9 HVSC files; all share one identical fixed-address
+player build (init `$11a4`, play `$19e2`, SID `$d400`, ZP workspace
+`$14-$8e`). Data-format internals (order-list/pattern/instrument encoding)
+are not yet decoded and remain `TODO` — but the *code* is fully verified.
+Byte-level patch table in `reconstructions/music-magic.md`.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Music_Magic` `.sid` (Africa, a Toto cover): load
-`$11a4`, init `$11a4`, play `$19e2`, **193 register writes / 50 frames**
-(8 filter writes). Internals undocumented; memory map/format/effects are
-`TODO`.
+**Register-write-exact on all 9 HVSC files (2026-07-24) — `status: verified`.**
+
+Full disassemble → reassemble → trace-diff on every `Music_Magic`-tagged file
+in `MUSICIANS/R/Rami_Jon/`. All 9 share the same player build (load `$11a4`,
+init `$11a4`, play `$19e2`, single-speed).
+
+- **Byte-diff:** raw reassembly 99.17%-99.47% across the 9 files. Every
+  diverging byte falls on a `-v2`-map `+`-marked self-modified/working-storage
+  address (union: `$1b3d $1ba3 $2015 $206c-$20c2`). Patching those to their
+  pristine cold-start values yields **100.0000% byte-exact** on all 9.
+- **Trace-diff (600 frames, `sidm2-sid-trace.exe`):** **7 of 9 files traced
+  register-write-exact with no patching at all** (the diverging bytes are dead
+  workspace, overwritten before first read). The remaining 2 (Rami_Tune1,
+  Super_Bunny_Theme) diverged solely because SIDdecompiler captured a drifted
+  `$00` at `$1b3d` (the operand of `eor #$ff`, a self-toggled flag whose
+  pristine cold value is `$ff`); patch-isolation confirmed `$1b3d` alone is the
+  cause, and restoring it → **trace-exact**. After the pristine patch, **all 9
+  files are both 100% byte-exact and register-write-exact.**
+- **Coverage note:** 3 files (Eleanor_Rigby, Every_Breath, Rami_Tune1) have a
+  trailing 55-101 byte block SIDdecompiler never emulated (`-v2` map `End:` =
+  reassembly end, all tail bytes `?`); confirmed harmless (trace-exact
+  regardless) — the same never-accessed trailing-data class documented
+  elsewhere in this KB, not a disassembly defect.
+
+The one prior number (193 writes / 50 frames for Africa) is superseded by the
+full 600-frame register-write-exact match above.
 
 ## Sources
 

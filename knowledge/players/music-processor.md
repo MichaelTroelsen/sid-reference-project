@@ -54,7 +54,8 @@
     "Extremely sparse write cadence in the trace (33 writes over 50 frames, only 7 frames touched) is the software being simple, not the trace failing — matches the pattern `scripts/dev/README.md` already documented for this exact tag (\"writes only when a note changes\").",
     "Composer concentration: all 64 files in the local dataset belong to a single composer, Dick van Riemsdijk (Netherlands) — a 100%-concentration case. That does NOT mean this is a personal/bespoke player routine, though: SIDId identifies it as a specific commercial, boxed product (`The Music Processor`, Sight & Sound, 1984, CSDb release 150058) with its own marketing copy and reviews. The 100% concentration instead just reflects that HVSC happens to preserve only one person's output from this particular editor.",
     "Filenames in the collection are entirely classical/standards repertoire (Blue Moon, Ballade Pour Adeline, Die Schoene Blaue Donau, Cats in the Cradle, ...) — consistent with the software's advertised purpose as a notation-based \"in-home recording studio\" for transcribing existing sheet music, per a Lemon64 thread describing it as \"Notation based (staff with notes)\" with an animated title screen where notes danced to the music.",
-    "IS present in the curated `data/players.json` (129-entry DeepSID player list) — {title: 'The Music Processor', developer: 'M. Peter Engelbrite', start_year: '1984', csdb_id: 150058, distribution: 'Commercial'} — so this is a curated, not an inferred/synthetic, player; identity is corroborated independently by DeepSID's curated entry, `data/sidid.json`'s `byTag` entry, and CSDb, not sourced from SIDId alone."
+    "IS present in the curated `data/players.json` (129-entry DeepSID player list) — {title: 'The Music Processor', developer: 'M. Peter Engelbrite', start_year: '1984', csdb_id: 150058, distribution: 'Commercial'} — so this is a curated, not an inferred/synthetic, player; identity is corroborated independently by DeepSID's curated entry, `data/sidid.json`'s `byTag` entry, and CSDb, not sourced from SIDId alone.",
+    "Second verification pass (no RetroDebugger available — parallel-batch run): hand-disassembling the previously-unresolved foreground loop ($1FA2/$1B75) with a purpose-built linear 6502 disassembler (not SIDdecompiler, which hangs on this code, and not a live trace) is a legitimate, tool-independent way to make progress on a hang/self-modifying-code blocker — it identified the loop as a single-keystroke command dispatcher (note letters A-G, editor menu keys S/T/K/M/V/O/U) totally unrelated to the audio engine, closing off a lead the first pass could only guess at (\"likeliest patcher\"). General lesson: when SIDdecompiler cannot trace through a routine at all, a hand-rolled linear disassembler (a ~150-line opcode table is enough for a single 6502 CPU) can still answer \"is this routine even relevant\" without needing a live emulator — worth trying before escalating to RetroDebugger, since it costs nothing to attempt and can rule out (or confirm) a hypothesis outright."
   ],
   "sources": [
     "sidid:Music_Processor (author M. Peter Engelbrite, 1984 Sight & Sound, CSDb release 150058) — data/sidid.json",
@@ -64,7 +65,8 @@
     "Lemon64 forum, Sight & Sound Computer Song Albums (context on the Sight & Sound product line): https://www.lemon64.com/forum/viewtopic.php?t=27266",
     "Local dataset: 64 files, all tagged Music_Processor, all by one composer (van_Riemsdijk_Dick) — see knowledge/COVERAGE.md (rank 4, 64 files) and data/composers/van-riemsdijk-dick.json",
     "Own trace, this session: `node scripts/dev/vsid-trace.js <HVSC>/MUSICIANS/V/van_Riemsdijk_Dick/All_My_Love.sid --frames 50 --json`, plus direct PSID/RSID header inspection of all 64 files in that folder for load/init address consistency — not a disassembly, a black-box runtime + header observation only",
-    "This session (verification pass): `SIDdecompiler.exe` disassembly of a patched scratch copy of All_My_Love.sid (RTS-patched at $1BFA to work around a confirmed real hang; relocated with `-a792` to the tool's own `-v2` Start: address; `-P10519` to override the play address to the statically-discovered real NMI handler $2917), reassembled via `64tass.exe`, byte-diffed against the true original payload (custom Node script), and a failed register-write trace-diff attempt via `sidm2-sid-trace.exe` (JSR-callable harness, RTI patched to RTS) compared against a fresh `vsid-trace.js` trace of the unmodified original. Cross-checked the fixed-engine address findings ($28E1-$2917 NMI install, $2A59 NOP-placeholder pattern) against a second file (Andante.sid) via raw hexdump, confirming byte-identical engine code across both. All raw work (patched .sid, .asm, .prg, trace logs, byte-diff/patch scripts) left in scratchpad for the next pass."
+    "This session (verification pass): `SIDdecompiler.exe` disassembly of a patched scratch copy of All_My_Love.sid (RTS-patched at $1BFA to work around a confirmed real hang; relocated with `-a792` to the tool's own `-v2` Start: address; `-P10519` to override the play address to the statically-discovered real NMI handler $2917), reassembled via `64tass.exe`, byte-diffed against the true original payload (custom Node script), and a failed register-write trace-diff attempt via `sidm2-sid-trace.exe` (JSR-callable harness, RTI patched to RTS) compared against a fresh `vsid-trace.js` trace of the unmodified original. Cross-checked the fixed-engine address findings ($28E1-$2917 NMI install, $2A59 NOP-placeholder pattern) against a second file (Andante.sid) via raw hexdump, confirming byte-identical engine code across both. All raw work (patched .sid, .asm, .prg, trace logs, byte-diff/patch scripts) left in scratchpad for the next pass.",
+    "Second verification pass (this session, parallel batch — no RetroDebugger): re-confirmed the byte-diff (99.9873%, unchanged) with the existing `scratchpad/music-processor/bytediff.js` against a freshly-read copy of the real HVSC file. Wrote a purpose-built linear 6502 disassembler, `scratchpad/music-processor/disasm6502.js` (reads raw bytes directly from the PSID payload at real addresses, decodes the full documented 6502 opcode set, no execution/call-graph modeling), and used it to hand-disassemble $1B75-$2100 (`foreground_loop_disasm.txt`), $15D8-$1700 (`jsr15d8_disasm.txt`), and $2F8A-$3200 (`tail_region_disasm.txt`) — all three left in `scratchpad/music-processor/` alongside the disassembler script itself."
   ]
 }
 ```
@@ -104,7 +106,16 @@ because it never returns (falls into an infinite foreground loop) — worked
 around with a scratch-copy RTS patch; (6) the note-trigger code cluster
 around $2A59 contains literal NOP placeholder bytes in its pristine form —
 self-modifying code that a register-write trace-diff attempt could not
-exercise, which is why verification did not close.
+exercise, which is why verification did not close. Second-pass headline item
+(7): the foreground loop ($1FA2/$1B75) has now been hand-disassembled (no
+live debugger needed) and is confirmed to be an unrelated single-keystroke
+editor command dispatcher — NOT the NOP patcher. This narrows, but does not
+close, the mystery: it's now confirmed that NO code anywhere in the entire
+disassembled engine writes a SID frequency register or sets the gate-ON bit,
+and the countdown-timer reload is likewise unaccounted for — all three gaps
+are one still-unresolved piece of logic, most likely hidden in the NOP
+placeholders themselves via a trigger path not yet found, or possibly
+outside the RSID payload's own captured memory entirely.
 
 ## Disassembly notes
 
@@ -162,17 +173,88 @@ Numbers, precisely:
   loop — it assumes a short init that returns, which does not hold for this
   player.
 
-**Concrete next step for whoever continues this**: disassemble $1FA2 and
-$1B75 (the foreground loop) — SIDdecompiler cannot trace through them
-without hanging, so this needs either a live continuously-running debugger
-(VICE's monitor, e.g. via `-remotemonitor`/`-moncommands` — both were tried
-briefly this session with mixed results, see scratchpad notes) or a manual
-static disassembly starting from the known addresses $1FA2/$1B75. Once
-whatever patches the $2A59 NOP slots is found, either (a) extend the
-init-truncation patch point further (to right after that one-time patching
-happens) and retry the JSR-callable harness, or (b) build a full RSID-style
-wrapper around the reconstruction and trace-diff via `vsid-trace.js` instead
-of the call-based harness, since that tool does not require init to return.
+**Second pass (this session): manually disassembled $1FA2/$1B75 by hand
+(no RetroDebugger available this run — a hand-rolled linear 6502 disassembler,
+`scratchpad/music-processor/disasm6502.js`, decoding directly from the raw
+PSID payload bytes at their real addresses) — the foreground loop is
+RULED OUT as the self-modifying-code patcher, and the mystery is narrower
+and better-localized than before:**
+- **$1B75 is a single-keystroke command dispatcher, not a patcher.** It
+  reads a byte from an input buffer at $0FC1,X and compares it against
+  ASCII: 'A'-'G' and ',' all jump to $3155 (almost certainly the "insert a
+  note-letter" editing handler — musically meaningful: A-G are note names);
+  'R' (rest) also routes there; single-letter commands S/T/K/M/V/O/U
+  dispatch to $1ED6/$16D0/$159E/$15BB/$1C03/$16E0/$1C24 respectively
+  (editor menu functions — save/type/key/mode/view/octave/update, exact
+  mapping unconfirmed but the pattern is unambiguous). None of these paths
+  write to $2A5F/$2A68/$2A6E/$2A78 (the four NOP-placeholder byte
+  ranges inside $2A59) or to any address in the $2A00-$2B4A note-trigger
+  region at all.
+- **$1FA2 reads a line of text from a pointer at $6F/$70 (=$31C0,
+  set once by `init`, per `memory.layout`) into the $0FC1 command buffer,
+  advancing the pointer past it** — i.e. it's the "fetch next
+  script/session line" half of the same command-line interpreter, not an
+  audio routine. $31C0 sits outside the RSID payload's captured range
+  entirely, so in a bare RSID rip this reads uninitialized/irrelevant
+  memory — consistent with this loop being genuinely inert in playback
+  context, not merely under-traced.
+- **`init`'s `jsr $15D8` (previously "not disassembled") is a literal
+  1-byte `RTS` — a no-op stub.** The routine actually reachable from that
+  address ($15D9 onward: `PHP`/`JSR $FFD2`(KERNAL CHROUT)/`JSR $28F6`/
+  `JSR $1671`(a `DEY`/`BIT`-based busy-wait) is a SEPARATE, unreached-from-init
+  routine — plausibly the animated splash-screen effect the Lemon64 thread
+  describes ("notes danced to the music"), not part of the audio engine.
+- **No code anywhere in the entire disassembled ~2867-byte engine
+  ($10AC-$2F8A) ever writes a SID frequency register ($D400/$D401/$D407/
+  $D408/$D40E/$D40F) or sets the SID gate-ON bit.** Grepped explicitly: the
+  ONLY SID-chip write in the whole covered engine is the single AND-masked
+  gate-OFF at $2B73's caller (`sta $d404,Y`, clearing bit 0). This sharpens
+  the mystery considerably: it isn't just "the self-modifying region's real
+  behaviour is unknown" — it's confirmed that 100% of the frequency-set and
+  gate-ON logic (which real playback, per `vsid-trace.js`, definitely
+  performs — see `speed`'s frame-20 gate-on example) is ABSENT from every
+  reachable, disassembled code path, full stop.
+- **The $2F8A-$3732 tail is very likely genuine note/pattern DATA, not
+  disguised/unreached code.** Linearly disassembled it by hand (ignoring
+  SIDdecompiler's call-graph model entirely) — it decodes as a high
+  proportion of illegal 6502 opcodes and nonsensical addressing-mode noise,
+  the opposite of what real code looks like under a correct linear
+  disassembly. This weakens (does not fully rule out — alignment could
+  still be wrong) the hypothesis that a patched-in JSR from the NOP slots
+  would jump into this tail.
+- **Also confirmed no code anywhere in the covered engine ever writes to
+  the primary/secondary note-timer countdown tables ($2BB0/$2BB3) at
+  all** — grepped for every reference; only reads/decrements exist. Given
+  their pristine per-voice values are small ($05/$05/$25 and $02/$02/$02),
+  a real multi-note song must reload them somewhere, and that reload is
+  now confirmed to be part of the same missing logic as the frequency/
+  gate-on writes — i.e. one still-unresolved piece of code (or self-modified
+  patch) accounts for all three symptoms (no reload, no frequency write, no
+  gate-on write), not three separate mysteries.
+
+**This did not close verification** — it eliminated three plausible
+locations (foreground loop, `jsr $15D8`, the data tail) and sharpened what's
+missing, but did not find where the frequency/gate-on/counter-reload logic
+actually lives. Byte-diff and trace-diff numbers are unchanged from the
+first pass (re-ran the byte-diff this session to confirm: still 99.9873%,
+7902/7903, single self-inflicted diff byte at $1BFA — see below).
+
+**Concrete next step for whoever continues this**: the foreground loop lead
+is now closed off — don't re-disassemble it. What's needed is a LIVE trace
+with a hardware breakpoint on any write to $D400/$D401/$D407/$D408/$D40E/
+$D40F (VICE monitor `-remotemonitor`, or RetroDebugger once available
+outside a parallel batch run) to catch the actual moment those registers
+first get written during real `vsid-trace.js`-style full-machine playback,
+then read back the PC at that moment to find the real routine address —
+since it is now confirmed absent from every statically-reachable path in
+the RSID payload, it is likely either (a) inside the still-unexplained NOP
+placeholders after all, reached via a call/jump this session's static
+analysis didn't trace (self-modifying code that isn't triggered by any of
+the three ruled-out candidates), or (b) triggered by BASIC/KERNAL-resident
+code outside the RSID payload's own captured memory image, which would mean
+this player's true playback mechanism cannot be fully reconstructed from
+the RSID rip alone. A live breakpoint-and-backtrace is the only tool that
+can distinguish between these two remaining possibilities from here.
 
 Tooling note for future passes: `vsid-trace.js` worked exactly as documented
 on the first real card-writing attempt. `vsid.exe` (`C:\winvice\bin\vsid.exe`)

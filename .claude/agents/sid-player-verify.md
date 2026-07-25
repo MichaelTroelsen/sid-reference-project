@@ -911,6 +911,143 @@ them):
     instead of shelling out directly, since they already return the parsed
     writes array. This trap only bites when calling the raw executable from
     Bash/Node; the MCP tools handle it transparently.
+47. **A load-address convention whose PSID init/play addresses sit noticeably
+    past the PSID load address (here: load $1100, init $1148, play $1121 —
+    the "Tendance-series"/load+$48 family) is not automatically a JMP-chain
+    header or a workspace gap, even though both are common explanations in
+    this project's prior case studies (gotchas 11/31/38, lessons 18/27/33/34).**
+    On martijn-schutten's Verdict_Intro.sid and Eat_My_Pussy_part_1.sid, the
+    skipped leading region (SIDdecompiler's -v2 map "Start:" landing exactly
+    on the PSID play address, entirely unaccessed below it) turned out on
+    inspection to be a plain ASCII credit-string literal ("MUSIC BY
+    JUNEBUG/POWERS OF PAIN!") — inert display text a game/loader might print,
+    not code or self-modified state. The fix is identical either way
+    (relocate to the -v2 Start: address per gotcha 40), so this doesn't change
+    the mechanical procedure — but it matters for what you write in a card's
+    memory-map prose: don't guess "nested JMP chain" or "workspace" from the
+    address gap alone when a quick hex dump of the dropped bytes (they were
+    pure printable ASCII, easy to eyeball) settles it for free. General form:
+    always hex-dump a gotcha-40 dropped leading region before writing a
+    structural interpretation of it into a card.
+48. **A "large v2-Start-to-PSID-load-address gap causes wrong code bytes"
+    diagnosis (as originally recorded for this exact card) can be a
+    misdiagnosis of a different, unrelated problem: tracing ALL subtunes of a
+    multi-subtune file at once.** SIDdecompiler's -v2 memory map is built
+    from emulating every subtune in sequence (visible in its own log:
+    "Emulating subtune 0 play" ... "Emulating subtune N play"), and RAM state
+    carries over between them — on one file (Paul Butler's Deceptor, 22
+    subtunes) this produced a large, alarming-looking self-modifying-code
+    spillover region (`#`/`w` markers spanning $9c00-$a00b, ~40KB past the
+    load address) that looked like a hard tool defect (matching the
+    "genuinely different code" signature from gotcha 4) but was actually
+    harmless: re-disassembling with the `-1 -s<N>` flag (trace only ONE
+    subtune, undocumented as a fix for this in the existing gotchas despite
+    being listed in `SIDdecompiler`'s own `-h` output) and deriving the
+    relocation base from that single-subtune trace's own -v2 Start address
+    produced a 100%-byte-exact, trace-exact reconstruction of that subtune's
+    own reachable code — the earlier "193 critical diffs in x/o/r regions"
+    were an artifact of a corrupted multi-subtune baseline, not a real
+    property of the code at those addresses. The necessary trade-off,
+    confirmed by testing a second subtune on both affected files: a
+    `-1 -s0`-scoped reconstruction is provably NOT correct for other subtunes
+    (a naive re-trace of subtune 5/3 on the same build diverges completely or
+    partially, since large parts of those subtunes' own data live outside
+    subtune 0's reachable memory) — so this technique trades "is my
+    default-subtune reconstruction byte/trace-exact" (yes, cleanly) for "does
+    one build cover every subtune" (no, structurally cannot, without
+    per-subtune tracing + merging). Always spot-check a second subtune before
+    either concluding a multi-subtune file is verified or (as happened here
+    originally) concluding it's unfixably broken.
+49. **When SIDdecompiler cannot trace through a routine at all (a confirmed
+    hang, not just a short/truncated result), a purpose-built linear 6502
+    disassembler (a ~150-line opcode table covering the documented
+    instruction set, decoding raw PSID-payload bytes directly at their real
+    addresses with no execution/call-graph modeling) can still make real,
+    citable progress without a live emulator.** On music-processor, this
+    approach hand-disassembled a routine SIDdecompiler hangs on and
+    definitively ruled out a plausible-but-wrong hypothesis from a prior pass
+    (that the hanging foreground loop was the self-modifying-code patcher for
+    a separate NOP-placeholder region) by revealing it was actually unrelated
+    editor UI code (a single-keystroke command dispatcher) with no writes
+    anywhere near the suspect addresses. This is a distinct, cheaper
+    escalation step worth trying BEFORE reaching for a live debugger whenever
+    the blocker is "can't trace an unreachable-by-JSR-harness routine" rather
+    than "need to observe genuinely dynamic/runtime-computed behavior" — the
+    two failure modes look similar (both are "SIDdecompiler can't handle it")
+    but only the first is solvable by pure static analysis. General form: a
+    hang/no-RTS routine that's merely control-flow-awkward (infinite loop,
+    unusual entry) can often be manually disassembled byte-by-byte from the
+    raw payload once you have the real load address; only genuinely
+    data-dependent or self-modifying-with-unknown-trigger logic actually
+    requires live execution to resolve.
+50. **Two related findings, both reusable techniques.** (1) A CIA-register
+    hi/lo mislabeling can survive a prior pass's manual disassembly because
+    the mislabeled write still LOOKS like a normal register-set in isolation
+    (`LDA #$A0 / STA $DD04` reads fine as "set some CIA byte"). The catch is
+    to sanity-check the DERIVED real-world quantity, not just the mnemonics:
+    OmegaSupreme_Digi's card described a self-modified "CIA2 Timer A hi" byte
+    with typical values like $A000/$8800, implying ~40,000-cycle (~12 Hz)
+    sample periods — physically absurd for a routine SIDId itself identifies
+    as 4-bit PCM digi playback (no digi routine produces recognizable audio
+    at 12 Hz). Reading the raw payload bytes directly showed the actual
+    hardware map is $DD04=Timer A LOW / $DD05=Timer A HIGH (not reversed),
+    that $DD05 is written once at init to $00 and never touched again, and
+    the self-modified byte is the LOW byte (real range 130-160 cycles, ~3 kHz
+    sample rate — a plausible digi rate). General form: when a card's own
+    stated timer/frequency value would make the described playback technique
+    physically impossible, that implausibility is itself the signal to
+    re-derive the value from raw bytes rather than trust the existing prose —
+    cross-checked on 2 independent files (Hero + Metal_Maniac) before writing
+    it up, per the project's own "test more than one file" discipline. (2)
+    When a prior pass's Verification section claims a trace tool "cannot
+    handle X" based only on observed output (e.g. "0 SID writes, so it must
+    not follow NMI"), and that tool's own source is filesystem-reachable
+    (true for all of SIDM2's .zig tools), grep the source directly for the
+    relevant vectors/mechanism (here: $0318/$0319/$FFFA/NMI, all absent from
+    sidm2_sid_trace.zig) — this upgrades "empirically observed to fail" into
+    "confirmed structurally absent," a categorically stronger and citable
+    claim, and took under a minute.
+51. **A file whose byte-diff is concentrated in a working-storage/
+    self-modified region can show TWO qualitatively different outcomes even
+    within the same player family, and the difference is only visible by
+    actually tracing, not by the byte-diff percentage or address-range shape
+    alone.** On Zardax/SoundKiller (Anastasia.sid, A_Quiet_Life.sid), the
+    52-diff cluster right after init/play was fully dead noise (0
+    register-write diff on first trace, no patch needed) because init
+    unconditionally recomputes the whole block before play ever reads it. On
+    the bare-Zardax tag's Animotion.sid — same player family, same
+    relocation, same disassembly method, a byte-diff cluster of extremely
+    similar shape and size (122 bytes, also right after entry points) — the
+    FIRST trace showed a real, audible divergence (all 3 voices wrongly
+    triggering a full note-start on frame 0, 19 SID writes vs 1) because that
+    file's init only partially reinitializes the block (a handful of
+    sub-fields get zeroed/copied, but the bulk of the per-voice
+    frequency/ADSR table is left at whatever SIDdecompiler's default -t trace
+    window last wrote it to, not the file's true cold-start value). The tell
+    that distinguishes the two cases ahead of tracing: read the init routine
+    itself and check whether it writes to literally every diverging address,
+    or only a subset — a partial-coverage init is the signal that some of
+    those "probably dead" bytes are actually load-bearing. Confirms and
+    extends this agent's own gotcha 41/lesson 42 with a same-family,
+    same-pass, two-outcome pair observed in a single verification run rather
+    than across separate sessions.
+52. **A third confirmed instance of the "arithmetic self-modified immediate
+    operand" sub-pattern (alongside entries 17/43): on Sosperec (Cane/$0FFC
+    build), a 3-counter filter/volume accumulation loop uses
+    `lda #$00 / clc / adc <table>,X / sta <this same instruction's own
+    operand>+1` for three separate counters in a row (load+$225 through
+    +$256) — SIDdecompiler's default 30000-call trace window captures the
+    drifted post-execution operand value rather than the pristine $00
+    cold-start value, exactly like a data-table drift but localized to
+    instruction operands rather than a `.byte` block.** Confirmed safe to
+    patch as a pure post-assembly binary data patch (not a `.asm` text edit)
+    since every divergent byte in this case was either a 1-byte `.byte` table
+    entry or a fixed-length immediate-mode operand — no instruction ever
+    changed length, so there was no risk of the gotcha-19-style off-by-one
+    relabeling trap. This is now the third player (after DMC and Digitalizer)
+    where this exact self-modified-immediate-operand shape has been
+    independently confirmed, suggesting it's a common code-generation idiom
+    across unrelated 1990s C64 music-editor authors, not a one-off.
 </lessons_learned>
 
 <success_criteria>

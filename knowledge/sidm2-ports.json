@@ -16,8 +16,13 @@
     "  done     - ported, SIDM2 reports it working at the quoted fidelity",
     "  partial  - ported but explicitly incomplete or below par (shows as a warning)",
     "  variant  - resolved as a variant inside another player's path, not a separate port",
-    "  unlisted - this project's card cites SIDM2 as provenance but SIDM2's own port",
-    "             list does not name it; needs reconciling, do not assume either way",
+    "  unlisted - SIDM2 has worked on it but its port list does not name it; needs",
+    "             reconciling, do not assume either way. CURRENTLY UNUSED, and be",
+    "             careful before reaching for it: david-whittaker/matt-gray/fred-gray",
+    "             were briefly filed here on the assumption that their cards claimed",
+    "             SIDM2 provenance. They do not -- they contain no reference to SIDM2",
+    "             at all, and were verified by this project's own loop against dmx87's",
+    "             disassemblies. A card being verified is not evidence SIDM2 touched it.",
     "",
     "`note` is quoted as close to SIDM2's own wording as fits a table cell."
   ],
@@ -46,11 +51,7 @@
     "vibrants-2000ad": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
     "wizax-a": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
     "stinsen-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
-    "beast-angular-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
-
-    "david-whittaker": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" },
-    "matt-gray": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" },
-    "fred-gray": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" }
+    "beast-angular-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" }
   },
 
   "unmapped": {

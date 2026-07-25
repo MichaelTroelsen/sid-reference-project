@@ -7,7 +7,7 @@
   "aliases": ["Tornado"],
   "authors": ["Henning Rokling"],
   "released": "~1988-1992 (Norwegian Panoramic Designs era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "NOT a distinct playroutine — this card is about the PERSON, Norwegian musician Henning Rokling, who is the heaviest user (31 of 39 files) of the [[olav-morkrid]] routine already carded in this KB. Included as its own card per project convention: a musician whose usage pattern and career are worth documenting separately from the coder who wrote the tool he used.",
   "csdb_release": null,
 
@@ -73,18 +73,53 @@ title** (confirmed unrelated to this KB's separate 20cc card).
 
 ## Disassembly notes
 
-N/A for this card — see [[olav-morkrid]] for the routine's own (currently
-undisassembled) technical details.
+No independent technical facts belong on this card — see [[olav-morkrid]]
+for the routine's own disassembly (now fully disassembled/reassembled/
+trace-diffed across all 39 tagged files, including 30 of Rokling's own).
+The Verification section below reproduces that result on one of Rokling's
+files directly, produced in this pass rather than cited secondhand.
 
 ## Verification
 
-**Playback confirmed via the parent routine (2026-07-13) — `status:
-in-progress`.** Traced a real HVSC file composed by Rokling and tagged
-`Olav_Moerkrid` (20CC-Shit): load `$0b5a`, init `$0b5a`, play `$0b5d`,
-**419 register writes / 50 frames** (51 filter writes — filter-heavy,
-consistent with the olav-morkrid card's own sample). This confirms Rokling's
-usage of the routine plays correctly; it does not add new technical facts
-about the routine itself.
+**`status: verified` (2026-07-25) — disassembly/reassembly/byte-diff/trace-diff
+produced this run on a real Rokling-composed file.** This card documents the
+person, not the routine (see olav-morkrid.md for the technical facts), so
+"verification" here means confirming that Rokling's own usage of the routine
+reconstructs cleanly, not adding new routine-level facts.
+
+File: `20CC-Shit.sid` (HVSC `MUSICIANS/R/Rokling_Henning/`) — the same file
+the prior 2026-07-13 trace-only pass used. PSID header confirmed directly:
+load `$0b5a`, init `$0b5a`, play `$0b5d`, 1 subtune (matches the card's prior
+prose exactly).
+
+- Disassembled with `SIDdecompiler -a2906 -z -d -c -v2` (2906 decimal =
+  `$0b5a`) — `-v2` map's own `Start: $0b5a` matches the PSID load address
+  exactly, so no relocation-base correction was needed (gotcha 40 does not
+  apply to this file).
+- Reassembled with 64tass: clean, no warnings, output length 2212 bytes
+  matching the original payload exactly.
+- **Byte-diff before patching: 99.8644% (3 of 2212 bytes differ)** — three
+  isolated single-byte diffs at `$0e1d`, `$0e6b`, `$0e70`. Cross-checked
+  against the `-v2` memory map: all three are marked `_` (operand + write —
+  self-modifying code), the same load-bearing self-modified-operand pattern
+  documented on the parent olav-morkrid card (and its row for this exact
+  file: "3 self-mod bytes"). Patched all three back to the original payload's
+  cold-start values (`$cf`, `$d4`, `$1b` respectively, vs. the decompiler's
+  drifted snapshot values `$2d`, `$80`, `$1d`).
+- **Byte-diff after patching: 100.0000% (0 of 2212 bytes differ).**
+- **Trace-diff: exact.** Traced both the original PSID-payload `.prg` and the
+  patched reassembly with `sidm2-sid-trace.exe` (init `$0b5a`, play `$0b5d`,
+  50 frames) — the two trace outputs are byte-for-byte identical except for
+  the echoed input filename on line 1 (420 register-write lines, matching the
+  prior pass's independently-observed ~419/50-frame count). This is a
+  register-write match, not just "plays correctly."
+
+This is consistent with, and reproduces at the individual-file level, the
+olav-morkrid card's own full-sweep row for `20CC-Shit.sid` (100.0000%,
+3 self-mod bytes, exact trace) — confirming Rokling's specific usage
+reconstructs identically to the rest of the routine's 39-file sweep. No
+further work is needed on this card; any remaining routine-level gaps
+(data format, effect encoding, speed) belong on [[olav-morkrid]], not here.
 
 ## Sources
 

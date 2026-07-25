@@ -1,31 +1,38 @@
 #!/bin/sh
 #
-# Pre-commit gate: keep the generated SIDM2 worklist table in step with the data
-# it is generated from.
+# Pre-commit gate: keep generated files in step with the data they are generated
+# from. Currently guards two, both of which are marked "do not hand-edit" and
+# both of which have rotted in practice:
 #
-# WHY THIS IS A HOOK AND NOT CI. `.github/workflows/ci.yml` runs on a fresh
-# ubuntu checkout, and `data/composers/*.json` is gitignored -- the generator
-# reads those to count files per player, so the check simply cannot run there.
-# It has to run somewhere the fetched data exists, which means locally.
+#   knowledge/COVERAGE.md              <- scripts/dev/gen-coverage.js
+#   docs/SIDM2-INTEGRATION.md (table)  <- scripts/dev/gen-sidm2-worklist.js
 #
-# WHY IT EXISTS AT ALL. The table this guards was hand-written and rotted
-# completely: it listed six players as "tackle next" long after all six had
-# reached `verified`. gen-coverage.js's header has said "run --check from a
-# pre-commit gate so it cannot rot again" since it was written, and until now
-# nothing did.
+# WHY THESE ARE HOOKS AND NOT CI. `.github/workflows/ci.yml` runs on a fresh
+# ubuntu checkout, and `data/composers/*.json` is gitignored. Both generators
+# read it to count files per player, so neither check can run there at all. They
+# have to run somewhere the fetched data exists, which means locally.
+#
+# WHY THEY EXIST. gen-coverage.js's own header has said "run --check from a
+# pre-commit gate so it cannot rot again" since it was written, and nothing did
+# -- COVERAGE.md had already gone stale once, still claiming 531 uncarded
+# families long after 200 cards existed. The worklist table rotted the same way,
+# listing six players as "tackle next" after all six reached `verified`.
 #
 # Bypass with `git commit --no-verify` when you genuinely need to (e.g. an
 # in-progress commit you will fix up before pushing).
 #
 # Installed by `npm run hooks:install`, and automatically by `npm install`
 # (package.json's `prepare` script) -- both just point core.hooksPath here.
-# To add another gate, append it to the same pattern below; the obvious
-# candidate is `node scripts/dev/gen-coverage.js --check` for COVERAGE.md.
 
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
 
-# Only pay the cost when something the table is derived from actually changed.
-if ! printf '%s\n' "$staged" | grep -qE '^(knowledge/players/.*\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/gen-sidm2-worklist\.js)$'; then
+# Does this commit stage anything matching $1?
+touches() {
+  printf '%s\n' "$staged" | grep -qE "$1"
+}
+
+# Nothing either generator derives from -- skip both, pay nothing.
+if ! touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/gen-(coverage|sidm2-worklist)\.js)$'; then
   exit 0
 fi
 
@@ -33,20 +40,39 @@ fi
 # someone runs a network fetch would be a gate that teaches people to pass
 # --no-verify reflexively, which is worse than no gate.
 if [ ! -d data/composers ]; then
-  echo "pre-commit: skipping SIDM2 worklist check -- data/composers/ is absent." >&2
-  echo "            run 'npm run fetch:composers' if you want this gate active." >&2
+  echo "pre-commit: skipping generated-file checks -- data/composers/ is absent." >&2
+  echo "            run 'npm run fetch:composers' if you want these gates active." >&2
   exit 0
 fi
 
-if ! node scripts/dev/gen-sidm2-worklist.js --check; then
-  echo "" >&2
-  echo "pre-commit: the SIDM2 worklist table in docs/SIDM2-INTEGRATION.md is stale." >&2
-  echo "            Regenerate and stage it:" >&2
-  echo "" >&2
-  echo "              npm run knowledge:worklist" >&2
-  echo "              git add docs/SIDM2-INTEGRATION.md" >&2
-  echo "" >&2
-  exit 1
+failed=0
+
+if touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|scripts/dev/gen-coverage\.js)$'; then
+  if ! node scripts/dev/gen-coverage.js --check; then
+    echo "" >&2
+    echo "pre-commit: knowledge/COVERAGE.md is stale. Regenerate and stage it:" >&2
+    echo "" >&2
+    echo "              node scripts/dev/gen-coverage.js" >&2
+    echo "              git add knowledge/COVERAGE.md" >&2
+    echo "" >&2
+    failed=1
+  fi
 fi
 
-exit 0
+if touches '^(knowledge/players/.*\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/gen-sidm2-worklist\.js)$'; then
+  if ! node scripts/dev/gen-sidm2-worklist.js --check; then
+    echo "" >&2
+    echo "pre-commit: the SIDM2 worklist table in docs/SIDM2-INTEGRATION.md is stale." >&2
+    echo "            Regenerate and stage it:" >&2
+    echo "" >&2
+    echo "              npm run knowledge:worklist" >&2
+    echo "              git add docs/SIDM2-INTEGRATION.md" >&2
+    echo "" >&2
+    failed=1
+  fi
+fi
+
+# Deliberately runs BOTH checks before exiting rather than bailing on the first.
+# A card edit usually invalidates both files at once, and reporting one, getting
+# fixed, then failing again on the other is the kind of gate people disable.
+exit $failed

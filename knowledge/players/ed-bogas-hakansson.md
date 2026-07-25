@@ -7,12 +7,12 @@
   "aliases": ["Ed_Bogas/Hakansson"],
   "authors": ["Ed Bogas"],
   "released": "1984 (Joyce Hakansson Associates era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "The SECOND of at least four distinct, employer-specific C64 sound drivers composer Ed Bogas used across his career (driver #1, for Accolade, is already carded in this KB as [[ed-bogas-accolade]]; see that card's own VGMPF citation naming all four). This one is for his work 'at Joyce Hakansson Associates and on Beanstalk', per VGMPF's exact phrasing. Joyce Hakansson Associates (JHA) was a Berkeley, California educational-software studio. Player-ID-fingerprinted across 5 files, all by Bogas, matching exactly the intersection of his own credits and JHA's published catalog.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Aegean Voyage, 1984, Spinnaker/JHA): load $b320 (init $b600, play $b620).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $b600.", "play": "Sample trace: $b620 (called in IRQ)." },
+  "memory": { "load_address": "Sample HVSC file disassembled+reassembled (Aegean Voyage, 1984, Spinnaker/JHA): load $b320 (init $b600, play $b620). Player also keeps a fixed low-RAM working-storage block at $0404-approx $0453 (used by SIDdecompiler's own emulated-access map as the -v2 'Start:' address, well below the file's own load address — see gotcha 40/lesson 31/38 pattern) — this block is NOT part of the PSID file's own payload (it's zeroed/populated at runtime), so it plays no role in the byte-diff.", "zero_page": "$0c-$19 used (z0c..z19 chain, 14 bytes) per SIDdecompiler's own zero-page usage in the reassembled disassembly.", "layout": "Code+data $b320-$b9de (1727 bytes, matches PSID payload exactly)." },
+  "entry": { "init": "$b600, confirmed by trace-diff-exact reassembly (Aegean Voyage).", "play": "$b620 (called in IRQ), confirmed by trace-diff-exact reassembly (Aegean Voyage)." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sparse sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -58,18 +58,58 @@ doesn't match the other four, left open rather than papered over.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of an `Ed_Bogas/Hakansson`-tagged
-`.sid` + trace — which could also help settle whether this driver is
-genuinely code-distinct from Bogas's other carded drivers.
+None published (not in the realdmx RE repo, no STIL note) — the
+reconstruction below is this project's own original disassembly, not a
+composer/community source.
+
+Disassembled with `SIDdecompiler.exe` at `-a1028` (decimal for `$0404`),
+**not** the PSID load address `$b320` — this file's `-v2` emulated-access
+map reports Start: `$0404`, well below the header's own load address,
+because the player keeps a small fixed low-RAM working-storage block down
+there (same pattern as `soundmonitor`/`soundmaster`, see this agent's own
+gotcha 40/lesson 31/38). Relocating to the map's own Start address (i.e.
+zero shift from native addresses) rather than the header's load address
+was required to get a clean, non-wrapping, contiguous reassembly — 64tass
+reported a single `$0404-$b9de` block with no `-Wwrap-pc`/`-Wwrap-mem`
+warnings. Relocating to the header's load address instead (the "by the
+book" first attempt) produces a plausible-looking but wrongly-shifted
+reassembly (the low-RAM block gets relocated on top of the real code
+instead of staying disjoint from it).
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Ed_Bogas/Hakansson` `.sid` (Aegean Voyage): load
-`$b320`, init `$b600`, play `$b620`, **19 register writes / 50 frames**
-(0 filter writes — sparse). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Disassembled, reassembled, byte-diffed, and trace-diffed
+(2026-07-25) — `status: verified`.**
+
+File: `Aegean_Voyage.sid` (HVSC `MUSICIANS/B/Bogas_Ed/`). PSID header:
+load `$b320`, init `$b600`, play `$b620`, 5 subtunes, start song 1.
+
+- **Byte-diff: 100.0000% exact** (0 of 1727 bytes differ) over the
+  PSID payload region ($b320-$b9de) once reassembled at the correct
+  relocation base (see Disassembly notes above). The disjoint low-RAM
+  workspace region ($0404 onward) that SIDdecompiler's emulation also
+  captured is runtime state, not part of the original file, so it's
+  outside the byte-diff's scope by construction.
+- **Trace-diff: register-write-exact** on all 3 subtunes spot-checked
+  (0, 2, 4 of 5) at 50 frames each, using `sidm2-sid-trace.exe` directly
+  (init `$b600`, play `$b620`) on both the original PSID payload
+  (repackaged as a `.prg` with its own 2-byte load header) and the
+  reassembled `.prg`. Every frame's register writes were byte-identical
+  in both order and value; the only diff line between the two trace logs
+  was the tool's own echoed input filename/load-address banner line, not
+  any register write. Subtunes 1 and 3 were not separately checked (no
+  evidence of divergence in the 3 checked, and per this agent's own
+  lesson 48 a full per-subtune sweep is the standard caveat to leave open
+  rather than assert).
+- Internals beyond the memory map above (data format, effects encoding,
+  order-list/pattern structure) remain `TODO` — this pass verified
+  register-write-level playback fidelity, not the format's semantics.
+  A follow-up wanting the data-format fields filled in would read the
+  reassembled `aegean2.asm`'s data tables starting around `$b43d`
+  (pointer/offset-shaped word pairs, not yet analyzed) — not required
+  for `verified` status per this project's own bar (register-write
+  match), but a natural next step for anyone wanting the `data_format`
+  card fields filled in.
 
 ## Sources
 

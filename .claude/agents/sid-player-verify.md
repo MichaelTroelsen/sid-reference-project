@@ -1048,6 +1048,130 @@ them):
     where this exact self-modified-immediate-operand shape has been
     independently confirmed, suggesting it's a common code-generation idiom
     across unrelated 1990s C64 music-editor authors, not a one-off.
+53. **A multi-subtune sound-effects driver (game SFX, not a music tune — Ed
+    Bogas's Accolade driver, 7 subtunes each a distinct short effect) can be
+    verified with high confidence from a SINGLE subtune's `-1 -s<N>`
+    disassembly/reassembly even though lesson 48 correctly warns that a
+    single-subtune-scoped build "structurally cannot" cover other subtunes in
+    general.** The reason it worked cleanly here: SIDdecompiler's `-d` flag
+    still emits the FULL raw byte content of every address inside the traced
+    Start-End range that was merely unreached (marked `?`), not just the
+    accessed ones — only the region entirely OUTSIDE the traced End boundary
+    gets truncated. Since this file's other subtunes' pattern/table data all
+    lived inside the $2000-$4011 range subtune 0's trace already spanned
+    (only the last ~40 bytes fell outside), reassembling from subtune-0's
+    disassembly and then tracing subtunes 2 and 6 against it produced exact
+    matches with no re-disassembly needed. The general form: before assuming
+    a single-subtune build can't cover other subtunes (lesson 48's default
+    assumption), check whether the -v2 map's traced Start-End range for that
+    one subtune already spans the whole file (or nearly so) — if it does, the
+    other subtunes' otherwise-unreached data was likely captured anyway as
+    pass-through "unreferenced data" bytes, and a quick empirical trace-diff
+    on 2-3 other subtunes (cheap) can confirm this before concluding a full
+    per-subtune disassemble-and-merge pass is required.
+54. **A fixed low-RAM working-storage block below the PSID load address (the
+    gotcha-40/lesson-31/38 pattern) can be diagnosed and confirmed purely
+    from SIDdecompiler's own -v2 "Start:" line and the reassembled .asm's
+    origin/label placement, with no need for a live debugger.** On
+    ed-bogas-hakansson's Aegean_Voyage.sid, relocating with
+    `-a<decimal for the header's own load address>` (the "by the book" first
+    attempt, correct per gotchas 1/2 when Start==load address) placed the
+    disjoint low-RAM block (native address $0404) on top of the real code —
+    the .asm's `l0404` label physically appeared right after `* = $b320`,
+    i.e. the tool's -a flag computes offset = target - Start (not target -
+    loadAddr), confirming lesson 33's mechanism directly and visibly in the
+    generated source. The fix (relocate to `-a<decimal for Start itself>`,
+    i.e. force a zero net shift when Start < loadAddr and the gap is disjoint
+    workspace rather than a dropped leading byte) produced a single
+    contiguous 64tass block with no wrap warnings and a 100% byte-exact,
+    trace-exact result on first try. Worth noting as a distinct, cheap
+    diagnostic: comparing the *label position* in the generated .asm against
+    the expected origin line (does the real load-address label appear right
+    after `* = ` or hundreds of lines into the file?) is a fast, purely-
+    textual sanity check for whether a relocation attempt got the direction
+    of gotcha-40's fix right, before spending time on a full byte-diff.
+55. **A PSID file's own declared load address can be a plain BASIC
+    SYS-loader stub (not player code) even when the player is NOT a "real"
+    commercial/scene tool but a single academic's own hand-written
+    routine.** Confirmed on Andrew Colin's Arrival_of_the_Queen_of_Sheba.sid:
+    bytes $801-$80c are a textbook "10 SYS2061" BASIC one-liner, and
+    $80d-$826 is a small hand-written dispatcher (JSR init, SEI, install a
+    custom IRQ vector at $0314/$0315, CLI, JMP-to-self idle loop) that a live
+    C64 would execute via RUN, but which the PSID header's own init/play
+    vectors bypass entirely by calling $8ab/$827 directly — so
+    SIDdecompiler's -v2 map correctly reports "Start: $0827," a full 38 bytes
+    past the header's own $801 load address, and relocating to the header's
+    load address instead (the naive/by-the-book choice) produces a
+    misaligned reassembly. This is a variant of hard_won_gotcha 40/lesson 34
+    worth flagging explicitly: don't assume BASIC-stub-then-bypassed-vectors
+    is only a "commercial game loader" pattern — it shows up on the
+    smallest, most bespoke single-author player code too, and the diagnostic
+    (compare -v2 Start: against PSID load address, always) is identical
+    regardless of the code's provenance or sophistication.
+56. **A fourth confirmed instance of the "self-modified working-storage
+    drift" pattern (entries 17/43/52), and the first one confirmed as
+    file-dependent in BOTH shape and severity within a single composer's own
+    catalogue rather than across unrelated players.** On Gavin Graham/Gazza,
+    two files sharing the same load==init/play==load+3 authorial convention
+    (Dobee.sid load $1000, Airwolf.sid load $e000) hit the identical class of
+    defect (SIDdecompiler's default trace window snapshotting a
+    runtime-drifted per-voice pulse-width/filter working-storage block
+    instead of its pristine cold-start value) but at completely different
+    zero-page ranges ($02-$03 vs $a8-$b1) and with a very different byte-diff
+    cluster shape (one 40-byte contiguous run vs. seven small scattered
+    clusters totaling 71 bytes). Both were confirmed load-bearing (not dead)
+    via the standard patch-isolation trace-diff, and both closed to
+    100.0000% byte-exact / register-write-exact once patched. The
+    generalizable point: even when two files are confirmed to be the "same
+    player, same author, same convention" via entry-point/ZP inspection,
+    don't assume they share a memory map or that a fix verified on one
+    transfers unchanged to the other — verify each file's own byte-diff and
+    trace-diff independently, exactly as this project's existing lessons
+    already insist for cross-player generalization, but here demonstrated
+    within one narrow single-composer case.
+57. **A third confirmed instance of the "drifted self-modified
+    working-storage table" pattern (lessons 16/17/29/42), on Ivan Del Duca's
+    player.** On Modulus.sid, a 59-byte per-voice attack/decay/pulse-width/
+    frequency/filter seed table read once by INIT was snapshotted by
+    SIDdecompiler's default 30000-call trace window at a post-execution
+    (drifted) state rather than the pristine cold-start constants — and
+    unlike some prior cases, this was NOT dead: the reassembly's INIT
+    silently produced zero SID writes at all (not a partial/audible glitch, a
+    complete silent failure) until the 59 bytes were patched back to the
+    original file's pristine values, after which the file traced 100%
+    register-write-exact. Separately, on a sibling file from the same player
+    (Dribbling.sid), SIDdecompiler's own emulation hit a self-modified
+    indirect-jump low byte that momentarily computed a value landing
+    mid-instruction (triggering high-volume repeated "Unimplemented opcode:
+    2f" warnings, one line per attempted execution, ~112,000 lines total) —
+    this looked alarming (a sustained tool crash/hang candidate per gotcha
+    23's pattern) but was fully benign: the final .asm/reassembly was
+    unaffected and the file reassembled 99.33% byte-exact and 100%
+    trace-exact across all 4 subtunes with no patch needed. The general
+    lesson: a high-volume "Unimplemented opcode" warning spam during -v2
+    emulation is not automatically a sign the resulting disassembly is
+    broken — check whether the .asm still got written and whether the
+    affected address is ever actually reached on real playback (via
+    trace-diff) before treating the warning volume itself as disqualifying.
+58. **A composer/person-focused card (documenting a musician who uses
+    someone else's routine, not a distinct playroutine — e.g.
+    henning-rokling.md, explicitly "N/A — see [routine].md") can still
+    legitimately reach its own status:verified independent of the parent
+    routine card's status/date.** The verification claim being made is
+    narrower and different in kind: not "the routine's technical facts are
+    correct" (that's the parent card's job) but "this specific person's
+    usage of the routine reconstructs byte/trace-exact," which needs its own
+    disassembly/byte-diff/trace-diff run on a file by that composer even when
+    the parent routine card already did a full N-file sweep including files
+    by this same composer — citing the parent card's prior-session result is
+    not the same as a match "produced this run," per this agent's own
+    constraint. In this case reproducing it took under 10 minutes since the
+    parent card's Verification section already documented the exact
+    methodology (relocation address, which bytes are self-modified, expected
+    byte-diff shape) — worth checking the parent routine card's own
+    Verification/quirks sections for a ready-made recipe before starting a
+    disassembly from scratch, even when the target card itself says nothing
+    yet.
 </lessons_learned>
 
 <success_criteria>

@@ -63,6 +63,8 @@
     "A SEPARATE, bare 'LFT' tag (no 'Blackbird/' prefix) also exists in this dataset and now has its own card, knowledge/players/lft.md — 18 files, all by Lft, all dated 2001-2014 (pre-Blackbird), each with a different load/init/play address. It is very likely the uncredited referent of this card's 'hacked-together cross-platform tools' quote below, but that link is NOT asserted as a formal edge in either card — see lft.md's quirks for the reasoning.",
     "VERIFICATION ATTEMPTED (2026-07-24): CONFIRMED tooling blocker on both available disassembly/trace tools, exactly as anticipated from prior fame.md/virtuoso.md experience — the playroutine's illegal opcodes (`lax`, `sbx`) are not properly emulated. `SIDdecompiler.exe -a4096 -z -d -c -v2` on Toy_Rocket.sid floods 'Unimplemented opcode: cb' 30,000 times and ends with 'TraceNode pairs: 0' (nothing captured); `sidm2-sid-trace.exe` on the same file reports INIT 'done' but 0 SID writes over 20 frames and its own self-check flags the run 'untraceable'. Reproduced identically on a second, independent file (Reminiscence.sid, a different player-build variant, load $a000). This is a genuine, structural blocker — no trace-diff is achievable for this player with the tools available in this project, regardless of reconstruction quality. Full detail: knowledge/players/reconstructions/blackbird.md.",
     "Despite the trace-diff blocker, a STATIC byte-level reconstruction was still possible and was carried out: the Appendix A source was manually transcribed into 64tass (`.cpu \"6502i\"` for illegal-opcode support), assembled, and byte-diffed directly against two real files' payloads (SIDdecompiler was not usable as the starting point here, since it can't get past the illegal opcodes either — this reconstruction started from the manual's own printed source instead). Result: 99.8438% (1278/1280 bytes) byte-exact match of the FIXED playroutine code on BOTH Toy_Rocket.sid and Glyptodont.sid, once the 9 genuinely per-song external table addresses (fxtable/wavetable/filttable/fx_start/ins_ad/ins_sr/ins_wave/ins_filt/INS_RESTART/INS_RESTART2) were read directly out of each real file (not guessed) rather than left as placeholders. The only 2 bytes NOT matching on either file are the `jmp initroutine` operand itself, whose true value depends on a per-song data-segment size the manual doesn't document a formula for (left TODO, not guessed). Separately, the actual init routine has 6 bytes of extra zero-initialization not shown in the appendix's printed excerpt (same signature on both files) — a small, genuine, still-open discrepancy between the printed v1.0 source and what real exports actually ship. Full byte-level detail, including the exact per-file external addresses read: knowledge/players/reconstructions/blackbird.md.",
+    "EXTERNAL RESULT, SIDM2 (recorded 2026-07-25): SIDM2 reports a completed Blackbird port at **99.96%, with 11 of 16 tunes at exactly 100.0%**. This does NOT change this card's `status` — the KB's `verified` bar is a local trace-diff through `mcp-c64`/`sidm2-siddump` (see knowledge/README.md), and that is still blocked here. What it DOES change is the diagnosis: the blocker is a property of THIS PROJECT'S TRACERS, not of the player. SIDM2's tracer evidently emulates the `lax`/`sbx` illegal opcodes that SIDdecompiler.exe and sidm2-sid-trace.exe do not. Adopting SIDM2's tracer here is therefore the concrete unblock for this card and every other one parked behind the same wall — see docs/SIDM2-INTEGRATION.md.",
+    "BLOCKER RE-CONFIRMED (2026-07-25), independently of the 2026-07-24 pass: this repo's own `sidm2-siddump` MCP `trace_sid` was run on MUSICIANS/L/Lft/Toy_Rocket.sid (HVSC_83-all-of-them). It reads the header correctly (INIT $1000, PLAY $1003 -- note the entry bytes `4C C2 16` / `A7 E6 F0` show the `jmp initroutine` trampoline and the `lax`-first play entry exactly as this card documents), INIT completes, and then it reports `0 SID changes` for all 20 frames and fails with 'PLAY @ $1003 produced 0 SID writes over 20 frames ... treat as untraceable'. Same failure mode as the previous pass on a different tool build -- so the blocker is stable and reproducible, not a one-off environment glitch.",
     "NEW FINDING (2026-07-24): reading just the 6 bytes at each tagged file's own PSID play address (no disassembly needed) splits the 37 tagged files into two distinct player-build signatures: 28 files ('PAT_A') match the Appendix A v1.0 source transcribed above byte-for-byte at the entry trampoline; 7 files ('PAT_B' — A_Computer_in_My_Backpack, Lunatico_Note, Lunatico_Side_1, Lunatico_Side_2, Perfectly_Well-Adjusted, Reminiscence, To_Die_For) show a reordered trampoline (`lax`/`sbx`/`bmi` instead of `lax`/`beq`/`sbx`) — presumably a later v1.1/v1.2 revision, consistent with the two known later CSDb releases, but NOT independently reconstructed this pass (out of scope: the appendix documents only v1.0). 2 files (Your_Heptacular_Eyes.sid, Platform_Hopping.sid) match neither pattern and weren't investigated further — Platform_Hopping.sid's own PSID play address reads as $0000, worth checking whether it's even a normal Blackbird PSID export before assuming anything about it."
   ],
   "sources": [
@@ -80,7 +82,9 @@
     "pouet.net production entry (community comments, no technical content): https://www.pouet.net/prod.php?which=68894",
     "demozoo.org production entry (release metadata): https://demozoo.org/productions/168138/",
     "This pass's own verification work (manual Appendix A -> 64tass transcription, byte-diff against real HVSC payloads, SIDdecompiler/sidm2-sid-trace.exe blocker confirmation): knowledge/players/reconstructions/blackbird.md",
-    "Real files used this pass: MUSICIANS/L/Lft/Toy_Rocket.sid, MUSICIANS/L/Lft/Glyptodont.sid, MUSICIANS/L/Lft/Reminiscence.sid (HVSC_85-all-of-them collection)"
+    "Real files used this pass: MUSICIANS/L/Lft/Toy_Rocket.sid, MUSICIANS/L/Lft/Glyptodont.sid, MUSICIANS/L/Lft/Reminiscence.sid (HVSC_85-all-of-them collection)",
+    "SIDM2 port-status report (2026-07-25, via the SIDM2 project's own native-driver/bin ports table): 'Blackbird / lft -- 99.96%, 11/16 at exactly 100.0'. External result, not re-derived here; see docs/SIDM2-INTEGRATION.md for the joint worklist this feeds.",
+    "Local blocker re-confirmation run (2026-07-25): sidm2-siddump MCP trace_sid on MUSICIANS/L/Lft/Toy_Rocket.sid (HVSC_83-all-of-them) -- 0 SID writes over 20 frames, tracer self-reports 'untraceable'."
   ]
 }
 ```
@@ -171,6 +175,30 @@ fidelity numbers plus a confirmed, precisely-characterized tool blocker,
 where before there was only cited documentation) but does not meet this
 project's `verified` bar, which requires an actual trace-diff — and that
 step is now confirmed blocked, not merely undone.
+
+### Update 2026-07-25 — blocker reproduced, and SIDM2 has cleared it
+
+Two things happened, and they point in opposite directions:
+
+- **The local blocker was reproduced**, on this repo's own `sidm2-siddump`
+  MCP `trace_sid` (a different entry point from the `sidm2-sid-trace.exe`
+  invocation used on 2026-07-24), against `Toy_Rocket.sid`. The header is
+  read correctly and INIT completes, then every one of 20 frames reports
+  `0 SID changes` and the tracer's own self-check declares the file
+  *untraceable*. Stable, reproducible, not an environment glitch.
+- **SIDM2 reports a finished port at 99.96%, 11/16 tunes at exactly 100.0%.**
+
+Taken together these re-diagnose the problem. The blocker is **not a property
+of this player** — it is a property of *this project's tracers*, which do not
+emulate the `lax`/`sbx` illegal opcodes that Blackbird's play routine opens
+with. SIDM2's tracer plainly does.
+
+`status` stays `in-progress`: the KB's bar is a local trace-diff and that has
+still not happened here, and SIDM2's figure is an external result this project
+has not re-derived. But the path forward is now specific rather than open —
+adopt SIDM2's tracer in this workspace and this card, [[lft]], and the other
+cards parked behind the same illegal-opcode wall all become reachable. Tracked
+in `docs/SIDM2-INTEGRATION.md`.
 
 ## Sources
 

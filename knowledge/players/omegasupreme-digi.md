@@ -14,16 +14,16 @@
   "memory": {
     "load_address": "Relocatable per file. Hero files: $0900. Metal_Maniac files vary: Arla_tune_1=$4B00, Smells_Like_Teen_Spirits=$1000, Seek_and_Destroy=$0A93. The player code is structure-identical across all variants, just relocated.",
     "zero_page": "$FB/$FC = sample data fetch pointer (LDA ($FB),Y). $FD/$FE = block-table pointer (points to 3-byte block entries). Both per composer/variant — values set during init.",
-    "layout": "Tiny code footprint (~180 bytes total: init stub ~14 bytes, second init stage ~50 bytes, two-phase NMI handler ~120 bytes). Vast majority of file size is raw digi sample data in a block-chained format (3-byte block table entries: next-PC-hi, end-check-CMP-byte, CIA2-Timer-A-hi). Accessed via bank switching ($01=$36 during sample fetch, $01=$37 otherwise)."
+    "layout": "Tiny code footprint (~180 bytes total: init stub ~14 bytes, second init stage ~50 bytes, two-phase NMI handler ~120 bytes). Vast majority of file size is raw digi sample data in a block-chained format (3-byte block table entries: next-PC-hi, end-check-CMP-byte, CIA2-Timer-A-LOW). Accessed via bank switching ($01=$36 during sample fetch, $01=$37 otherwise). CORRECTED (byte-verified this run): the 3rd block-table byte is CIA2 Timer A's LOW byte ($DD04), not its high byte as an earlier pass claimed — Timer A HIGH ($DD05) is written once at init to $00 and never touched again for the rest of the song."
   },
   "entry": {
     "init": "Per-file, listed in RSID header. Hero: $09D0. Metal_Maniac Arla_tune_1: $4C80. Two-stage init: (1) entry stub sets C64 IRQ vector ($0314/$0315) to an acknowledge-only handler, then JMPs to (2) second stage that sets C64 NMI vector ($0318/$0319) to the two-phase digi handler, configures CIA2 Timer A as NMI source ($DD04-DD0E), initializes ZP pointers ($FB-$FE), and RTS.",
-    "play": "NONE — play=$0000 in every file's RSID header. Playback is NMI-driven via CIA2 Timer A underflow, not via a conventional JSR play call. The NMI handler alternates between Phase 1 ($092F+offset) which outputs the top nibble, and Phase 2 ($095A+offset) which outputs the bottom nibble and advances the sample pointer. Timer rate (and thus playback speed) varies per data-block — Phase 2 self-modifies $DD04 (CIA2 Timer A hi) from the block table."
+    "play": "NONE — play=$0000 in every file's RSID header. Playback is NMI-driven via CIA2 Timer A underflow, not via a conventional JSR play call. The NMI handler alternates between Phase 1 ($092F+offset) which outputs the top nibble, and Phase 2 ($095A+offset) which outputs the bottom nibble and advances the sample pointer. Timer rate (and thus playback speed) varies per data-block — Phase 2 self-modifies $DD04, CIA2 Timer A's LOW byte (CORRECTED this run — an earlier pass called this 'Timer A hi'; it is actually the low byte, and Timer A's real high byte $DD05 is fixed at $00 for the whole song, so real periods are ~O(100) cycles, not ~O(40000))."
   },
-  "speed": "Per-block variable, determined by CIA2 Timer A hi byte ($DD04). Default values differ per file: Hero uses $A000 (40960 cycles / ~2.08 PAL frames), Metal_Maniac Arla_tune_1 uses $8800 (~1.77 frames). Timer rate is self-modified from the 3-byte block table during Phase 2. Each Timer A underflow produces one 4-bit nibble write to $D418; two underflows = one sample byte = one SID register update every ~1-2 frames depending on timer value.",
+  "speed": "CORRECTED this run (byte-verified from the raw payload, both files): per-block variable, determined by CIA2 Timer A's LOW byte ($DD04) — Timer A's HIGH byte ($DD05) is written ONCE at init to $00 and never touched again, so the earlier '$A000'/'$8800' readings were off by a factor of 256 (they read the LOW-byte constant as if it were the HIGH byte of a 16-bit value). Real default periods: Hero's Digi_Dreams_01 = $A0 = 160 cycles; Metal_Maniac's Arla_tune_1 = $88 = 136 cycles. Two Timer A underflows (Phase 1 + Phase 2) = one sample byte, so real playback is roughly one $D418 write every 130-160 cycles — on a 19656-cycle PAL frame that's on the order of 120-150 NMI firings (60-75 sample bytes) PER FRAME, not one write every 1-2 frames as previously stated. This yields a plausible ~3 kHz 4-bit PCM sample rate, which is itself a sanity check that this reading (not the earlier one) is correct — a real sample rate cannot plausibly be ~0.5 Hz.",
 
   "data_format": {
-    "order_list": "Block-chained format. No pattern/order concept — raw digi. A block-table pointer ($FD/$FE) points to 3-byte entries: byte[0]=next $FC hi, byte[1]=end-check CMP value (self-modified into a CMP #imm instruction at runtime), byte[2]=CIA2 Timer A hi (playback rate for this block). $FC reaches the CMP value → next block loaded. A zero byte[0] signals end-of-song / loop restart.",
+    "order_list": "Block-chained format. No pattern/order concept — raw digi. A block-table pointer ($FD/$FE) points to 3-byte entries: byte[0]=next $FC hi, byte[1]=end-check CMP value (self-modified into a CMP #imm instruction at runtime), byte[2]=CIA2 Timer A LOW byte (playback rate for this block — CORRECTED this run, was previously misidentified as the Timer A HIGH byte; see `speed`). $FC reaches the CMP value → next block loaded. A zero byte[0] signals end-of-song / loop restart.",
     "patterns": "N/A — digi sample playback, not pattern-based music",
     "instruments": "N/A — no instrument/synthesis model. Output is pure 4-bit PCM via SID volume register $D418.",
     "wavetable": "Raw 4-bit PCM samples. Each byte in the sample data block encodes two nibbles: top nibble (Phase 1 output) and bottom nibble (Phase 2 output). Data bank-switched via $01=$36.",
@@ -121,7 +121,9 @@ $EA31) / JMP $0900 (stage 2).
 
 **Init stage 2 ($0900):** SEI / set NMI vector ($0318/$0319) to $092F /
 CIA2 ICR=$81 (enable Timer A NMI) / CIA2 CRA=$01 (start continuous) /
-Timer A=$A000 / init ZP: $FB=0, $FC=$4D, $FD=0, $FE=$0A / CLI / RTS.
+Timer A HIGH ($DD05)=$00, Timer A LOW ($DD04)=$A0 (i.e. Timer A=$00A0=160
+cycles, NOT $A000 — CORRECTED this run, see below) / init ZP: $FB=0,
+$FC=$4D, $FD=0, $FE=$0A / CLI / RTS.
 
 **NMI Phase 1 ($092F):** Save A/X/Y / $01=$36 (bank switch) / LDY #0 /
 LDA ($FB),Y / 4x LSR (top nibble) / STA $D418 (volume register) / set
@@ -134,8 +136,9 @@ to $FC if zero) / check $FC against block-end CMP value (self-modified at
 runtime — Phase 2 at $0986 writes `STA $0975`, modifying the operand of
 the CMP #imm at $0974-$0975) — if not at end: set NMI to Phase 1, RTI.
 If at end: read next 3-byte block entry from ($FD),Y: byte[0]=new $FC,
-byte[1]=new CMP value, byte[2]=CIA2 Timer A hi (new speed), advance $FD
-by 3, set NMI to Phase 1, RTI.
+byte[1]=new CMP value, byte[2]=CIA2 Timer A LOW byte (new speed; Timer A
+HIGH stays $00 for the whole song — CORRECTED this run, see below),
+advance $FD by 3, set NMI to Phase 1, RTI.
 
 Key instruction confirming the SIDId signature:
 ```
@@ -167,53 +170,139 @@ natively because:
    KERNAL NMI handler → $0318/$0319 = $092F), which the tracer does not
    follow. This is a structural limitation, not a per-file issue.
 
-**Workaround**: Patched the C64 vectors so the IRQ chain points to the
-NMI handler code (changed $0314/$0315 writes from $09DE to $092F, and
-the handler's own $0318/$0319 self-rewrites to $0314/$0315). This
-preserves 100% of the handler code — only the vector targets change.
+**CONFIRMED THIS RUN, at the source level (not just from trace output):**
+read `sidm2_sid_trace.zig` (SIDM2 project, `tools/sidm2_sid_trace.zig`)
+directly — it has zero references to `$0318`/`$0319`/`$FFFA`/NMI anywhere
+in the file. Its `play=$0000` path (added specifically for INIT-installs-
+its-own-IRQ players, see its own CHANGELOG entry) drives the discovered
+IRQ handler **exactly once per simulated 19656-cycle PAL frame** — a
+one-shot-per-frame model built for raster-IRQ players, structurally
+incompatible with a CIA2-Timer-A-driven NMI that (per the corrected timer
+math below) actually fires on the order of 120-150 times per frame. This
+is not a missing flag or a per-file quirk; the capability genuinely does
+not exist in this tool. Re-confirmed independently of the prior pass's
+trace-output-only observation.
 
-Results with patched .prg (20 frames each):
+**Workaround (from a prior pass, numbers now re-characterized below)**:
+Patched the C64 vectors so the IRQ chain points to the NMI handler code
+(changed $0314/$0315 writes from $09DE to $092F, and the handler's own
+$0318/$0319 self-rewrites to $0314/$0315). This preserves 100% of the
+handler code — only the vector targets change — and lets the tracer's
+"one IRQ call per frame" model execute the real handler at all, which is
+useful for confirming the CODE runs and produces plausible $D418 writes,
+but is **not a timing-accurate reconstruction of real playback**: see the
+corrected timer analysis below.
+
+Prior-pass results with patched .prg (20 frames each, one handler call
+per frame):
 - **Digi_Dreams_01**: 19 writes to filter_mode_volume ($D418), values
   ranging $01-$0A, alternating ~1-write-per-frame cadence.
 - **Digi_Dreams_02**: 3 writes to filter_mode_volume ($D418), slower
   cadence (~1 write per 4-6 frames, consistent with this file's longer
   sample blocks and default timer rate).
 
-Both files produce genuine 4-bit PCM writes to $D418, confirming the
-digi routine is live and functional.
+**These counts are NOT representative of real playback density — corrected
+this run.** With the real Timer A period (~130-160 cycles, see below),
+the NMI handler actually fires roughly 120-150 times per 19656-cycle PAL
+frame, i.e. the true write count over 20 frames should be on the order of
+~2,400-3,000, not 19. The patched-vector trace is a correctness smoke
+test for the CODE PATH (proves the handler executes and writes plausible
+nibble values to $D418), not a stand-in for the file's real playback
+timing — do not read the "19 writes / 20 frames" figure as a speed
+measurement.
+
+### CORRECTED THIS RUN: CIA2 Timer A LOW vs HIGH byte (byte-verified, 2 files)
+
+Directly reading the raw payload bytes (not just the decompiled mnemonics)
+at the init routine and the self-modified `STA $DD04`/`STA $DD05` sites in
+both Digi_Dreams_01.sid (Hero) and Arla_tune_1.sid (Metal_Maniac) shows the
+earlier "$DD04 = Timer A hi" / "Timer A=$A000" claims are backwards, off by
+a factor of 256:
+
+- Standard CIA hardware register map: $DD04 = Timer A **LOW** byte, $DD05
+  = Timer A **HIGH** byte (not the reverse).
+- Digi_Dreams_01 init: `LDA #$00 / STA $DD05` then `LDA #$A0 / STA $DD04`
+  — Timer A HIGH=$00, LOW=$A0 → real value $00A0 = 160 cycles, not $A000
+  (40960).
+- Arla_tune_1 init: `LDA #$00 / STA $DD05` then `LDA #$88 / STA $DD04` —
+  HIGH=$00, LOW=$88 → real value $0088 = 136 cycles, not $8800 (34816).
+- In BOTH files, Phase 2's self-modifying write (`STA $DD04`, from
+  block-table byte[2]) targets the LOW byte only; $DD05 is written once
+  at init and never touched again. Confirmed by disassembling Phase 2's
+  actual bytes (`8D 04 DD` at $098C in Digi_Dreams_01) and by dumping the
+  first several block-table entries at $0A00 (all byte[2] values are
+  small, e.g. $A0, $8A — consistent with a LOW byte, implausible as a
+  HIGH byte of a useful timer value).
+- Sanity check: real value (~130-160 cycles/NMI, 2 NMIs/sample byte) gives
+  a ~3 kHz 4-bit PCM sample rate — plausible for a scene digi routine. The
+  old "$A000 cycles" reading implies one sample byte every ~4 PAL frames
+  (~12 Hz) — not a rate that could ever sound like recognizable audio,
+  which was itself a sign something was off even before checking the raw
+  bytes.
+
+This fixes `speed`, `entry.play`, `data_format.order_list`, and
+`memory.layout` in the facts block above, and the timer values quoted in
+the Metal_Maniac section below.
 
 ### Metal_Maniac variant (Arla_tune_1.sid)
 
 Structurally identical to Hero, relocated:
 - Load=$4B00, Init=$4C80
 - NMI handler at $4B31 (Phase 1) / $4B5A (Phase 2)
-- Timer A default=$8800 instead of $A000
+- Timer A HIGH ($DD05)=$00, Timer A LOW ($DD04)=$88 (136 cycles) —
+  CORRECTED this run, was previously "$8800"
 - ZP pointers: $FB/$FC=$4D00, $FD/$FE=$4C00
 - Same two-phase nibble extraction, same block-chained data format,
   same bank-switch technique ($01=$36 for fetch, $01=$37 otherwise)
 
 ### Honest scope / known gap
 
-This is an honest in-progress status. The player structure is fully
-understood through manual disassembly, and trace output from patched
-files confirms the digi playback works. What cannot be done with
-current tools:
+This is an honest in-progress status, re-confirmed this run with stronger
+evidence, not weaker. The player structure is fully understood through
+manual disassembly (now cross-checked against the raw payload bytes of
+TWO files, not just one), and the CIA2 Timer A period math has been
+corrected (see above — a real, citable bug fix, not a cosmetic one).
+What still cannot be done with current tools, confirmed this run at the
+SOURCE level (not just by observing tool output):
 1. **Byte-exact disassembly/reassembly**: SIDdecompiler cannot handle
-   RSID play=$0 files. A byte-exact .asm → reassembled .prg → byte-diff
-   against original is impossible without fixing the tool.
-2. **Trace-diff against original**: The original file produces 0 SID
-   writes in the tracer (IRQ vs NMI mismatch). The patched trace
-   produces correct writes but at slightly different timing.
+   RSID play=$0 files (crashes trying to execute at $0000). A byte-exact
+   .asm → reassembled .prg → byte-diff against original is impossible
+   without fixing the tool.
+2. **Trace-diff against original**: `sidm2_sid_trace.zig`'s source
+   (`C:\Users\mit\claude\c64server\SIDM2\tools\sidm2_sid_trace.zig`) was
+   read directly this run and contains ZERO handling of $0318/$0319/
+   $FFFA/NMI — its play=$0 path is a one-IRQ-call-per-simulated-frame
+   model, and the real playback here fires the handler ~120-150 times per
+   frame (corrected Timer A math above). This is a hard architectural gap
+   in the only two available disassembly/trace tools, not a flag to find
+   or a per-file quirk — confirmed independently of the prior pass's
+   trace-output-only observation. A true register-write trace-diff
+   against the real file is not obtainable with SIDdecompiler or
+   sidm2-sid-trace.exe as they exist; RetroDebugger (a live cycle-accurate
+   emulator that would correctly model the CIA timer's autonomous NMI
+   firing) is the only tool on this project's list that could plausibly
+   close this, and was out of scope for this run (parallel-batch
+   restriction — see this agent's own constraints).
 
 Potential next steps if someone wants to close this:
-- Fix SIDdecompiler or sidm2-sid-trace.exe to handle NMI-driven players
-  (CIA2 Timer A → NMI chain via $FFFA → KERNAL → $0318/$0319)
-- Or use a different disassembly tool that can handle this architecture
+- **Best lead**: re-run this specific card as a SERIALLY-dispatched (not
+  parallel-batch) `sid-player-verify` pass with RetroDebugger available —
+  load the real .sid, single-step or run at warp speed past init, and
+  read $D418 writes directly from the live CIA2/NMI-driven execution.
+  This is the first genuinely new, concrete way to close this card that
+  hasn't been tried yet (the code-level understanding is already
+  complete; only the trace-capture tooling is the blocker).
+- Or extend `sidm2_sid_trace.zig` itself to model the NMI vector chain
+  and let a CIA timer underflow fire multiple times within one simulated
+  frame — a real fix, not a workaround, but out of scope for this
+  project (SIDM2 is a separate codebase).
 - Or hand-write a minimal .asm reconstruction from the manual disassembly
-  above, treating the sample data as raw .byte blobs — the code is only
-  ~180 bytes, so a hand-verified .asm that assembles and traces correctly
-  would constitute a verified reconstruction even without byte-diff
-  against the full 30-49KB original (since the data is all sample bytes)
+  above (now corrected), treating the sample data as raw .byte blobs —
+  the code is only ~180 bytes, so a hand-verified .asm that assembles and
+  a HAND-TRACED (not tool-traced) cycle-by-cycle walk of a few dozen NMI
+  firings that matches the original payload bytes exactly would be a
+  legitimate, if laborious, path to a verified register-write reasoning
+  chain even without a working automated tracer.
 
 ## Sources
 

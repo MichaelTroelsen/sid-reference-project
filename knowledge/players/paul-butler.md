@@ -77,38 +77,50 @@ trace.
 
 ## Verification
 
-**SIDdecompiler disassembly + trace-diff across 4 files (2026-07-24) — `status: in-progress`.**
+**SIDdecompiler disassembly + trace-diff across 4 files (2026-07-24, updated 2026-07-25) — `status: in-progress`.**
 
-Two files verified **trace-exact**; two files fail with the same methodology
-due to code-region byte-level divergence (likely SIDdecompiler's internal
-relocation math failing across large load-address gaps):
+All 4 tested files now trace-match (or register-write-match) **for their
+default/start subtune (subtune 0)**. The two 2026-07-24 failures
+(Deceptor, Fight_Night) were **not** a real code-region defect as first
+suspected — they were an artifact of tracing *all* subtunes at once,
+which pollutes the `-v2` memory map with other subtunes' workspace/data
+and (on Deceptor) triggers a large, alarming-looking but ultimately
+harmless self-modifying-code spillover region. Re-disassembling with
+`-1 -s0` (trace only the default subtune) and re-deriving the relocation
+base from *that* trace's own `-v2` Start address resolves both:
 
-| File | Byte-diff | Trace result | Notes |
+| File | Byte-diff (subtune 0, overlap w/ original) | Trace result (subtune 0) | Notes |
 |------|-----------|-------------|-------|
-| **Grogs_Revenge.sid** | 98.27% | **Trace-exact** (20 frames, subtune 0) | 29 dead-workspace diffs only; init=`$3AC0`, play=`$3550`, load=`$3500` |
-| **Ace_of_Aces.sid** | 99.87% | **Register-write-identical** (cycle offsets only from different load addr) | 6 dead-workspace diffs; init=`$0A68`, play=`$0A77`, load=`$0A68` |
-| **Deceptor.sid** | 94.03% | **FAILED** — completely different trace | 193 critical diffs in r/o/x regions; large v2-Start-to-PSID-load gap (`$037b` vs `$6767`) |
-| **Fight_Night.sid** | 84.16% | **FAILED** — not traced | ~488 diffs, many in code regions; large v2-Start-to-PSID-load gap (`$0E82` vs `$4DB3`) |
+| **Grogs_Revenge.sid** | 98.27% | **Trace-exact** (20 frames) | Unchanged from 2026-07-24; 29 dead-workspace diffs only; init=`$3AC0`, play=`$3550`, load=`$3500` |
+| **Ace_of_Aces.sid** | 99.87% | **Register-write-identical** (cycle offsets only from different load addr) | Unchanged from 2026-07-24; 6 dead-workspace diffs; init=`$0A68`, play=`$0A77`, load=`$0A68` |
+| **Deceptor.sid** | **100.0000%** of the 2533 bytes ($74db-$7ec0) actually reached by subtune 0's trace, after patching 140 self-modified/workspace diffs back to pristine values | **Trace-exact** (200 frames, 1755/1755 writes identical) | Re-disassembled with `-1 -s0`, relocated to that trace's own Start (`$74db`, decimal 29915) instead of the all-subtunes Start (`$037b`). Reconstruction covers only 2533 of the file's 5977 bytes (42.4%) — the remaining $6767-$74da (3444 bytes) is subtune-0-unreached data belonging to the other 21 subtunes and is genuinely absent from this build, not wrong. |
+| **Fight_Night.sid** | 99.7078% (3080/3080 bytes, full file coverage) | **Register-write-identical** (200 frames, 64/64 writes identical; only cycle-timing offset from the different load address, same as Ace_of_Aces) | Re-disassembled with `-1 -s0`, relocated to decimal 3716 (`$0e84`). Needed 2 fixes beyond the standard recipe: missing ZP symbol `z75` (`z75 = z74 + $01`), and **6 instructions** where 64tass auto-selected zero-page mode for a `z74`/`z75` operand but the original file encodes the same instruction in 3-byte absolute mode (a self-modifying-code length-sensitive idiom) — `sta z75`@`$57bd`, `lda z75`@`$57c8`, `lda z74`@`$5812`, `ldx z75`@`$581e`, `ldx z74`@`$5828`, `cmp z74`@`$5842`, each replaced with an explicit `.byte $op, <sym, >sym` triplet. SIDdecompiler's own generated comment flagged the first instance (`WARNING: ... Operand at l4de5+1`, gotcha 32) but that flagged byte itself turned out to be an ordinary dead self-modified operand; the real absolute/zp mismatches were 6 *other*, unflagged instructions found by walking the byte-diff's isolated-single-byte-then-large-contiguous-block signature (gotcha 36) one instruction at a time via a 64tass `-L` listing.  |
 
-**Methodology that works**: relocate to SIDdecompiler's `-v2` Start address
-(gotcha 40), fix missing ZP symbols (`za9`, `z75`), reassemble, byte-diff —
-all remaining diffs are `+`/`w`/`_` dead-workspace bytes. Works when the v2
-Start-to-load-address gap is small or zero.
-
-**Known gap on Deceptor/Fight_Night**: SIDdecompiler produces incorrect code
-and read-only data bytes when the emulated trace covers a large low-RAM
-workspace far below the PSID load address. The 193 critical diffs on
-Deceptor include execute (`x`), operand (`o`), and read-only (`r`) bytes —
-not just dead workspace. Same pattern recurs on Fight_Night. Once the code
-bytes are wrong, the trace diverges completely. Likely root cause:
-SIDdecompiler's internal address resolution doesn't handle large
-load-address gaps correctly when constructing the disassembly.
-
-**Next steps**: Try `-A` (alignment mode) on Deceptor/Fight_Night; or try
-disassembling at the PSID load address and manually patching the low-RAM
-workspace. The verified Grogs_Revenge and Ace_of_Aces confirm the player
-routine IS capturable by SIDdecompiler — the failure is a tool limitation,
-not a player-specific block.
+**Known real gap (not closed this pass): non-default subtunes.** Both
+multi-subtune files were spot-checked on a second subtune with the exact
+same reconstruction used for subtune 0, and both diverge: Deceptor
+subtune 5 produces 0 SID writes in frame 0 vs. 18 expected (the subtune-0
+build simply doesn't contain the note/pattern data subtune 5 needs — it
+was never traced/captured); Fight_Night subtune 3 matches for ~4 frames
+then diverges (pulse-width writes) for the same reason. **This is a
+structural limitation of the `-1 -s0` methodology, not a new player
+defect**: a build that traces only subtune 0 cannot be expected to play
+other subtunes correctly, since large chunks of those subtunes' own data
+tables sit outside subtune 0's reachable memory. Extending coverage would
+require either (a) a full all-subtunes trace that also resolves the
+harmless-looking-but-large self-modifying spillover cleanly (attempted on
+Deceptor with the full 22-subtune trace; produces the same 193-diff
+picture as before — the underlying cause of *that* is now understood to
+be the emulator's default `-t 30000` baking in a runtime-drifted snapshot
+across subtunes, not a hard defect, but no `-t`/`-C1` combination tried
+this pass resolved it cleanly for all 22 subtunes at once), or (b)
+tracing and patching each subtune individually and merging the results —
+not attempted here for time reasons. **Status stays `in-progress`**: the
+player routine itself is now confirmed correctly reconstructed for every
+tested file's *default* subtune (up from 2 of 4 files on 2026-07-24), but
+full-file byte fidelity (all subtunes, and on Deceptor even all of the
+file's own bytes) remains an open, precisely-localized gap, not a
+rounded-up "verified."
 
 ## Sources
 

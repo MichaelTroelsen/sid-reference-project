@@ -1,0 +1,70 @@
+{
+  "_comment": [
+    "SIDM2's own reported port status per player, keyed by THIS project's card id.",
+    "",
+    "WHY THIS FILE IS HAND-MAINTAINED. Everything else in the SIDM2 worklist table",
+    "(file counts, edge degree, open TODO counts, card status) is derived from local",
+    "data by scripts/dev/gen-sidm2-worklist.js. These accuracy figures are not --",
+    "they come from the SIDM2 project's own reporting and this project does not",
+    "re-derive them. Keeping them in a data file rather than inline in the doc is what",
+    "lets the rest of the table regenerate without a human retyping SIDM2's numbers.",
+    "",
+    "Update this file when SIDM2 reports new results, then re-run:",
+    "  node scripts/dev/gen-sidm2-worklist.js",
+    "",
+    "`state` is one of:",
+    "  done     - ported, SIDM2 reports it working at the quoted fidelity",
+    "  partial  - ported but explicitly incomplete or below par (shows as a warning)",
+    "  variant  - resolved as a variant inside another player's path, not a separate port",
+    "  unlisted - this project's card cites SIDM2 as provenance but SIDM2's own port",
+    "             list does not name it; needs reconciling, do not assume either way",
+    "",
+    "`note` is quoted as close to SIDM2's own wording as fits a table cell."
+  ],
+  "reportedAt": "2026-07-25",
+  "source": "SIDM2 project port-status tables (default drivers + native-driver/bin ports), supplied 2026-07-25",
+
+  "ports": {
+    "dmc": { "state": "done", "note": "Balloon wf/pulse 100×3 over 400 s" },
+    "soundmonitor": { "state": "done", "note": "99.23% strict corpus sweep" },
+    "laxity-newplayer": { "state": "done", "note": "**99.93–100%** (native NP21)" },
+    "sid-factory-ii": { "state": "done", "note": "100% — **SIDM2's target format** (Driver 11)" },
+    "sid-factory-ii-driver-11": { "state": "done", "note": "100% — the reference driver" },
+    "jch-newplayer": { "state": "done", "note": "via the Laxity path (NP21)" },
+    "romuzak": { "state": "done", "note": "V6.3 byte-exact wf/pulse/AD-SR (~98–100%)" },
+    "rob-hubbard": { "state": "done", "note": "V1 (12 tunes) freq 99.3–100, pulse 100% modelled; V2 (Delta class) wf 85–97%" },
+    "mon-deenen": { "state": "done", "note": "7 clean wins + 8 freebies at 100%" },
+    "martin-galway": { "state": "done", "note": "~100%/register, 30/40 objectively clean in real SF2II. Stage A default is a Driver 11 transpile — notes/timing exact, **timbre approximated**" },
+    "jeroen-kimmel": { "state": "done", "note": "11/12 voice-medians exact 100%" },
+    "blackbird": { "state": "done", "note": "**99.96%, 11/16 at exactly 100.0** — but see the tracer blocker below" },
+
+    "jch-newplayer-v20": { "state": "partial", "note": "**70–90% — weakest shipped driver** (NP20 / 20.G4)" },
+    "sidduzzit": { "state": "partial", "note": "Stage A; 348 SF2s, 324 sweep-validated" },
+    "future-composer": { "state": "partial", "note": "$1800 variant, Stage A only — *\"the one genuinely incomplete port\"*" },
+
+    "drax-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
+    "vibrants-2000ad": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
+    "wizax-a": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
+    "stinsen-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
+    "beast-angular-newplayer": { "state": "variant", "note": "NP21 editor-view cluster inside the Laxity path" },
+
+    "david-whittaker": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" },
+    "matt-gray": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" },
+    "fred-gray": { "state": "unlisted", "note": "card cites SIDM2 as provenance; absent from SIDM2's own port list" }
+  },
+
+  "unmapped": {
+    "_comment": [
+      "SIDM2 ports that do NOT correspond to a single card id in this project.",
+      "Rendered as trailing rows so they are not silently dropped from the table."
+    ],
+    "entries": [
+      {
+        "label": "Maniacs of Noise / Jeroen Tel — Hawkeye, Cybernoid I/II, Myth, Supremacy",
+        "state": "done",
+        "note": "Hawkeye 100% byte-exact (subtunes 2 & 3); others ~95–100%/register",
+        "why": "All GAMES/ titles — invisible to this dataset, which covers MUSICIANS/ only. His MUSICIANS/ output is tagged MoN/Deenen, MoN/FutureComposer and Rob_Hubbard, all already carded."
+      }
+    ]
+  }
+}

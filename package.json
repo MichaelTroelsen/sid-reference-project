@@ -11,6 +11,8 @@
     "import:dump": "node scripts/import-deepsid-dump.js",
     "import:sidid": "node scripts/import-sidid.js",
     "knowledge:graph": "node knowledge/build-graph.js",
+    "knowledge:worklist": "node scripts/dev/gen-sidm2-worklist.js",
+    "knowledge:worklist:check": "node scripts/dev/gen-sidm2-worklist.js --check",
     "fetch:composers": "node scripts/fetch-composers.js",
     "fetch:players": "node scripts/fetch-players.js",
     "fetch:csdb": "node scripts/fetch-csdb.js",

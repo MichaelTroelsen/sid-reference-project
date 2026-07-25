@@ -22,6 +22,33 @@ Ad-hoc tooling for reverse-engineering work. Nothing here is part of
   validity check. Needs HVSC locally (see the `HVSC` env var in the header). The
   header year is the WORK's year (covers carry the original's date) — the tool
   uses medians, not extremes; read the header caveat before trusting a span.
+- `gen-sidm2-worklist.js` — regenerates the joint SIDM2 worklist table inside
+  `docs/SIDM2-INTEGRATION.md` (between `<!-- BEGIN/END GENERATED: sidm2-worklist -->`
+  markers). `npm run knowledge:worklist`, or `:check` to gate on freshness.
+  Derives files/edge-degree/TODO-count/status from local data and joins them with
+  `knowledge/sidm2-ports.json` — the **hand-maintained** record of SIDM2's own
+  reported port accuracy, which cannot be derived here. Add a newly-ported player
+  by editing that JSON and re-running. Exists because the hand-written table it
+  replaced rotted completely: it listed six players as "tackle next" after all six
+  had reached `verified`.
+- `check-tdz-sync.js` — detects drift between `knowledge/players/*.md` and the
+  copies ingested into the `tdz-c64-knowledge` MCP server. Takes a saved
+  `list_docs` output as its argument (the script has no MCP access; it is a pure
+  comparator):
+
+  ```
+  node scripts/dev/check-tdz-sync.js <list_docs-output.txt> [--check] [--ids]
+  ```
+
+  Re-ingest what it names with TDZ's `update_document` — **never `add_document`
+  or `add_documents_bulk`**, which risk a second live copy per card and flatten
+  the per-card id tags. Written after an audit found 158 cards whose TDZ copy
+  predated their current content by up to two batch rounds, undetected because
+  nothing compared the two. Read the script header before trusting or changing
+  its logic: it encodes three traps that were hit for real (match on `Card ID`
+  not tags; a date difference is not a content difference — 227 date-flagged vs
+  158 genuinely changed; and TDZ's copy can legitimately be newer where SIDM2
+  authored the card).
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
 
 ---

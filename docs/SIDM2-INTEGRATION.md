@@ -102,6 +102,23 @@ Myth, Supremacy) are all `GAMES/` releases, which this dataset cannot see at
 all. What is genuinely missing is not a card but the **mapping from SIDM2's
 game-title results back onto [[mon-deenen]] / [[mon-futurecomposer]]**.
 
+Half of that mapping already exists on the TDZ side. A TDZ sync on 2026-07-25
+found **four SIDM2-authored cards living under their own ids**, alongside this
+project's equivalents rather than merged with them:
+
+| SIDM2 card id (in TDZ) | this project's card(s) |
+|---|---|
+| `maniacs-of-noise` | [[mon-deenen]], [[mon-futurecomposer]], [[mon-bjerregaard]] |
+| `galway` | [[martin-galway]] |
+| `sound-monitor` | [[soundmonitor]] |
+| `sid-duzz-it` | [[sidduzzit]] |
+
+Both sets are live and searchable, so a TDZ query can return either naming.
+`jeroen-kimmel` is the one id the two projects already share — and there TDZ's
+live copy is SIDM2's, indexed after this project's card was last edited. These
+are not duplicates to clean up; they are the seam between the two projects, and
+knowing which id you are searching under is the practical takeaway.
+
 ### Blackbird / LFT: SIDM2 clears a blocker this project still has
 
 [[blackbird]] stays `in-progress` deliberately. Its playroutine uses

@@ -101,7 +101,7 @@ Card status across 520 cards: **138 verified / 96 in-progress / 286 stub**, cove
 | 43 | [[vibrants-jo]] | ❌ not ported | 131 | 0 | verified, 7T |
 | 44 | [[lordsofsonics-ms]] | ❌ not ported | 127 | 1 | verified, 0T |
 | 45 | [[sidwinder]] | ❌ not ported | 117 | 0 | verified, 0T |
-| 46 | [[david-whittaker]] | ❓ card cites SIDM2 as provenance; absent from SIDM2's own port list | 114 | 2 | verified, 0T |
+| 46 | [[david-whittaker]] | ❌ not ported | 114 | 2 | verified, 0T |
 | 47 | [[zardax]] | ❌ not ported | 113 | 0 | stub, 4T |
 | 48 | [[sync]] | ❌ not ported | 107 | 0 | stub, 5T |
 | 49 | [[defmon]] | ❌ not ported | 102 | 0 | in-progress, 4T |
@@ -115,18 +115,16 @@ Card status across 520 cards: **138 verified / 96 in-progress / 286 stub**, cove
 | 57 | [[jch-protracker]] | ❌ not ported | 91 | 1 | verified, 0T |
 | 58 | [[guy-shavitt]] | ❌ not ported | 90 | 0 | verified, 0T |
 | 59 | [[ninjatracker-v2x]] | ❌ not ported | 90 | 1 | verified, 4T |
-| 60 | [[matt-gray]] | ❓ card cites SIDM2 as provenance; absent from SIDM2's own port list | 68 | 0 | verified, 0T |
-| 61 | [[martin-galway]] | ✅ ~100%/register, 30/40 objectively clean in real SF2II. Stage A default is a Driver 11 transpile — notes/timing exact, **timbre approximated** | 54 | 0 | verified, 0T |
-| 62 | [[fred-gray]] | ❓ card cites SIDM2 as provenance; absent from SIDM2's own port list | 49 | 0 | verified, 0T |
-| 63 | [[jeroen-kimmel]] | ✅ 11/12 voice-medians exact 100% | 42 | 1 | verified, 1T |
-| 64 | [[blackbird]] | ✅ **99.96%, 11/16 at exactly 100.0** — but see the tracer blocker below | 40 | 0 | in-progress, 0T |
-| 65 | [[beast-angular-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 0T |
-| 66 | [[drax-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 1T |
-| 67 | [[sid-factory-ii-driver-11]] | ✅ 100% — the reference driver | 0 | 3 | verified, 0T |
-| 68 | [[stinsen-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 2T |
-| 69 | [[vibrants-2000ad]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 0 | stub, 1T |
-| 70 | [[wizax-a]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 2 | stub, 2T |
-| 71 | Maniacs of Noise / Jeroen Tel — Hawkeye, Cybernoid I/II, Myth, Supremacy | ✅ Hawkeye 100% byte-exact (subtunes 2 & 3); others ~95–100%/register | — | — | All GAMES/ titles — invisible to this dataset, which covers MUSICIANS/ only. His MUSICIANS/ output is tagged MoN/Deenen, MoN/FutureComposer and Rob_Hubbard, all already carded. |
+| 60 | [[martin-galway]] | ✅ ~100%/register, 30/40 objectively clean in real SF2II. Stage A default is a Driver 11 transpile — notes/timing exact, **timbre approximated** | 54 | 0 | verified, 0T |
+| 61 | [[jeroen-kimmel]] | ✅ 11/12 voice-medians exact 100% | 42 | 1 | verified, 1T |
+| 62 | [[blackbird]] | ✅ **99.96%, 11/16 at exactly 100.0** — but see the tracer blocker below | 40 | 0 | in-progress, 0T |
+| 63 | [[beast-angular-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 0T |
+| 64 | [[drax-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 1T |
+| 65 | [[sid-factory-ii-driver-11]] | ✅ 100% — the reference driver | 0 | 3 | verified, 0T |
+| 66 | [[stinsen-newplayer]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 1 | stub, 2T |
+| 67 | [[vibrants-2000ad]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 0 | stub, 1T |
+| 68 | [[wizax-a]] | ✅ NP21 editor-view cluster inside the Laxity path | 0 | 2 | stub, 2T |
+| 69 | Maniacs of Noise / Jeroen Tel — Hawkeye, Cybernoid I/II, Myth, Supremacy | ✅ Hawkeye 100% byte-exact (subtunes 2 & 3); others ~95–100%/register | — | — | All GAMES/ titles — invisible to this dataset, which covers MUSICIANS/ only. His MUSICIANS/ output is tagged MoN/Deenen, MoN/FutureComposer and Rob_Hubbard, all already carded. |
 
 <!-- END GENERATED: sidm2-worklist -->
 
@@ -193,9 +191,26 @@ than assumed.
    port.
 4. **Never attempted, high usage**: [[goattracker]] (8,421, GPL source),
    [[music-assembler]] (6,127), [[sidwizard]] (989, open source).
-5. **Reconcile** [[david-whittaker]], [[matt-gray]], [[fred-gray]] — all three
-   are `verified` here citing SIDM2 as provenance but do not appear in SIDM2's
-   port list. Either they predate it or the cards over-claim.
+
+### A correction worth keeping (2026-07-25)
+
+An earlier revision of this page listed [[david-whittaker]], [[matt-gray]] and
+[[fred-gray]] as needing reconciliation, on the grounds that they are `verified`
+here while citing SIDM2 as provenance yet not appearing in SIDM2's port list.
+**That was wrong, and there is nothing to reconcile.** None of the three cards
+contains any reference to SIDM2 at all. All three were verified by *this
+project's own* loop on 2026-07-13: dmx87's reverse-engineered ACME
+disassemblies (`github.com/realdmx/c64_6581_sid_players`) translated ACME→64tass,
+assembled clean, and traced — Whittaker's Panther build (235 register writes /
+50 frames), Matt Gray's Dominator build (227), Fred Gray's Mutants build (439).
+
+The mistake came from misreading this page's own stale "the 7 verified are ...
+Hubbard, Galway, Whittaker, Fred/Matt Gray, Kimmel ..." line as a provenance
+claim, because it appeared in a document about SIDM2. It was only ever a list of
+this project's verified cards. **A card being `verified` is not evidence SIDM2
+touched it** — this KB verifies against whatever public disassembly or source it
+can get, and dmx87's repo is a significant one that has nothing to do with
+SIDM2.
 
 ## The verification loop (how a card actually moves to `verified`)
 

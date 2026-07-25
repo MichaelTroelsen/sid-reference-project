@@ -1172,6 +1172,53 @@ them):
     Verification/quirks sections for a ready-made recipe before starting a
     disassembly from scratch, even when the target card itself says nothing
     yet.
+59. **For very small, simple players (hardcoded-sequencer style, no effects
+    engine, ~200-500 bytes of code, all data tables contained within a single
+    contiguous block at one fixed load address), a raw-byte reassembly
+    (hex-dump the PSID payload to 64tass `.byte` directives, assemble, trace)
+    is a legitimate and faster alternative to the full SIDdecompiler pipeline
+    that completely sidesteps the relocation/-v2-map/self-modified-workspace
+    gotchas filling the rest of this file.** Confirmed on `andy-brown`: the
+    player is a hardcoded two-track sequencer with data tables at fixed
+    absolute addresses — no self-modifying code, no ZP workspace, no indirect
+    jumps, no relocation concern. Byte-diff 100.0000%, trace-diff 59/59 exact
+    including cycle timing, all in a single pass with zero patches. The
+    limiting condition (no SIDdecompiler) also means no annotated/labeled
+    disassembly, so the card's `data_format`/`effects`/`quirks` fields must
+    be filled in manually from a hand-disassembly of the hex dump. This
+    tradeoff (bypass the tool's pain points in exchange for manual annotation
+    effort) is only a net win when the code is genuinely small enough to read
+    by hand — for anything with call-graph complexity, indirect jumps, or
+    multi-page spread, SIDdecompiler's emulation-based disassembly is still
+    the right first tool even with its known gotchas.
+
+60. **When SIDdecompiler's `-v2` Start address is BELOW the PSID header's
+    load address, the gap bytes are emulator-initialized workspace, not
+    missing from the disassembly.** The gap (e.g. $426a between Start=$b060
+    and code-load=$f2ca on `matt-furniss`) is INIT-time runtime state
+    created by the emulator — it doesn't exist in the original `.sid` file
+    and cannot be byte-diffed. Only compare the code region at/above the
+    load address. If the workspace bytes are needed for trace-diff, they
+    come from the reassembly's own INIT emulation (which initializes its own
+    workspace). This is a variant of gotcha-40 (relocate to -v2 Start, not
+    header load), but with the additional nuance: when Start is LOWER than
+    the load address, the gap is workspace, not code — don't try to patch it
+    from the original file (it isn't there). Only patch INIT-modified bytes
+    within the code region itself (here: $f304-$f89a).
+61. **SIDdecompiler's `-p -e` mode embeds traced-runtime-state tables that
+    do NOT survive relocation.** SIDdecompiler traces the player at its
+    original address during disassembly and captures runtime state (voice
+    state machines, sequence pointers, frequency tables — in the $3C00-$3DFF
+    area in this case). On relocation (from $2FD3 to $34D0 here),
+    SIDdecompiler relocates code-embedded references but NOT the values
+    inside these traced-state tables — they still hold addresses valid only
+    at the original layout (e.g. $0C02 → uninitialized memory after
+    relocation). The result: the play routine reads garbage from its
+    sequence pointers and produces zero SID writes beyond init. Fix: either
+    (a) manually translate pointer-table values by the relocation delta, or
+    (b) assemble at the original address rather than using SIDdecompiler's
+    relocatable output. This is the same class of bug that Music Assembler's
+    initial reconstruction hit before its fix.
 </lessons_learned>
 
 <success_criteria>

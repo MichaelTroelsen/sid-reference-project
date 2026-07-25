@@ -71,6 +71,26 @@ Traced a real HVSC `Cadaver_Musicdriver_7` `.sid` (Metal Warrior): load
 (2 filter writes — dense). Internals undocumented; memory map/format/
 effects are `TODO`.
 
+**First-disassembly pass (2026-07-25): binary round-trips, no real disassembly.**
+Extracted the raw binary (6679 bytes at `$8000`) from
+`MUSICIANS/C/Cadaver/Metal_Warrior.sid`, wrapped it in a 64tass `.binary`
+include with a thin init/play trampoline at `$0801`/`$0806`, assembled
+cleanly, and traced. All 167 register writes are **value-identical** to
+the original `.sid` trace (cycles shifted by consistent trampoline
+overhead — ~20 cycles for init, ~28 for play). No relocation patches
+needed: the binary loads at its native `$8000` unchanged.
+
+**Next lead:** The `.binary` wrapper proves the binary round-trips but
+isn't a disassembly. The next pass needs an actual disassembler
+(da65/regenerator/radare2) to produce a relocatable listing from
+`$8000`–`$9A16`, then track down which bytes are self-modified vs.
+address-anchored. The play routine at `$8000` begins with
+`LDA #$00; BEQ $8041` — a gate that always branches on the first
+pass, suggesting `init` (`$9a10`) patches a tempo counter or flag at
+runtime. The play loop body (`$8041`+) produces 2–5 SID writes per
+frame on voices 1 (lead), 2 (bass), and 3 (chord/pad) with one
+filter-mode write at init time.
+
 ## Sources
 
 See the `sources` array — CSDb (2 entries), Lemon64, C64-Wiki, Cadaver's

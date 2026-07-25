@@ -7,15 +7,15 @@
   "aliases": ["Andy_Brown"],
   "authors": ["Andy Brown"],
   "released": "1988 (UK budget/full-price releases)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "English musician Andy Brown's own playroutine — a confirmed composer-only credit across 3 confirmed 1988 UK commercial games, always crediting a separate coder. Player-ID-fingerprinted across 3 files, all his own.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Little Green Man, 1988, Bug-Byte): load $914 (init $914, play $981).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $914.", "play": "Sample trace: $981 (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (heavily filter-dominant relative to write count — 51 filter writes in a 59-write/50-frame sample, nearly every write touches the filter)" },
-  "effects": { "encoding": "TODO", "commands": {} },
+  "memory": { "load_address": "$0914-$10FD (2026 bytes). Load, init, and play are all in this range — no separate data segment.", "zero_page": "None — all player state is in absolute-addressed workspace $0974-$0980 (13 bytes). No ZP addressing used.", "layout": "Code at $914-$A39, data tables at $A3A-$10FD. Two independent sequencers share the workspace." },
+  "entry": { "init": "$0914. Clears SID, configures 3 voices + filter, zeros workspace.", "play": "$0981. Called per-frame (IRQ-driven). Advances filter sweep, runs two sequencers for filter modulation and voice-1 pitch." },
+  "speed": "~50 Hz (PAL, one play call per frame). No tempo subdivision — each call = one frame tick.",
+  "data_format": { "order_list": "Hardcoded fixed sequence — no configurable order list. Song structure is baked into the data tables ($0EEB filter table, $0F03 duration table, $0F1B/$0F24 loop-point tables, $0ADF note-index table, $0F2D 10-entry frequency table).", "patterns": "Filter track: 24-step sequence. Each step = 1 byte filter mode/volume ($0EEB) + 1 byte duration ($0F03, where 0 = 256 frames). Loop points defined by 9-entry key/value table pairs at $0F1B/$0F24 — when the sequence index matches a key, it resets to the corresponding value.", "instruments": "No instrument system. Voice-1 pitch: note index from $0ADF table, scaled via ROL into index into 10-entry 16-bit frequency table at $0F2D. Voice-1 waveform alternates gate+saw ($15) or gate+saw ($41) depending on filter-jump flag ($097D). Voices 2 & 3 are static drones set in init and never updated during play.", "wavetable": "None — waveforms are hardcoded constants in the playroutine, not table-driven.", "pulsetable": "None — pulse widths are set once in init ($0C00 for voice 1, $0364 for voice 2, $0364 for voice 3) and never modulated.", "filtertable": "Filter mode/volume table at $0EEB (24 entries, lowpass with varying volume). Per-frame filter sweep: +$08 added to $D416 every frame (continuous rising sawtooth). Occasional $F6 jump on $D417 triggered by filter-jump flag $097D (sequence position key at $0C97 matching $0975). Resonance fixed at $07 (set once in init)." },
+  "effects": { "encoding": "None — no effect command system. The only modulation is the per-frame filter sweep (+$08/ADC) and occasional $F6 filter-frequency-high jump, both hardcoded in the play routine with no configurable parameters.", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
 
@@ -60,11 +60,47 @@ unproven rather than assumed.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of an `Andy_Brown`-tagged `.sid`
-+ trace.
+Disassembled 2026-07-25 as part of verification. Key findings:
+- **Two-track hardcoded sequencer** with no configurable order list — the entire
+  song structure (24 filter steps, note pitches, loop points) is baked into the
+  binary tables. Not a general-purpose player that could be reused for another
+  tune — this is more of a "data-driven playback routine" than a tracker-like
+  player.
+- **State variables** at `$0974-$0980` (absolute addressed, not ZP):
+  `$0974`/`$0975` = voice-1 note index + track-2 position; `$0976` = tempo
+  reload; `$0978` = filter sequence index; `$0979` = voice control selector;
+  `$097C` = current step duration counter; `$097D` = filter-jump flag + track-2
+  position; `$0980` = pattern loop index.
+- **No effects system** — the per-frame `ADC #$08` filter sweep is hardcoded,
+  and the `$F6` jump on `$D417` is triggered by a lookup-table comparison, not
+  a command byte. This might be the simplest playroutine in the entire KB.
+- The init routine clears `$D400-$D418` (25 bytes, `LDX #$19`/`STA $D3FF,X`
+  loop), then hardcodes all voice parameters. Voices 2 and 3 are never touched
+  again after init — they're static drones.
 
 ## Verification
+
+**Verified (2026-07-25) — `status: verified` via disassemble + reassemble + trace-diff.**
+
+Disassembled the real HVSC `Little_Green_Man.sid` (Andy_Brown tag, downloaded from
+`hvsc.csdb.dk`). Raw-byte reassembly with 64tass produced a byte-identical `.prg`.
+Traced both the original `.sid` and the reassembled `.prg` through `trace_sid` /
+`trace_prg` (init `$0914`, play `$0981`, 50 frames) — **exact match: 59/59
+register writes identical, including cycle timing.**
+
+The player is a hardcoded two-track sequencer:
+- **Filter track**: 24-step sequence with loop points, drives `$D418` (filter
+  mode + volume) per step. A per-frame filter sweep (`ADC #$08` on `$D416`)
+  runs continuously, with occasional `$F6` jump on `$D417`.
+- **Voice-1 pitch track**: note index from `$0ADF` table, scaled into a
+  10-entry 16-bit frequency table at `$0F2D`. Waveform alternates `$15`/`$41`
+  (gate + sawtooth).
+- **Voices 2 & 3**: static drones set in init, never updated.
+- **No ZP usage** — all state in absolute-addressed workspace `$0974-$0980`.
+- **No effects system** — the filter sweep and occasional jump are hardcoded,
+  not parameterized.
+
+Original 2026-07-14 verification entry kept below for history.
 
 **Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
 Traced a real HVSC `Andy_Brown` `.sid` (Little Green Man): load `$914`,

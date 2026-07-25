@@ -7,12 +7,12 @@
   "aliases": ["Audio_Effect_Editor"],
   "authors": ["Alexander Kirsch ('Energy Master', Argon)"],
   "released": "June 1989 (Golden Disk 64 issue 06/1989, CP Verlag)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A confirmed editor tool ('AEE Editor V1.0'), coded by German demoscener Alexander Kirsch (demoscene handle 'Energy Master', group Argon) and published on Golden Disk 64's June 1989 disk magazine issue. Used by Rudolf Stember (a co-programmer of Kirsch's on the game 'Tower of Terror', group Double Density) to score that title. Player-ID-fingerprinted across 4 files: 3 by Kirsch, 1 by Stember. NOTE: this card previously called it 'a genuine, confirmed ONE-SHOT SFX tool' — that framing rested on Kirsch's files appearing to trace silent, which turned out to be a tracer artefact (see quirks). All 4 files drive as conventional ~50Hz looping players. Whether the tool was INTENDED for effects rather than music is a genuine open question (its name and MagicDisk64 classification say so) but is no longer supported by trace behaviour.",
   "csdb_release": 122169,
 
-  "memory": { "load_address": "Stember's Tower of Terror: load $a700 (init $c002, play $c011). Kirsch's own 3 files: load $8000, init $8009, play $0000 (self-installing IRQ — drivable via scripts/dev/vsid-trace.js, NOT via the project's own tracer).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $c002.", "play": "Sample trace: $c011 (called in IRQ)." },
+  "memory": { "load_address": "Stember's Tower of Terror: PSID load $a700, but SIDdecompiler -v2 Start:=$0334 — low-RAM working storage below the load address (gotcha-40 pattern). Relocate to $0334 (820 decimal), not $a700. Code/data spans $0334-$c02a (48375 bytes contiguous). Kirsch's own 3 files: load $8000, init $8009, play $0000 (self-installing IRQ — drivable via scripts/dev/vsid-trace.js, NOT via the project's own tracer).", "zero_page": "$0334-$03ff: working storage (read+write, self-modified). Not part of the PSID file payload — zero at cold boot, initialized by init routine.", "layout": "Code at $a700-$c02a. Working storage at $0334-$03ff. Per-voice track state tables at $b710-$b734 (self-modified, drifted in SIDdecompiler default trace)." },
+  "entry": { "init": "$c002 (confirmed trace-exact).", "play": "$c011 (called in IRQ, confirmed trace-exact — 160 writes/50 frames)." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use — 1 filter write in a dense 160-write/50-frame sample, almost entirely on osc3)" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -74,10 +74,15 @@ to directly confirm the one-shot-SFX hypothesis.
 
 ## Verification
 
-**Playback + entry points confirmed — `status: in-progress`.**
-Traced a real HVSC `Audio_Effect_Editor` `.sid` (Tower of Terror, composed
-by Rudolf Stember): load `$a700`, init `$c002`, play `$c011`, **160
-register writes / 50 frames** (1 filter write).
+**Verified (2026-07-25) — first disassembly pass, fully trace-exact.**
+
+- **File**: `Tower_of_Terror.sid` (Rudolf Stember, subtune 0), HVSC `MUSICIANS/S/Stember_Rudolf/`.
+- **PSID header**: load `$A700`, init `$C002`, play `$C011`, 3 subtunes.
+- **SIDdecompiler** (`-a820 -z -d -c -v1`): relocated to `$0334` (the `-v2` map's `Start:` address), not `$A700` — gotcha-40 low-RAM working-storage block (`$0334-$03FF`) far below the PSID load address. 64tass reassembled cleanly (single contiguous `Data: 48375 $0334-$c02a`, no wrap warnings).
+- **Byte-diff**: 99.1774% (6390/6443 identical, 53 diffs). All 53 diffs fall in `-v2`-map `+`-marked (read+write) self-modified working-storage regions: a 33-byte contiguous cluster at `$B710-$B734` plus 20 scattered singles elsewhere. Classic drifted-post-execution-snapshot pattern.
+- **Trace-diff (50 frames, subtune 0)**: **exact match** — 160 writes in both, cycle-for-cycle identical. All 53 byte-diff mismatches are dead workspace (overwritten before first read).
+
+**Relocation note**: `-v2` `Start: $0334` (820 decimal). Relocating to the PSID load address `$A700` (42752) would produce a silent 16-bit wrap — 64tass would assemble without error but the code would be misaligned. Always relocate to `-v2`'s `Start:` when it differs from the PSID load address.
 
 **Corrected (2026-07-16): Kirsch's own 3 files are NOT silent.** They were
 previously recorded as tracing "0 writes", and this card built a one-shot-SFX

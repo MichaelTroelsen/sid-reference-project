@@ -3,6 +3,15 @@
 Ad-hoc tooling for reverse-engineering work. Nothing here is part of
 `npm run all`; these are run by hand.
 
+**One exception:** `gen-sidm2-worklist.js --check` runs automatically from
+`.githooks/pre-commit`, which `npm install` installs via `core.hooksPath`
+(`npm run hooks:install` to do it manually). It only fires when a commit stages
+a card, `knowledge/sidm2-ports.json`, `docs/SIDM2-INTEGRATION.md` or the
+generator itself, and skips with a notice on a clone that has no fetched
+`data/composers/`. Bypass with `git commit --no-verify`. It is a hook rather
+than a CI step because `data/composers/*.json` is gitignored — the check cannot
+run on a fresh CI checkout at all.
+
 - `find-uncarded-tags.js` — player tags with no knowledge card yet.
 - `find-connections.js` — candidate player<->player connections from
   composer-overlap over `data/composers/*.json` + card `edges[]`. Surfaces

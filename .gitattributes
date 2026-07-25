@@ -1,0 +1,8 @@
+# Git hooks must keep LF endings even on Windows checkouts.
+#
+# Without this, core.autocrlf rewrites `.githooks/pre-commit` to CRLF on
+# checkout, and the shebang line becomes "#!/bin/sh\r" -- the shell then looks
+# for an interpreter literally named "sh\r" and every commit dies with
+# "bad interpreter: No such file or directory". The hook would appear installed
+# and simply never work.
+.githooks/* text eol=lf

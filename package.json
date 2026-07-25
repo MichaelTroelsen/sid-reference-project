@@ -13,6 +13,8 @@
     "knowledge:graph": "node knowledge/build-graph.js",
     "knowledge:worklist": "node scripts/dev/gen-sidm2-worklist.js",
     "knowledge:worklist:check": "node scripts/dev/gen-sidm2-worklist.js --check",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks",
     "fetch:composers": "node scripts/fetch-composers.js",
     "fetch:players": "node scripts/fetch-players.js",
     "fetch:csdb": "node scripts/fetch-csdb.js",

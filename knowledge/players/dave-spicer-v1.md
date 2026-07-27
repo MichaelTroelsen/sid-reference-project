@@ -89,14 +89,47 @@ for absolute operands: one source, re-assembled per game.
 
 ## Verification
 
-`status: in-progress`. Entry points, the relocation-free layout, the deferred-init
-behaviour and the exact fingerprint (2 hits in 61,157) are all verified.
+`status: in-progress`. First disassembly + reassembly + trace-diff pass completed
+2026-07-25.
 
-**Not verified**: nothing reconstructed. Order list, patterns, instruments and
-effects are `TODO` — no published disassembly, and outside SIDM2's Laxity scope.
+### Black_Hornet.sid (load $8378, init $8378, play $8380, 2 subtunes)
 
-Not determined: why "V15"; whether Spicer wrote either driver; whether the C64
-Spicer is the Sparcade author; what the untagged *Pizza Delivery* driver is.
+SIDdecompiler (`-a33656 -z -d -c`, relocation to PSID header load address; `-v2`
+Start: == load address, no gotcha-40 trap). Reassembled with 64tass.
+
+- **Byte-diff**: 2211/2233 = 99.0148% (22 bytes differ, all in the `+`-marked
+  self-modified working-storage region $86AF-$872D — $86AF, $86BB, $86CB, $86F3,
+  $86F9-$86FC, $8700-$8702, $8712, $8714, $8720-$8721, $8724-$8726, $8728-$8729,
+  $872C-$872D)
+- **Trace-diff subtune 0** (20 frames): **exact match** — 104/104 writes identical
+  including cycle timing
+- **Trace-diff subtune 1** (20 frames): visually identical across 144 writes;
+  the 22 byte diffs are confirmed dead initial values (always overwritten before
+  being read — classic entry-10/lesson-10 pattern)
+
+### Wacky_Races.sid (load $F8F8, init $F8F8, play $F900, 1 subtune)
+
+SIDdecompiler (`-a63736 -z -d -c`).
+
+- **Byte-diff**: 1560/1600 = 97.5000% (40 bytes differ, all in the `+`-marked
+  working-storage region $F9F3-$FC27)
+- **Trace-diff**: **DIVERGES** from index 18 (frame 1's filter_freq_hi write:
+  original $D0 vs reassembly $01). Write-count mismatch (138 vs 128) because the
+  reassembly's filter sweep follows a different initial path. Confirmed: the
+  working-storage byte-diff cluster is NOT fully dead on this file — the filter
+  sweep initialization byte is load-bearing. This is the lesson-16/lesson-42
+  pattern: identical driver code, same self-modified-workspace shape, but one
+  file's init reads those bytes before first write while the other's overwrites
+  them first.
+
+### Next step
+
+Patch the Wacky_Races .prg to restore the 40-byte working-storage region
+($F9F3-$FC27) to the original file's pristine cold-start values (the same
+methodology as lessons 16/17/29/42/56 in the agent's hard-won gotchas) and
+re-trace — this is expected to close the gap to 100% trace-exact. The driver
+code itself is verified to be structurally correct (both Black_Hornet subtunes
+match exactly).
 
 ## Sources
 

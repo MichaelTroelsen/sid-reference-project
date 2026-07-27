@@ -28,3 +28,6 @@ knowledge/graph.json
 # These two are user-local runtime state and are not.
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# tokensave local index - rebuildable cache, not shared state.
+.tokensave/

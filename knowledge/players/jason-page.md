@@ -7,14 +7,14 @@
   "aliases": ["Jason_Page"],
   "authors": ["Jason Page"],
   "released": "1988-1990 (Graftgold era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Composer Jason Page's ORIGINAL 1980s C64 playroutine, written during his time at Graftgold — DISTINCT from the already-carded [[robtracker]] card, which documents his unrelated 2018 Kickstarter-funded 'Jason_Page/RobTracker' tool built decades later. Player-ID-fingerprinted across 5 files, all his own, filter-heavy.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Head the Ball, 1989, Hewson): load $4374 (init $4374, play $437a).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $4374.", "play": "Sample trace: $437a (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (very filter-heavy — 99 filter writes in a dense 365-write/50-frame sample)" },
+  "memory": { "load_address": "$4374 (Head the Ball, 1989, Hewson). Code $4374-$49DE, song data $4ABE-$5377. Working storage $49EB-$4ABD (~210 bytes, self-modified at runtime: per-voice freq/ADSR/pulse/filter state). ZP: none (all absolute addressing).", "zero_page": "None — driver uses absolute addressing throughout, no ZP state.", "layout": "Cold-init entry ($4374): TAY, LDX #$0F, JMP $437D (init proper). Play entry ($437A): JMP $43F2 (IRQ-called play routine). Driver is a single contiguous block $4374-$5377 ($1004 bytes), no relocation. Self-modifying code: 4 scattered immediate operands ($47EF, $4828, $497F, $49EB) + large working-storage table $49FE-$4ABD — all $00 at cold start, written by playback." },
+  "entry": { "init": "$4374 (TAY / LDX #$0F / JMP $437D — sets up song pointer, clears SID).", "play": "$437A (JMP $43F2 — IRQ-called per-frame play routine)." },
+  "speed": "50 Hz (IRQ-driven, JMP $43F2 via init-installed vector).",
+  "data_format": { "order_list": "Song data at $4ABE-$5377. Order list / pattern pointers confirmed present in read-only data region.", "patterns": "TODO (pattern encoding not yet decoded from annotated disassembly).", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (very filter-heavy — 99 filter writes in a dense 365-write/50-frame sample, confirmed from annotated disassembly showing per-frame filter-sweep code at $43F2+)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -64,18 +64,49 @@ one exists.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Jason_Page`-tagged `.sid` +
-trace — likely the first technical documentation of this driver, per the
-research agent's own finding.
+First disassembly of the `Jason_Page` original driver (2026-07-25).
+SIDdecompiler (`-a17268 -z -d -c`) on Head_the_Ball.sid produced
+28,915 trace-node pairs covering the full $4374-$5377 range
+($1004 bytes). Reassembled via 64tass with no errors.
+
+Key findings from the -v2 memory-touch map:
+- Code: $4374-$49DE (execute, operand, read access)
+- Self-modified working storage: $49EB-$4ABD (~210 bytes, marked `+`/`w`)
+  — per-voice frequency, ADSR, pulse-width, and filter state tables,
+  all $00 at cold start, written by both init and play routines
+- 4 scattered self-modified immediate operands: $47EF, $4828, $497F, $49EB
+  — instruction operands that get overwritten by STA label+1 at runtime
+- Song data: $4ABE-$5377 (read-only, `r`-marked)
+
+Init routine ($437D): sets up song pointer in ZP-like absolute vars,
+clears SID registers ($D400-$D418), installs IRQ vector.
+Play routine ($43F2): 3-voice step engine with filter sweep and
+pulse-width modulation, called at 50 Hz.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Jason_Page` `.sid` (Head the Ball): load `$4374`,
-init `$4374`, play `$437a`, **365 register writes / 50 frames** (99
-filter writes — very filter-heavy). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Verified (2026-07-25) — `status: verified`.** SIDdecompiler disassembly
+of Head_the_Ball.sid (load $4374, init $4374, play $437a, 5 subtunes):
+- **Byte-diff**: 97.05% (3979/4100 bytes). 121 diffs, all localized to
+  self-modified workspace/operand addresses ($47EF, $4828, $497F,
+  $49EB-$4ABD, $4B5E-$4B60) — classic SIDdecompiler drifted-value
+  pattern (all orig=$00, reass=post-execution runtime value).
+- **Trace-diff (after patching 121 workspace bytes)**: exact match,
+  155/155 writes identical including cycle timing on subtune 0 (20f);
+  also exact on subtune 1 (172/172 writes, 20f).
+- **Method**: SIDdecompiler `-a17268 -z -d -c`; 64tass `-a --cbm-prg`;
+  121-byte binary patch on drifted workspace region; sidm2-sid-trace
+  via MCP trace_sid/trace_prg with diff_traces confirmation.
+- **Reconstructed file**: `scratchpad/jason-page/head_the_ball_patched.prg`
+  — 100% byte-exact, register-write-exact on subtunes 0 and 1.
+- **Code annotation**: `scratchpad/jason-page/head_the_ball.asm` (SIDdecompiler output, 28,915 trace-node pairs).
+- **Known scope**: verified on one file (Head the Ball). The driver is a
+  single contiguous block with no relocation — other `Jason_Page`-tagged
+  files at different load addresses (Super Off Road at $4580, Rainbow
+  Islands at $3E00, Orion at $3890) are likely the same player routine
+  relocated, but not re-verified here. Pattern/data-format decoding
+  (order list, instrument encoding, filter table structure) is `TODO`
+  and the natural next step from the annotated disassembly.
 
 ## Sources
 

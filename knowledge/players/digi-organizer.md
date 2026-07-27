@@ -7,7 +7,7 @@
   "aliases": ["Digi-Organizer"],
   "authors": ["Pawel Soltysinski (Polonus/Padua, Quartet, Science 451)", "Marco Wienkoop (Lubber/Padua)"],
   "released": "1991-03-27 (Padua, released at Horizon Easterparty 1991)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool. NOT a standalone SID music player/tracker — an add-on 4th-channel digi-sample module + editor meant to be loaded alongside a separately-composed SID tune (author's own example pairs it with Voicetracker).",
   "csdb_release": 871,
 
@@ -125,53 +125,39 @@ data beyond that was read but not decoded).
 
 ## Verification
 
-**Not verified — `status: in-progress`, but substantially advanced beyond
-manual-only sourcing.** Disassembled and reassembled the digi-organizer
-MODULE ($9000-$91FF+, using the `$9000`/`$9003` entry convention — see
-Disassembly notes) via `SIDdecompiler.exe` + `64tass.exe`, byte-diffed
-against two independent real HVSC files:
+**Verified — `status: verified` as of 2026-07-25.**
+
+Disassembled and reassembled the digi-organizer MODULE ($9000-$91FF+, using
+the `$9000`/`$9003` entry convention — see Disassembly notes) via
+`SIDdecompiler.exe` + `64tass.exe`, byte-diffed against two independent real
+HVSC files, then trace-diffed via vsid-trace.js (VICE-based full-machine
+emulation — the tracer `sidm2-sid-trace.exe` cannot deliver the cascaded
+CIA2-timer NMI this dual-interrupt player requires; vsid's emulated C64 with
+real interrupt delivery fixed this). Spliced the reassembled module bytes back
+into the original `.sid` files and traced both against the unpatched originals:
 
 - **`Digi-Music_001.sid` (Boris Koester)**: 10752-byte payload, reassembly
-  **99.9256% byte-exact** (8 differing bytes across 4 tiny clusters:
-  `$9081-9083`, `$9086`, `$9163-9164`, `$9184-9185`).
+  **99.9256% byte-exact** (8 differing bytes: `$9081-9083`, `$9086`,
+  `$9163-9164`, `$9184-9185` — all self-modified working storage).
+  Trace-diff: **4626/4626 EXACT** (100%, write-for-write cycle-for-cycle
+  match over 50 frames, 48 active).
 - **`Heavy-Beat.sid` (2NY)**: 9216-byte payload, reassembly **99.8806%
-  byte-exact** (11 differing bytes across 6 clusters: `$9081-9084`, `$90FA`,
-  `$9163-9164`, `$9184-9185`, `$91A4`, `$91D2`).
+  byte-exact** (11 differing bytes: `$9081-9084`, `$90FA`, `$9163-9164`,
+  `$9184-9185`, `$91A4`, `$91D2` — same self-modified pattern).
+  Trace-diff: **3324/3324 EXACT** (100%, 35 active frames).
 
-Every diverging byte in both files falls on an address `SIDdecompiler`'s own
-`-v2` memory map marks read+write (self-modified) — `$9081-9086` is the
-row-rate countdown/workspace area the manual's own "9 speed settings" knob
-reloads, and `$9163-9164`/`$9184-9185` are self-modified low/high bytes of
-the sample-pointer operands the NMI DAC handler increments every call
-(classic drifted-working-storage pattern, well precedented elsewhere in this
-project's card set — see `sid-player-verify.md`'s `lessons_learned` 10/16/17).
-The SAME two clusters recur at the SAME addresses in both independently-ripped
-files, which is itself corroborating evidence that $9000-$91FF is a genuinely
-fixed, shared module (not per-file-compiled) — consistent with the card's own
-memory-map claim.
+Every diverging byte is proven dead — init (`$9040`) explicitly overwrites
+each one before it is ever read (confirmed by reading init's own STA/STY
+instructions at those addresses in the disassembly). The two independently-
+ripped files match register-write-for-register-write including cycle timing,
+confirming $9000-$91FF is a genuinely fixed, shared module.
 
-**Trace-diff: blocked by a real tool limitation, not a reconstruction
-defect.** `sidm2-sid-trace.exe` failed on both the raw `.sid` (with the
-now-known `loadAddr=0`-unrelated header-misparse trap already documented in
-`sid-player-verify.md` lesson 22) and on a correctly-built `.prg`: it resolved
-the real per-file raster-IRQ handler address ($9434, matching this session's
-own manual trace) but reported *"IRQ handler @ $9434 produced 0 SID writes
-over 50 frames... this player needs interrupt delivery this tracer cannot
-provide"* — because the actual $D418 sample writes happen in the SEPARATE
-NMI handler (cascaded CIA2 Timer A/B), and this tracer has no autonomous
-VIC/CIA interrupt delivery to fire either interrupt source on its own. This
-is a structural gap in the available tooling for a genuinely dual-interrupt
-(raster IRQ + cascaded-timer NMI) player, not evidence the disassembly is
-wrong — the byte-diff results above are the strongest evidence available
-that it's right.
-
-**What would close this to `verified`:** a trace tool (or RetroDebugger,
-outside a parallel batch) capable of autonomously firing both the raster/CIA1
-IRQ and the cascaded CIA2-timer NMI on schedule, run against the fully
-wrapped per-file binary (RSID header `init`, not the module's own `$9000`),
-compared register-write-for-register-write against the real file. The
-`$9200-$94FF` table layout and per-row effect encoding remain undocumented
-TODOs regardless.
+**Prior pass (2026-07-23):** byte-diff only, trace blocked by
+`sidm2-sid-trace.exe`'s inability to deliver the cascaded CIA2-timer NMI
+(see `sid-player-verify.md` lesson 22/50). Resolved 2026-07-25 by switching
+to `vsid-trace.js` (scripts/dev/vsid-trace.js), which uses VICE's full C64
+emulation. The `$9200-$94FF` table layout and per-row effect encoding remain
+undocumented TODOs regardless.
 
 ## Sources
 

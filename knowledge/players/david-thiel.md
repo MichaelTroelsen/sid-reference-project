@@ -7,14 +7,14 @@
   "aliases": ["Thiel_Sound_System"],
   "authors": ["David Thiel"],
   "released": "1983-1985 (Action Graphics)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "American composer-sound-programmer David Thiel's own driver, built at Action Graphics (1983-1985), named after himself: 'David Dwyer Thiel Sound System' (DDTSS) — described as one of the FIRST C64 drivers to temporarily mute musical voices while sound effects play (voice-stealing/ducking for SFX priority), a real, sourced technical detail. Thiel's career runs from Gottlieb arcade audio (Q*bert) through to modern pinball audio (Stern, Jersey Jack Pinball). Player-ID-fingerprinted across 5 files, all his own.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Championship Wrestling, 1986, Epyx): load $6000 (init $6132, play $61b0).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
+  "memory": { "load_address": "Sample HVSC file: Championship Wrestling (1986, Epyx). PSIDv2, load $6000, init $6132, play $61b0, 9 subtunes, 4608-byte payload.", "zero_page": "None used by the player code (disassembly confirms no ZP access).", "layout": "$6000-$60FF: self-modified working storage (67 bytes drift at runtime; dead — init overwrites before play reads). $6100-$717E: code + music data (SIDdecompiler trace coverage zone). $717F-$71FF: 129 bytes never reached by any subtune (unreferenced in the -v2 map)." },
   "entry": { "init": "Sample trace: $6132.", "play": "Sample trace: $61b0 (called in IRQ)." },
   "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use observed — 1 filter write in the 50-frame sample)" },
+  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "Light filter use (1 filter_mode_volume write in subtune 0's 50-frame trace; subtune 1 uses no filter)." },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -62,17 +62,39 @@ documented.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Thiel_Sound_System`-tagged
-`.sid` + trace.
+SIDdecompiler disassembly of Championship Wrestling (Championship_Wrestling.sid,
+PSIDv2, load $6000, init $6132, play $61b0, 9 subtunes). 3,379,159 trace-node
+pairs, 2 unresolved address operands. Relocated to $6000 (Start address matches
+PSID load address — no gotcha-40 shift). Reassembled cleanly with 64tass
+(no warnings/errors) producing a 4,479-byte .prg.
+
+No byte patches needed for relocation. The 67 byte-diff locations ($6001-$60EC)
+are all `+`/`w`-marked self-modified working storage whose initial values (all
+$00 in the original) are dead: init unconditionally overwrites the entire block
+before play reads it. 129 trailing bytes ($717F-$71FF) are unreferenced in the
+-v2 memory-touch map (not reached by any subtune's playback) and were dropped
+by SIDdecompiler — they don't affect reconstruction.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Thiel_Sound_System` `.sid` (Championship Wrestling):
-load `$6000`, init `$6132`, play `$61b0`, **93 register writes / 50
-frames** (1 filter write). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Verified (2026-07-25) — `status: verified`.**
+
+First-disassembly pass on Championship Wrestling (Championship_Wrestling.sid,
+PSIDv2, load $6000, init $6132, play $61b0, 9 subtunes, 4608-byte payload).
+SIDdecompiler → 64tass → trace-diff pipeline:
+
+- **Byte-diff:** 98.50% (4,412/4,479 bytes matching). 67 diffs all in
+  self-modified working storage at $6001-$60EC (all `+`/`w`-marked, confirmed
+  dead — init overwrites before play reads). 129 trailing unreached bytes
+  ($717F-$71FF) dropped by decompiler.
+- **Trace-diff, subtune 0:** **Exact match** — 93/93 register writes identical
+  (registers, values, cycle numbers).
+- **Trace-diff, subtune 1:** **Exact match** — 158/158 register writes
+  identical (two-subtune spot-check per lesson 48/53 discipline).
+
+No byte patches needed. No relocation gotcha-40 shift needed (Start $6000 ==
+PSID load address). Only 2 unresolved address operands in SIDdecompiler output
+(cosmetic — assembly completed without errors and traces match exactly).
 
 ## Sources
 

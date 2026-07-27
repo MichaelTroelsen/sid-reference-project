@@ -7,14 +7,14 @@
   "aliases": ["Matt_Furniss"],
   "authors": ["Shaun Hollingworth (coder)", "Matt Furniss (musician)"],
   "released": "1989-1991 (Teque Software Development / Krisalis era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A driver used to play back musician Matt Furniss's compositions on the C64 — CONFIRMED, in Furniss's own words, to be CODED BY SHAUN HOLLINGWORTH, not Furniss himself, since Furniss 'didn't know programming.' Furniss composed on Amiga/Atari ST tools (Pro24 on an Atari Mega ST) and Hollingworth's driver played the result back on C64. Used at Teque Software Development (whose in-house label Krisalis became the studio's name in 1991). Player-ID-fingerprinted across 6 files, all by Furniss.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Badlands, 1990, Domark): load $f2ca (init $f2ca, play $f2f6).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $f2ca.", "play": "Sample trace: $f2f6 (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample)" },
+  "memory": { "load_address": "SIDdecompiler access map Start: $b060 (workspace). Code load: $f2ca. PSID header load: 0 (from C64 data = $f2ca-$ffdc, 3347 bytes). End: $ff6c.", "zero_page": "$fb-$fe (indirection pointer for init copy loop, also accessed by main player).", "layout": "Low workspace at $b040-$b2ff (runtime state, ~2.7KB). Code and data at $f2ca-$ff6c. Init copies 8 pages of data from song tables to workspace." },
+  "entry": { "init": "$f2ca. Sets up $fb-$fe pointer, copies 8 pages from song data to $b060-$bff, selects subtune from table at $f2fe.", "play": "$f2f6. Banks in RAM ($01=$35), calls main player loop at $b0cc, RTS." },
+  "speed": "TODO (CIA/NMI-based, not analyzed — no $dc04/$dc05 writes in 50-frame trace, so main player likely runs per-IRQ).",
+  "data_format": { "order_list": "TODO (likely within $f300-$f36b data tables)", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "No filter writes observed (confirmed: 0 in 50-frame trace)." },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -63,17 +63,54 @@ different underlying code, not a confirmed shared routine.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Matt_Furniss`-tagged `.sid`
-+ trace — which could also directly settle whether this driver shares any
-code with the Ben_Daglish/Gremlin tag's routine.
+Badlands.sid (1990, Domark/Atari Games, HVSC MUSICIANS/F/Furniss_Matt/) was
+disassembled with SIDdecompiler (relocated to $b060 per -v2 Start address,
+not the PSID header's $f2ca load — an INIT-time workspace that sits below
+the code), reassembled with 64tass, byte-diffed, patched, and trace-diffed
+against the original.
+
+**97.8% byte match pre-patch (3165/3235).** 70 bytes in 25 contiguous ranges
+needed cold-start patching — all are INIT-modified data tables and runtime
+counters, not code differences. Post-patch: **100.0% byte match (3235/3235)
+and register-write-exact trace-diff (245/245 writes, 50 frames, frame/cycle
+identical).**
+
+The driver structure: a main player loop at $b0cc (called from play at
+$f2f6, which banks in $01=$35). Init at $f2ca sets up ($fb)-($fe) as an
+indirection pointer, copies 8 pages ($0800 bytes) of song data from table
+at $f304-$f36b down to workspace at $b060, then selects a subtune from a
+3-byte table at $f2fe. The player writes pulse width and frequency for all
+three oscillators (no filter writes observed). OSC1 acts as melody lead
+(changing freq+AD at measure boundaries), OSC2 and OSC3 as pulse-width-
+modulated accompaniment.
+
+The 70-byte patch breaks down as:
+- $f304-$f36b (52 bytes): song data tables (orderlist, pattern pointers,
+  instrument data) — initialized/sorted by INIT
+- $f58d-$f593 (4 bytes): runtime counters (song position, pattern index)
+- $f664, $f684-$f691, $f786-$f787, $f89a (14 bytes): scattered data bytes,
+  also INIT-modified in-place
+
+Artifacts at `scratchpad/matt-furniss/`: `badlands_v2.asm` (SIDdecompiler
+output), `badlands_patched.asm` (with documented patch comments),
+`badlands_patched.prg` (patched binary, trace-exact), `PATCHES.txt` (manifest).
+
+No SIDId entry exists for this player; no known relationship to other
+players confirmed beyond the Ben_Daglish/Gremlin tag-overlap already
+documented on the Daglish card.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Matt_Furniss` `.sid` (Badlands): load `$f2ca`, init
-`$f2ca`, play `$f2f6`, **245 register writes / 50 frames** (0 filter
-writes). Internals undocumented; memory map/format/effects are `TODO`.
+**Playback + entry points confirmed (2026-07-14) → trace-diff exact
+(2026-07-25) — `status: verified`.** Full pipeline: SIDdecompiler ($b060
+relocation, -v2 address) → 64tass reassembly ($b060-$ff6c, 20237 bytes,
+clean) → 70-byte cold-start patch → byte-diff 100.0% → trace-diff
+245/245 writes exact over 50 frames (frame/cycle/register/value identical).
+
+The relocation address ($b060) came from SIDdecompiler's -v2 "Start:"
+address, not the PSID header's $f2ca load. The gap ($b060-$f2c9) is
+INIT-time workspace below the code, not present in the original .sid
+file — a clean example of gotcha 40 (the -v2 Start-vs-header-load trap).
 
 ## Sources
 

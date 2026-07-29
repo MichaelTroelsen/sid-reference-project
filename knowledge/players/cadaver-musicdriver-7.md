@@ -7,7 +7,7 @@
   "aliases": ["Cadaver_Musicdriver_7"],
   "authors": ["Lasse Öörni (Cadaver)"],
   "released": "1999 (Covert Bitops / Electric Harem, \"Metal Warrior\")",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "The EARLIER of Finnish coder-musician Lasse Öörni's ('Cadaver') two lean in-game driver versions in this KB — CONFIRMED via CSDb/Lemon64/C64-Wiki as coming from 'Metal Warrior' (1999), a solo Öörni release (code+music+graphics all his own) two years before already-carded [[cadaver-musicdriver]]'s own 'Metal Warrior 3.' Genuinely structurally distinct from that later version (a different load/init/play layout, lower write density). Player-ID-fingerprinted across 2 files, all his own.",
   "csdb_release": 5447,
 
@@ -58,10 +58,15 @@ carded successor.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Cadaver_Musicdriver_7`-
-tagged `.sid` + trace — which could also confirm the plausible mapping to
-Öörni's own documented 'MiniPlayer' vs. 'MiniPlayer 2' naming.
+None published (not in the realdmx RE repo, no STIL note). Now backed by
+this agent's own `SIDdecompiler` disassembly of `Metal_Warrior.sid`
+(see Verification) — 100.0000% byte-exact and register-write-exact
+reconstruction. `data_format`/`effects` fields remain `TODO`: the
+disassembly + trace confirms the reconstruction is correct, not what the
+pattern/instrument data format actually means — that would need reading
+the `l843a`/`l85aa`/`l84ff`-style tables' semantics, not attempted this
+pass. The plausible mapping to Öörni's own documented 'MiniPlayer' vs.
+'MiniPlayer 2' naming is still unconfirmed.
 
 ## Verification
 
@@ -80,16 +85,47 @@ the original `.sid` trace (cycles shifted by consistent trampoline
 overhead — ~20 cycles for init, ~28 for play). No relocation patches
 needed: the binary loads at its native `$8000` unchanged.
 
-**Next lead:** The `.binary` wrapper proves the binary round-trips but
-isn't a disassembly. The next pass needs an actual disassembler
-(da65/regenerator/radare2) to produce a relocatable listing from
-`$8000`–`$9A16`, then track down which bytes are self-modified vs.
-address-anchored. The play routine at `$8000` begins with
-`LDA #$00; BEQ $8041` — a gate that always branches on the first
-pass, suggesting `init` (`$9a10`) patches a tempo counter or flag at
-runtime. The play loop body (`$8041`+) produces 2–5 SID writes per
-frame on voices 1 (lead), 2 (bass), and 3 (chord/pad) with one
-filter-mode write at init time.
+**Real disassembly, byte-diff, and trace-diff (2026-07-29) — `status: verified`.**
+Disassembled `MUSICIANS/C/Cadaver/Metal_Warrior.sid` with `SIDdecompiler.exe`
+(`-a32768 -z -d -c -v2`; `-v2`'s own reported `Start: $8000` matches the
+PSID header's load address exactly, so no gotcha-40 relocation shift was
+needed) and reassembled with 64tass — output length matched the original
+payload exactly (6679 bytes, `$8000`-`$9a16`, no wrap warnings).
+
+Byte-diff (raw disassembly, before any patching): **99.28% exact**
+(48/6679 bytes differ), entirely confined to a per-voice working-storage
+block at `$8359`-`$8396` (pulse-width/frequency/ADSR/wavetable-index
+tables — `l8359`/`l835d`/`l835e`/`l836e`-`l8374`/`l8383`-`l8389`, all
+both read and written via `,X` indexing throughout the play routine) plus
+two isolated bytes at `$8486`/`$84a6`. This is the classic
+"SIDdecompiler snapshots a runtime-drifted value instead of the pristine
+cold-start constant" pattern (this agent's own lessons 17/43/52/56/57) —
+confirmed load-bearing, not dead: a first trace-diff (50 frames, subtune
+1) showed real divergence starting frame 1 — `osc1_pw_lo`/`osc1_freq_lo`/
+`osc2_freq_lo`/etc. all differ (e.g. `$1E`→`$B5` vs. the original's `$1E`
+unchanged), i.e. wrong pitch/pulse-width values, not silence.
+
+Patched all 48 diverging bytes directly in the assembled `.prg` (binary
+patch, not `.asm` text — none of the diffs were inside a
+multi-byte-length-sensitive instruction, so no gotcha-19-style relabeling
+risk) back to the original file's pristine values. Result: **100.0000%
+byte-exact** (0/6679 diffs), and a re-trace is **register-write-exact**
+(cycle-for-cycle identical CSV, only the echoed input filename differs)
+across all 4 spot-checked subtunes (1, 2, 6, 12; 50 frames each,
+`sidm2-sid-trace.exe`, per lesson 46 — its stdout must be captured with
+`2>&1` since the trace CSV goes to stderr).
+
+**Second-file spot-check (not required for this verification, noted for a
+future pass):** the tag's other HVSC file, `Metal_Warrior_Unused_Music.sid`,
+has a PSID header that does **not** match this driver's documented layout at
+all — load `$1000`, init `$1000` (=load), play `$1003` (=load+3), 3
+subtunes — i.e. it looks structurally like the sibling
+[[cadaver-musicdriver]] card's tight `$1000`-packed layout, not this
+card's `$8000`-load/`$9a10`-init layout. Not disassembled this pass; if
+DeepSID's tagging is right this may be a second, differently-relocated
+build of the *same* driver worth confirming later, but it's equally
+plausible the tag itself is wrong for this one file. Flagging rather than
+guessing.
 
 ## Sources
 

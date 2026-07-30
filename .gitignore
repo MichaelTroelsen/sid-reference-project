@@ -31,3 +31,7 @@ knowledge/graph.json
 
 # tokensave local index - rebuildable cache, not shared state.
 .tokensave/
+
+# Working files from sid-verify sessions (disassembly attempts, .prg/.trace
+# dumps) — large (100MB+), disposable, never meant to be committed.
+scratchpad/

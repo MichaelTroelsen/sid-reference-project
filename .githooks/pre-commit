@@ -3,10 +3,17 @@
 # Pre-commit gate. Two different jobs, with different dependencies:
 #
 # A. CARD INTEGRITY (no fetched data needed) — scripts/dev/check-cards.js
-#      Catches what build-graph.js hides: it SILENTLY SKIPS a card whose ```json
-#      block won't parse and still exits 0, so a malformed card shows up only as
+#      Catches what build-graph.js hides: it warns about a card whose ```json
+#      block won't parse but still EXITS 0, so a malformed card shows up only as
 #      a quieter node count. Also catches broken prose [[links]], which
 #      build-graph.js never looks at.
+#
+# A2. DOCS INDEX (no fetched data needed) — scripts/dev/check-docs-index.js
+#      README.md's architecture block is a hand-maintained index of docs/. Two
+#      audits filed the same finding -- a doc added without updating it -- so
+#      fixing instances was not lowering the rate. Checks both directions:
+#      every docs/*.md is mentioned in README, and every docs/... path README
+#      mentions exists.
 #
 # B. GENERATED FILES IN STEP WITH THEIR DATA — both marked "do not hand-edit",
 #    both of which have rotted in practice:
@@ -43,7 +50,7 @@ touches() {
 }
 
 # Nothing any check derives from -- skip everything, pay nothing.
-if ! touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/(check-cards|gen-coverage|gen-sidm2-worklist)\.js)$'; then
+if ! touches '^(README\.md|docs/[^/]*\.md|knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|scripts/dev/(check-cards|check-docs-index|gen-coverage|gen-sidm2-worklist)\.js)$'; then
   exit 0
 fi
 
@@ -67,10 +74,22 @@ if touches '^(knowledge/players/.*\.md|scripts/dev/check-cards\.js)$'; then
   fi
 fi
 
+# (A2) Docs index. Also needs no fetched data, so it runs here too.
+if touches '^(README\.md|docs/[^/]*\.md|scripts/dev/check-docs-index\.js)$'; then
+  if ! node scripts/dev/check-docs-index.js; then
+    echo "" >&2
+    echo "pre-commit: README.md's docs/ index is out of step (see above)." >&2
+    echo "            A doc that README never mentions is undiscoverable to anyone" >&2
+    echo "            reading the repo rather than CLAUDE.md." >&2
+    echo "" >&2
+    failed=1
+  fi
+fi
+
 # A fresh clone has no fetched composer data. Blocking every card edit until
 # someone runs a network fetch would be a gate that teaches people to pass
 # --no-verify reflexively, which is worse than no gate. Note this skips only the
-# two data-dependent generator checks -- card integrity above has already run.
+# two data-dependent generator checks -- the two above have already run.
 if [ ! -d data/composers ]; then
   echo "pre-commit: skipping generated-file checks -- data/composers/ is absent." >&2
   echo "            run 'npm run fetch:composers' if you want these gates active." >&2

@@ -262,13 +262,25 @@ Each entry came from a check confirmed to have executed.
 
 **The findings sort cleanly by guard coverage, not by author care.** Every generated or machine-checked documentation surface in this repo passed. Every hand-maintained one that carries a number drifted. The project already knows this — `knowledge/COVERAGE.md:3` records its own past rot, `SIDM2-INTEGRATION.md:24` tells readers to trust `build-graph.js` over its own prose, and `CLAUDE.md:105-113` carries an explicit fragility note about hand-maintained counts. `docs/SID-HISTORY.md` is the one knowledge-base-statistics surface that got none of those three treatments, and it is where the largest drift (31 vs 154 verified) sits.
 
-**Two findings are recurrences of previously-fixed defects, both within one session of a structural change.** P2-2 is literally the prior audit's P2-3, reappearing because a doc was added. This is the signature of a hand-maintained index: fixing an instance does not reduce the rate. The cheapest durable fix is a guard in the existing `.githooks/pre-commit` — assert that every `docs/*.md` appears in `README.md`'s tree — which is strictly less work than the audit that found it.
+**Two findings are recurrences of previously-fixed defects, both within one session of a structural change.** P2-2 is literally the prior audit's P2-3, reappearing because a doc was added. This is the signature of a hand-maintained index: fixing an instance does not reduce the rate. **Now closed with a guard** (`scripts/dev/check-docs-index.js`, in the hook and CI) rather than a third manual fix — it was strictly less work than the audit that found it, which is the general argument for guards over corrections.
 
 **The `rg -h` finding is worth more than its severity suggests.** It is a wrong-flag defect in one line of one doc, but it caused a measurable downstream error in a prior audit of this same repo, and it cost this audit its first check too. Commands committed into agent-facing docs get executed by agents that do not question an exit code of 0.
 
 **There was a third guard, written and passing, that nothing ran — now fixed.** `scripts/dev/check-cards.js` checks the three things `build-graph.js` deliberately does not — JSON validity per card, count reconciliation, and broken prose `[[links]]` — and exits non-zero so it can gate a commit. It passed then and passes now. But `.githooks/pre-commit` invoked only `gen-coverage.js --check` and `gen-sidm2-worklist.js --check`; `check-cards.js` was not wired in, despite its header documenting the exact failure it was built for having already happened once (a dropped trailing comma in `oliver-kirwa.md`, surfacing only as "nodes: 199" against 200 files). This was the single highest-value item in the report — higher than any of the six findings, because those were cosmetic-to-moderate while this one hides malformed data. It is now wired into both the hook and CI, and verified with a negative test (see Recommended order #1).
 
-**The general shape worth keeping:** a `--check`-capable script is not a guard until something invokes it. Auditing "does a guard exist and does it pass" is the wrong question; "what invokes it, and can that be bypassed" is the right one. This repo had three `--check`-capable scripts and two invocations.
+**The general shape worth keeping:** a `--check`-capable script is not a guard until something invokes it. Auditing "does a guard exist and does it pass" is the wrong question; "what invokes it, and can that be bypassed" is the right one. This repo had three `--check`-capable scripts and two invocations. It now has four and four, two of them in CI where `--no-verify` cannot reach.
+
+**Guard coverage after this session**, which is the real deliverable:
+
+| Surface | Guard | Runs in |
+|---|---|---|
+| `knowledge/COVERAGE.md` | `gen-coverage.js --check` | hook |
+| `docs/SIDM2-INTEGRATION.md` table | `gen-sidm2-worklist.js --check` | hook |
+| Card JSON / counts / prose links | `check-cards.js` | hook **+ CI** |
+| `README.md`'s `docs/` index | `check-docs-index.js` | hook **+ CI** |
+| Prose figures in `SID-HISTORY.md` etc. | none — mitigated by pointers to `build-graph.js` | — |
+
+The last row is the remaining exposure and the honest limit of this session: narrative statistics are still hand-maintained. Two of the six findings lived there.
 
 ---
 
@@ -288,7 +300,20 @@ Each entry came from a check confirmed to have executed.
    One correction to the framing in `check-cards.js`'s own header, which says `build-graph.js` "SILENTLY SKIPS" a bad card: it does print a `! laxity-newplayer.md: invalid JSON` warning line. The load-bearing part of the claim is right — exit 0, quieter counts, no gate — but it is not literally silent. Worth knowing, because the misleading part is not the missing warning; it is that a dropped card is re-presented as a *card that has not been written yet*, and that every derived statistic (including the `verified` count corrected in P2-1 above) shifts underneath you.
 
    The card was restored, `graph.json` regenerated, and both checks re-run clean (`520 cards checked, 520 ids, 0 broken prose links, 0 failure(s)`).
-2. **Add a `README.md`-tree guard to the same hook** — assert every `docs/*.md` appears in the architecture tree. It would have caught P2-2 at commit time, and P2-2 is the second occurrence of that exact defect in two audits. Same mechanism, same file.
+2. ~~**Add a `README.md`-tree guard to the same hook**~~ — **DONE**. New `scripts/dev/check-docs-index.js`, wired into both `.githooks/pre-commit` (alongside the card check, before the `data/composers/` guard, since it needs no fetched data) and CI. Checks **both** directions: every `docs/*.md` is mentioned in `README.md`, and every `docs/...` path README mentions exists.
+
+   **Design note — why not assert membership of the fenced tree.** The obvious implementation is "must be listed inside README's ```` ``` ```` architecture block". Rejected: it requires parsing a block whose `docs/` section is currently last, so any reorder of the tree silently changes what the check reads, and a gate that fails on formatting is one people learn to `--no-verify` past. The check therefore fails only on "mentioned nowhere in README" — the defect that actually occurred — and its failure message names the tree as the right place to add it. Robustness over precision, deliberately.
+
+   **Verified with a positive and both negative tests:**
+
+   | Case | Result |
+   |---|---|
+   | Current repo (6 docs, all indexed) | exit 0 |
+   | New `docs/ZZ-TEMP.md` not in README — reproduces P2-2 exactly | exit 1, names the file |
+   | README references a nonexistent `docs/DOES-NOT-EXIST.md` | exit 1, names the dead path |
+   | Full hook run with the unindexed doc staged | **exit 1, commit blocked** — and the card/generator checks correctly stayed quiet, since nothing they derive from was staged |
+
+   Also generated a small dogfooding result: adding `check-docs-index.js` itself required documenting it in `scripts/dev/README.md`, and the guard now covers the file that documents the guard.
 3. **Consider generating `SID-HISTORY.md`'s statistics** rather than hand-maintaining them, or continue the cheaper mitigation applied here (a pointer to `build-graph.js` beside each figure, so the number self-invalidates instead of silently rotting). Both P2-1 figures sat in the one knowledge-base surface with neither a generator nor a date.
 
 

@@ -23,6 +23,8 @@ jobs:
         run: node knowledge/build-graph.js
       - name: "Check card integrity (json validity, count reconciliation, prose links)"
         run: node scripts/dev/check-cards.js
+      - name: Check README's docs/ index is complete and has no dead references
+        run: node scripts/dev/check-docs-index.js
       - name: Build HTML from cached/seed data (no network fetch)
         run: node scripts/build-html.js
       - name: Verify output was produced

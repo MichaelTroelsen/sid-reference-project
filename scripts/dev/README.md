@@ -16,12 +16,12 @@ second — and both skip with a notice on a clone that has no fetched
 than CI steps because `data/composers/*.json` is gitignored, so neither check
 can run on a fresh CI checkout at all.
 
-**A third check, `check-cards.js`, also runs from the hook** — but *before* the
-`data/composers/` guard, because card integrity needs no fetched data, so a
-fresh clone can still catch a malformed card. It is **also wired into
-`.github/workflows/ci.yml`**, which runs `build-graph.js` first so the count
-reconciliation works there too. CI is the real backstop: `--no-verify` bypasses
-the hook, not CI.
+**Two further checks, `check-cards.js` and `check-docs-index.js`, also run from
+the hook** — but *before* the `data/composers/` guard, since neither needs
+fetched data, so a fresh clone can still catch a malformed card or an
+unindexed doc. Both are **also wired into `.github/workflows/ci.yml`** (which
+runs `build-graph.js` first, so `check-cards.js` gets its count reconciliation
+there too). CI is the real backstop: `--no-verify` bypasses the hook, not CI.
 
 - `find-uncarded-tags.js` — player tags with no knowledge card yet.
 - `coverage.js` — file-level carding coverage: what fraction of tagged SID files
@@ -33,6 +33,16 @@ the hook, not CI.
   claiming it with a documenting card; and its `[RSID?]`/digi grouping hint is a
   bare filename regex (`/digi|sample|mixer/i`), not a read of any flag or
   routine — never treat it as evidence of sample playback.
+- `check-docs-index.js` — keeps `README.md`'s architecture block honest about
+  `docs/`, both directions: every `docs/*.md` is mentioned in README, and every
+  `docs/...` path README mentions exists. Deliberately checks "mentioned
+  anywhere in README" rather than "listed inside the fenced tree" — the tree is
+  the right place and the failure message says so, but pinning the check to a
+  fenced block would break the build on a harmless reorder, and a gate that
+  fails on formatting is one people learn to `--no-verify`. Top-level
+  `docs/*.md` only; `docs/legacy/` is excluded as frozen material README
+  describes as a directory. Two audits filed the same missing-doc finding before
+  this existed.
 - `check-cards.js` — three card checks `build-graph.js` deliberately does not do:
   (1) JSON validity of every card's ```json block — `build-graph.js` **silently
   skips** an unparseable card and still exits 0, so a malformed card can sit

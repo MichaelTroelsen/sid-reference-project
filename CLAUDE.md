@@ -358,3 +358,23 @@ hand-writing fixture files into `data/composers/*.json` matching the
 shape `{ name, path, profile, folder, fetchedAt }` and running
 `node scripts/build-html.js` directly — it only reads from `data/`, it
 doesn't care how those files got there.
+
+## Model delegation
+For research/data-structuring subtasks — fetching or restructuring raw
+DeepSID/CSDb data, drafting first-pass player-card prose — delegate to a
+cheaper model instead of doing it yourself: run
+`python tools/delegate.py <model> "<prompt>"`.
+
+Available models, cheapest/free first:
+- nim-nano       — try this first for routine subtasks (free tier)
+- nim-super      — stronger NIM model, still free tier
+- deepseek-flash — cheapest paid option, good default for structured output
+- deepseek-pro   — better quality DeepSeek, use if flash output looks weak
+- kimi-2.7       — closer to Claude quality, use for subtasks that need
+                   more careful reasoning or agentic behavior
+- kimi-k3        — Kimi's strongest/most expensive model, use sparingly
+
+Start with nim-nano for routine work. Escalate to deepseek-flash or
+kimi-2.7 if the subtask involves more nuance than simple data structuring.
+Reserve your own reasoning for planning, architecture decisions, and the
+final falsification review — never delegate that.

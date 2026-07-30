@@ -2126,6 +2126,263 @@ them):
     one field showed the "presumably later revision" cluster is dated 2016,
     i.e. pre-release, and cleanly separates published-era files from
     privately-evolved ones.
+86. **When a relocated control build diverges on a single register VALUE at
+    an IDENTICAL cycle timestamp, the cause is data, not code — and the
+    specific mechanism to look for is a tune-stream POKE command whose
+    target addresses are embedded in song data.** What was assumed on
+    rick-cardinali: that a control failure (198 writes vs 46, from frame 0)
+    meant a mis-symbolised operand somewhere in the code, per lessons
+    72(b)/77. Hours were then spent on a plausible-but-wrong chain — a
+    single-byte revert sweep over all 434 relocated bytes found `$2479` (the
+    high byte of a `lda $210e` operand) as a "hit", which pointed at an
+    ordinary code operand and made no sense, because reverting it should
+    have made the instruction read dead memory outside the relocated image.
+    What was actually true: the driver's tune data carries a generic POKE
+    command — chains of (target_lo, target_hi, value) triples written via
+    `sta (zp),Y` and terminated by target_hi == $ff — so the player's
+    per-voice waveform variable was being written from SONG DATA, at a
+    hardcoded absolute address that no disassembler can relocate. Reverting
+    `$2479` "worked" only because it pointed the reader back at the same
+    unrelocated address the poke was still writing to. Three things make
+    this failure mode structural rather than a mistake: (a) the tell is
+    highly specific and cheap to check FIRST — same frame, same cycle,
+    different value means identical control flow with different data, which
+    rules out every operand-symbolisation defect before you start bisecting;
+    (b) a single-byte revert sweep gives an actively misleading answer here,
+    because reverting the READER of a data-driven value looks exactly like
+    finding the culprit (a distinct trap from lesson 79's, where reverts
+    merely carry no signal); (c) the same driver family shipped the
+    mechanism in two forms, one of which is invisible — the earlier build
+    reserves target_hi == $c1 as a marker meaning "substitute the page byte
+    the driver keeps at $21a2", making it page-relocatable, while the later
+    build takes target_hi literally and is not relocatable at all. The
+    practical recipe: grep the disassembly for `sta (zp),Y` (this player has
+    no `sta abs,X/Y` writes into its variable page at all, so a scan for
+    indexed/absolute stores comes back empty and wrongly suggests the
+    variable is unwritable), then find the loop that fills that ZP pointer
+    from the tune stream, and treat every such target as data needing
+    relocation. A byte-level oracle worth reusing: when a driver reads a
+    variable as `lda VAR / sec / sbc #$01 / sta $d4xx`, patching that
+    instruction's operand turns it into a general-purpose memory PEEK —
+    observed_value + 1 — which resolves "who wrote this byte" questions in
+    seconds without a live debugger, and is what finally settled this one.
+
+87. **A relocation control that passes at a page-aligned base but fails at
+    an unaligned one is not automatically a defect in your reconstruction —
+    it can be a genuine, provable property of the ORIGINAL code, and a delta
+    sweep localises which of the two it is to the exact byte in about a
+    minute.** Lesson 79 gives the pass/fail split ("clean aligned, dirty
+    unaligned -> a LOW byte is being relocated that should not be") as a
+    pointer at your own build; on shaun-southern it was the player.
+    Hero_of_the_Golden_Talisman and Cosmic_Causeway both keep a
+    LOW-BYTES-ONLY dispatch table (`l27f7 .byte <l27a2, <l27b0, <l27be,
+    <l27d3`) that the engine pokes into the operand of a JSR whose HIGH byte
+    stays put in the instruction stream (`lda l27fb,X / sta l27eb+1 / sta
+    l27e8+1`), so every dispatch target must remain on the page its JSR was
+    assembled for — a deliberate byte-saving idiom, not a reconstruction
+    artifact. The diagnostic is to rebuild at a ladder of deltas sharing one
+    high byte and varying only the low byte, and watch for a clean step
+    change: Hero traced register-write-exact at
+    +$2000/+$2008/+$200c/+$2020/+$202c and broke at +$2030, which matches
+    its highest lo-only target ($27d3) crossing a page at exactly $d3+$30;
+    Cosmic was exact through +$1028 and broke at +$102a ($d6+$2a). When the
+    break point equals `$100 - max(low byte in the lo-only table)` to the
+    byte, the constraint is the original author's, and the correct write-up
+    is "this player is page-relocatable only" plus a note that any future
+    control must use a whole-page delta — NOT a TODO against your own
+    disassembly. The structural reason this is worth its own entry: lesson
+    79's three-way split implicitly assumes the reconstruction is the thing
+    under test, so an unaligned failure reads as evidence against your
+    build; but a control at an unaligned base is testing something the
+    original code never had to support, and on any player using
+    self-modified low-byte-only jump/JSR tables it is expected to fail by
+    construction. Cheap pre-check before even running the sweep: grep the
+    generated `.asm` for `.byte <l` lines with no matching `>l` line — a
+    lo-only table paired with a `sta <label>+1` is the whole signature.
+
+88. **A file that BLOCK-COPIES half of itself to a new address at boot and
+    then runs only from the copy leaves the copied region looking like inert
+    data at its stored address — and there is a cheap synthetic-image
+    technique that both recovers its disassembly AND verifies it, which
+    existing lessons 66(2) and 78 do not cover.** Lesson 66(2) covers a copy
+    whose DESTINATION lies outside the payload (fix: truncate the compare
+    window). Lesson 78 covers `-r` BLANKING a copy destination. Neither
+    covers the commonest shape: the copy SOURCE is inside the payload, so it
+    passes through `-d` verbatim, the byte-diff is a clean 100.0000%, 64tass
+    reports one contiguous block, and nothing anywhere flags that 9,472 of
+    22,146 bytes (43%) were never decoded as instructions. On steffen-wagner
+    the bootstrap at `$1a80` copies `$25` pages from `$1b00` to `$ce00` and
+    then runs from there; `$1b00-$1cff` is the entire foreground digi mixer
+    and `$1d00-$3fff` is PCM sample data banked under I/O. Three parts to
+    the technique, all cheap. (a) **Detect it** by grepping the payload for
+    a page-copy loop (lesson 62's diagnostic (a)) even when the `-v2` Start:
+    address looks perfectly ordinary — lesson 62 only prescribes that check
+    when Start: is BELOW the load address, but a copy can exist with a
+    completely clean Start:, and here Start: was clean while the copy
+    destination sat 40 KB above the payload's end. (b) **Recover it** by
+    building a synthetic PSID whose image is the original payload with the
+    copy PRE-APPLIED at the destination, and, critically, adding a tiny play
+    STUB in unused space (`jsr <real_play> / jsr <foreground_entry> / rts`)
+    with the header's play vector pointed at it — without the stub
+    SIDdecompiler traces only the part of the copied block that the IRQ path
+    reaches (here 33 of 512 bytes, End: `$ce21`) and stops; with it,
+    coverage went to 318 of 512 bytes (61.75%) and the whole mixer decoded.
+    (c) **Verify it for free**, which is the part worth remembering: because
+    the copy is exact, the reassembled bytes at the DESTINATION must equal
+    the original file's bytes at the SOURCE. That comparison (9472/9472 =
+    100.0000% here) is a genuine correctness check on a disassembly derived
+    from a synthetic input, so working on a synthetic image costs you no
+    evidentiary ground. Companion finding, a variant of lesson 77 in
+    IMMEDIATE rather than absolute-operand form: this player builds its
+    sequence-stream pointers as `asl / clc / adc #$4b` (high byte) with a
+    hardcoded `lda #$00` (low byte), so the base page is an immediate
+    constant that no disassembler symbolises. Lesson 77 tells you to grep
+    the `.asm` for four-hex-digit `$xxxx` literals on non-`.byte` lines;
+    that grep returns NOTHING here (the file was clean) while the relocation
+    control still failed. Extend the triage: also enumerate two-hex-digit
+    `#$xx` immediates whose value falls inside the file's own page range and
+    check each against the memory map, and expect the failure signature to
+    be a plausible-looking wrong-timing trace (all voices starting on frame
+    1 instead of the correct grid, 488 vs 418 writes) rather than obvious
+    garbage. Finally, when the fixed-up page-aligned control passes but a
+    non-page-aligned one still fails, check for a hardcoded `lda #$00`
+    low-byte store before assuming a reconstruction defect — a player with
+    page-granular pointers CANNOT be relocated to a non-page boundary, and
+    lesson 79's "clean aligned / dirty unaligned" split then has a real
+    cause in the player's design rather than in your build.
+
+89. **`SIDdecompiler` can emit a REACHED instruction as `.byte`
+    "Unreferenced data" with its address hardcoded — invisible in the
+    byte-diff, invisible in the native trace, and only exposed by a
+    relocation control; and separately, lesson 79's "clean aligned / dirty
+    unaligned" split can mean the ORIGINAL SOURCE requires page alignment
+    rather than that your disassembly leaked a low byte.** What was assumed:
+    that a `; Unreferenced data` comment means the bytes were never executed
+    (so their content is inert pass-through), and that an unaligned control
+    failing while an aligned one passes points at a defect in the
+    reconstruction. Both are wrong in ways that are structural rather than
+    flag mistakes. (a) On Megabouncers, `SIDdecompiler` labelled `.byte $ee,
+    $04, $c7` as unreferenced — but that is `inc $c704`, the FALL-THROUGH of
+    the immediately preceding `bcc`, i.e. executed on roughly half of all
+    frames. Because it was emitted as raw bytes, its operand did not
+    relocate; the native build is 100.0000% byte-exact (the bytes are
+    correct at the native base, so nothing looks wrong) and the native trace
+    is exact, yet the relocated control diverged by exactly ONE register
+    write at frame 42. The tell is cheap and worth making routine: after any
+    relocation-control failure, grep the `.asm` for `.byte` lines whose
+    first term is a valid opcode followed by a plausible in-file address
+    (`$ee`/`$ce`/`$ad`/`$8d`/`$bd`/`$9d` + lo + hi), and check whether the
+    line sits immediately after a conditional branch whose target is the
+    line AFTER it — that pattern is a skip-over trick, not dead data, and
+    `SIDdecompiler`'s own classifier gets it backwards. This is a distinct
+    class from lesson 72(b) (unsymbolised entries inside lo/hi pointer
+    tables) and lesson 77 (absolute literals pointing below the disassembled
+    range): here the whole INSTRUCTION was demoted to data. (b) On the same
+    player, Job Race and Projekt A.I.D.S. both failed the unaligned (-$3fc9)
+    control and passed both page-aligned ones — but the cause was in the
+    original 1987 code, not the disassembly: Job Race's init copy loop is
+    `ldy #<$c600 / sty srclo / sty dstlo / lda (src),Y / sta (dst),Y / iny /
+    bne`, which copies a full page only when Y starts at $00, and Projekt
+    A.I.D.S.'s init self-modifies only the HIGH bytes of the play routine's
+    absolute operands from a per-subtune page table. Both are correct
+    exclusively at page-aligned data addresses, so an unaligned relocation
+    is not a semantically valid transformation of that program and its
+    failure carries no information about the reconstruction. Before reading
+    the "dirty unaligned" result as a low-byte leak, check whether init
+    writes only `+2` operand bytes or whether any loop relies on a `$00` low
+    byte — if so, the page-aligned control is the only valid one and should
+    be run at two different bases instead. Companion cheap technique from
+    the same run, unrelated to relocation: **read the PSID `released` string
+    (offset $56) on every file before writing provenance prose** — all 5 of
+    these files name the publishing magazine and house outright ("1987
+    Compute mit/Tronic Verlag", "1986 Homecomputer/Tronic Verlag"), which
+    converted this card's carefully-hedged "circumstantially consistent with
+    German type-in listing games" into a documented fact and corrected one
+    file's year, at the cost of one `readUInt` and a `toString('latin1')`.
+
+90. **A SIDdecompiler hang (gotcha 23) is often not "this file is
+    untraceable" but a diagnosable, one-byte-patchable never-returning INIT
+    — and the specific shape worth looking for first is a driver with a
+    FOREGROUND SAMPLE-PLAYBACK MODE, where init deliberately falls into a
+    digi loop instead of RTSing.** What was assumed, following gotcha 23 and
+    lesson 49, is that a reproducible hang (0 bytes of output, process
+    alive, no error, `-t`/`-C1`/`-1 -s<N>` all irrelevant) means the tool's
+    emulation cannot model the file and the escalation path is a
+    hand-written linear disassembler or a live debugger. What is actually
+    true on christoph-bergmann — where SIDdecompiler hung on all 4 tagged
+    RSID files — is that each init ends `ldx <modeflag> / bpl +2 / rts / ldy
+    #$00 / jmp <sampleloop>`: a negative flag selects normal IRQ-driven
+    music and init RTSes, any other value falls into a foreground digi loop
+    that never returns, and the tool sits in it forever. Patching that one
+    `jmp` to `60` (RTS) in a working copy, restoring the byte in the
+    reassembled `.prg` before the byte-diff, took all four files from "tool
+    hangs, nothing produced" to 100.0000% byte-exact against the pristine
+    originals in a single pass. Three parts of this generalise. (a) **The
+    diagnostic is cheap and needs no tool at all**: read the PSID init
+    address out of the header, hex-dump ~$60 bytes there, and follow it to
+    its first `rts` — if it reaches a `jmp` or a `cmp <I/O reg> / bne` spin
+    first, that is your hang, and the patch address is right in front of
+    you. Two distinct hang causes appeared in one file here
+    (`Master_Blaster.sid` also spins on `lda #$ff / cmp $dc01 / bne -5`, a
+    wait-for-no-key), so keep walking after fixing the first one. (b) **Try
+    `-1 -s<N>` for every N before patching anything** — on
+    `Master_Blaster.sid` subtune index 1 was the one subtune whose mode flag
+    ($8ce5 = $ff) takes the RTS path, so `-1 -s1` alone unhung the tool,
+    whereas the default subtune 0 hangs; this is a completely different
+    reason to use `-1 -s<N>` than lesson 48's multi-subtune spillover (which
+    lesson 63's `-r` otherwise dissolved), and it means "the default subtune
+    hangs" is not evidence the file is unworkable. (c) **A never-returning
+    init is a real, citable memory-map FACT about the player, not just an
+    obstacle** — it identifies a dual-mode music/digi driver and tells you
+    which subtunes are sample-based, which is exactly the kind of thing a
+    card's `quirks` should carry. The failure mode is structural rather than
+    a flag mistake: PSID semantics require init to return, so every tool in
+    this pipeline assumes it does, and a driver that only honours that
+    contract for *some* of its subtunes produces a symptom (silent hang)
+    indistinguishable from an unsupported file.
+
+91. **Lesson 79's aligned-clean / unaligned-dirty relocation-control split
+    has a second, benign explanation it does not mention: the player may be
+    PAGE-ALIGNMENT-LOCKED BY DESIGN, in which case the unaligned failure is
+    a correct property of the data format and not a leak in your
+    reconstruction.** As briefed, that split reads as a defect diagnosis ("a
+    LOW byte is being relocated that should not be, or vice versa") and
+    invites a hunt for an unsymbolised operand in the vein of lessons
+    72(b)/77. On colin-davies this would have been a dead end: the `$5c00`
+    control was 0-divergence cycle-exact while `$5c01` diverged from frame 1
+    (373 vs 371 writes, 293 differing tuples over 60 frames), yet the
+    reconstruction was 100.0000% byte-exact and flawless. Cause, read
+    straight out of the disassembly rather than guessed: the per-voice order
+    lists at `$9100/$9200/$9300` store bare pattern PAGE NUMBERS, and the
+    dispatcher does `sta $8361` / `sta $838c` — writing that byte into the
+    **high byte only** of `lda $xx80,X` and `lda $xx00,X`, whose low bytes
+    (`$80`/`$00`) are assembled constants. A sub-page offset has no
+    representation anywhere in the format, so no correct build at a non-page
+    delta can exist. Three cheap discriminators, in the order they pay off.
+    (a) **SIDdecompiler tells you up front, for free, before any control
+    build**: it prints `WARNING: Generated source may have alignment issues
+    due to partial address operand modification` plus `Operand at l<addr>+1`
+    lines naming the exact operands, and suggests its own `-A` flag — treat
+    that warning as a *prediction that the unaligned control will fail*, not
+    as boilerplate. (b) Grep the `.asm` for stores whose target is an
+    instruction's third byte (`sta <label>+2` in SIDdecompiler's own
+    off-by-one label convention, i.e. the operand HIGH byte) — a
+    high-byte-only self-modification is the signature; a full lo+hi pointer
+    write is not. (c) Check whether the order/sequence table holds single
+    bytes in the page range of the payload rather than lo/hi pairs.
+    **Corollary, and the second half of this entry:** to decide whether a
+    player family shares *source* or the *same assembled binary*, intersect
+    the fixed engine byte range across all N files (lesson 71's technique,
+    but applied to the engine rather than to find self-modified operands) —
+    here `$8200-$8824` differed in exactly 9 bytes across 4 files by 2
+    different composers, and all 9 were dead self-modified operands, which
+    upgrades "same routine" (what lesson 68's masked-pattern offset test
+    proves) to "same binary, same absolute addresses" and directly
+    overturned a prior research-only pass's conclusion that the shared
+    player tag was a metadata artifact. The intersection is only meaningful
+    when the engine sits at fixed absolute addresses in every file, which
+    lesson 44's load-address-varies-but-code-does-not pattern is exactly the
+    setup for.
 </lessons_learned>
 
 <success_criteria>

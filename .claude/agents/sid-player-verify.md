@@ -1859,6 +1859,244 @@ them):
     the `-r` build only for the byte-diff, and to expect lesson 19's
     `l<addr>+1` illegal-label syntax in the non-`-r` output (it appeared in
     exactly the self-modified-operand sites that `-r` had smoothed over).
+79. **Run the relocation-invariance control (lessons 69/70/72) at BOTH a
+    page-aligned and a non-page-aligned base — the pass/fail split between
+    the two is itself a free diagnostic that halves the search space — and
+    do NOT reach for lesson 64's group-complement isolation on the
+    code-operand diffs of a relocated build, because that test is
+    structurally inapplicable there and returns a uniformly-failing result
+    that reads like "no group is responsible".** What was assumed on
+    rene-romijn: that a relocated control is a single binary pass/fail, and
+    that when it fails, lesson 64's group-complement byte isolation is the
+    standard next tool (it is, for a NATIVE build's byte-diff cluster). What
+    is actually true: (a) building the same disassembly at a page-aligned
+    base and at one with a non-zero low-byte delta costs one extra 64tass
+    invocation and classifies the defect into three states rather than two —
+    clean at both (fully source-derived, as on
+    Bangers_89/Five_Weeks/N_M_I_at_Six), clean page-aligned but dirty
+    unaligned (the defect is a LOW byte being relocated that should not be,
+    or vice versa — Old_Chaps/Erik_B), or dirty at every base (a
+    page/high-byte-level defect — Orion_Intro). It also localises further
+    for free: rebuilding at low-byte deltas of $01/$10/$37 and watching the
+    wrong value track the delta confirms the leak is a relocated low byte
+    rather than a wrong index, before any disassembly reading. (b) Lesson
+    64's isolation works by reverting candidate bytes to their pristine
+    values and re-tracing, which is valid when the pristine value is the
+    CORRECT one. In a relocated control the "pristine" (native) value of a
+    code operand points at the ORIGINAL base, so reverting any genuine
+    operand sends execution into unmapped memory. On this card all 8
+    address-ordered groups of the 502 differing code operands broke playback
+    (writes dropping from 473 to 0-426), which superficially reads as "the
+    defect is spread across every group / no single group explains it" but
+    actually means the experiment carries no signal at all. The valid
+    analogue for a relocated build is to bisect between two CONTROL builds
+    at adjacent bases (e.g. $5c00 vs $5c01), not between the control and the
+    native build.
+
+80. **Lesson 72(b)'s unrelocated-pointer trap has a second, harder-to-spot
+    form: a raw 16-bit base address stored in ORDINARY PER-VOICE WORKING
+    STORAGE — not inside a recognisable lo/hi pointer TABLE — which the
+    player `adc`s into a ZP scratch pointer and then writes into a
+    self-modified `lda abs,Y` operand.** What was assumed on stephen-legg:
+    that after auditing the `.asm` for out-of-range absolute literals
+    (lesson 77 — clean, only `$d4xx`), checking that every `.byte` pointer
+    table was already symbolic (`<label, >label`), and confirming the two
+    builds' `.asm` text was byte-identical apart from the `* =` line, a
+    failing relocation test had to be caused by the unrelocated absolute
+    jumps sitting in `; Unreferenced data` blocks. It was not. Those blocks
+    were proven irrelevant by a cheap, generally reusable test: **blank each
+    unreferenced block with `$00` in the ORIGINAL file and re-trace it
+    against itself** — 0 write divergences on all four blocks meant none is
+    ever executed, ruling out the whole hypothesis in one command instead of
+    by argument. The actual culprit was two adjacent bytes in the middle of
+    a per-voice state area that look exactly like song data (`l2944 .byte
+    $46` / `l2945 .byte $29, $03, $40, $00, ...` — the `$46,$29` is the
+    pointer, the rest is unrelated state), and the only thing that
+    identifies them is the CODE that reads them. The reliable way to find
+    this class, and the one that worked: grep the disassembly for the
+    *consumers* of address arithmetic rather than for pointer-shaped data —
+    specifically `adc l<addr>` immediately followed by `sta <zp>` on both
+    halves of a 16-bit add, and `lda l<addr>,X` immediately followed by `sta
+    l<addr>+1`/`+2`. On this player that grep printed the complete answer
+    for all six files in one pass, and simultaneously revealed the family's
+    variant split (Fury and Hellfire have no such construct and relocate
+    cleanly; the four 1989 files all do). Two corollaries worth keeping: (a)
+    patch-isolation still applies — of the two constructs found per file,
+    only the base pointer was load-bearing in a 60-frame window, but the
+    pointer table was patched anyway per lesson 41 rather than declared
+    dead; (b) `-C1` is not a workaround for this and can make things worse
+    (it produced 95 unreferenced blocks instead of 74 and left the relocated
+    trace unchanged).
+
+81. **An RSID that "hangs" SIDdecompiler can be a deliberate `jmp *` idle
+    loop in its own init, and the fix is `-I`/`-P` overrides — not a tool
+    defect, not gotcha 23's genuine hang, and diagnosable in about two
+    minutes from raw bytes without a debugger.** What was assumed on
+    steve-bak's Cuthbert_in_the_Jungle.sid (and recorded on the card by a
+    prior pass as "untraceable with this project's standard tool"): that an
+    RSID with play=$0000 is simply outside the disassemble/trace pipeline's
+    reach, and that SIDdecompiler spinning forever on it — no output, no
+    error, EXIT=124 under `timeout`, unchanged by `-t 500`, `-1 -s0`, or
+    converting the file to PSID — was the same unfixable class as lesson
+    23's SidBang64 hang. What is actually true: a self-installing-IRQ
+    player's init routine legitimately NEVER RETURNS. It sets $0314/$0315,
+    enables the raster IRQ, `cli`s, and then parks in an infinite loop
+    waiting for the machine to do the work; SIDdecompiler emulates that
+    faithfully and therefore never reaches the disassembly stage. The
+    failure mode is structural rather than a flag mistake, because *every*
+    symptom points at "the tool can't handle this file" while the actual
+    problem is "the header's declared entry point is a bootstrapper, not a
+    routine". The whole diagnosis is a raw-byte scan of the payload for `8d
+    14 03`/`8d 15 03` (or `8d fe ff`/`8d ff ff`) — the immediate operands
+    feeding those stores give the IRQ handler address directly, and the
+    handler is typically 3 instructions (`inc $d019` / `jsr <real play>` /
+    `jmp $ea31`), so its `jsr` operand IS the play address. Feed both back
+    with `-I<decimal>` and `-P<decimal>` (lesson 13's flags, decimal per
+    gotcha 1) and the file disassembles in seconds: here TraceNode pairs
+    went 0 -> 36,051 and the result reassembled 100.0000% byte-exact and
+    traced register-write- and cycle-exact on all 5 subtunes. Two
+    corollaries worth keeping. (a) The same override makes
+    `sidm2-sid-trace.exe` work on the file too — an RSID is only untraceable
+    by that tool because there is nothing to CALL at play=$0000, not because
+    the tool can't run the code; you do not need the VICE wrapper (lesson
+    67) merely because a file is RSID. (b) Distinguishing this from lesson
+    23's real hang is cheap and should be done before giving up: a `jmp *`
+    bootstrap hang is fixed by entry-point overrides and leaves the file
+    otherwise perfectly tractable, whereas lesson 23's hang persists
+    regardless of `-I`/`-P`. Check for the idle loop first — dump 64 bytes
+    at the header's init address and look for a `4c` whose operand equals
+    its own address.
+
+82. **When the address-relocation control (lessons 69/70/72's cure for a
+    tautological `-r` byte-identical build) is impossible because the file
+    embeds a PRE-ASSEMBLED copy of its own code, SIDdecompiler's `-Z<2-255>`
+    ZERO-PAGE relocation is a cheap, still-non-tautological substitute — and
+    it is the only one of the two that survives an embedded code image.**
+    What was assumed: that a `-a<different base>` rebuild is always
+    available as the non-tautological control, since SIDdecompiler emits
+    symbolic source. What is actually true: a player that stores a second,
+    already- assembled image of itself as `.byte` data and block-copies it
+    elsewhere at init (Chris Grigg's SPL does this in Legend_of_Blacksilver
+    — a 9-page `lda #$c7 / sta z83 / lda (z80),Y / sta (z82),Y` loop moving
+    an image at $f348 down to $c700) defeats address relocation completely:
+    SIDdecompiler symbolises only the entries of that embedded image its own
+    trace dereferenced, emitting a mix like `.byte $4c, $12, $c7, ... $4c,
+    <lc789, >lc789` — so on relocation the symbolic halves move and the raw
+    `$c7` page constants do not, and the copied image executes garbage (0
+    SID writes, which reads like a totally broken reconstruction rather than
+    a known partial-relocation defect). This is lesson 72(b)'s
+    split-pointer- table problem applied to whole embedded CODE rather than
+    a data table, and it is not worth fixing by hand just to obtain a
+    control. `-Z32` instead relocates only the zero-page symbol block, which
+    the embedded image's absolute addresses never touch: on this file it
+    produced a build differing in 104 of 13640 bytes that traced 0
+    divergences across 6 subtunes, i.e. a real structural test (any
+    mis-parsed instruction boundary would have relocated the wrong operand)
+    at one extra SIDdecompiler invocation. It is a WEAKER control than
+    address relocation (104 bytes vs the 770/4874 an address rebuild gave on
+    a sibling file), so quote the changed-byte count alongside it, per
+    lesson 69(a). Two prerequisites worth checking before reaching for it:
+    the file must actually use zero page (grep the `.asm` for `z<hex> = `
+    equates — a player with none has nothing to relocate), and `-Z`'s
+    argument is DECIMAL like `-a`/`-P`/`-I`. Companion refinement to lesson
+    68, used on the same card: rather than hand-picking 4-6 opcode patterns,
+    AUTO-DERIVE them — linear-decode the reference file's play routine, take
+    sliding windows of 6 consecutive instructions, and wildcard every
+    operand byte EXCEPT immediates, branch displacements and hardware
+    $d4xx/$dxxx addresses (lesson 76's relocation-immune anchors). Sixty-odd
+    patterns then give a quantitative membership SCORE rather than a yes/no,
+    which separates same-build from same-source-different-revision in one
+    run (here: L_A_Crackdown vs Games_Winter_Edition 62/62 with 60 at one
+    modal offset = same build; California_Games 39/62; Games_Summer_Edition
+    and Legend_of_Blacksilver 26/62 but 50/62 against each other = a later
+    revision), while negative controls come free (all 3 sibling
+    `Chris_Grigg_2` Lucasfilm files plus Hubbard's Monty_on_the_Run and
+    Galway's Wizball all scored 0/62 in three independent scan directions).
+    Longest-common-substring on the same pairs returned only 9-10 bytes —
+    below lesson 66's own 14-byte noise floor — exactly the silent failure
+    lesson 68 warns about.
+
+83. **Lesson 68's "pick patterns with NO address operands" rule is necessary
+    but not sufficient — an IMMEDIATE operand can be just as build-variable
+    as an address operand when it is a per-title tunable constant (waveform,
+    ADSR, tempo, volume), and a signature built on one will silently miss
+    files that are provably the same driver.** On jason-briggs, the first
+    shared-routine scan used `A9 40 8D ?? D4` (`lda #$40` / `sta $d4xx`, the
+    gate-off write) with only the SID register wildcarded — textbook
+    lesson-68 construction, zero address operands, and it produced clean
+    identical relative offsets on 3 of the 5 files and a flat MISS on the
+    other 2. The miss was not a different driver: Tiger_Tank and
+    Electro_World are byte-for-byte the same routine but assembled with
+    sawtooth (`#$20`/`#$21`) instead of pulse (`#$40`/`#$41`), because the
+    author picked a waveform per game. A LCS scan would have been equally
+    useless here for lesson 68's original reason (different base, different
+    workspace), so both cheap methods fail on the same file pair. The fix is
+    to wildcard the immediate too and recover specificity from LENGTH and
+    STRUCTURE rather than from any constant: a 32-byte template covering the
+    whole per-voice note-on block (`A9 ?? 8D ?? D4 B9 ?? ?? 8D ?? D4 B9 ??
+    ?? 8D ?? D4 B9 ?? ?? 8D ?? ?? A9 ?? 8D ?? D4 C8 C0 ?? F0`) hit exactly
+    twice in all 5 tagged files, at identical relative offsets, and zero
+    times in Monty_on_the_Run, Wizball and Gauntlet. Practical rule when
+    choosing anchors: keep only bytes that are OPCODES or HARDWARE addresses
+    ($d4xx, $dcxx, $ddxx — fixed by the machine, per lesson 76) and wildcard
+    every operand including immediates; if the pattern then feels too
+    generic, lengthen it across two or three instructions rather than
+    re-adding a constant. **Companion finding, a cheap disambiguation for a
+    `-v2` map "End:" far ABOVE the payload end:** Electro_World's map
+    reported End: $9c5d against a payload ending at $39e6, which matches
+    lesson 66(2)'s runtime-block-copy signature and produced a 26,822-byte
+    reassembly from a 1,615-byte file. It is not a copy — the region is
+    marked `w`/`+` only, with no `x`/`#` execute markers anywhere, i.e.
+    plain absolute working storage the driver happens to park high in RAM.
+    The one-glance test is exactly that: **execute markers in the
+    out-of-range region mean lesson 66(2) (truncate the diff/trace window to
+    the payload); write-only markers mean ordinary workspace and require no
+    action at all** beyond byte-diffing the payload window and ignoring the
+    padding. Contra lesson 24, the oversized `.prg` traced fine here with no
+    panic.
+
+84. **A SIDId/DeepSID player tag can cover two structurally DIFFERENT
+    engines, and every one of them can still reconstruct 100% byte-exact —
+    so a clean sweep of byte-diffs is not evidence that the tagged set
+    shares a routine, and the lesson-68 offset test must be run even when
+    nothing looks wrong.** What was assumed on marco-scheepers: that a
+    5-file tag naming one self-coding composer describes one driver, so
+    verifying the "cleanest" file and then closing the rest by relocation
+    would establish family-wide coverage — the framing this batch's own
+    dispatch used, and the pattern that had held for oliver-kirwa,
+    dave-spicer, dave-lee and dave-kelly. What was actually true: 4 of the 5
+    files run one engine (in two revisions) and the fifth, Cut_Creator, runs
+    a different routine entirely — different SID write ordering, a different
+    zero-page pointer pair ($fd/$fe vs $fb/$fc), and output built from
+    self-modified immediate operands (`lda #$00 / sta $d405,Y`) rather than
+    `lda <table>,X`. All five nonetheless hit 100.0000% byte-exact and 0
+    trace divergences on the first pass, because `-r` plus a correct
+    relocation base reconstructs whatever code is actually in the file
+    regardless of whether it is the engine you think you are documenting.
+    The failure mode is structural rather than a flag mistake: a byte-diff
+    measures fidelity to the file, never membership in a family, so a 5-of-5
+    sweep produces exactly the same headline numbers whether the tag is one
+    routine or five — and the natural next action after such a sweep (write
+    one memory map, one data_format, one effects block into the card) then
+    silently attributes one engine's internals to files that do not have
+    them. Two cheap operational rules. (a) Run lesson 68's opcode-offset
+    scan on the WHOLE tagged set as a routine step of every multi-file
+    verification, not only when a file resists reconstruction — here it
+    separated the set in one pass (a gate-output anchor `BC ?? ?? F0 ?? DE
+    ?? ?? 09 01 BC ?? ?? 99 04 D4` with a duration-countdown pattern at a
+    constant +$15 in 4 files, MISS in the fifth), and it also revealed a
+    revision split within the matching four that a single-file disassembly
+    would have hidden: two files put the test-bit block at -$13 and `sta
+    $d401,Y` at -$4d, the other two at -$44/-$6d and -$31/-$4e after an
+    extra `asl / bcs / lda abs,X / and #$01` branch was inserted. (b) The
+    strongest same-source evidence available short of a diff is that the
+    anchor lands at the SAME FILE OFFSET from the load address in two files
+    with different load addresses (here $1b0 in both Beat_Box_II_tune_1 at
+    $0837 and Dossier_Commodore at $4800) — that is the signature of one
+    source assembled at two bases, and it is worth reporting explicitly,
+    because the raw byte comparison of those same two payloads is only 47.9%
+    identical at matching offsets (every absolute operand differs), which is
+    squarely in the range gotcha 4 would read as "genuinely different code."
 </lessons_learned>
 
 <success_criteria>

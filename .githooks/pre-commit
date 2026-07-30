@@ -55,8 +55,10 @@ if touches '^(knowledge/players/.*\.md|scripts/dev/check-cards\.js)$'; then
   if ! node scripts/dev/check-cards.js; then
     echo "" >&2
     echo "pre-commit: card integrity check failed (see above)." >&2
-    echo "            A card with an unparseable json block is silently dropped by" >&2
-    echo "            build-graph.js, so fix it here rather than shipping it." >&2
+    echo "            build-graph.js warns about an unparseable card but still" >&2
+    echo "            EXITS 0 -- it drops the node, loses its edges, and relists" >&2
+    echo "            its dependents as cards 'not written yet', so every derived" >&2
+    echo "            count shifts. Fix it here rather than shipping it." >&2
     echo "            If the count is off, rebuild and re-stage the graph:" >&2
     echo "" >&2
     echo "              node knowledge/build-graph.js" >&2

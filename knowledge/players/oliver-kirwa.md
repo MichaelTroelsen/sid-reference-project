@@ -7,24 +7,24 @@
   "aliases": ["Oliver_Kirwa"],
   "authors": ["Oliver Kirwa (Dr. Knox) — CONFIRMED self-coded, by two independent methods; see quirks"],
   "released": "1989-1991",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. A personal hand-coded driver, no known editor. Soundtracks to his OWN games (he programmed, composed and drew them).",
   "csdb_release": null,
 
   "memory": {
     "load_address": "All files have hdr.load=$0000 with the real address in the first 2 data bytes. Slash $1070; Sensitive $3E80; Stagger $2090; Build_It $3681; Ultrazoyd RSID $0801.",
-    "zero_page": "$FB/$FC — a 16-bit pointer in the 1990-91 revision, PRESERVED via PHA/PLA around its indirection (so it is safe to call from a game IRQ). The 1989 revision (Slash) does not use it. Full data-format ZP map is TODO — not guessed.",
-    "layout": "SID is addressed through the $D480 MIRROR, not $D400 — his personal idiom and the card's key fingerprint (see quirks). Full 3-voice + filter coverage ($D400-$D418 equivalents). Sensitive fronts the driver with a 2-entry JMP table."
+    "zero_page": "$FB/$FC ONLY — CONFIRMED by disassembly: a single 16-bit pointer in the 1990-91 revision, PRESERVED via PHA/PLA around its indirection (so it is safe to call from a game IRQ). The 1989 revision (Slash) uses NO zero page at all. There is no other ZP usage in any of the four PSID files — all driver state is absolute-addressed (see layout).",
+    "layout": "SID is addressed through the $D480 MIRROR, not $D400 — his personal idiom and the card's key fingerprint (see quirks). Full 3-voice + filter coverage: verified writes span $D480-$D498 (= $D400-$D418). Driver state is one contiguous absolute-addressed block that INIT zeroes with an indexed loop: Stagger $2834-$2855 (34 = $22 bytes, `sta $2834,X / cpx #$22`); Build_It $3E48-$3E87; Sensitive $45FF-$461A+. Sensitive fronts the driver with a 2-entry JMP table at its load address ($3E80 init / $3E83 play → $3EC3 / $3F4F). Stagger also touches $DC04 (CIA1 Timer A lo) once."
   },
   "entry": {
-    "init": "Slash $1070; Sensitive $3EC3; Stagger $20CD; Build_It $36BC; Ultrazoyd $0C22.",
-    "play": "Slash $10A1; Sensitive $3F4F; Stagger $2165; Build_It $3778; Ultrazoyd $0000 (RSID, self-installing)."
+    "init": "Slash $1070; Sensitive $3E80 (JMP table → $3EC3); Stagger $20CD; Build_It $36BC; Ultrazoyd $0C22. (PSID-header values, read directly.)",
+    "play": "Slash $10A1; Sensitive $3E83 (JMP table → $3F4F); Stagger $2165; Build_It $3778; Ultrazoyd $0000 (RSID, self-installing). Stagger's $2165 is a 3-instruction game wrapper — `nop / jsr $2171 / lda #$33 / sta $D3D2 / rts` — around the driver core at $2171, which is what corresponds to Build_It's $3778."
   },
   "speed": "Tempo divider = 6 — note advance every 6th frame; the other frames JMP to a per-frame effect path.",
 
   "data_format": {
-    "order_list": "TODO — no disassembly published, none reconstructed. Not guessed.",
-    "patterns": "TODO. $FF is the end-of-sequence marker (Slash walks tables directly; index stored at table base).",
+    "order_list": "CONFIRMED from the reconstructed Stagger disassembly: one order list per voice, a flat table of little-endian 16-bit pattern pointers stored as `.byte <ptr, >ptr` pairs and terminated by a single $FF byte (e.g. Stagger voice tables at $2BB0, $2BC0, $2BCA). A separate 1-byte position index per voice ($2BAF / $2BBF / $2BC9 on Stagger) is stepped by two consecutive `INC` (one per pointer byte) and used as `LDX index` to fetch the pair; INIT resets all three. Note those index bytes sit INSIDE the pointer table region, immediately before the pointers they index.",
+    "patterns": "PARTIAL. Pattern rows are fixed-width byte records fetched through the $FB/$FC indirect pointer; $FF is the end-of-sequence marker in the ORDER list (confirmed). The per-row field layout is still TODO — not guessed.",
     "instruments": "TODO",
     "wavetable": "TODO",
     "pulsetable": "TODO",
@@ -41,6 +41,9 @@
     "TWO REVISIONS: Slash (1989) is simpler — direct indexed sequences, no $FB/$FC. Sensitive/Stagger/Build_It (1990-91) are mature — a 16-bit $FB/$FC pointer, PHA/PLA-preserved. Build_It $3778 and Stagger $2171 are INSTRUCTION-FOR-INSTRUCTION IDENTICAL with only absolute addresses relocated: one driver, reassembled per game.",
     "A KB-WIDE TOOLING LIMITATION FOUND HERE — sidm2-siddump SILENTLY MISSES SID-MIRROR DRIVERS. All four mirror-dominant Kirwa files trace 0 register writes / 0 frames under it, while Blast_em (canonical $D400) traces 2,842 lines. Perfect correlation: that tracer does not decode SID mirrors. A mirror-addressed driver reads as 'SILENT' rather than erroring — so it could be, and nearly was, misjudged as a dead tune. Anything relying on sidm2-siddump alone inherits this blind spot; relevant to [[oliver-klaewer]], whose verification rests on it.",
     "RESOLVED — scripts/dev/vsid-trace.js HANDLES THE MIRROR CORRECTLY, so the blocker above is lifted. VICE emulates the real machine's partial address decode, so $D480 writes genuinely reach the SID and are reported at canonical register offsets. Measured with the wrapper at 50 frames: Slash 196 writes (33/50 active), Sensitive 203 (50/50), Build_It 460 (50/50), Stagger 448 (50/50, 'per-frame ~50Hz conventional player'), Ultrazoyd 66 (6/50), Blast_em 904 (50/50). ALL SIX FILES DRIVE. The 0-write readings were purely a tracer artefact. THE LESSON GENERALISES: a 0-write trace is evidence about the TOOL until you have ruled the tool out — reach for the VICE wrapper as a second opinion before concluding a tune is silent.",
+    "RECONSTRUCTION CONFIRMS THE PROLOGUE AND MIRROR VERBATIM. The reassembled Stagger driver core at $2171 reads exactly `nop / inc $283E / lda $283E / cmp #$06 / beq / jmp $22CC`, then `lda $FB / pha / lda $FC / pha` — the fingerprint the card was built from, now read off a byte-exact reconstruction rather than a raw grep. INIT clears $D480-$D498 with `sta $D480,X / cpx #$19` and then writes $2F to $D498 (= $D418: volume $F plus filter-type bits), matching VGMPF's 'almost always used the SID chip's inconsistent filters'.",
+    "EVERY BYTE-DIFF ON THIS DRIVER IS DEAD WORKSPACE, AND THE DISASSEMBLY SAYS WHY. SIDdecompiler's default trace window snapshots the driver's post-execution state block instead of its cold-start bytes, so each file byte-diffs at 98-99.3% before patching (Stagger 19 bytes, Build_It 29, Sensitive 34, Slash 20 — all marked `+` read+write in the -v2 map). All of them are dead: INIT writes every single one before PLAY ever reads it — most via the indexed `sta <block>,X` clear loop, and the 7 stragglers outside that block (Stagger $288B/$290E/$2951/$2B6D/$2BAF/$2BBF/$2BC9) via explicit `sta` instructions inside INIT itself. Consequently the very first, UNPATCHED trace was already register-write exact on all four files — the read-before-write check on INIT predicted this correctly.",
+    "ULTRAZOYD CANNOT BE DISASSEMBLED WITH THE CURRENT TOOLING. SIDdecompiler HANGS on it (no output, killed at 90s) — the known RSID-with-self-installing-IRQ failure mode. Its relationship to the PSID driver family therefore remains UNDETERMINED by reconstruction; the 68 mirror stores and the missing CMP #$06 prologue are still the only evidence.",
     "SPELLING-VARIANT HYPOTHESIS DISCONFIRMED: 'Kirwa' is correct. HVSC Musicians.txt was checked for Kirwa/Kirwan/Kirva/Kiwra/Kirwe/Kierwa/Kirwo/Krwa — only 'Kirwa' exists (1 hit; all others 0). Four independent sources agree. Not a transliteration.",
     "THE COLLISION THAT MATTERS IS OLIVER KLAEWER — adjacent in Musicians.txt, both German Olivers, both self-coded drivers, both no editor. DIFFERENT PERSON: Klaewer b. 1969 Hanover, Kingsoft/reLine; Kirwa b. 1971-06-08 Bremen. Already carded as [[oliver-klaewer]]. Kingsoft appears in both gameographies (Emerald Mine; Gotcha!) — do not let that merge them. Also ruled out: 'Dr. Knox' vs Baron Knoxburry (Jason Langel, USA); six other German Olivers in Musicians.txt (Benedens, Mohr, Klee, Bartelt, Hoeller, Malms).",
     "CSDb URL TRAP (same family as the csdb_id landmine in CLAUDE.md): the XML nests Scener ID 22461, but /scener/?id=22461 returns 'The Fighter' (Denmark) — an unrelated person. The correct URL uses the HANDLE id: /scener/?id=25087.",
@@ -94,34 +97,70 @@ See the `quirks` array. The load-bearing ones:
 
 ## Disassembly notes
 
-No published disassembly and none reconstructed. The above is fingerprint
-scanning plus targeted reading: the `CMP #$06` tempo-divider prologue, the
+No *published* disassembly exists, but a full one was **reconstructed and
+verified byte- and trace-exact for all four PSID files** on 2026-07-30 — see
+Verification. It confirms every fingerprint the card was originally built from:
+the `CMP #$06` tempo-divider prologue, the
 `$FB/$FC` pointer with PHA/PLA preservation, the `$FF` end-of-sequence marker,
 and Stagger's `$D3D2`/`$D3D9` writes (VIC mirror → raster/IRQ-ack, i.e. leftover
 game IRQ setup, confirming these are rips).
 
 Build_It `$3778` and Stagger `$2171` are instruction-for-instruction identical
-modulo relocation — one driver reassembled per game.
+modulo relocation — one driver reassembled per game. **Confirmed against real
+disassemblies of both** (2026-07-30 pass).
 
 ## Verification
 
-`status: in-progress`. Identity, provenance, self-coding and the driver family
-are solid and multiply-sourced. Entry points and the two revisions are measured.
+`status: verified` (2026-07-30). **All four PSID files were disassembled,
+reassembled and trace-diffed this pass, and all four are 100.0000% byte-exact
+over their entire PSID payload and register-write exact (including cycle
+timing) against the original.**
 
-**Playback confirmed via `scripts/dev/vsid-trace.js`** — all six files drive
-(Stagger 448 writes over 50/50 frames; figures per file in the quirks). An
-earlier reading of "0 writes" on the four mirror-addressed files was a
-**`sidm2-siddump` artefact**, not silence: that tracer doesn't decode SID
-mirrors, VICE does. The tooling blocker is lifted.
+| File | Payload | Byte-diff (raw) | Byte-diff (patched) | Trace |
+|---|---|---|---|---|
+| `Stagger.sid` | `$2090-$2BD2`, 2883 B | 99.3267% (19 diffs) | **100.0000%** | 2584 writes / 300 frames, **0 diffs** |
+| `Build_It.sid` | `$3681-$43FF`, 3455 B | 99.1333% (29 diffs) | **100.0000%** | 2632 writes / 300 frames, **0 diffs** |
+| `Sensitive.sid` | `$3E80-$4E1F`, 4000 B | 99.1342% (34 diffs) | **100.0000%** | 1145 writes / 300 frames, **0 diffs** |
+| `Slash.sid` | `$1070-$1489`, 1050 B | 98.0952% (20 diffs) | **100.0000%** | 1119 writes / 226 frames, **0 diffs** |
 
-Still **not** `verified`, for the ordinary reason: nothing has been
-reconstructed and re-run. Driving cleanly is necessary, not sufficient.
+Method: `SIDdecompiler -a<decimal> -z -d -c`; `64tass -a --cbm-prg`; the
+reassembled payload re-wrapped into the original PSID header; both sides traced
+with **`scripts/dev/vsid-trace.js`** (VICE — *not* `sidm2-sid-trace.exe`, which
+cannot see the `$D480` mirror at all; see the tooling quirk). Traces compared
+programmatically on `frame:cycle:reg=value`, not by eye.
 
-Not determined: the driver's internal data format (order list, pattern/instrument
-encoding, tables, effect commands) — all `TODO`, no memory map guessed; whether
-the driver has a name or editor (note data was likely hand-assembled, but this is
-**unverified** for Kirwa — no interview found); why `$D480`; Ultrazoyd's exact
-relationship to the family; Sensitive's year conflict. MobyGames 403'd.
+Relocation bases, per the "compare the `-v2` map's `Start:` against the PSID
+load address" rule: Stagger `-a8397` (`$20CD`, i.e. its **init** address —
+the map's `Start:`, 61 bytes past the header's `$2090` load address);
+Build_It `-a13953` (`$3681`), Sensitive `-a16000` (`$3E80`), Slash `-a4208`
+(`$1070`) — for those three `Start:` == load address.
+
+Regions outside SIDdecompiler's traced `Start:`-`End:` window were appended to
+the `.asm` as literal `.byte` blocks (exactly what `-d` already does for
+unreferenced data inside the window), so the reassembly covers the whole file:
+Stagger's 61-byte lead `$2090-$20CC`, Build_It's 109-byte tail `$4393-$43FF`,
+Sensitive's 73-byte tail `$4DD7-$4E1F`. Slash needed neither — its trace window
+already spanned the full payload.
+
+**Stagger's dropped lead is not a stub or workspace** — hex-dumping it shows
+the ASCII string `**** DOCTOR'S ZAK 1990 ****` followed by the game's own
+raster-IRQ install (`SEI / LDA #$56 / LDX #$21 / STA $0314 / STX $0315 /
+LDA $D011 AND #$7F / LDA #$81 STA $D01A / CLI / JSR $20C8 / RTS`), which the
+PSID header's own vectors bypass by calling `$20CD` directly. Independent
+corroboration that these are game rips, alongside the `$D3D2` VIC-mirror write
+in the play wrapper.
+
+The 19/29/34/20 pre-patch byte diffs are all `+`-marked drifted working storage
+that INIT rewrites before PLAY reads — see the dedicated quirk. The very first,
+**unpatched** trace was already exact on all four files; the patch pass only
+closes the byte-diff.
+
+Still not determined: **Ultrazoyd** (RSID) — SIDdecompiler hangs on it, so its
+relationship to the family is still open; the per-row **pattern/instrument
+record layout** and any **effect command set** (order list is now confirmed,
+see `data_format`); whether the driver has a name or editor (note data was
+likely hand-assembled, but this is **unverified** for Kirwa — no interview
+found); why `$D480`; Sensitive's year conflict. MobyGames 403'd.
 
 ## Sources
 

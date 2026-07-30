@@ -1219,6 +1219,238 @@ them):
     (b) assemble at the original address rather than using SIDdecompiler's
     relocatable output. This is the same class of bug that Music Assembler's
     initial reconstruction hit before its fix.
+62. **A `-v2` map "Start:" address BELOW the PSID load address is not always
+    workspace — it can be the DESTINATION of a runtime copy loop, and in
+    that case gotcha 40's fix (relocate onto the Start address) is exactly
+    backwards.** Lessons 31/38/60 all describe the case where the
+    sub-load-address region is fixed low-RAM working state, and the fix is
+    `-a<decimal for Start>`. Bobix.sid (Martijn Schutten) is the opposite
+    shape and the two are indistinguishable from the map alone: the `.sid`
+    payload is not a resident player at all but an archive of N banks of
+    $0F00 bytes, each bank a complete copy of the player with one song's
+    data attached; a small resident stub near the END of the file selects a
+    bank and copies it down to $1000-$1EFF before JSRing the copy.
+    Relocating the disassembly onto $1000 (the by-the-book gotcha-40 move,
+    and what a prior pass did) puts the copy destination on top of the code
+    and yields a build that only covers whichever bank the trace happened to
+    land in — which is what made the file look like a lesson-48
+    multi-subtune-scoping problem needing a per-subtune
+    disassemble-and-merge. It is not: the correct move is to DELETE the
+    whole sub-load-address region from the `.asm`, re-origin at the PSID
+    load address, and emit an equate for every one of its labels still
+    referenced from the kept region. Doing that took Bobix from "24
+    remaining assembly errors, 17 of 18 subtunes uncovered" to 100.0000%
+    byte-exact and 0/22,709 register-write divergences across all 18
+    subtunes from ONE ordinary full-file disassembly (no `-1`, no `-s`, no
+    merging) — every one of the 32 64tass errors the previous pass was
+    chasing lived inside the discarded region. **Two diagnostics that tell
+    the two cases apart, both cheap:** (a) look for a page-copy loop (`ldy
+    #<pagecount>` / `stx <selfmod>+2` / `sta <selfmod>+2` / `lda $xx00,X` /
+    `sta $yy00,X` / `inx` / `bne`) anywhere in the file — its presence means
+    copy destination, not workspace; (b) check whether the sub-load-address
+    region's disassembly is a *duplicate* of bytes that also appear at the
+    load address (in Bobix, $1000-$1EFF is byte-identical to $2000-$2EFF).
+    **Two sub-findings that generalise beyond this player:** (1) When you
+    replace such a region with equates, do NOT assume `lXXXX = $XXXX`. On
+    Bobix 18 of 416 symbols sat exactly one byte below their printed name
+    (lesson 21 at scale), and SIDdecompiler emitted two distinct symbols
+    that both stringify as base `l1450` (the plain label at $1450 and a
+    separate symbol literally named `l1450+1` at $144f) whose `+1` and `+2`
+    reference sites contradict each other. All 18 true values are
+    recoverable *algorithmically, not by guessing*: each symbol appears
+    somewhere in a `<sym+K, >sym+K` lo/hi pointer pair, so `sym =
+    word(original file bytes at that position) - K` — assemble once with
+    naive equates, use 64tass's `--list` to map every `.byte` term to its
+    address, solve, and re-assemble. This converged in exactly two passes on
+    all three files. (2) The self-modified copy-loop operands must be
+    emitted as raw `.byte $bd,$00,$00` / `.byte $9d,$00,$00`, never as `lda
+    $0000,X` / `sta $0000,X` — 64tass re-encodes those zero-page (lesson 36)
+    and the resulting 1-byte shift makes an otherwise-99.8% file byte-diff
+    at 38.66% (Puzzle_Mania), i.e. this family fails *catastrophically*
+    rather than *slightly* when you get it wrong, which is itself a
+    misleading signal that invites the gotcha-4 "genuinely different code"
+    conclusion.
+
+63. **`SIDdecompiler`'s undocumented-in-this-file `-r` flag ("Reload tune
+    before disassembling") eliminates the ENTIRE drifted-self-modified-byte
+    class of defects that hard_won_gotcha 41 and lessons
+    10/16/17/20/25/29/30/32/36/37/42/43/51/52/56/57 exist to work around —
+    in one flag, with zero byte patching.** What was assumed: that
+    SIDdecompiler necessarily emits the post-execution memory image, so
+    recovering pristine cold-start values for self-modified operands,
+    working-storage tables and drifted data required either tuning
+    `-t`/`-C1` (never reliable) or hand-patching every diverging address
+    back from the original payload (the project's standard, laborious,
+    per-file recipe). What is actually true: `-r` re-reads the pristine file
+    image into the emulated RAM *after* tracing but *before* emitting the
+    `.asm`, so the disassembly keeps the full trace's
+    call-graph/instruction-boundary knowledge while dumping every byte at
+    its true on-disk value. The failure mode is structural, not "used the
+    wrong flag": the flag's one-line help text ("Reload tune before
+    disassembling") reads like a convenience/reset option for interactive
+    monitor use, gives no hint that it changes which memory snapshot is
+    serialised, and every prior lesson in this file that patched bytes by
+    hand implicitly assumed no such option existed. Measured on three
+    unrelated players, same recipe, no other change and no patching: Paul
+    Butler's Deceptor (22 subtunes) 97.2561% → **100.0000%** over the full
+    5977-byte payload; CheeseCutter Blackjack.sid 99.3910% (72 diffs) →
+    **100.0000%**; DMC After_Promises.sid 98.1636% (75 diffs) →
+    **100.0000%**. Two corollaries worth their own attention: (a) it **also
+    dissolves lesson 48's multi-subtune problem** — with `-r` there is no
+    need for `-1 -s<N>` scoping at all, so a single all-subtunes trace
+    yields one build covering every subtune (Deceptor: 22/22 subtunes
+    trace-exact, 10,110 writes, vs. lesson 48's conclusion that a single
+    build "structurally cannot" cover them; lesson 48's real error was
+    blaming subtune scoping for what was always just drift, and its `-1 -s0`
+    workaround made things worse by shrinking coverage to 42.4% of the
+    file). Lesson 53's narrower "check whether one subtune's Start-End range
+    already spans the file" heuristic is likewise superseded. (b) `-r` makes
+    the reassembly a *stricter* test, not a weaker one, because pristine
+    bytes expose encoding faults the drifted image hid: it surfaced 16
+    instructions across 3 Butler files where the original encodes a
+    zero-page address in 3-byte absolute mode (`ae 72 00`, not `a6 72`) —
+    force these with 64tass's `@w` prefix (`ldx @w z72`), which is far
+    cleaner than lesson 36's `.byte`-triplet substitution and can be found
+    fully automatically: assemble with `-L`, walk the listing for any 2-byte
+    entry whose opcode is the zero-page counterpart of the original file's
+    byte at that address with a `$00` high byte, force `@w` on that one
+    instruction, reassemble, repeat until the byte-diff is 0 (converged in
+    3-7 iterations per file). It also surfaced a genuine illegal opcode ($2b
+    ANC) sitting as a data byte, which requires `64tass -i` to assemble at
+    all and must still be written as `.byte $2b,$6f` since 64tass emits the
+    other ANC encoding ($0b) for the same mnemonic.
+
+64. **Lesson 37's per-byte patch-isolation test can return a false "nothing
+    is responsible" verdict when a routine's state is split across SEVERAL
+    self-modified operands that are only correct together — isolate by
+    GROUP-COMPLEMENT first, then test subsets within the winning group,
+    never byte-by-byte from the start.** On dave-spicer-v1's
+    Wacky_Races.sid, 40 byte-diffs sat in one `+`-marked region; the obvious
+    single suspect (the byte whose value, $D0, literally appears as the
+    first diverging register write in the trace) was patched alone and the
+    trace was still wrong — as was every other individual byte, and every
+    two-byte pair. A naive byte-at-a-time sweep would have reported that no
+    single byte explains the divergence and stalled. Splitting the 40 into
+    four positional groups and tracing each group alone plus its complement
+    found the answer in one round: exactly 3 of the 40 ($FBB1/$FBBD/$FBCD)
+    are jointly load-bearing and the other 37 dead. The structural reason
+    this recurs: a filter/arpeggio sweep engine that keeps ALL its state in
+    self-modified immediate operands (table index + accumulator + repeat
+    counter) has no single "the" state byte — restoring any proper subset
+    just produces a different wrong state, indistinguishable in the trace
+    from restoring none. The tell to look for before choosing granularity:
+    read the disassembly around the diff cluster and count how many distinct
+    `sta <label>+1`/`inc <label>+1` targets feed one routine — if it's more
+    than one, go straight to group testing.
+
+65. **A SIDdecompiler byte-diff percentage measures the tool's DATA
+    pass-through, not the quality of a reconstruction — count instruction
+    bytes before quoting it as a reconstruction score.** On music-processor,
+    a 99.9873% byte-diff had stood on this card for two passes as evidence
+    of a near-complete round-trip of the "fixed engine". Counting the .asm's
+    own lines showed only ~330-358 bytes of real disassembled instructions
+    against ~7,545 bytes of `.byte "Unreferenced data"` in the same compared
+    range — about 4.5% source-derived code. The tell is cheap and should be
+    run on every card before a byte-diff is written up: count labelled
+    instruction lines (this file had 36 labels and 171 instruction lines
+    across 1,579 lines) and sum instruction bytes vs `.byte` bytes. The
+    structural consequence follows immediately and is worth stating in the
+    card: when a reassembly is mostly pass-through, it is byte-IDENTICAL to
+    the original, so ANY trace comparison against the original returns a
+    perfect match by construction and proves nothing. A 100%-exact
+    trace-diff is therefore not automatically good news — check whether the
+    two files being traced are actually different before citing the match.
+    Companion finding on the same file, and the reason two prior passes went
+    wrong: a grep of a disassembly for SID writes must cover the
+    absolute-INDEXED forms ($9D `sta abs,X` and $99 `sta abs,Y`), not just
+    $8D `sta abs`. All five SID writes in this player use `sta $D4xx,Y`, so
+    a literal-operand grep found none, and the resulting "no code anywhere
+    writes a frequency register or sets the gate-ON bit" finding was
+    recorded as confirmed fact and then used to justify two further (also
+    false) conclusions. A raw-opcode scan of the payload buffer for
+    {$8D,$9D,$99,$8E,$8C} followed by a $D4xx operand word takes seconds, is
+    immune to whatever the disassembler chose to label things, and would
+    have caught it. General form: a chain of confident NEGATIVE findings
+    that all rest on one unrechecked mechanical assumption (here: an
+    operand-form grep, and separately an address-range arithmetic slip that
+    put $31C0 "outside" a payload spanning $10AC-$3732) fails as a block,
+    and each false negative makes the next one look more plausible —
+    re-derive negatives from raw bytes, never from a text grep of tool
+    output.
+
+66. **Two related findings about "the author publishes his source" cards,
+    both from Cadaver/Lasse Öörni's driver.** (1) **An author's published,
+    correctly-named, MIT-licensed 6502 source is not evidence that a given
+    SIDId-tagged file uses it — and this is cheap to falsify before you
+    build anything on the assumption.** This card's prior pass reasoned from
+    tools.html prose that `Cadaver_Musicdriver_10` is Öörni's
+    "MiniPlayer/MiniPlayer2", and the reasoning was sound (right author,
+    right description, "lean in-game routine", matching write density). It
+    is still wrong. Both repos ship a reference `example.sid` built from the
+    very `player.s` in question, so the check is one scan: run the card's
+    own SIDId raw byte pattern against that reference build. Result here was
+    NO MATCH for either repo, and the longest common byte run between a real
+    tagged file and either reference build was 14 bytes (noise). PSID header
+    dates settled it: the tagged files are 2000-2002, MiniPlayer's own
+    copyright line is 2018. The structural trap is that a prolific author's
+    *later, cleaned-up, published* tool and his *earlier, unpublished,
+    in-game* routine will legitimately share a whole feature vocabulary —
+    MiniPlayer's README feature list (wavetable slide/vibrato, legato,
+    keyoff, transpose, sound-FX override, "several music modules with the
+    same player code", the "only 1 frame of gateoff" hard-restart
+    limitation) matches the older driver item for item, which is exactly why
+    prose-level reasoning converges on the wrong answer. Treat a published
+    source as an *annotation glossary* for a disassembly (it is an excellent
+    one) but never as the disassembly's substitute, and always run the
+    signature-vs-reference-build scan first: it costs one `curl` and one
+    loop, and it reclassified this card's central identity claim. (2) **A
+    "multi-module gamemusic" file can block-copy its player+data to
+    addresses that do not exist in the payload, and neither `-1 -s<N>`
+    (lesson 48) nor any `-t`/`-C` knob fixes the resulting map — truncation
+    does.** `Metal_Warrior_3.sid` is a ~$47-byte loader plus 26 packed
+    modules; init self-modifies the copy loop's source/dest pointers from
+    lookup tables and copies the selected subtune's whole module up to
+    $4000-$7fff, then plays there. SIDdecompiler's `-v2` map correctly
+    reports End: $7fff even with `-1 -s0`, because the copy genuinely
+    happens at runtime — so the reassembly is 28672 bytes against an
+    11434-byte file and a naive whole-file byte-diff is meaningless. The fix
+    is to diff and trace only the payload window ($1000-$3ca7 here), which
+    took the result from "unusable" to 99.9738% byte-exact / trace-exact on
+    five subtunes. Distinguishing tell versus lesson 48's multi-subtune
+    spillover: here the out-of-range region is *contiguous, page-aligned and
+    reachable by an obvious `sta abs,X` / `inc <operand>` copy loop right at
+    the entry point*, and re-running with `-1 -s<N>` does **not** shrink the
+    map at all — under lesson 48's spillover it does.
+
+67. **A driver that writes SID through a partially-decoded MIRROR (e.g.
+    $D480 rather than $D400) cannot be verified with `sidm2-sid-trace.exe`
+    or the `mcp__sidm2-siddump__*` tools at all — they report 0 writes / 0
+    frames with no error, which reads as "silent tune" rather than "wrong
+    tool" — and the fix is a re-wrap step this agent's workflow doesn't
+    otherwise need.** Confirmed on oliver-kirwa (all four PSID files write
+    $D480-$D498; the C64 repeats SID registers every $20 across $D400-$D7FF,
+    so the real machine and VICE both route those writes to the chip while a
+    tracer that pattern-matches the literal $D400-$D418 range does not). The
+    workflow consequence is structural, not cosmetic: this project's VICE
+    wrapper `scripts/dev/vsid-trace.js` handles the mirror correctly but
+    takes a **`.sid` path only** — there is no `trace_prg` equivalent — so
+    the standard "trace_sid the original, trace_prg the reassembly" split
+    does not apply. Instead, splice the reassembled payload back into the
+    ORIGINAL file's PSID header (copy the header bytes verbatim, including
+    the embedded 2-byte load address when hdr.load==0, then overlay the
+    .prg's data at `prgLoad - payloadLoad`) and run the SAME wrapper on both
+    sides. This has two extra benefits worth keeping: it drives the
+    reconstruction through the file's real PSID vectors rather than
+    hand-supplied hex init/play addresses (removing a whole class of
+    operator error), and it lets regions SIDdecompiler never traced pass
+    through from the original so a partial reconstruction can still be
+    trace-tested before you decide whether closing those gaps is worth it.
+    Compare on `frame:cycle:reg=value` — the wrapper's JSON carries
+    per-write cycle counts, so a free cycle-accuracy check comes with it.
+    General form: before concluding a tune is silent or a card is
+    untraceable, grep the disassembly (or the raw payload) for
+    `$D4[2-9A-F]`/`$D5`/`$D6`/`$D7` stores; any hit means the mirror, means
+    VICE, means the re-wrap.
 </lessons_learned>
 
 <success_criteria>

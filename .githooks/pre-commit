@@ -1,16 +1,27 @@
 #!/bin/sh
 #
-# Pre-commit gate: keep generated files in step with the data they are generated
-# from. Currently guards two, both of which are marked "do not hand-edit" and
-# both of which have rotted in practice:
+# Pre-commit gate. Two different jobs, with different dependencies:
 #
-#   knowledge/COVERAGE.md              <- scripts/dev/gen-coverage.js
-#   docs/SIDM2-INTEGRATION.md (table)  <- scripts/dev/gen-sidm2-worklist.js
+# A. CARD INTEGRITY (no fetched data needed) — scripts/dev/check-cards.js
+#      Catches what build-graph.js hides: it SILENTLY SKIPS a card whose ```json
+#      block won't parse and still exits 0, so a malformed card shows up only as
+#      a quieter node count. Also catches broken prose [[links]], which
+#      build-graph.js never looks at.
 #
-# WHY THESE ARE HOOKS AND NOT CI. `.github/workflows/ci.yml` runs on a fresh
+# B. GENERATED FILES IN STEP WITH THEIR DATA — both marked "do not hand-edit",
+#    both of which have rotted in practice:
+#      knowledge/COVERAGE.md              <- scripts/dev/gen-coverage.js
+#      docs/SIDM2-INTEGRATION.md (table)  <- scripts/dev/gen-sidm2-worklist.js
+#
+# WHY (B) IS A HOOK AND NOT CI. `.github/workflows/ci.yml` runs on a fresh
 # ubuntu checkout, and `data/composers/*.json` is gitignored. Both generators
 # read it to count files per player, so neither check can run there at all. They
 # have to run somewhere the fetched data exists, which means locally.
+#
+# (A) HAS NO SUCH DEPENDENCY, so it runs BEFORE the data/composers guard below —
+# a fresh clone with no fetched data can still validate its cards. It is also
+# duplicated in CI (see ci.yml), which `--no-verify` cannot bypass; the hook is
+# there for fast local feedback, CI is the backstop.
 #
 # WHY THEY EXIST. gen-coverage.js's own header has said "run --check from a
 # pre-commit gate so it cannot rot again" since it was written, and nothing did
@@ -31,21 +42,38 @@ touches() {
   printf '%s\n' "$staged" | grep -qE "$1"
 }
 
-# Nothing either generator derives from -- skip both, pay nothing.
-if ! touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/gen-(coverage|sidm2-worklist)\.js)$'; then
-  exit 0
-fi
-
-# A fresh clone has no fetched composer data. Blocking every card edit until
-# someone runs a network fetch would be a gate that teaches people to pass
-# --no-verify reflexively, which is worse than no gate.
-if [ ! -d data/composers ]; then
-  echo "pre-commit: skipping generated-file checks -- data/composers/ is absent." >&2
-  echo "            run 'npm run fetch:composers' if you want these gates active." >&2
+# Nothing any check derives from -- skip everything, pay nothing.
+if ! touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|docs/SIDM2-INTEGRATION\.md|scripts/dev/(check-cards|gen-coverage|gen-sidm2-worklist)\.js)$'; then
   exit 0
 fi
 
 failed=0
+
+# (A) Card integrity. No fetched data required, so this runs before the
+# data/composers guard -- a fresh clone can still catch a malformed card.
+if touches '^(knowledge/players/.*\.md|scripts/dev/check-cards\.js)$'; then
+  if ! node scripts/dev/check-cards.js; then
+    echo "" >&2
+    echo "pre-commit: card integrity check failed (see above)." >&2
+    echo "            A card with an unparseable json block is silently dropped by" >&2
+    echo "            build-graph.js, so fix it here rather than shipping it." >&2
+    echo "            If the count is off, rebuild and re-stage the graph:" >&2
+    echo "" >&2
+    echo "              node knowledge/build-graph.js" >&2
+    echo "" >&2
+    failed=1
+  fi
+fi
+
+# A fresh clone has no fetched composer data. Blocking every card edit until
+# someone runs a network fetch would be a gate that teaches people to pass
+# --no-verify reflexively, which is worse than no gate. Note this skips only the
+# two data-dependent generator checks -- card integrity above has already run.
+if [ ! -d data/composers ]; then
+  echo "pre-commit: skipping generated-file checks -- data/composers/ is absent." >&2
+  echo "            run 'npm run fetch:composers' if you want these gates active." >&2
+  exit $failed
+fi
 
 if touches '^(knowledge/players/.*\.md|knowledge/COVERAGE\.md|scripts/dev/gen-coverage\.js)$'; then
   if ! node scripts/dev/gen-coverage.js --check; then
@@ -72,7 +100,8 @@ if touches '^(knowledge/players/.*\.md|knowledge/sidm2-ports\.json|docs/SIDM2-IN
   fi
 fi
 
-# Deliberately runs BOTH checks before exiting rather than bailing on the first.
-# A card edit usually invalidates both files at once, and reporting one, getting
-# fixed, then failing again on the other is the kind of gate people disable.
+# Deliberately runs ALL applicable checks before exiting rather than bailing on
+# the first. A card edit usually invalidates several at once, and reporting one,
+# getting fixed, then failing again on the next is the kind of gate people
+# disable.
 exit $failed

@@ -266,7 +266,9 @@ Each entry came from a check confirmed to have executed.
 
 **The `rg -h` finding is worth more than its severity suggests.** It is a wrong-flag defect in one line of one doc, but it caused a measurable downstream error in a prior audit of this same repo, and it cost this audit its first check too. Commands committed into agent-facing docs get executed by agents that do not question an exit code of 0.
 
-**There is a third guard, written and passing, that nothing runs.** `scripts/dev/check-cards.js` checks the three things `build-graph.js` deliberately does not — JSON validity per card, count reconciliation, and broken prose `[[links]]` — and exits non-zero so it can gate a commit. It currently passes (`520 cards checked, 520 ids, 0 broken prose links, 0 failure(s)`). But `.githooks/pre-commit` invokes only `gen-coverage.js --check` and `gen-sidm2-worklist.js --check`; `check-cards.js` is not wired in. Its header documents the exact failure it was built for having already happened once — a dropped trailing comma in `oliver-kirwa.md` that `build-graph.js` swallowed silently, surfacing only as "nodes: 199" against 200 files on disk. That failure mode is still live and still unguarded. Wiring it into the existing hook is a two-line change, and it is the single highest-value structural item in this report — higher than any of the six findings, because those were all cosmetic-to-moderate while this one hides malformed data.
+**There was a third guard, written and passing, that nothing ran — now fixed.** `scripts/dev/check-cards.js` checks the three things `build-graph.js` deliberately does not — JSON validity per card, count reconciliation, and broken prose `[[links]]` — and exits non-zero so it can gate a commit. It passed then and passes now. But `.githooks/pre-commit` invoked only `gen-coverage.js --check` and `gen-sidm2-worklist.js --check`; `check-cards.js` was not wired in, despite its header documenting the exact failure it was built for having already happened once (a dropped trailing comma in `oliver-kirwa.md`, surfacing only as "nodes: 199" against 200 files). This was the single highest-value item in the report — higher than any of the six findings, because those were cosmetic-to-moderate while this one hides malformed data. It is now wired into both the hook and CI, and verified with a negative test (see Recommended order #1).
+
+**The general shape worth keeping:** a `--check`-capable script is not a guard until something invokes it. Auditing "does a guard exist and does it pass" is the wrong question; "what invokes it, and can that be bypassed" is the right one. This repo had three `--check`-capable scripts and two invocations.
 
 ---
 
@@ -274,7 +276,18 @@ Each entry came from a check confirmed to have executed.
 
 **All six findings were fixed in this session** (see "Applied" under each). What remains is structural:
 
-1. **Wire `check-cards.js` into `.githooks/pre-commit`** — highest value in this report. It guards against silently-dropped cards, it already passes, and the hook it belongs in already exists and is already trusted for two sibling checks. Not applied here because it changes commit-time behaviour, which is the user's call, not the audit's.
+1. ~~**Wire `check-cards.js` into `.githooks/pre-commit`**~~ — **DONE**, and also added to CI. Placed *before* the `data/composers/` guard, since card integrity needs no fetched data and so works on a fresh clone; the two generator checks still skip there as before. Also added to `.github/workflows/ci.yml` (running `build-graph.js` first, so count reconciliation works there too) — CI is the stronger half, because `--no-verify` bypasses a hook but not CI.
+
+   **Verified by negative test, not by assumption.** A comma was deliberately dropped from `laxity-newplayer.md`'s json block:
+
+   | Tool | Result |
+   |---|---|
+   | `check-cards.js` | **exit 1** — named the file, the parse error, and 11 cascading broken `[[laxity-newplayer]]` prose links |
+   | `build-graph.js` | **exit 0** — `nodes: 519` against 520 cards, `edges: 54` (one lost), `verified` recounted as **153 instead of 154**, and the broken card's dependents relisted as "dangling edge targets (no card yet — next candidates)" |
+
+   One correction to the framing in `check-cards.js`'s own header, which says `build-graph.js` "SILENTLY SKIPS" a bad card: it does print a `! laxity-newplayer.md: invalid JSON` warning line. The load-bearing part of the claim is right — exit 0, quieter counts, no gate — but it is not literally silent. Worth knowing, because the misleading part is not the missing warning; it is that a dropped card is re-presented as a *card that has not been written yet*, and that every derived statistic (including the `verified` count corrected in P2-1 above) shifts underneath you.
+
+   The card was restored, `graph.json` regenerated, and both checks re-run clean (`520 cards checked, 520 ids, 0 broken prose links, 0 failure(s)`).
 2. **Add a `README.md`-tree guard to the same hook** — assert every `docs/*.md` appears in the architecture tree. It would have caught P2-2 at commit time, and P2-2 is the second occurrence of that exact defect in two audits. Same mechanism, same file.
 3. **Consider generating `SID-HISTORY.md`'s statistics** rather than hand-maintaining them, or continue the cheaper mitigation applied here (a pointer to `build-graph.js` beside each figure, so the number self-invalidates instead of silently rotting). Both P2-1 figures sat in the one knowledge-base surface with neither a generator nor a date.
 

@@ -16,8 +16,12 @@ second — and both skip with a notice on a clone that has no fetched
 than CI steps because `data/composers/*.json` is gitignored, so neither check
 can run on a fresh CI checkout at all.
 
-`check-cards.js` is written to gate commits the same way but is **not currently
-wired into the hook** — run it by hand after editing cards.
+**A third check, `check-cards.js`, also runs from the hook** — but *before* the
+`data/composers/` guard, because card integrity needs no fetched data, so a
+fresh clone can still catch a malformed card. It is **also wired into
+`.github/workflows/ci.yml`**, which runs `build-graph.js` first so the count
+reconciliation works there too. CI is the real backstop: `--no-verify` bypasses
+the hook, not CI.
 
 - `find-uncarded-tags.js` — player tags with no knowledge card yet.
 - `coverage.js` — file-level carding coverage: what fraction of tagged SID files
@@ -35,9 +39,13 @@ wired into the hook** — run it by hand after editing cards.
   unnoticed (caught for real: a dropped trailing comma in `oliver-kirwa.md`
   showed up only as "nodes: 199" against 200 files); (2) count reconciliation,
   cards on disk vs nodes in the graph, which is what surfaces (1); (3) broken
-  prose `[[links]]`, which `build-graph.js` never looks at. Exits non-zero, so
-  it is suitable as a commit gate — see the note above on it not being installed
-  as one.
+  prose `[[links]]`, which `build-graph.js` never looks at. Exits non-zero, and
+  is wired into both `.githooks/pre-commit` and CI (see above). Measured on a
+  deliberately corrupted card: `build-graph.js` prints a warning but **exits 0**,
+  reports `nodes: 519` against 520 cards, drops an edge, recounts `verified` as
+  153 instead of 154, and lists the broken card's dependents as "next
+  candidates" to write — so the failure is survivable-looking in isolation and
+  quietly corrupts every derived statistic. That is what this check exists for.
 - `find-connections.js` — candidate player<->player connections from
   composer-overlap over `data/composers/*.json` + card `edges[]`. Surfaces
   bridge composers, high-overlap card pairs with no curated edge (with the

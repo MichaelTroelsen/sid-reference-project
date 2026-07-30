@@ -13,7 +13,8 @@
 
   "memory": {
     "load_address": "$10AC — read directly from the PSID/RSID header's data payload (header `load_address` field is $0000, meaning the real load address is the first little-endian word of the data block, per PSID convention). Confirmed identical across all 64 files in the collection by reading each file's header, not just the one traced.",
-    "zero_page": "Partially disassembled this session. $3B/$3C (labelled z3b/z3c) — a 16-bit accumulator/pointer, written by the note-trigger cluster around $2A45/$2A59 (e.g. `lda l141f,Y / sta z3b`, then `clc/adc #$28` or `#$29` on later calls — looks like a running byte-offset accumulator into a note/pattern stream, not confirmed). $6F/$70 (z6f/z70) — set once in `init` to the fixed pointer $31C0 (`lda #$c0/sta $6f`, `lda #$31/sta $70`); purpose of $31C0 itself not disassembled (outside the traced/covered engine range). Full ZP map beyond these two pairs remains TODO — no systematic ZP scan was done, these are just the addresses the disassembled engine code happened to touch.",
+    "zero_page": "Partially disassembled. $3B/$3C (labelled z3b/z3c) — a 16-bit accumulator/pointer, written by the note-trigger cluster around $2A45/$2A59 (e.g. `lda l141f,Y / sta z3b`, then `clc/adc #$28` or `#$29` on later calls — looks like a running byte-offset accumulator into a note/pattern stream, not confirmed). $6F/$70 (z6f/z70) — set once in `init` to the fixed pointer $31C0. **Corrected third pass: $31C0 is INSIDE the RSID payload** (which spans $10AC-$3732) — the second pass's claim that it 'sits outside the RSID payload's captured range entirely' was simply an arithmetic error. $31C0 is the start of this song's ASCII score text (see `data_format.patterns`), so $6F/$70 is the score read-pointer and the 'foreground loop' that consumes it is the actual playback driver, not inert editor code. $0C — index into the $0FC1 command/score-line buffer. $61 — scratch byte used by the numeric parser at $1C19 (feeds the per-voice duration reload values $2CAA/$2CAD). Full ZP map beyond these remains TODO.",
+    "layout_v3_addendum": "Third pass (this session) resolved the previously-'unexplained' regions. Full playback chain, now confirmed end-to-end: `init` ($1BDF) falls into the foreground loop at $1BFA (`jsr $1FA2 / jsr $1B75 / jmp $1BFA`). $1FA2 fetches the next CR-terminated line of the ASCII score from the $6F/$70 pointer (=$31C0, inside the payload) into the $0FC1 buffer; $1B75 dispatches the line's first character — note letters A-G, 'R' (rest) and ',' all `jmp $3155`. **$3155-$318D is real code inside the supposed 'song data tail'**: it zeroes the per-voice active/rest flags ($2CB0-$2CB2, $2BC0-$2BC2), then loops voice index $0D44 = 0..2 calling `jsr $2D31` once per voice field, and finishes with `jsr $2CB9`. $2D31 is the note-field parser: `sbc #$41` turns the note letter into a 0-6 index ($0D45), `cmp #$52` detects 'R'est, `cmp #$2c` (',') / `cmp #$0d` (CR) terminate a field. $2F01 does the pitch lookup (see `data_format.instruments`). $2CB9 walks the three voices and, for each one whose $2CB0,X flag is set, calls $2BCC; then $2CF0 calls $2BF1 and $2C49 for voices 0,1,2. **$2BF1 is the missing note-start routine the previous two passes could not find**: `lda $2CB6,X / sta $D400,Y` (freq lo), `lda $2CB3,X / sta $D401,Y` (freq hi), `lda $0E04,Y / ora #$01 / sta $D404,Y` (gate ON), each also mirrored into the $0E00 shadow; the fall-through at $2C36 reloads the two countdown tables ($2BB0,X from $2CAA,X and $2BB3,X from $2CAD,X) plus $2BBA,X from $313F,X. Tables: $3068 = 96-byte frequency HIGH table, $30C8 = 96-byte frequency LOW table (8 octaves x 12 semitones, entry 0 = $010C, entry 12 = $0218 — exact octave doubling), $2F8C = 7-byte note-letter-to-semitone table (A=9, B=11, C=0, D=2, E=4, F=5, G=7), $3128 = 8-byte octave base table (0,12,24,36,48,60,72,84). Genuine per-song data therefore starts at $31C0 (the score text), not at $2F8A.",
     "layout": "Refined this session, still partial. $10AC-$1BDF (2867 bytes) — fixed engine code, unchanged from the earlier pass's finding. $1BDF-$1BF9 (~26 bytes) — the real `init` routine: sets ZP pointer $6F/$70=$31C0, `jsr $15D8` (not disassembled), zeroes low workspace $0D41/$0D49 and sets $0D4B=$04 (this workspace sits BELOW the loaded payload, at addresses the RSID file never covers — real writes to genuinely fixed/external RAM, not song data), then `jsr $28DC` to install the NMI player (see `entry.play`). Critically, **`init` never returns via RTS** — control falls straight through into an infinite foreground loop at $1BFA (`jsr $1FA2 / jsr $1B75 / jmp $1BFA`, repeated forever) that was NOT disassembled (see quirks — SIDdecompiler hangs trying to trace through it). $28E1-$2917 (~0x36 bytes) — a small cluster of NMI vector install/save/restore routines, confirmed byte-identical across 2 independently-checked files (All_My_Love.sid, Andante.sid) despite very different total payload sizes (9862 vs 11931 bytes) — genuinely fixed engine, not per-file coincidence. $2917-$2B4A — the real per-frame NMI dispatcher + per-voice envelope-timer engine (see `entry.play`/`data_format`). $2A27-$2A59-ish — a 'note trigger' code cluster whose PRISTINE (cold, never-executed) bytes contain literal `$EA` (NOP) placeholder slots interleaved with real instructions (confirmed identical in both checked files) — strong evidence of self-modifying code that some other routine (most likely the still-undisassembled $1FA2/$1B75 foreground loop, or a first pass through this cluster itself) patches with real opcodes before the note-trigger logic works correctly; NOT yet identified what patches it or with what. Roughly $2F8A onward (in All_My_Love.sid; end of payload is $3732) — never touched even after a 30000-simulated-play-call trace (~10 minutes of emulated playback), so likely genuine per-song note/pattern data, but the precise boundary between fixed engine and variable song data past $2B4A was not pinned down. The earlier pass's guess that `song data` begins right at $1BDF was wrong — $1BDF is the `init` entry, and a substantial further stretch of FIXED engine code (NMI install, per-voice engine, note-trigger cluster) runs from roughly $28E1 to at least $2B4A before any per-song data plausibly begins."
   },
   "entry": {
@@ -23,16 +24,16 @@
   "speed": "Frame-driven, appears to run at the PAL 50Hz IRQ cadence, but writes are emitted only on note/state changes, not every frame — a real trace of `All_My_Love.sid` (50 frames, `vsid-trace.js --frames 50 --json`) recorded 33 writes across only 7 of 50 frames (`cadence: sparse`). A concrete note-on/note-off pair was observed: frame 20 sets voice-1 control to $41 (gate on) with a new frequency, frame 34 sets it back to $40 (gate off), frame 35 immediately starts the next note — a 14-frame (~0.28s) note-gate period, consistent with quantized playback of manually-transcribed sheet music rather than fine-grained tracker timing. Confirmed this session: the underlying interrupt is CIA #2 Timer A (NMI), not raster — see `entry.play`. Exact tick rate (the CIA timer latch/reload value) was not located in the disassembled range, so the real Hz is still TODO.",
 
   "data_format": {
-    "order_list": "TODO — not disassembled. Likely not applicable in the tracker sense: this is a notation editor storing a score, not a pattern/order-list sequencer (unconfirmed).",
-    "patterns": "TODO",
-    "instruments": "TODO. Marketing copy states \"99 preset instrument and special effects sounds\", joystick-selectable (usermanual.wiki C64/128 Music Software Guide) — not verified against the binary.",
-    "wavetable": "TODO",
+    "order_list": "Confirmed absent, third pass. There is no order list and no pattern table — this player's 'song' is a linear stream of CR-terminated ASCII text lines, read sequentially through the $6F/$70 pointer. Confirmed by the earlier guess being right for the right reason: it is a notation editor storing a score, not a pattern/order-list sequencer.",
+    "patterns": "CONFIRMED third pass, empirically. The song is stored as **plain ASCII text** starting at $31C0 (in All_My_Love.sid; pointer set by `init` into $6F/$70). Each CR ($0D) terminated line holds up to three comma-separated voice fields, one per SID voice, in order 0,1,2 — an empty field (two adjacent commas) means 'this voice unchanged'. A field is `<note-letter><octave-digit>[#]<duration-letter>`, e.g. the first playable line of All_My_Love.sid at $31F2 reads `D3Q,,A4H` — voice 0 plays D octave 3 quarter-note, voice 1 is unchanged, voice 2 plays A octave 4 half-note. 'R' in the note-letter position is a rest. A '[' ($5B) introduces an explicit numeric duration pair parsed by `jsr $1C19` and stored to $2CAA,X / $2CAD,X. **Verified by direct experiment this session**: patching the single byte at $31F2 from 'D' ($44) to 'A' ($41) in an otherwise-untouched copy of the file and re-tracing with `vsid-trace.js` changed exactly one thing in the whole trace — frame 20's voice-0 frequency went from $0968 to $0E18 — while voice 2's $1C31 was untouched. $0968/$0E18/$1C31 are precisely the table entries the documented lookup predicts for D3/A3/A4 (see `instruments`).",
+    "instruments": "Pitch (not timbre) is fully decoded, third pass. Note number = `$2F8C[letter_index] + $3128[octave_digit] + sharp_flag`, where `letter_index = ASCII - $41` (A=0..G=6), `$2F8C` = {A:9, B:11, C:0, D:2, E:4, F:5, G:7} (standard pitch-class mapping) and `$3128` = {0,12,24,36,48,60,72,84}. That note number indexes two parallel 96-entry tables: $3068 (frequency HIGH byte) and $30C8 (frequency LOW byte), copied to the per-voice shadows $2CB3,Y / $2CB6,Y at $2F23-$2F2E and written to $D401/$D400 (+voice offset) by $2BF1. Worked examples confirmed against a real trace: D3 -> 2+36 = 38 -> $0968; A3 -> 9+36 = 45 -> $0E18; A4 -> 9+48 = 57 -> $1C31. The frequency table is equal-tempered and octave-exact (entry n+12 = 2 x entry n, e.g. $010C -> $0218). TIMBRE remains TODO: the marketing copy's \"99 preset instrument and special effects sounds\" is still not located in the binary — the traced files only ever set pulse width $0800, control $40, sustain/release $F0 at init.",
+    "wavetable": "TODO — no wavetable found. The engine writes only frequency, gate on/off and the init-time ADSR/pulse/filter values; no per-frame waveform stepping was observed in a 200-frame trace.",
     "pulsetable": "TODO — init frame of the traced file sets all three voices' pulse width to $0800 and control to $40 (pulse waveform, gate off) identically, but this is one observed init snapshot, not a confirmed table format.",
     "filtertable": "TODO — init frame sets $D417 (filter resonance/routing) to $F0 (max resonance; low nibble $0 means NO voice is routed through the filter) and $D418 (volume/mode) to $58 (high-pass + low-pass combined, i.e. notch-adjacent, NOT band-pass alone — $20/band-pass bit is unset; volume 8) in the one traced file; not confirmed as a general table.",
     "envelope_gate_timing": "New this session, from disassembly of $2B4A (the per-voice engine called 3x per NMI, A=voice index 0-2). Two 3-byte-per-voice countdown tables: $2BB0 ('primary' counter — real cold values in All_My_Love.sid: voice0=$05, voice1=$05, voice2=$25) and $2BB3 ('secondary' counter — real cold values: voice0=$02, voice1=$02, voice2=$02, the last inferred from the adjacent unlabelled byte at $2BB5). Each NMI call decrements the primary counter for that voice; when it reaches zero, the engine reads a per-voice SID-control shadow byte from a table at $0E04 (indexed by a per-voice offset read from a table at $2F89), ANDs it with a per-voice gate-clear mask at $2BBA (cold values $FE,$FE — clears bit 0, the SID gate bit), writes the result back to both the $0E04 shadow AND the real SID control register ($D404 + per-voice offset), then calls the note-trigger routine at $2A59 unconditionally. This mechanism was confirmed via byte-diff (99.9873%, 7902/7903 bytes exact against the real file in the disassembled $10AC-$2F8A range) but NOT confirmed via a register-write trace — see Verification."
   },
   "effects": {
-    "encoding": "TODO: not disassembled. The note-trigger cluster around $2A27-$2A59 is disassembled at the byte level but contains literal NOP placeholder slots in its pristine form (self-modifying code — see `memory.layout` and quirks), so its real behaviour is not understood.",
+    "encoding": "Largely N/A, and the earlier 'self-modifying code' reading is now retracted. The score language's only per-note parameters are pitch (letter + octave + optional '#'), duration (letter, or an explicit '[' numeric pair) and rest ('R'). The long runs of literal $EA bytes throughout $2A00-$3190 are NOT self-modifying-code placeholders: they are fixed-size slack padding between routines, and control simply falls THROUGH them (e.g. $2CDC-$2CEF is 20 NOPs sitting between the end of the $2CB9 loop and the $2CF0 voice-dispatch block that it falls into). Confirmed by reading the surrounding control flow, which never needs a patched opcode for the engine to work — and by the fact that a full-machine trace produces correct frequency/gate writes from the unmodified file. Remaining TODO: the 99 preset instrument/effect sounds advertised in the product's marketing copy are still not located.",
     "commands": {}
   },
 
@@ -55,7 +56,10 @@
     "Composer concentration: all 64 files in the local dataset belong to a single composer, Dick van Riemsdijk (Netherlands) — a 100%-concentration case. That does NOT mean this is a personal/bespoke player routine, though: SIDId identifies it as a specific commercial, boxed product (`The Music Processor`, Sight & Sound, 1984, CSDb release 150058) with its own marketing copy and reviews. The 100% concentration instead just reflects that HVSC happens to preserve only one person's output from this particular editor.",
     "Filenames in the collection are entirely classical/standards repertoire (Blue Moon, Ballade Pour Adeline, Die Schoene Blaue Donau, Cats in the Cradle, ...) — consistent with the software's advertised purpose as a notation-based \"in-home recording studio\" for transcribing existing sheet music, per a Lemon64 thread describing it as \"Notation based (staff with notes)\" with an animated title screen where notes danced to the music.",
     "IS present in the curated `data/players.json` (129-entry DeepSID player list) — {title: 'The Music Processor', developer: 'M. Peter Engelbrite', start_year: '1984', csdb_id: 150058, distribution: 'Commercial'} — so this is a curated, not an inferred/synthetic, player; identity is corroborated independently by DeepSID's curated entry, `data/sidid.json`'s `byTag` entry, and CSDb, not sourced from SIDId alone.",
-    "Second verification pass (no RetroDebugger available — parallel-batch run): hand-disassembling the previously-unresolved foreground loop ($1FA2/$1B75) with a purpose-built linear 6502 disassembler (not SIDdecompiler, which hangs on this code, and not a live trace) is a legitimate, tool-independent way to make progress on a hang/self-modifying-code blocker — it identified the loop as a single-keystroke command dispatcher (note letters A-G, editor menu keys S/T/K/M/V/O/U) totally unrelated to the audio engine, closing off a lead the first pass could only guess at (\"likeliest patcher\"). General lesson: when SIDdecompiler cannot trace through a routine at all, a hand-rolled linear disassembler (a ~150-line opcode table is enough for a single 6502 CPU) can still answer \"is this routine even relevant\" without needing a live emulator — worth trying before escalating to RetroDebugger, since it costs nothing to attempt and can rule out (or confirm) a hypothesis outright."
+    "Second verification pass (no RetroDebugger available — parallel-batch run): hand-disassembling the previously-unresolved foreground loop ($1FA2/$1B75) with a purpose-built linear 6502 disassembler (not SIDdecompiler, which hangs on this code, and not a live trace) is a legitimate, tool-independent way to make progress on a hang/self-modifying-code blocker — it correctly identified the loop as a single-keystroke command dispatcher (note letters A-G, editor menu keys S/T/K/M/V/O/U). **But its CONCLUSION from that — that the loop was 'totally unrelated to the audio engine' and could be ruled out — was wrong** (see the next quirk): correctly disassembling a routine is not the same as correctly judging its role. General lesson still holds: a hand-rolled linear disassembler can answer 'what does this routine do' without a live emulator; it just cannot, on its own, answer 'does this routine matter'.",
+    "THIRD PASS, three retractions — all three of the second pass's headline negative findings were false, and all three failed for the same single arithmetic reason. (a) 'The $6F/$70 pointer target $31C0 sits outside the RSID payload's captured range entirely.' FALSE: the payload spans $10AC-$3732, so $31C0 is inside it by 1394 bytes. (b) 'No code anywhere in the entire disassembled engine ever writes a SID frequency register or sets the gate-ON bit.' FALSE: $2BF1 does exactly that (`lda $2CB6,X / sta $D400,Y`, `lda $2CB3,X / sta $D401,Y`, `lda $0E04,Y / ora #$01 / sta $D404,Y`) — the second pass's grep looked for absolute `$D400`/`$D401` operands and missed the absolute,Y indexed forms (opcodes $99/$9D), which is how every SID write in this player is encoded. A raw-opcode scan of the payload for $8D/$9D/$99 followed by a $D4xx operand finds all five SID writes in seconds. (c) 'The foreground loop is RULED OUT as the driver / is inert in playback context.' FALSE: it IS the driver — it reads the ASCII score at $31C0 and dispatches note letters into the note-start path. Structural lesson: a chain of confident negative findings that all depend on one un-rechecked address-range assumption will fail together, and each one makes the next look more convincing.",
+    "The long runs of literal $EA bytes scattered through $2A00-$3190 are fixed-size SLACK PADDING between routines, not self-modifying-code placeholders — the first two passes read them as 'NOP placeholder slots patched at runtime' and built a whole (wrong) theory of the player on it. The disproof is local and cheap: $2CDC-$2CEF is 20 consecutive NOPs sitting between the `jmp $2CBE` loop-back at $2CD9 and the voice-dispatch block at $2CF0, and control simply falls through them into working code — there is nothing to patch. This padding style (routines placed on round-ish boundaries with NOP fill, and short `lda #$xx / nop / sta` sequences) is consistent with a 1984 commercial product assembled from fixed-size source blocks. General form: before concluding a NOP run is a self-modification target, check whether the code immediately after it is reachable by fall-through — if it is, the NOPs are padding.",
+    "The 99.9873% byte-diff figure this card carried for two passes is real but was over-sold as a reconstruction. Counted this pass: the SIDdecompiler .asm for this file contains only ~330-358 bytes of actual disassembled INSTRUCTIONS against ~7,545 bytes of pass-through `.byte` 'Unreferenced data' inside the compared $10AC-$2F8A range — i.e. only about **4.5% of the 'reconstruction' is source-derived code**; the rest is a byte dump that trivially round-trips. That is why a `vsid-trace.js` comparison of the reassembly against the original comes back 78/78 register-writes exact and yet proves nothing: the reassembled file is byte-IDENTICAL to the original, so the trace match is a tautology, not evidence. General form: when a SIDdecompiler .asm's `.byte`-to-instruction ratio is this lopsided, the byte-diff percentage measures the tool's data pass-through, not the quality of the disassembly — count instruction bytes before quoting a byte-diff as a reconstruction score."
   ],
   "sources": [
     "sidid:Music_Processor (author M. Peter Engelbrite, 1984 Sight & Sound, CSDb release 150058) — data/sidid.json",
@@ -66,6 +70,7 @@
     "Local dataset: 64 files, all tagged Music_Processor, all by one composer (van_Riemsdijk_Dick) — see knowledge/COVERAGE.md (rank 4, 64 files) and data/composers/van-riemsdijk-dick.json",
     "Own trace, this session: `node scripts/dev/vsid-trace.js <HVSC>/MUSICIANS/V/van_Riemsdijk_Dick/All_My_Love.sid --frames 50 --json`, plus direct PSID/RSID header inspection of all 64 files in that folder for load/init address consistency — not a disassembly, a black-box runtime + header observation only",
     "This session (verification pass): `SIDdecompiler.exe` disassembly of a patched scratch copy of All_My_Love.sid (RTS-patched at $1BFA to work around a confirmed real hang; relocated with `-a792` to the tool's own `-v2` Start: address; `-P10519` to override the play address to the statically-discovered real NMI handler $2917), reassembled via `64tass.exe`, byte-diffed against the true original payload (custom Node script), and a failed register-write trace-diff attempt via `sidm2-sid-trace.exe` (JSR-callable harness, RTI patched to RTS) compared against a fresh `vsid-trace.js` trace of the unmodified original. Cross-checked the fixed-engine address findings ($28E1-$2917 NMI install, $2A59 NOP-placeholder pattern) against a second file (Andante.sid) via raw hexdump, confirming byte-identical engine code across both. All raw work (patched .sid, .asm, .prg, trace logs, byte-diff/patch scripts) left in scratchpad for the next pass.",
+    "Third verification pass (this session, parallel batch — no RetroDebugger): re-ran `scratchpad/music-processor/bytediff.js` (still 99.9873%), built `build_recon.js` (splices the reassembled $10AC-$2F8A range over the original payload, reverts the $1BFA diagnostic RTS, re-emits a valid RSID) and traced both the original and the reconstruction with `node scripts/dev/vsid-trace.js --frames 200 --changed-only --json`, diffed via `difftrace.js` (78/78 writes identical — tautological, see quirks). Wrote `coverage.js` to count instruction-vs-`.byte` bytes in the .asm. Used the existing `disasm6502.js` to disassemble $3155-$31C0, $2BF1-$2C49, $2C49-$2CB0, $2CB9-$2D31, $2D31-$2E00, $2EA0-$2ED0, $2F00-$2F40, and a raw-opcode scan of the whole payload for $8D/$9D/$99 + $D4xx operands. Empirical score-format confirmation via a single-byte mutation of the score text at $31F2 ('D'->'A') plus a fresh 40-frame vsid trace (`All_My_Love_mutD2A.sid`, `mut40.json`). All scripts and traces left in `scratchpad/music-processor/`.",
     "Second verification pass (this session, parallel batch — no RetroDebugger): re-confirmed the byte-diff (99.9873%, unchanged) with the existing `scratchpad/music-processor/bytediff.js` against a freshly-read copy of the real HVSC file. Wrote a purpose-built linear 6502 disassembler, `scratchpad/music-processor/disasm6502.js` (reads raw bytes directly from the PSID payload at real addresses, decodes the full documented 6502 opcode set, no execution/call-graph modeling), and used it to hand-disassemble $1B75-$2100 (`foreground_loop_disasm.txt`), $15D8-$1700 (`jsr15d8_disasm.txt`), and $2F8A-$3200 (`tail_region_disasm.txt`) — all three left in `scratchpad/music-processor/` alongside the disassembler script itself."
   ]
 }
@@ -104,18 +109,20 @@ verification pass: (4) it's an NMI (CIA #2 Timer A), not an IRQ; (5)
 SIDdecompiler.exe reproducibly hangs disassembling this player's real `init`
 because it never returns (falls into an infinite foreground loop) — worked
 around with a scratch-copy RTS patch; (6) the note-trigger code cluster
-around $2A59 contains literal NOP placeholder bytes in its pristine form —
-self-modifying code that a register-write trace-diff attempt could not
-exercise, which is why verification did not close. Second-pass headline item
-(7): the foreground loop ($1FA2/$1B75) has now been hand-disassembled (no
-live debugger needed) and is confirmed to be an unrelated single-keystroke
-editor command dispatcher — NOT the NOP patcher. This narrows, but does not
-close, the mystery: it's now confirmed that NO code anywhere in the entire
-disassembled engine writes a SID frequency register or sets the gate-ON bit,
-and the countdown-timer reload is likewise unaccounted for — all three gaps
-are one still-unresolved piece of logic, most likely hidden in the NOP
-placeholders themselves via a trigger path not yet found, or possibly
-outside the RSID payload's own captured memory entirely.
+around $2A59 contains literal NOP placeholder bytes in its pristine form
+(**retracted in the third pass** — they are slack padding, not placeholders).
+
+**Third-pass headline items (8)-(11), which retract most of items (6)-(7):**
+(8) The songs are stored as **plain ASCII text**, not as binary patterns —
+`D3Q,,A4H` means "voice 0: D octave 3, quarter; voice 1: unchanged; voice 2:
+A octave 4, half". (9) The foreground loop is the **playback driver**, not
+unrelated editor code: it reads that text through $6F/$70 (= $31C0, which is
+*inside* the payload, contrary to the second pass) and dispatches note
+letters to $3155. (10) The "missing" frequency and gate-ON writes were in the
+disassembled range all along, at $2BF1, encoded as `sta $D400,Y` /
+`sta $D401,Y` / `sta $D404,Y` — the second pass's grep only looked for
+non-indexed absolute operands. (11) The $EA runs are slack padding that
+control falls straight through.
 
 ## Disassembly notes
 
@@ -239,22 +246,75 @@ actually lives. Byte-diff and trace-diff numbers are unchanged from the
 first pass (re-ran the byte-diff this session to confirm: still 99.9873%,
 7902/7903, single self-inflicted diff byte at $1BFA — see below).
 
-**Concrete next step for whoever continues this**: the foreground loop lead
-is now closed off — don't re-disassemble it. What's needed is a LIVE trace
-with a hardware breakpoint on any write to $D400/$D401/$D407/$D408/$D40E/
-$D40F (VICE monitor `-remotemonitor`, or RetroDebugger once available
-outside a parallel batch run) to catch the actual moment those registers
-first get written during real `vsid-trace.js`-style full-machine playback,
-then read back the PC at that moment to find the real routine address —
-since it is now confirmed absent from every statically-reachable path in
-the RSID payload, it is likely either (a) inside the still-unexplained NOP
-placeholders after all, reached via a call/jump this session's static
-analysis didn't trace (self-modifying code that isn't triggered by any of
-the three ruled-out candidates), or (b) triggered by BASIC/KERNAL-resident
-code outside the RSID payload's own captured memory image, which would mean
-this player's true playback mechanism cannot be fully reconstructed from
-the RSID rip alone. A live breakpoint-and-backtrace is the only tool that
-can distinguish between these two remaining possibilities from here.
+## Verification — third pass (this session)
+
+**Status stays `in-progress`, and this pass makes the reason for that
+sharper rather than softer.** The playback mystery is now fully solved, but
+the *reconstruction* claim this card was carrying turns out to have been
+weaker than the byte-diff number implied.
+
+Numbers produced this run, on `All_My_Love.sid`
+(`MUSICIANS/V/van_Riemsdijk_Dick/`, RSID v2, dataOffset $7C,
+header `load=$0000` -> real load `$10AC` from the payload's own first word,
+`init=$1BDF`, `play=$0000`, 1 subtune, PAL):
+
+- **Byte-diff, re-confirmed unchanged**: 99.9873% (7902/7903) over
+  $10AC-$2F8A; the one diff at $1BFA is still the deliberate diagnostic RTS.
+  Reverting that byte gives 100.0000% (7903/7903) over the covered range and
+  100.0000% (9862/9862) over the whole payload once the untouched
+  $2F8B-$3732 tail is spliced back in (`build_recon.js`).
+- **The named next-step lead was executed and is now closed as a dead end,
+  not as a success.** Drove the reconstruction through `vsid-trace.js`
+  (`--frames 200 --changed-only --json`) alongside the original and diffed
+  them programmatically: **78 writes vs 78 writes, 0 differing entries,
+  100.0000%**. This is *tautological and must not be cited as verification*:
+  the reconstruction is byte-identical to the original, so an identical
+  trace is guaranteed by construction. The lead can never yield independent
+  evidence for this file.
+- **Why**: counted with `coverage.js`, the SIDdecompiler `.asm` holds only
+  ~330-358 bytes of real disassembled instructions against ~7,545 bytes of
+  pass-through `.byte "Unreferenced data"` inside $10AC-$2F8A — roughly
+  **4.5% source-derived code**. The 99.99% byte-diff was measuring the
+  tool's data pass-through, not a reconstruction.
+
+**What this pass did close: the playback mechanism, completely, and with a
+falsifiable experiment.** All three of the second pass's negative findings
+were wrong (see quirks for the retractions and why they failed together):
+
+- Full chain: `init` $1BDF -> foreground loop $1BFA -> `$1FA2` (fetch next
+  CR-terminated ASCII score line from $6F/$70 = **$31C0, inside the
+  payload**) -> `$1B75` (dispatch note letters A-G / 'R' / ',' -> `jmp
+  $3155`) -> `$3155` (per-voice field loop, `jsr $2D31` x3) -> `$2D31`
+  (parse `sbc #$41` note index, 'R'est, ',' and CR field terminators) ->
+  `$2F01` (pitch lookup) -> `$2CB9` -> **`$2BF1`** (`sta $D400,Y` freq lo,
+  `sta $D401,Y` freq hi, `ora #$01 / sta $D404,Y` gate ON, then reload the
+  countdown tables $2BB0,X/$2BB3,X from $2CAA,X/$2CAD,X). The NMI engine at
+  $2917 -> $2B4A only does the countdown and gate-OFF, which is why every
+  init-then-play harness on this player produces silence.
+- Pitch decode, fully specified and arithmetically checked:
+  note = `$2F8C[letter]` + `$3128[octave]`, tables $3068 (hi) / $30C8 (lo),
+  96 equal-tempered entries with exact octave doubling.
+- **Falsifiable experiment, performed**: patched the single score byte at
+  $31F2 from `'D'` to `'A'` in an otherwise-untouched copy and re-traced.
+  Exactly one thing changed in the whole trace — frame 20's voice-0
+  frequency went $0968 -> $0E18 — matching the table prediction for D3 -> A3
+  while voice 2's A4 ($1C31) stayed put. This is real, independent evidence
+  for the score format, and it is the strongest result of this pass.
+
+**Concrete next step for whoever continues this**: do NOT chase a live
+debugger — the frequency/gate-ON writes are located ($2BF1) and the mystery
+is closed. What is needed for `verified` is a genuine source-derived
+reconstruction, and that is now tractable by hand rather than by
+SIDdecompiler. Specifically: hand-disassemble the ~700 bytes of real engine
+code now known to matter — $2B4A-$2D31 (countdown/gate-off engine, voice
+dispatch, note-start), $2D31-$2F80 (score-field parser + pitch lookup),
+$3155-$318D (line handler), $1B75-$2100 (already disassembled in
+`scratchpad/music-processor/foreground_loop_disasm.txt`) — into a 64tass
+source file, assemble it, and byte-diff *only those ranges* against the
+original. That converts the current 4.5% source-derived figure into a real
+number. Everything at $2F8C-$3160 (the four lookup tables) and $31C0 onward
+(the ASCII score) is legitimately data and should stay as `.byte`. Until
+that exists, any trace comparison on this file remains a tautology.
 
 Tooling note for future passes: `vsid-trace.js` worked exactly as documented
 on the first real card-writing attempt. `vsid.exe` (`C:\winvice\bin\vsid.exe`)

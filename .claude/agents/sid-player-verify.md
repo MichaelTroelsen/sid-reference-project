@@ -2097,6 +2097,35 @@ them):
     because the raw byte comparison of those same two payloads is only 47.9%
     identical at matching offsets (every absolute operand differs), which is
     squarely in the range gotcha 4 would read as "genuinely different code."
+85. **Before concluding a player is untraceable/undisassemblable, download
+    the author's actual release archive rather than reading the manual PDF
+    that reproduces its source.** Blackbird's User's Guide Appendix A prints
+    the playroutine listing, and a prior pass transcribed it to 99.8438% and
+    then spent effort explaining the last 2 bytes as an "undocumented
+    per-song sizing formula" and "6 extra init bytes the appendix doesn't
+    show". Both were artefacts of the PDF being a *lossy excerpt*. Every
+    released zip contains `Export/source/player.s` (the complete routine,
+    including a `#if REPEAT` conditional that the manual omits entirely —
+    worth 8 of the 19 matched files on its own) **and**
+    `player.h`/`rplayer.h`, which carry the assembled binary templates
+    together with the exporter's own relocation functions. Those reloc
+    functions are the real prize and have no analogue in printed
+    documentation: each is a literal list of `data[idx] = (sym->NAME + k) &
+    0xff | >> 8` assignments, i.e. a machine-readable statement of exactly
+    which bytes of the shipped player are per-song addresses — so every
+    external symbol can be *inverted out of a real .sid* rather than
+    guessed, taking 99.84% to 100.0000% with no patching. The failure mode
+    is structural rather than laziness: a manual that reproduces "the
+    complete source" reads like the primary artefact, so nobody goes looking
+    for a second copy, and the ~0.2% residual looks like a genuine
+    documentation gap instead of an excerpting artefact. Corollary for
+    provenance questions: md5 the shipped templates across every released
+    version (identical here across 1.0/1.1/1.2 — the changelog entries are
+    editor/cruncher fixes), and read each file's PSID `released` field at
+    offset $56 before theorising about version order from code shape; that
+    one field showed the "presumably later revision" cluster is dated 2016,
+    i.e. pre-release, and cleanly separates published-era files from
+    privately-evolved ones.
 </lessons_learned>
 
 <success_criteria>

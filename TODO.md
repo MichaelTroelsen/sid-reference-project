@@ -188,7 +188,7 @@ not yet implemented. Not a commitment list — pick off whichever's useful.
         nothing else needs the raw STIL title text.
       - **Concentration**: added a note to the existing "most prolific"
         chart — top 50 composers (2.6% of everyone with a file) made 25%
-        of all 55,225 files.
+        of all 55,223 files.
       - **Group mobility**: new `computeGroupMobility()` chart — 967 of
         1,608 CSDb-enriched composers belonged to 3+ different groups
         over their career ("Metal" tops out at 18). Reuses the same

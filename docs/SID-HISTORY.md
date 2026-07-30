@@ -44,7 +44,9 @@ honest SID history:
    routine with another. Recorded as a machine `edges[]` relationship
    (`derives_from` / `successor_of` / `shares_routine_with`), and only when
    there is disassembly, source, or author-statement evidence. There are
-   currently **51 such edges across 19 connected clusters** (`build-graph.js`).
+   currently **55 such edges across 19 connected clusters** (`build-graph.js`
+   — run `node knowledge/build-graph.js` for the live figure rather than
+   trusting this one).
    These are the *technical* family tree.
 
 2. **Scene / person relationships** — the same composers, group, or scene
@@ -69,7 +71,7 @@ composer's own assembly source encoded, and the memory map varies from game to
 game. In this collection these routines appear only because Player-ID
 fingerprints their byte-signatures across the games that used them; a tag like
 `Rob_Hubbard` marks a *routine*, not a product. This era is also the knowledge
-base's most solid ground: **six of the whole knowledge base's 31 `verified` cards belong to it**,
+base's most solid ground: **six of its earliest `verified` cards belong to it**,
 grounded in disassembly or (for Galway) the composer's own published source:
 
 | Routine | Composer | When |

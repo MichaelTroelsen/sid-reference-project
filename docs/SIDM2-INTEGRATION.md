@@ -14,8 +14,8 @@ This doc predates most of the project. The figures further down ("56 composers",
 
 - **~1,895 composers** and **~54,600 SID files** cataloged; player
   knowledge cards under `knowledge/players/` — see `knowledge/COVERAGE.md`
-  for the current card count, and `rg -h '"status"' knowledge/players/*.md
-  | sort | uniq -c` for the verified/in-progress/stub breakdown — all
+  for the current card count, and `node knowledge/build-graph.js` for the
+  verified/in-progress/stub breakdown — all
   ingested into the `tdz-c64-knowledge` MCP server — so integration modes #1
   and #2 below are effectively LIVE: a SIDM2 session can already search this
   project's player facts via TDZ.

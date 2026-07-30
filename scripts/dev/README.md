@@ -3,16 +3,41 @@
 Ad-hoc tooling for reverse-engineering work. Nothing here is part of
 `npm run all`; these are run by hand.
 
-**One exception:** `gen-sidm2-worklist.js --check` runs automatically from
-`.githooks/pre-commit`, which `npm install` installs via `core.hooksPath`
-(`npm run hooks:install` to do it manually). It only fires when a commit stages
-a card, `knowledge/sidm2-ports.json`, `docs/SIDM2-INTEGRATION.md` or the
-generator itself, and skips with a notice on a clone that has no fetched
-`data/composers/`. Bypass with `git commit --no-verify`. It is a hook rather
-than a CI step because `data/composers/*.json` is gitignored — the check cannot
-run on a fresh CI checkout at all.
+**Two exceptions:** `gen-coverage.js --check` and `gen-sidm2-worklist.js --check`
+both run automatically from `.githooks/pre-commit`, which `npm install` installs
+via `core.hooksPath` (`npm run hooks:install` to do it manually) — they guard
+`knowledge/COVERAGE.md` and the generated table in `docs/SIDM2-INTEGRATION.md`
+respectively, both of which have rotted in practice. Each fires only when a
+commit stages something it derives from — a card (`knowledge/players/*.md`) or
+the generator itself for either check, plus `knowledge/COVERAGE.md` for the
+first and `knowledge/sidm2-ports.json`/`docs/SIDM2-INTEGRATION.md` for the
+second — and both skip with a notice on a clone that has no fetched
+`data/composers/`. Bypass with `git commit --no-verify`. They are hooks rather
+than CI steps because `data/composers/*.json` is gitignored, so neither check
+can run on a fresh CI checkout at all.
+
+`check-cards.js` is written to gate commits the same way but is **not currently
+wired into the hook** — run it by hand after editing cards.
 
 - `find-uncarded-tags.js` — player tags with no knowledge card yet.
+- `coverage.js` — file-level carding coverage: what fraction of tagged SID files
+  resolve to a knowledge card, and where the remaining mass sits. Its
+  uncarded-tag ranking is what drives the carding backlog (several cards exist
+  because a tag topped this list). Two caveats the cards themselves already
+  record: it keys "carded" off each card's `aliases[]` with no separate
+  exclusion mechanism, so a genuine non-tool meta-tag can only be cleared by
+  claiming it with a documenting card; and its `[RSID?]`/digi grouping hint is a
+  bare filename regex (`/digi|sample|mixer/i`), not a read of any flag or
+  routine — never treat it as evidence of sample playback.
+- `check-cards.js` — three card checks `build-graph.js` deliberately does not do:
+  (1) JSON validity of every card's ```json block — `build-graph.js` **silently
+  skips** an unparseable card and still exits 0, so a malformed card can sit
+  unnoticed (caught for real: a dropped trailing comma in `oliver-kirwa.md`
+  showed up only as "nodes: 199" against 200 files); (2) count reconciliation,
+  cards on disk vs nodes in the graph, which is what surfaces (1); (3) broken
+  prose `[[links]]`, which `build-graph.js` never looks at. Exits non-zero, so
+  it is suitable as a commit gate — see the note above on it not being installed
+  as one.
 - `find-connections.js` — candidate player<->player connections from
   composer-overlap over `data/composers/*.json` + card `edges[]`. Surfaces
   bridge composers, high-overlap card pairs with no curated edge (with the

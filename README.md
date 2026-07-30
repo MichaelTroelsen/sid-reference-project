@@ -119,6 +119,9 @@ docs/
   SID-HISTORY.md          — narrative history derived from the knowledge graph's lineage edges
   SOURCES.md              — per-file data provenance manifest (mirrors the Sources tab)
   DEEPSID-API.md          — full DeepSID REST API reference (endpoints, response shapes, quirks)
+  IMPLEMENTATION-NOTES.md — detailed implementation history and landmines behind
+                             specific features (split out of CLAUDE.md — read the
+                             relevant section before touching that area of code)
   legacy/
     sid_reference.html    — the predecessor hand-curated HTML file (static,
                              frozen in time, kept for reference only — not

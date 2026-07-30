@@ -1636,6 +1636,229 @@ them):
     $3ede-$3fb7, past the $3edd payload end) — those are dead unused slots,
     relocate them base-relative anyway and do not treat them as evidence the
     table decode is wrong.
+73. **An author's published source can be the RIGHT source for the file and
+    still not rebuild it, because the published revision post-dates the
+    released binary — and the resulting byte-diff looks like a catastrophic
+    misalignment rather than a 3-byte edit.** Lesson 66 established that a
+    published source may not correspond to the tagged file at all; this is
+    the subtler sibling case where it does. On lft's Forkladd Gud septet,
+    `larsson-sids.tgz` even ships the reference `.sid` files (byte-identical
+    to HVSC's), so provenance was not in doubt — yet alpha, delta and
+    epsilon assembled 3, 6 and 3 bytes short and byte-diffed at
+    63.59%/64.64%/67.28%, in the noise-adjacent range gotcha 4 would read as
+    "genuinely different code". Cause: after building the release the author
+    commented out one or two old loop-point lines of the form `;jumphere:
+    .byt 0,_TEMPO,$50` — a LABEL and its DATA on the same line — so
+    commenting the label silently deleted three data bytes that are still
+    present in the shipped file. The diagnostic that localises this in one
+    step, and generalises to any single-deletion-upstream defect: compute
+    the longest common PREFIX and the longest common SUFFIX of the two
+    payloads, then search for the smallest offset at which a 40-byte window
+    matches at shift k for each k in 1..delta. Here that returned "shift 3,
+    first long match at $4aeb" immediately, pinpointing a single 3-byte
+    insertion; a hexdump at that address showed `00 28 50` = one complete
+    `delay,_TEMPO,$50` command, and grepping the source for `_TEMPO` found
+    the commented line in seconds. The general rule: when a source-derived
+    build is short by a handful of bytes, grep the source for COMMENTED-OUT
+    lines that carry both a label and data before assuming an
+    assembler/encoding difference — and be aware that restoring the data
+    while leaving the label commented is usually the correct edit, since the
+    still-active definition of that label elsewhere is what the shipped
+    binary's jump target actually used. Companion practical finding: xa65
+    sources (`.byt`, `.(`/`.)`) translate to 64tass mechanically, but three
+    of the four required rewrites are non-obvious traps rather than syntax
+    mapping — (a) emit `.block`/`.bend` on their OWN line so a label that
+    preceded `.(` keeps meaning "address here" instead of becoming a 64tass
+    scope name; (b) rename any `_XXX` constants, because 64tass reads a
+    leading underscore as a cheap-local label and every reference from
+    inside a block silently fails to resolve to the file-level definition;
+    (c) add colons to column-0 labels, since bare names like `shl` collide
+    with 64tass tokens and produce a misleading "not defined symbol '<the
+    next mnemonic>'" error pointing at the following instruction, not at the
+    label.
+
+74. **Scan the raw PSID payload for printable ASCII/PETSCII runs BEFORE
+    writing any prose about a player's authorship, provenance or version
+    history — an engine that names itself in-binary outranks SIDId's tag,
+    this project's own cards, and any amount of CSDb research, and the scan
+    costs one Node loop.** What was assumed on comptech-x: that SIDId's
+    `Geir_Tjelta/Comptech-X` tag is an authorship claim, and that with zero
+    CSDb footprint the tool's provenance was simply unknowable — the card
+    had accumulated three carefully-reasoned quirks built on that premise (a
+    "genuinely puzzling" X-Ample audience mismatch, an explicit "naming
+    trap" warning that the similarly-named X-Ample tool `Compotech` was
+    unrelated, and a `shares_routine_with` edge to the author's other
+    players). What is actually true: four of the six tagged files carry a
+    plain-ASCII credit block at load+$06 reading "COMPTECH MUSIC PLAYER BY
+    X-AMPLE ... VERSION 2.4 UPGRADE PLAYER AND EDITOR BY MARKUS SCHNEIDER /
+    VERSION 2.3 UPGRADE PLAYER AND EDITOR BY GEIR TJELTA / VERSION 2.2
+    UPGRADE PLAYER BY MARKUS SCHNEIDER / VERSION 2.0 PLAYER BY MARKUS
+    SCHNEIDER, ADDITIONAL CODE BY HELGE KOZIELEK, EDITOR BY JOACHIM
+    MULTERMANN", plus per-tune TRACKNAME/YEAR/COMPOSER fields. That one
+    string reverses the authorship, dissolves the "puzzling audience" quirk
+    (the users are X-Ample members because it is an X-Ample tool), makes the
+    "naming trap" quirk point the wrong way (the version numbering continues
+    directly from CSDb's Compotech V2.1), and surfaced two contributor names
+    the project had no record of. The failure mode is structural, not
+    carelessness: a SIDId tag is `Author/ToolName`, which reads as an
+    authorship claim but is really just a signature label, and every
+    downstream research pass then reasons *outward* from that name
+    (searching CSDb for the named author, framing contradictions as puzzles)
+    instead of *inward* from the bytes. Three practical notes. (a) Mask each
+    byte with `&0x7f` before testing printability so PETSCII uppercase
+    ($C1-$DA) is caught alongside ASCII; require runs of >=8 to suppress
+    noise. (b) Do NOT assume the string sits in a region a disassembler
+    dropped (that is lesson 47's narrower case) — here it was in ordinary
+    payload that SIDdecompiler handled fine and emitted as `.byte` data, so
+    nothing about the reconstruction flagged it; you only see it if you
+    look. (c) Its presence/absence can itself be a memory-map fact: on this
+    player the string occupies the same load+$06 slot that other builds of
+    the same engine use as zeroed working storage, so its length shifts the
+    whole engine forward — which is why signature offsets measured from the
+    load address disagree across files while offsets measured from an
+    in-engine anchor (lesson 68's method) agree exactly.
+
+75. **Any ad-hoc helper script written mid-run that slices a PSID payload
+    MUST reuse the `loadAddr === 0` branch from the project's own
+    `psid_header` snippet — and the cheap check that catches it when you
+    forget is byte-diffing the spliced/derived artifact back against the
+    original BEFORE tracing it.** What was assumed: that a quick throwaway
+    "append the untraced tail bytes to the reassembly" splice is trivial
+    enough not to need the full header-parsing boilerplate, since
+    `bdiff.js`/`mkprg.js` already handle it elsewhere in the same scratch
+    directory. What was actually true: `Return_of_the_Jedi.sid` carries PSID
+    header load address 0 with the real address ($c200) embedded as the
+    payload's own first two little-endian bytes, so the two-line splice was
+    off by exactly 2 and produced a file that was still 92.67% identical to
+    the original. The failure mode is structural rather than a typo, and
+    specifically nasty because the resulting artifact PARTIALLY works:
+    subtune 0 traced 0/152 divergences (its data lay entirely inside the
+    correctly-overlaid region), while subtunes 1 and 2 traced 107 vs 12 and
+    234 vs 228 writes — a profile that reads exactly like "the
+    reconstruction's subtune-dispatch code is wrong" or "the untraced tail
+    is genuinely load-bearing in a way the disassembly missed," and which
+    would have been written up as a real, localized reconstruction defect.
+    Byte-diffing the spliced artifact first showed 385 diffs concentrated in
+    $d420-$d680 with a two-byte shift signature, and the correct splice then
+    traced 0/0/0 on all three subtunes. Two operational corollaries: (a) a
+    header `loadAddr` of 0 is invisible in every downstream symptom, so
+    check for it explicitly on every file rather than noticing it when
+    something breaks — here it appeared on 1 of 7 files in one composer
+    folder, with no other distinguishing feature; (b) treat "my derived
+    artifact traces correctly on subtune 0 but not on others" as a candidate
+    INPUT-construction bug before it is a candidate code bug, since a 2-byte
+    shift preserves whichever region the overlay happened to cover.
+
+76. **`SIDdecompiler`'s "TraceNode pairs: 0" / "Relocation pairs: 0" summary
+    lines do NOT mean the trace failed or that the play address is wrong —
+    lesson 13's tell is stated one level too high and will produce a false
+    alarm on any simple player.** On frank-tout's Cherry_Picker.sid,
+    SIDdecompiler printed `TraceNode pairs: 0` and `Relocation pairs: 0`,
+    which reads exactly like lesson 13's sid-factory-ii signature ("a trace
+    with zero trace-node pairs" = the header's play vector is not real code,
+    go find the real dispatcher and pass `-P<decimal>`). It was a false
+    alarm: the disassembly was complete, every reachable byte resolved into
+    instructions, and the file reassembled 100.0000% byte-exact and traced
+    register-write- and cycle-exact. The structural reason is that those two
+    counters count *indirect/computed jump targets* and *relocatable
+    pointer-table entries*, not "instructions successfully traced" — a
+    player with no indirect jumps, no lo/hi pointer tables and only `lda
+    table,Y` indexing legitimately has zero of both while being perfectly
+    traced. The correct, unambiguous check for lesson 13's real failure mode
+    is the `.asm` itself: count instruction lines (or check whether the file
+    is 100% `.byte ... ; Unreferenced data`). Zero instruction lines means a
+    wrong play address; zero TraceNode pairs means nothing on its own.
+    Companion refinement to lesson 68, used to confirm this player family:
+    when picking masked opcode patterns for a shared-routine scan, `sta
+    $d4xx` / `lda $d4xx` sequences are excellent anchors even though they
+    contain address operands — SID (and CIA) register addresses are
+    hardware-fixed and therefore identical across every build regardless of
+    relocation base or zero-page layout, so a pattern like `B9 ?? ?? 8D 01
+    D4 B9 ?? ?? 8D 00 D4` (load-table-indexed / store-to-freq-hi / load /
+    store-to-freq-lo) is both highly specific and fully relocation-immune.
+    That pattern plus a wildcarded play-entry skeleton separated all 6
+    tagged PSID files into two variants with byte-identical relative offsets
+    within each variant, while matching zero of the negative controls
+    (Hubbard's Monty_on_the_Run, Galway's Wizball) and zero of the same
+    composer's own BASIC listings.
+
+77. **A `-v2` map "Start:" address BELOW the PSID load address has a THIRD
+    interpretation beyond lesson 31/38/60's "fixed low-RAM workspace" and
+    lesson 62's "copy-loop destination": a lookup table whose indexing BASE
+    is deliberately placed below the load address, so the table's unused low
+    entries fall outside the file entirely.** Confirmed on nigel-grieve,
+    where the note-frequency table is read as `lda $1def,Y` / `lda $1dee,Y`
+    with the file loading at $1e00 (base = load-$12; Herobotix: load-$11) —
+    the author saved the bytes for the lowest, never-played octave by simply
+    not storing them. The distinguishing tells, all cheap: the gap is SMALL
+    (9-15 bytes on two of the files, though it reached $033a-$0dff on a
+    third with a wider table), SIDdecompiler emits it as ALL ZEROS, there is
+    no page-copy loop anywhere in the file (lesson 62's test), and the code
+    contains a bare absolute-operand instruction pointing into the gap. The
+    correct handling matches lesson 54/60, not lesson 62: relocate with
+    `-a<decimal of Start>` (zero net shift, code stays at native addresses),
+    byte-diff only from the real load address up, and do NOT try to patch
+    the gap bytes from the original file — they are not in it. **The
+    genuinely new and more important half:** those below-range literals are
+    also a relocation defect class NOT covered by lesson 72(b) (which is
+    about unsymbolised entries inside lo/hi pointer TABLES). SIDdecompiler
+    cannot symbolise an operand that points outside the range it
+    disassembled, so it silently leaves it as an absolute constant in
+    otherwise-fully-symbolic output — and because the native build is
+    byte-exact, nothing looks wrong until a relocated control build is
+    traced, where it manifests as the player reading a zeroed table (here:
+    frequencies collapsing to small values with the high byte never written,
+    184 vs 189 writes on the calmest subtune and 270 vs 309 on a busier
+    one). Practical rule: before running a relocation-invariance test
+    (lessons 69/70/72), grep the generated `.asm` for four-hex-digit `$xxxx`
+    literals on non-`.byte` lines and triage every one that is not a
+    hardware register — on a clean file that list should contain only $d4xx.
+    Rewriting them as `RB-$NN` against a base equate took a failing
+    relocation test to 0 diffs across all 5 subtunes. Note also that this
+    trap and lesson 72(b)'s can coexist in one file: fixing the
+    pointer-table entries alone changed 12 bytes and moved the trace not at
+    all, which is exactly the "no-op patch misread as a second unrelated
+    defect" failure lesson 72 warns about — verify each fix changes the
+    relocated binary AND re-trace after each one separately.
+
+78. **`-r` (lesson 63) has a specific, structural blind spot that is
+    invisible in the byte-diff and actively disguised by it: it ERASES any
+    code the player block-copies at runtime, silently converting a would-be
+    disassembled code region into `.byte` pass-through, and the resulting
+    file still byte-diffs at a perfect 100.0000%.** What was assumed after
+    batch25: that `-r` is strictly better than the drifted-image default,
+    because it reproduces pristine bytes and dissolves the whole
+    self-modified-workspace patching class. What is actually true: `-r`
+    re-reads the pristine file image into emulated RAM after tracing, so any
+    address the player WROTE code to during that trace is reset to its
+    on-disk value — which, for a copy destination outside the file's own
+    load range, is $00. Confirmed on paul-mudra's
+    `A_Nightmare_on_Elm_Street.sid`, whose PSID play address ($4993)
+    legitimately sits outside its own payload ($13c0-$2250) because init
+    copies 997 bytes from $1e6c-$2250 to $48da-$4cbe via a
+    `($fb),Y`/`($fd),Y` loop and then runs from the copy. With `-r` the
+    whole $48da-$4cbe region emits as 412 one-byte `brk` fills and only 62
+    instruction bytes / 32 instructions of the payload are real disassembly
+    (96.8% `.byte`); WITHOUT `-r` the identical invocation disassembles that
+    same region as 412 real instructions of the actual engine. The reason
+    this is dangerous rather than merely limiting is that the byte-diff
+    cannot detect it: the source image at $1e6c-$2250 is genuine file data,
+    so it passes through verbatim, the reassembly is byte-identical, the
+    reconstruction even PLAYS correctly (188/300-frame trace reproducing the
+    card's prior 17-writes/50-frames figure), and every headline metric
+    reads "fully verified" — while essentially nothing about the engine was
+    actually recovered. Two cheap detectors, both worth running on every
+    `-r` build before quoting its byte-diff: (a) apply lesson 65's
+    instruction-vs-`.byte` byte count to the PAYLOAD window specifically,
+    and treat a code fraction near zero as a red flag rather than as "this
+    file is mostly music data" (real Mudra data files sit at 7-23% code;
+    this one sat at 1.7%); (b) check whether the PSID play address falls
+    inside `[load, load+len)` at all — if it does not, there is a runtime
+    copy and `-r` will have blanked its destination. The fix when it fires
+    is to re-run WITHOUT `-r` for the disassembly you want to READ, keeping
+    the `-r` build only for the byte-diff, and to expect lesson 19's
+    `l<addr>+1` illegal-label syntax in the non-`-r` output (it appeared in
+    exactly the self-modified-operand sites that `-r` had smoothed over).
 </lessons_learned>
 
 <success_criteria>

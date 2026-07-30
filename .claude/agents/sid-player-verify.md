@@ -1451,6 +1451,191 @@ them):
     untraceable, grep the disassembly (or the raw payload) for
     `$D4[2-9A-F]`/`$D5`/`$D6`/`$D7` stores; any hit means the mirror, means
     VICE, means the re-wrap.
+68. **To decide whether two files by DIFFERENT composers share a
+    playroutine, scan raw payload bytes for a handful of short opcode
+    patterns taken from a verified disassembly and check that their RELATIVE
+    OFFSETS match — do not use longest-common-substring, which fails
+    silently on the exact case you care about.** Lesson 66 established the
+    "run the signature against a reference build" check, and the natural
+    implementation is a longest-common-run scan; that is what was tried
+    first here and it produced actively misleading answers. On dave-lee, LCS
+    between Erebus and the six other tagged files returned 195 bytes for
+    Star_Lifter (correctly: same build), but only 10-17 bytes —
+    indistinguishable from noise, and below lesson 66's own 14-byte noise
+    threshold — for Falcon_Patrol_II, Hideous_Bill and Hunter_Patrol, which
+    are byte-exact-verified builds of the SAME driver. The structural reason
+    is that this driver (like most 1980s in-game routines) is assembled
+    fresh per title at a different base with a different zero-page block, so
+    every absolute operand, every ZP operand and every branch target
+    differs; the longest run of consecutive IDENTICAL bytes is therefore
+    bounded by the longest stretch of implied/immediate-mode instructions,
+    typically 10-20 bytes, no matter how identical the source is. The fix is
+    to pick 4-6 patterns that are pure opcode+immediate with no address
+    operands (here: `29 fe a0 04 91` gate-off, `29 0f 0a aa` note decode,
+    `29 07 a8 88 30` octave shift, `4a 4a 4a a2 ff e8 4a 90` one-hot search,
+    and the literal duration table `80 40 20 10`), then require BOTH that
+    all of them hit AND that their pairwise offsets are identical across
+    files. That test returned identical offsets (+$19, +$4f, +$11, +$83 from
+    the gate-off anchor) in all 7 tagged files across 3 composers, and zero
+    hits in the 2 untagged files by one of the same composers — i.e. it is
+    specific, not generic 6502, and it is immune to relocation, ZP-base
+    changes and operand differences that defeat LCS. Two practical notes:
+    choose patterns from the ENGINE (decode/gate/duration logic), never from
+    init or data-table setup, since those are the parts most likely to be
+    edited per title; and the offset-identity check is what upgrades the
+    result from "shares some idioms" to "same source", so report the
+    offsets, not just the hit count.
+
+69. **When `-r` (lesson 63) makes a reassembly byte-IDENTICAL to the
+    original, the trace-diff becomes tautological — but the fix is not to
+    abandon tracing, it is to trace a SECOND, RELOCATED build against the
+    original, which costs one extra `SIDdecompiler`+`64tass` invocation and
+    turns the trace back into a real test.** What was assumed after
+    batch24's `music-processor` finding (lesson 65): that a 100%-byte-exact
+    reassembly leaves you with a trace comparison that proves nothing, so
+    the byte-diff is the only citable evidence. What is actually true:
+    relocating the SAME disassembly to a different base (`-a<decimal for a
+    different address>`) forces the assembler to re-emit every absolute
+    operand from symbols and moves any out-of-file workspace addresses too,
+    producing a payload that genuinely differs from the original — on
+    `games-creator` 20 of 408 bytes differed at the same offsets — while
+    remaining semantically equivalent. Trace THAT against the original (with
+    init/play addresses shifted by the same delta) and an exact
+    register-write match is a real structural check: a single mis-parsed
+    instruction boundary anywhere upstream would relocate the wrong byte and
+    break execution, whereas a byte-identical build cannot fail by
+    construction. Two practical notes. (a) **Quantify the test's strength by
+    counting how many bytes the relocated build actually differs by at the
+    same offsets** — report that number alongside the trace result, since "0
+    divergences over N writes" means very different things when 20 bytes
+    changed versus 200. (b) **Choose a relocation delta with a NON-ZERO LOW
+    BYTE** if you want the test to exercise low-byte operand relocation too;
+    a round delta like +$2200 only changes high bytes, so it silently skips
+    half the operand-fixup surface. The failure mode this addresses is
+    structural rather than a flag mistake: `-r`'s whole purpose is to
+    reproduce the file's pristine bytes, so on any clean player it will
+    routinely drive byte-diff to exactly 100% and thereby dissolve the
+    evidentiary value of the very trace step the workflow ends on — every
+    card verified with `-r` needs this second build, not just the ones that
+    happen to look suspicious.
+
+70. **The cheapest way to escape the "byte-identical reconstruction makes
+    the trace tautological" objection is a RELOCATION-INVARIANCE test:
+    re-emit the SAME disassembly at a different `-a<decimal>` base, trace it
+    at the shifted init/play, and compare only `(frame, register, old_value,
+    new_value)` while ignoring the cycle column.** What was assumed (and
+    what batch24's music-processor case correctly warned about) is that once
+    a reassembly hits 100% byte-exactness there is no further evidence
+    available — an identical trace is guaranteed by construction, so the
+    whole trace step degenerates into a no-op and you are left arguing from
+    the byte-diff alone. What is actually true is that SIDdecompiler's
+    output is symbolic source, so a second build at a different base
+    produces genuinely DIFFERENT machine code from the SAME source; if that
+    build still reproduces every register write, the disassembly is proven
+    structurally correct, not merely a byte dump. Confirmed on
+    neil-crossley's `Amazing_Spider-Man.sid`: the native `-a23885` build was
+    byte-identical (tautological), while an `-a16384` rebuild at $4000-$5432
+    reproduced all 219/219 write tuples exactly. Two operational details
+    that make it usable: (a) **always strip the cycle column before
+    diffing** — moving the code to a different page changes page-crossing
+    penalties on indexed addressing, so cycle counts legitimately drift (−3
+    to +62 here) while the write sequence is identical; a raw `diff` reports
+    every line as changed and looks like total failure. (b) **A FAILED
+    relocation test is not automatically a failed reconstruction** — on the
+    same card's `G-Loc_R360.sid` the +$1000 rebuild diverged from frame 31
+    purely because SIDdecompiler does not translate traced runtime
+    sequence-pointer VALUES on relocation (lesson 61), so the test is
+    one-directional evidence: passing proves the disassembly is
+    source-derived, failing only tells you the file has unrelocated runtime
+    state. Companion finding, extending lesson 62's
+    off-by-one/duplicate-symbol sub-finding into a concrete rule: when
+    SIDdecompiler emits the SAME `lXXXX` label name twice on consecutive
+    addresses (10 times on `Chips_Challenge.sid`, in the region the player
+    block-copies to under-KERNAL RAM at init), **dedupe by keeping the LAST
+    definition, not the first** — keeping the first makes every downstream
+    `<label`/`>label` pointer byte resolve exactly 1 too low, which shows up
+    as a scatter of isolated single-byte diffs all in the same direction
+    (lesson 19's signature) and, on this file, as a real trace divergence
+    (88 writes vs 282 on 3 of 4 subtunes) rather than harmless noise.
+
+71. **Before relocating anything, read the load address out of EVERY file's
+    own PSID header — a card's `memory.load_address` prose derived from a
+    DeepSID-dump aggregate can silently report the MAJORITY value as if it
+    were universal, and the resulting relocation is wrong for the minority
+    files in a way that looks like a bad disassembly rather than a bad
+    input.** On ozzy-oldskool the card stated "confirmed via local DeepSID
+    dump AND HVSC trace, consistent across all 7 files: $A000"; reading the
+    7 headers directly gave four distinct load addresses ($A000 x4, $A600,
+    $AE00, $8700). Trusting the card would have produced three
+    badly-misaligned reassemblies out of seven. The failure mode is
+    structural, not carelessness: a dump-derived figure is aggregated over
+    file rows, the aggregation step is invisible in the card's prose, and
+    the word "consistent" reads as a verified claim rather than a summary —
+    and this project's own workflow already says the PSID header is ground
+    truth over card prose, which is exactly the check that catches it.
+    Corollary technique, cheap and worth doing on any player with several
+    same-load-address files: intersect the raw payloads of those files
+    byte-by-byte in one Node pass. The bytes that AGREE delimit the fixed
+    engine block; the contiguous runs that DISAGREE delimit per-song data
+    and working storage; and the ISOLATED single-byte disagreements inside
+    the agreeing region enumerate the player's self-modified operands
+    exactly, with no tracing, no `-v2` map reading and no patch-isolation
+    runs. On this player it produced the whole memory-map segmentation plus
+    a complete list of 8 self-modified operand addresses in seconds, and
+    immediately showed all 8 are init-overwritten (hence why the file needed
+    zero patching) — a much faster route to the same answer than the
+    group-complement isolation of lesson 64, applicable whenever a player
+    family ships 3+ files at one common load address.
+
+72. **The cure for the tautological-trace problem (the one batch24's
+    music-processor agent correctly refused to call verification) is a
+    RELOCATION ROUND-TRIP, and it costs one extra SIDdecompiler run.** When
+    `-r` gives a 100.0000% byte-exact reassembly, any trace-diff against the
+    original is guaranteed to match by construction and proves nothing — but
+    rebuilding the same disassembly at a DIFFERENT address produces a binary
+    that is materially different from the original (354 of 3534 bytes on
+    tonal-kaos's Cavemania) while being required to produce the identical
+    register-write stream. That is a genuine, citable, non-tautological
+    verification, and it is a strictly STRONGER test than a native byte-diff
+    because it exercises every code/data boundary and every address
+    reference the disassembler committed to: one byte misclassified as data
+    (or one operand left as a hardcoded constant) breaks it immediately and
+    visibly. Two practical notes that make it usable. (a) **Cycle timestamps
+    will drift if the two base addresses differ in their intra-page offset**
+    — Cavemania $3110 -> $5000 drifted ~6 cycles/frame from page-crossing
+    penalties, which looks alarming in a naive line-by-line diff (567 of 571
+    lines "differ"); compare on `frame,register,old,new` with the cycle
+    column stripped, and confirm the mechanism by relocating a second,
+    page-aligned file (Moontorc $2c00 -> $5000 came back cycle-exact, 0
+    diffs, proving the drift was page-crossing and not behavioural). Do not
+    skip that second file — without it, "the cycles differ" is
+    indistinguishable from a real timing bug. (b) **SIDdecompiler's
+    relocation output can be silently INCOMPLETE for split lo/hi pointer
+    tables, and this is invisible at the native address.** It symbolises
+    only the table entries its own trace actually dereferenced and leaves
+    the siblings as hardcoded page constants — e.g. `.byte >l378a, $37, $37,
+    >l37d2, $37, $37`, where those `$37`s are the high bytes of pointers
+    whose low bytes it DID symbolise. At the native base the constants are
+    correct, so the byte-diff is a clean 100% and nothing looks wrong; on
+    relocation the symbolised entries move and the constants do not, so the
+    player reads garbage pointers (tonal-kaos: 237 writes instead of 571,
+    voices 2 and 3 dead, while voice 1 played fine — a partial failure that
+    reads like a data bug, not a relocation bug). Fix: decode every lo/hi
+    table pair from the ORIGINAL file's own bytes (`addr[i] = hi[i]<<8 |
+    lo[i]`) and re-emit all entries as `<(RB+offset)` / `>(RB+offset)`
+    against an `RB = $<newbase>` equate. Two sub-traps found doing this:
+    SIDdecompiler KEEPS THE NATIVE LABEL NAMES when relocating (a table at
+    native $3124 is still `l3124` in a $5000 build), so a patcher keyed to
+    shifted names silently applies zero edits — and a patch script that
+    reports "applied N tables" must count actual textual replacements, not
+    the number of blocks it generated, or that no-op looks like success
+    (this cost a full wrong-conclusion cycle here: the patched .prg was
+    byte-identical to the unpatched one and the failing trace was misread as
+    "there must be a second unrelated defect"). Also expect some table slots
+    to point past EOF (24 of Cavemania's 42 track pointers land at
+    $3ede-$3fb7, past the $3edd payload end) — those are dead unused slots,
+    relocate them base-relative anyway and do not treat them as evidence the
+    table decode is wrong.
 </lessons_learned>
 
 <success_criteria>

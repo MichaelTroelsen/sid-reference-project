@@ -90,7 +90,8 @@ for absolute operands: one source, re-assembled per game.
 ## Verification
 
 `status: in-progress`. First disassembly + reassembly + trace-diff pass completed
-2026-07-25.
+2026-07-25. **Re-run and confirmed 2026-07-30** (batch23, no patching) — identical
+results, no regression.
 
 ### Black_Hornet.sid (load $8378, init $8378, play $8380, 2 subtunes)
 
@@ -103,9 +104,9 @@ Start: == load address, no gotcha-40 trap). Reassembled with 64tass.
   $872C-$872D)
 - **Trace-diff subtune 0** (20 frames): **exact match** — 104/104 writes identical
   including cycle timing
-- **Trace-diff subtune 1** (20 frames): visually identical across 144 writes;
-  the 22 byte diffs are confirmed dead initial values (always overwritten before
-  being read — classic entry-10/lesson-10 pattern)
+- **Trace-diff subtune 1** (20 frames): **exact match** — diff confirms 0
+  divergences across all writes; the 22 byte diffs are confirmed dead initial
+  values (always overwritten before being read)
 
 ### Wacky_Races.sid (load $F8F8, init $F8F8, play $F900, 1 subtune)
 
@@ -120,7 +121,8 @@ SIDdecompiler (`-a63736 -z -d -c`).
   sweep initialization byte is load-bearing. This is the lesson-16/lesson-42
   pattern: identical driver code, same self-modified-workspace shape, but one
   file's init reads those bytes before first write while the other's overwrites
-  them first.
+  them first. **Reproduced 2026-07-30** (batch23, no patching) — result unchanged;
+  patching still required to close.
 
 ### Next step
 
@@ -129,7 +131,7 @@ Patch the Wacky_Races .prg to restore the 40-byte working-storage region
 methodology as lessons 16/17/29/42/56 in the agent's hard-won gotchas) and
 re-trace — this is expected to close the gap to 100% trace-exact. The driver
 code itself is verified to be structurally correct (both Black_Hornet subtunes
-match exactly).
+match exactly). This step was explicitly skipped in batch23 (per user instruction).
 
 ## Sources
 

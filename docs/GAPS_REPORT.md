@@ -1,6 +1,6 @@
 # DeepSID Documentation Gaps Report
 
-Generated: 2026-07-18T18:11:26.771Z
+Generated: 2026-07-29T22:04:23.353Z
 Composers scanned: 1902
 Player/editor entries scanned: 129
 Total gaps found: 240

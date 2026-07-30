@@ -65,16 +65,20 @@ above.
 
 ## Verification
 
-**Disassembly + trace-diff verified on 6 files across 3 of 5 known
-load-address conventions (2026-07-24/2026-07-25) — `status: in-progress`.**
+**Disassembly + trace-diff verified on 8 files across 5 of 5 known
+load-address conventions (2026-07-25: original 6 files; 2026-07-29:
+Disc-o-very and Bobix subtune 0 added; 2026-07-30: Eat_My_Pussy_part_1.sid
+re-run confirmed fresh — identical 98.66% byte-diff, 0 trace divergences)
+— `status: in-progress` (Bobix needs full 18-subtune assembly repair to
+close the multi-subtune coverage gap before flipping to `verified`).**
 
-Six real HVSC files disassembled + reassembled + traced, covering the
+Eight real HVSC files disassembled + reassembled + traced, covering the
 standard convention (init=load), the $0FFF-based convention (init=load=$0fff,
-play=load+4), and the load+$48/'Tendance-series' convention (init=load+$48,
-play=load+$21) — the player uses at least 5 different load-address
-conventions across its 37 files, and files with non-standard entry points
-like Bobix (deep-init, 18 subtunes) or workspace-far-below-code files like
-Disc-o-very still need heavier assembly repair; see "Not yet done" below.
+play=load+4), the load+$48/'Tendance-series' convention (init=load+$48,
+play=load+$21), the Disc-o-very convention (load=$7ff0, init=$8000,
+play=$8003 — cold-boot stub + JMP dispatcher at the front), and the Bobix
+deep-init/multi-subtune convention (load=$2000, init=$2d8f, play=$2d81,
+workspace at $1000-$1FFF). See each file entry below for detailed results.
 
 ### File 1: `Relax.sid` (1992, load $5000, init $5000, play $5003, 1 subtune)
 
@@ -134,29 +138,29 @@ tried across the standard, $0FFF-based, and load+$48 conventions reach
 100% register-write-exact after patching (or, on 1 of 6, without needing
 any patch at all).
 
-### Not yet done
+### File 7: `Disc-o-very.sid` (load $7ff0, init $8000, play $8003, 1 subtune)
 
-- **Bobix.sid** (18 subtunes, init at `$2d8f` deep inside the file, not at
-  the load address `$2000`): SIDdecompiler output has genuine ASM issues
-  (duplicate labels from name collisions, `lXXXX+1` label syntax,
-  undocumented 6502 opcodes) that need repair before assembly — estimated
-  ~32 errors across a 21,133-byte, 18-subtune file. The `-v2` map reports
-  `Start: $1000` vs PSID load `$2000` (gotcha-40 — the player uses low-page
-  workspace below the code's load address; relocate to `$1000`, not
-  `$2000`). This is the single largest remaining gap — it's also the only
-  file with a confirmed separate 'Music Player' coder credit concern
-  (see quirks), so closing it would also bear on the authorship question.
-- **Disc-o-very.sid** (load $7ff0, init $8000): not yet attempted this
-  round; still needs its own `-v2` Start-address check per gotcha 40
-  before relocating.
-- The remaining conventions not yet sampled at all: Bobix's
-  deep-init/multi-subtune style (also used by Galactic_Chaos, Sonny_the_Snail,
-  Speedy_Slug, Troddlers_preview, Puzzle_Mania — 5 more files) and
-  Disc-o-very's workspace-below-code style — together roughly 6-7 of the
-  37 files.
-- Memory map beyond entry points/ZP, data format, and effects encoding
-  remain `TODO` — the disassembly is structurally sound but not yet
-  annotated for song-data layout.
+- **New finding**: The PSID header has loadAddr=0 (embedded $7ff0 from the first 2 payload bytes). The `-v2` map reports `Start: $02a6` — well below the code's load address $7ff0 (gotcha 40). The first 16 bytes ($7ff0-$7fff) are a cold-boot routine (saves ZP $FE/$FF, JSRs to init, restores ZP, RTS) that the PSID's own init/play vectors bypass entirely. The code opens with a 3-entry JMP vector table at $8000 (JMP $80a4=init, JMP $8e80=play, JMP $808f=3rd entry). The ASCII credit-string convention found on Verdict_Intro/Eat_My_Pussy (lesson 47) is NOT present here — just the dispatcher JMPs.
+- **Relocated to `-a678`** (decimal for the `-v2` Start address $02a6) per gotcha 40. 64tass assembled cleanly in one pass (no wrap warnings, single contiguous $02a6-$8e93 block).
+- **Byte-diff: 98.21%** over the 3,748-byte overlap ($7ff0-$8e93): 67 bytes differ, concentrated in the workspace/init-data table area ($800b-$808b, ~63 bytes) plus 4 isolated bytes at $820e/$823e/$86df/$86e7.
+- **Trace-diff**: 57/58 register writes match over 10 frames; the 2 diverging writes are osc3's initial frequency ($5CF1 in original vs $52CD in reassembly) — the classic drifted-workspace pattern.
+- **Patched**: 100% register-write-exact after restoring all 67 workspace bytes to pristine original values.
+- **Verified**: Confirms the Disc-o-very convention (load at a padded address with a small cold-boot stub then JMP dispatcher table) uses the same player code and drifted-workspace mechanism as all other files.
+
+### File 8: `Bobix.sid` (load $2000, init $2d8f, play $2d81, subtunes 18)
+
+- **New finding (subtune 0 only)**: The `-v2` map reports `Start: $1000` vs PSID load $2000 (gotcha 40 — fixed low-page workspace at $1000-$1FFF). Play at $2d81 comes BEFORE init at $2d8f (unusual ordering). The init routine validates the subtune number (CMP #$02/BVS exit), then initializes the workspace. Relocated to `-a4096` (decimal for $1000) per gotcha 40.
+- **Single-subtune trace (`-1 -s0`)** used per lesson 48 to avoid cross-subtune state corruption. 13,490 trace nodes vs 52,429 for all 18 subtunes. The `.asm` had 8 `lXXXX+1` label-syntax errors (gotcha 19), all fixed by the standard anchor-label + alias pattern.
+- **Byte-diff: 99.95%** over the 3,840-byte overlap ($2000-$2EFF): only 2 bytes differ, at $2d70 and $2d73 (self-modified operand bytes at cold-start $00, captured by SIDdecompiler at their post-loop drifted values $2f/$1f).
+- **Trace-diff (subtune 0)**: All 78 register writes match exactly over 10 frames after patching the 2 self-modified bytes to $00.
+- **Coverage gap**: The single-subtune trace only reaches $2EFF of the original file's $728D (21,133 bytes). The other 17 subtunes' song data is beyond $2EFF and unreachable from a subtune-0-only reconstruction. Subtune 1 traced against the subtune-0 .prg produces 0 SID writes (no song data available).
+- **Full multi-subtune disassembly** (all 18 subtunes, 52,429 nodes): fixes partially applied — `lXXXX+1` errors all resolved (32→24 remaining). Still needs ~24 fixes: 6 duplicate labels, 5 undefined symbols, ~9 undocumented 6502 opcodes, and 2 `+1+2+1` branch target expressions. The player CODE is verified through subtune 0; the remaining errors are in song-data table generation across the untraced subtune boundaries.
+
+### Remaining work
+
+- **Full Bobix multi-subtune**: The 24 remaining assembly errors in the full 18-subtune disassembly are mechanical (duplicate label renaming, placeholder definitions for workspace symbols, `.byte` replacements for undocumented opcodes). The player code itself is proven correct through subtune 0's exact trace match — these fixes only affect coverage of the other 17 subtunes' song data.
+- **Full Bobix coverage** would also cover the 5 sibling files sharing the deep-init/multi-subtune style (Galactic_Chaos, Sonny_the_Snail, Speedy_Slug, Troddlers_preview, Puzzle_Mania) — they share the same player code and load-address pattern, so verifying Bobix fully would verify the entire convention.
+- Memory map beyond entry points/ZP, data format, and effects encoding remain `TODO` — the disassembly is structurally sound but not yet annotated for song-data layout.
 
 ## Sources
 

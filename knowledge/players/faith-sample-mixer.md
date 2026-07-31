@@ -8,7 +8,7 @@
   "authors": ["Slawomir Balon (BS) / Faith Design (Poland)"],
   "released": "1994",
   "status": "stub",
-  "platform": "TODO: presumed native C64 tool (only known distribution is a single .prg download from a CSDb release page) — no manual, documentation, or platform description found to confirm.",
+  "platform": "Native C64 tool (CSDb's XML webservice classifies release id 7296 with Type=\"C64 Tool\", the same controlled-vocabulary field used to confirm platform on sibling card comer-sample-studio.md; the .prg download itself is a bare 6502 executable, not a cross-platform-editor artifact) — no manual or further platform description found beyond this classification.",
   "csdb_release": 7296,
 
   "memory": {
@@ -53,6 +53,8 @@
   "sources": [
     "data/sidid.json byTag.Faith_Sample_Mixer (name, author='Slawomir Balon (BS)', released='1994 Faith Design', reference=CSDb 7296) — also present verbatim in deepsid_dl/sidid.nfo line 423",
     "CSDb release 'Sample Mixer V1.2' (1994, Faith Design, code: BS): https://csdb.dk/release/?id=7296",
+    "CSDb XML webservice (scripts/lib/csdb-client.js getRelease(7296)) — Release.Type = \"C64 Tool\" (the platform classification), DownloadLinks.DownloadLink.Link = getinternalfile.php/42479/Sample_Mixer.prg, Downloads=525; no PC/cross-platform Type value present",
+    "WebSearch for \"Sample Mixer\" + Faith Design/BS/Biseptol across Lemon64 and general web (2026-07-31): no forum threads, manual, or format documentation found beyond the CSDb release page itself",
     "CSDb group Faith Design (Poland), listing BS as coder/diskmag-editor/graphician/hardware-guru: https://csdb.dk/group/?id=1281",
     "CSDb scener profile for BS (aliases Biseptol/BeeS, Poland, ex-Impact Laboratories, full release catalog): https://csdb.dk/scener/?id=5048",
     "data/players.json checked (grep 'Sample Mixer') — confirms NO curated entry exists for this tool (only the unrelated Assassin Sample Mixer is curated)",
@@ -63,15 +65,17 @@
 
 ## Overview
 
-Sample Mixer (tagged `Faith_Sample_Mixer`) is a native-C64-presumed tool by
-the Polish scener **BS** (aliases Biseptol/BeeS; SIDId gives the real name
-"Slawomir Balon") of the group **Faith Design**, released as "Sample Mixer
-V1.2" in 1994. Local dataset usage is tiny and concentrated: **10 files
-across exactly 2 composers**, both Polish (Blackman and Pajda) — a
-personal/small-scene tool rather than a widely-adopted editor, consistent
-with the composer-concentration signal this project treats as evidence for
-that conclusion (`_Sample_Mixer` per se says nothing; the concentration
-numbers do).
+Sample Mixer (tagged `Faith_Sample_Mixer`) is a native C64 tool (CSDb's
+webservice classifies release 7296 as `Type=C64 Tool`) by the Polish scener
+**BS** (aliases Biseptol/BeeS; SIDId gives the real name "Slawomir Balon")
+of the group **Faith Design**, released as "Sample Mixer V1.2" in 1994.
+Local dataset usage is tiny and concentrated: **10 files across exactly 2
+composers** (census of every tagged file confirmed: Blackman 6/9, Pajda
+4/5 — no discrepancy from the recorded counts), both Polish (Blackman and
+Pajda) — a personal/small-scene tool rather than a widely-adopted editor,
+consistent with the composer-concentration signal this project treats as
+evidence for that conclusion (`_Sample_Mixer` per se says nothing; the
+concentration numbers do).
 
 ## Quirks & gotchas
 

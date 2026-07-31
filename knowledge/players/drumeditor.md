@@ -8,7 +8,7 @@
   "authors": ["Frank Hugenroth", "André Hugenroth (Andrenator)"],
   "released": "1990 (64'er-Disc / Markt & Technik); a V4.0 followed in 1994",
   "status": "stub",
-  "platform": "TODO: native C64 tool (disk-based, distributed on a 64'er-Disc coverdisk); native vs cross-platform not independently confirmed beyond this",
+  "platform": "Native C64 tool. CSDb release 136179 classifies it under Type 'C64 Tool' (https://csdb.dk/release/?id=136179), and C64-Wiki's 'Brainstorm Software' article lists Drumeditor among the Hugenroths' 'C64-Programme' (https://www.c64-wiki.de/wiki/Brainstorm_Software) — no cross-platform host tool is documented anywhere; samples were captured via the brothers' own custom 4-bit hardware digitizer feeding directly into the C64.",
   "csdb_release": 136179,
 
   "memory": {
@@ -46,11 +46,12 @@
     "Extremely concentrated usage: of the 10 files in this dataset tagged 'DrumEditor', 9 are by the tool's own authors (Hugenroth_Andre_and_Frank) and only 1 is by an outsider (Kai Walter / PVCF, 'Africa Corps') — see data/composers/hugenroth-andre-and-frank.json and data/composers/pvcf.json. This reads as a personal/small-studio tool that got one incidental outside use, not a widely-published tracker.",
     "The Hugenroth brothers built their own custom 4-bit hardware digitizer to get sampled drum sounds into the C64 — the tool's name ('Drumeditor') reflects that it's built around sample/drum playback, not a conventional multi-voice music tracker. Source: C64-Wiki 'Brainstorm Software' article (https://www.c64-wiki.de/wiki/Brainstorm_Software).",
     "SIDId's 'DrumEditor' tag corresponds to V3.0 (1990); C64-Wiki separately documents a V4.0 (1994, both brothers credited for 'Code, Music') used for a 64'er magazine music course (issues 04/1993-10/1993 per C64-Wiki, i.e. straddling the V3/V4 line) — the two versions were NOT independently distinguished in this dataset (only one raw tag exists), so this card covers V3.0 as identified by SIDId and notes V4.0's existence without asserting it is the same signature.",
-    "No public source code or format documentation was found for either version — the CSDb release is a distributable .d64 disk image only, not source. Every runtime field below is honestly TODO, not guessed."
+    "No public source code or format documentation was found for either version — the CSDb release is a distributable .d64 disk image only, not source. Every runtime field below is honestly TODO, not guessed.",
+    "Census of all 10 files tagged 'DrumEditor' confirmed exactly: 9 in data/composers/hugenroth-andre-and-frank.json (Axel_F, Boom_end_sequence, Boom_title, Das_Omen, Populous_Tune, Funny_Fresh, Heavy_Hell, Smooth_Wings, Toggle_It) and 1 in data/composers/pvcf.json (Africa_Corps, Kai Walter) — matches the 9/1 split already recorded above, no correction needed."
   ],
   "sources": [
     "sidid:DrumEditor (name 'Drumeditor V3.0', authors Frank Hugenroth & André Hugenroth, released 1990 64'er-Disc/Markt & Technik, reference https://csdb.dk/release/?id=136179) — data/sidid.json",
-    "CSDb release 136179, 'Drumeditor V3.0' / 'Drum_Editor_V3.d64', January 1990, code: Frank Hugenroth, music: Andrenator and Frank Hugenroth, 264 downloads — https://csdb.dk/release/?id=136179",
+    "CSDb release 136179, 'Drumeditor V3.0' / 'Drum_Editor_V3.d64', January 1990, code: Frank Hugenroth, music: Andrenator and Frank Hugenroth, 264 downloads, Type field 'C64 Tool' — https://csdb.dk/release/?id=136179",
     "C64-Wiki, 'Brainstorm Software' (the Hugenroth brothers' company, active 1989-1995, Ibbenbüren, Germany): confirms Frank Hugenroth = programmer, André Hugenroth ('Andrenator') = composer, credits a custom 4-bit digitizer they built themselves, and lists both Drumeditor V3.0 (1989/90) and V4.0 (1994) as separate tools — https://www.c64-wiki.de/wiki/Brainstorm_Software",
     "CSDb scener page (id 5802, The Hugenroth Brothers): confirms Drumeditor V4.0 (1994, both brothers credited 'Code, Music') vs V3.0 (1990, Frank Hugenroth credited 'Music') as distinct CSDb releases — https://csdb.dk/scener/?id=5802",
     "Local dataset: 10 files tagged DrumEditor across data/composers/*.json (9 by Hugenroth_Andre_and_Frank, 1 by PVCF); see knowledge/COVERAGE.md rank #29"
@@ -60,9 +61,12 @@
 
 ## Overview
 
-Drumeditor V3.0 is a native C64 sample/drum-based music tool by German brothers
-Frank Hugenroth (programming) and André Hugenroth ("Andrenator", composition),
-released in 1990 on a 64'er-Disc coverdisk (Markt & Technik). The pair, later
+Drumeditor V3.0 is a native C64 sample/drum-based music tool (confirmed by
+CSDb's Type field "C64 Tool" on release 136179 and C64-Wiki's listing of it
+among the Hugenroths' "C64-Programme" — no cross-platform host tool is
+documented) by German brothers Frank Hugenroth (programming) and André
+Hugenroth ("Andrenator", composition), released in 1990 on a 64'er-Disc
+coverdisk (Markt & Technik). The pair, later
 trading as "Brainstorm Software" (1989-1995), built their own custom 4-bit
 hardware digitizer to get sampled drum sounds into the C64, and the tool
 centers on that sample-playback workflow rather than a conventional

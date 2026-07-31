@@ -40,15 +40,19 @@
     "COUNT PRECISION: '47' is the number of distinct composer FOLDERS (data/composers/*.json) carrying the tag; distinct author strings are a few more (~49-53) due to handle variants of the same person. The 47-folder spread includes a couple of famous scene names with ONE file each (Jeroen Tel, Jens-Christian Huus/JCH) — which, far from indicating a shared tool, reinforces 'no shared provenance': unrelated people who each happened to author a single BASIC tune land in the same residual bucket.",
     "WHY IT WAS THE #1 UNCARDED 'FAMILY' FOR ~5 SESSIONS: at 234 files it topped scripts/dev/coverage.js's file-count ranking of uncarded tags, repeatedly reading as the single largest chunk of remaining coverage. coverage.js keys 'carded' off each card's aliases[] and has no separate exclusion mechanism, so the only way to stop a genuine non-tool meta-tag from perpetually heading the backlog is to claim it with a documenting card like this one. That is this card's entire purpose.",
     "SCOPE NOTE: this determination is about the Player-ID *tag* 'Basic_Program' as it appears in this project's dataset (all in HVSC MUSICIANS/, 0 in GAMES/). It is not a claim that no C64 music was ever meaningfully written in BASIC — only that this tag is a technique/container label, not a named tool with its own reverse-engineerable replay routine.",
-    "DO NOT card sub-'families' of this tag or research a 'Basic_Program player' — there isn't one. If a future pass wants to reduce this bucket, the right move is per-file (identifying whether a specific _BASIC tune actually embeds a known small routine), not treating 'Basic_Program' as a tool."
+    "DO NOT card sub-'families' of this tag or research a 'Basic_Program player' — there isn't one. If a future pass wants to reduce this bucket, the right move is per-file (identifying whether a specific _BASIC tune actually embeds a known small routine), not treating 'Basic_Program' as a tool.",
+    "GAP RE-CHECK (2026-07-31): the two fields an automated gap scan flags empty on this card — `authors` (empty array) and `csdb_release` (null) — were re-verified, not just left alone. A fresh full census (234/234 files, aggregated programmatically from every data/composers/*.json 'folder[]' record, not a sample) reproduced the original determination's numbers exactly: 234 files, 47 distinct composer folders, 53 distinct raw author strings, 234/234 (100%) '_BASIC'-suffixed, 0 in GAMES/, and Alan Bond still the largest single contributor at 62/234 (26.5%). `data/sidid.json` still carries no 'Basic_Program' key (re-checked directly). Both fields stay empty/null by design: there are 53 different real-world authors with no shared tool, so a single `authors` list would misrepresent this as one tool's creator list, and there is no CSDb release for a 'Basic_Program' player because it is not a distinct release-able tool.",
+    "TECHNICAL CORROBORATION (2026-07-31, new): the SID file format spec itself (hvsc.c64.org SID_file_format.txt) documents an RSID-header 'C64 BASIC flag' (flags bit 1) whose semantics match this determination exactly: when set, 'tunes that include a BASIC executable portion will be played (with the BASIC portion executed)', and critically 'initAddress must be 0' — i.e. the format itself encodes that there is no discrete machine-code init routine for a BASIC-flagged tune. This independently confirms, at the file-format level, why this card's `memory`/`entry` fields are correctly 'N/A' rather than 'TODO': there is no init/play pair to ever disassemble for this class of file, not merely one not yet found."
   ],
   "sources": [
     "Local dataset: 234 files tagged 'Basic_Program' across 47 composers; 234/234 (100%) carry the HVSC '_BASIC' filename suffix; 0 in GAMES/ (aggregated from data/composers/*.json 'folder[].player' + 'collection_path')",
-    "data/sidid.json — no byTag entry for 'Basic_Program' (checked directly): the tag has no SIDId player-routine signature",
+    "data/sidid.json — no byTag entry for 'Basic_Program' (checked directly, re-confirmed 2026-07-31): the tag has no SIDId player-routine signature",
     "HVSC naming convention: the '_BASIC' filename suffix marks a tune played by a BASIC program (High Voltage SID Collection documentation / file-naming practice)",
     "knowledge/COVERAGE.md — 'Basic_Program' had stood as the #1 uncarded family by file count (234 files) prior to this determination",
     "Contrast tag 'Basic/Jim_Butterfield' (30 files, also _BASIC-suffixed) — a SEPARATELY-named BASIC routine in the same dataset, proving Player-ID names a specific BASIC routine when one exists and that 'Basic_Program' is the residual bucket",
-    "docs/legacy/sid_reference.html — describes the technique (composers 'directly poking SID registers with BASIC DATA statements in a timing loop', DeepSID's green 'B' focus icon), in-repo corroboration of the BASIC-driven classification"
+    "docs/legacy/sid_reference.html — describes the technique (composers 'directly poking SID registers with BASIC DATA statements in a timing loop', DeepSID's green 'B' focus icon), in-repo corroboration of the BASIC-driven classification",
+    "https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/SID_file_format.txt — RSID header 'C64 BASIC flag' (flags bit 1): 'tunes that include a BASIC executable portion will be played... initAddress must be 0', confirming no discrete init routine exists for BASIC-flagged tunes (fetched 2026-07-31)",
+    "2026-07-31 full re-census (this pass): programmatic aggregation over all 1,902 data/composers/*.json files reproduced the original 234/47/53/100%/0 figures exactly — no discrepancy found, both gap fields (authors, csdb_release) confirmed correctly empty/null by design rather than unresearched"
   ]
 }
 ```
@@ -97,4 +101,9 @@ a status; it should not be read as "a player awaiting further research."
 See the `sources` array — the local-dataset aggregation (234 files, 100%
 `_BASIC` suffix, 47 authors), the confirmed absence from `data/sidid.json`, the
 HVSC `_BASIC` naming convention, and `knowledge/COVERAGE.md` (where it had been
-the #1 uncarded family).
+the #1 uncarded family). A 2026-07-31 gap-fill pass re-ran a full programmatic
+census (not a sample) over all 234 tagged files and reproduced every number
+exactly, and added one new external citation — the SID file format spec's
+RSID "C64 BASIC flag" (`initAddress` forced to 0) — confirming at the
+file-format level why `authors`/`csdb_release` stay empty/null and why the
+Tier 3 fields read "N/A" rather than "TODO".

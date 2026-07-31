@@ -10,9 +10,9 @@
   "name": "Arne/AFL",
   "aliases": ["Arne/AFL"],
   "authors": ["Arne Puszelski (Arne)"],
-  "released": "TODO: no specific tool release date found; composer Arne Puszelski active in Alpha Flight 1991-1996 per CSDb scener page (https://csdb.dk/scener/?id=6512), with 'Arne/AFL'-tagged music released 1991-1996 (e.g. 'Burning Stone' 1991, 'Best of Arne 1'/'Best of Arne 2' 1994-1995)",
+  "released": "No dedicated tool/editor release exists on CSDb to date — the tag marks composer+group activity, not a product. Dated 'Arne/AFL'-credited output spans 1991 (earliest, 'Burning Stone', https://csdb.dk/sid/?id=37034) to 1996 (latest identified, diskmag 'The Best #5', per Arne's full CSDb credit list https://csdb.dk/scener/?id=6512)",
   "status": "stub",
-  "platform": "TODO: appears to be a native C64 hand-coded music routine used only by its author, not a distributed/published editor — no separate tool documentation found",
+  "platform": "Native C64 — confirmed NOT a published/distributed editor: a 2026-07-31 pull of Arne's full CSDb credit list (https://csdb.dk/webservice/?type=scener&id=6512&depth=3, 200+ entries) shows zero 'Code' credits on any music tool — only 'Music' credits throughout, plus one unrelated 'Code' credit on the non-music utility 'Disk Monitor V13'. Best-supported reading: a personal/hand-coded composing routine used only by its author, or a routine coded by someone else specifically for him, not identified",
   "csdb_release": null,
 
   "memory": {
@@ -52,7 +52,9 @@
     "No dedicated 'Arne' or 'AFL' music editor/player is documented anywhere found in this research (not in DeepSID's players.json, not on SID Preservation's editors list, not on Codebase64, not on CSDb as a standalone tool release). SIDId's own nfo entry for this tag (github.com/cadaver/sidid) contains only the AUTHOR line, no name/released/reference/comment fields — the shortest possible entry, itself a signal that even the SIDId maintainers had nothing more to record.",
     "Do not confuse this with 'Voicetracker' — a YouTube-documented example tune credited to Arne Puszelski is titled 'Voicetracker 4 Example 4', implying at least some of his output was made with a genuinely separate, unrelated editor (Voicetracker), not this 'Arne/AFL' signature. The two should not be merged.",
     "Arne's CSDb scener page also credits him as co-creator (with 'Bernd') of a tool called 'Disk Monitor V13' — https://csdb.dk/scener/?id=6512. This is a disk-monitor utility, not a music editor/player, and has no evident relationship to the 'Arne/AFL' SID signature; noted here only so a future researcher doesn't conflate the two.",
-    "A dedicated public survey of C64 music editors (chordian.net's 'Comparison of C64 Music Editors', https://blog.chordian.net/2018/02/24/comparison-of-c64-music-editors/) lists Blackbird, DefleMask, SidTracker64, DMC, SID Duzz It, GoatTracker, Compotech Editor and SID-Wizard, and does not mention any 'Arne' or 'AFL' editor — corroborating that no published tool by this name exists."
+    "A dedicated public survey of C64 music editors (chordian.net's 'Comparison of C64 Music Editors', https://blog.chordian.net/2018/02/24/comparison-of-c64-music-editors/) lists Blackbird, DefleMask, SidTracker64, DMC, SID Duzz It, GoatTracker, Compotech Editor and SID-Wizard, and does not mention any 'Arne' or 'AFL' editor — corroborating that no published tool by this name exists.",
+    "Cross-card note re: the [[soundmaker]] card's open Arne-vs-Pleite-Geier authorship discrepancy for 'SoundMaker IV' (DeepSID's players.json credits developer 'Arne' with no source given, vs SIDId's 'Pleite Geier'): this pass's full pull of Arne's CSDb credit list (see `platform` field) found zero 'Code' credits on ANY music editor/tool across his entire 200+-entry history — only 'Music' credits. The three C64 Tool releases where his name does appear all credit him as Music only, with someone else as Code: 'AFL - Noter V1.0' (1994, https://csdb.dk/release/?id=33990, Code: 'Scorpio'), 'Soundeditor V1.0' (1994, https://csdb.dk/release/?id=76416, Code: 'Dariusz'/'Rantanplan'), and 'Arne Musix Relocator V1.0' (undated, https://csdb.dk/release/?id=46643, a packer/relocator for Arne's own music files, Code: 'Xenox'). This weakens, without ruling out, DeepSID's 'developer: Arne' attribution for SoundMaker IV — nothing in his own CSDb credit record shows him coding any editor. Recorded here per the soundmaker.md owner's instruction not to edit that card directly.",
+    "Re-research pass, 2026-07-31: filled `released`/`platform`/`csdb_release` gaps flagged by the parent task. Queried CSDb's webservice API directly (scripts/lib/csdb-client.js) for Arne's full scener record at depth=3 (https://csdb.dk/webservice/?type=scener&id=6512&depth=3) and individually fetched every release where he holds a 'Code' or 'Charset' credit (IDs 56094 'Fuck Racism', a demo; 241686 'Disk Monitor V13', a disk utility) plus every C64 Tool release naming him ('AFL - Noter V1.0' id 33990, 'Soundeditor V1.0' id 76416, 'Arne Musix Relocator V1.0' id 46643) to check for a hidden coding credit on a music editor — found none. Also checked local `data/composers/Arne.json`'s `folder` array (123 files) for a per-file release-year field to sharpen the 1991-1996 activity range — none exists there (no `released` key on file entries), so the range still rests on the scener page's dated release credits, not per-file dates. WebSearch of Lemon64 (site:lemon64.com \"Arne\" \"AFL\") and Forum64 (\"Arne\" \"Alpha Flight\" Sound Editor forum64.de) returned no thread naming an 'Arne' or 'AFL' C64 music editor/player — only unrelated general SID-tool threads and one unrelated Alpha Flight tool ('FBM Editor', csdb.dk/release/?id=79391, credited to cracker 'Ream' only, no music/code tie to Arne). Conclusion: `csdb_release` stays `null` — no CSDb release for a distinct 'Arne/AFL' tool exists, now confirmed by an exhaustive per-credit check rather than just an absence-of-listing check; `platform` and `released` were upgraded from bare TODO strings to cited, non-TODO findings reflecting that absence and the dated-usage range."
   ],
   "sources": [
     "Local dataset: data/sidid.json byTag['Arne/AFL'] = { author: 'Arne Puszelski (Arne)' } — no name/released/reference/comment fields present.",
@@ -65,7 +67,9 @@
     "Remix64 member profile (biographical only, no C64-era tool info): https://remix64.com/member/arne/ — lists C64 group memberships 'Alpha Flight 1970, Spirit, Ability, Quintex, Savage, UA', notes he later tracked music on PC 'for fun' using unnamed trackers, and lists remixes released 2008-2011 under aliases 'Arne'/'Sugus'.",
     "Firefox (C64, 1994, Game On) end credits page: 'Title Music by Arne \"Arne\" Puszelski of Alpha Flight 1970' — http://pirates.emucamp.com/a/f/firefox/c64/main_.html — confirms Arne's C64 composing extended to at least one commercially distributed game, not only scene releases.",
     "chordian.net 'Comparison of C64 Music Editors' (https://blog.chordian.net/2018/02/24/comparison-of-c64-music-editors/): no 'Arne'/'AFL' editor listed among the surveyed tools, corroborating no published editor by this name.",
-    "Checked and found NO mention of an 'Arne' or 'AFL' editor/player: SID Preservation editors list https://sidpreservation.6581.org/sid-editors/ ; DeepSID data/players.json (no entry); Codebase64 SID programming page."
+    "Checked and found NO mention of an 'Arne' or 'AFL' editor/player: SID Preservation editors list https://sidpreservation.6581.org/sid-editors/ ; DeepSID data/players.json (no entry); Codebase64 SID programming page.",
+    "CSDb webservice API (2026-07-31 pass, via scripts/lib/csdb-client.js): https://csdb.dk/webservice/?type=scener&id=6512&depth=3 (Arne's full Released+Credits lists, 200+ entries — every music-related credit is 'Music', not 'Code'); https://csdb.dk/release/?id=33990 ('AFL - Noter V1.0', 1994, Code: Scorpio, Music: Arne); https://csdb.dk/release/?id=76416 ('Soundeditor V1.0', 1994, Code: Dariusz/Rantanplan, Music: Arne); https://csdb.dk/release/?id=46643 ('Arne Musix Relocator V1.0', undated, Code: Xenox, Music: Arne); https://csdb.dk/release/?id=241686 ('Disk Monitor V13', Arne's only 'Code' credit anywhere, a disk utility unrelated to music); https://csdb.dk/release/?id=79391 ('FBM Editor' by Alpha Flight, checked and ruled out — credited only to cracker 'Ream', no tie to Arne or music).",
+    "WebSearch (2026-07-31), explicitly targeting Lemon64 and Forum64 per this pass's research scope: site:lemon64.com \"Arne\" \"AFL\" (no matching thread, only unrelated general SID-tool discussions); \"Arne\" \"Alpha Flight\" Sound Editor forum64.de (no matching thread; surfaced only the unrelated 'FBM Editor' and general German C64-music-software threads)."
   ]
 }
 ```
@@ -93,7 +97,15 @@ title music to "Arne 'Arne' Puszelski of Alpha Flight 1970"
 "Arne/AFL"-signature output reached a commercial release. A dedicated public
 survey of C64 music editors (chordian.net, 2018) lists no "Arne"/"AFL" tool
 among the editors it tracks, further corroborating that this is a personal
-routine rather than a published tool.
+routine rather than a published tool. A 2026-07-31 pass strengthened this
+conclusion further: pulling Arne's full CSDb credit list (200+ entries)
+found every one of his music-related credits typed as "Music," never
+"Code" — including on the three C64 Tool releases where his name does
+appear ("AFL - Noter V1.0," "Soundeditor V1.0," "Arne Musix Relocator
+V1.0"), each of which credits someone else as coder. `platform` and
+`released` were accordingly upgraded from bare TODO placeholders to cited
+findings; `csdb_release` stays `null` because no CSDb release for a
+distinct "Arne/AFL" tool exists anywhere in that record.
 
 ## Quirks & gotchas
 
@@ -102,7 +114,11 @@ composer+group, not a product name; concentration is 100% single-composer,
 the strongest possible "personal routine" signal in this project's rubric;
 and no tool documentation exists to research further. Also note the
 `Voicetracker`-titled example among Arne's own output — a reminder not to
-conflate an unrelated editor he also used with this signature.
+conflate an unrelated editor he also used with this signature. A
+2026-07-31 pass also recorded a cross-card note for [[soundmaker]]'s open
+Arne-vs-Pleite-Geier authorship discrepancy: nothing in Arne's own CSDb
+credit record shows him coding any music editor, which weakens (without
+disproving) DeepSID's "developer: Arne" attribution for SoundMaker IV.
 
 ## Disassembly notes
 
@@ -114,14 +130,25 @@ the only route to real memory/format facts here, since no source exists.
 
 ## Verification
 
-**Not verified — `status: stub`.** Only identity facts (author, group
+**Not verified — `status: stub`.** Identity facts (author, group
 affiliation, dataset usage/concentration) are confirmed, from local dataset
-files and CSDb/SIDId cross-references. Every runtime field is honestly
-`TODO`: no tool documentation or source was found for this signature.
+files and CSDb/SIDId cross-references. A 2026-07-31 pass added provenance
+depth to `platform`/`released`/`csdb_release` (previously bare TODO/null
+placeholders): queried CSDb's webservice API directly for Arne's full
+credit list and every C64 Tool release naming him, and searched Lemon64
+and Forum64 by name — no distinct "Arne"/"AFL" editor or coding credit was
+found anywhere, so `csdb_release` remains `null` on stronger evidence than
+before, and `platform`/`released` now hold cited, non-TODO conclusions
+rather than TODO strings. Every runtime field (memory map, entry points,
+data format, effects) is honestly `TODO`: no tool documentation or source
+was found for this signature, and none is expected to exist.
 
 ## Sources
 
 See the `sources` array — local `data/sidid.json`/`data/composers/Arne.json`,
 the upstream SIDId nfo, CSDb's Alpha Flight group page and a representative
-SID entry, and Remix64's biographical profile. Explicitly checked and found
-no entry: DeepSID `players.json`, SID Preservation's editors list, Codebase64.
+SID entry, Remix64's biographical profile, and (2026-07-31) CSDb's
+webservice API pulled directly for Arne's full credit list and every C64
+Tool release naming him, plus Lemon64/Forum64 WebSearch queries. Explicitly
+checked and found no entry: DeepSID `players.json`, SID Preservation's
+editors list, Codebase64, Lemon64, Forum64.

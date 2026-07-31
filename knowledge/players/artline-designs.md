@@ -6,9 +6,9 @@
   "name": "Artline Designs player",
   "aliases": ["Artline_Designs"],
   "authors": ["Antti Kangas (AK / Scorpion)"],
-  "released": "TODO: no single release date found — CSDb's Artline Designs group history (https://csdb.dk/group/?id=285) dates the routine's active use to ~1990-1992 (group formed 10-Nov-1989, first releases in Contex's final 1990 demo, music collections Aug-1990 and Apr-1992), after which the group went largely inactive until Flex resumed composing in 2009 'after finding Goattracker' — i.e. a different, unrelated tool, not this routine",
+  "released": "1989 (earliest dated tune known to use the routine — CSDb SID metadata for 'Feelin'Blue', https://csdb.dk/sid/?id=14445, gives Released: '1989 Artline Designs'; group itself was founded 10-Nov-1989, so this places the routine's first use within weeks/months of the group's founding. Its sibling tune 'Frazze' (https://csdb.dk/sid/?id=14446) is dated 'Released: 1990 Artline Designs/Contex' and both are named by the group's own CSDb history as 'the first released tunes', publicly debuting in Contex's last demo 'Handjob Lotion' on 15-May-1990 (https://csdb.dk/release/?id=3216). No standalone 'player released' event exists to cite instead — this is the earliest attested composition date, not a tool-release date.",
   "status": "stub",
-  "platform": "TODO: unconfirmed — no public documentation of an editor. Best available evidence (CSDb group history) describes it as a hand-coded 6510 assembler music routine, not a tracker/editor product",
+  "platform": "Native C64 — a hand-coded 6510 assembler music routine, not a tracker/editor product. CSDb's own SID database confirms native PSID load/init/play addresses for the earliest tunes (e.g. 'Feelin'Blue', https://csdb.dk/sid/?id=14445: LoadAddr $1000, InitAddr $1000, PlayAddr $1003), consistent with a directly-assembled routine rather than a cross-platform editor's replayer. Corroborated by the coder's own CSDb scener trivia ('did also...an own music player') and the group history's 'coded a solid assembler music-routine' — no separate editor/tracker tool has ever been publicly documented for it.",
   "csdb_release": null,
 
   "memory": {
@@ -48,7 +48,8 @@
     "Strong composer concentration in this dataset: 51 files across only 5 composers, with Antti Hannula (Flex) alone accounting for 41/51 (80%) — matching the CSDb account that the routine 'was mainly used by Flex for his tunes'. The remaining files (Scorpion 5, Juzdie 2, MAC2 2, Apollyon 1) are other Artline Designs members, consistent with an internal group tool rather than a widely distributed one. This is the textbook 'personal/small-scene routine' signature per the extraction template's concentration heuristic.",
     "Do not confuse this Antti Kangas/Scorpion/AK with the composer Antti Hannula (Flex) — both are Artline Designs members but distinct people; SIDId's 'author' names the coder of the routine, not the primary composer who used it.",
     "Confirmed directly from the coder's own CSDb scener page (not just the group history): both https://csdb.dk/scener/?id=897 ('Scorpion (TSC)') and https://csdb.dk/scener/?id=5019 ('AK') carry the identical trivia line 'Main interest: coding. Did also graphics & music plus an own music player.' — self-attribution of an own-written player, matching SIDId's author credit and the group history's account.",
-    "The routine's active window is narrower than 'from ~1990 onward': CSDb's group history describes releases in 1990 (Contex's final demo) and music collections in Aug-1990 and Apr-1992, then a decade-long inactive period until Flex resumed composing in 2009 — using Goattracker, a wholly different, unrelated tool, not this routine. Any Artline_Designs-tagged file in this dataset should therefore date from that ~1990-1992 window, not later."
+    "The routine's active window is narrower than 'from ~1990 onward': CSDb's group history describes releases in 1990 (Contex's final demo) and music collections in Aug-1990 and Apr-1992, then a decade-long inactive period until Flex resumed composing in 2009 — using Goattracker, a wholly different, unrelated tool, not this routine. Any Artline_Designs-tagged file in this dataset should therefore date from that ~1990-1992 window, not later.",
+    "Re-research pass, 2026-07-31: queried CSDb's XML webservice directly (scripts/lib/csdb-client.js, since csdb.dk's HTML site 503'd on WebFetch) for group id=285 (depth 2-3) and the two SID entries named in its trivia as the routine's first tunes (id=14445 'Feelin'Blue', id=14446 'Frazze'), plus release id=3216 ('Handjob Lotion'). This resolved `released` to 1989 (CSDb SID metadata's own Released field for the earlier of the two tunes) and firmed up `platform` to a confirmed native-C64 statement (PSID LoadAddr/InitAddr/PlayAddr present for both early tunes, consistent with a directly-assembled routine, not an editor). Also re-checked the group's full 353-entry release list for any standalone tool/editor-type release — none found; and re-read the group's full trivia text, which states the group's founding purpose was 'to make graphics and music commercially' but documents no actual game credits or a released 'Artline' graphics product distinct from the demo group, and a fresh WebSearch for a separate 'Artline' C64 paint/graphics program turned up nothing. `csdb_release` therefore stays `null` — no CSDb release entry for the player/routine itself exists, consistent with it being an internal, never-separately-released tool."
   ],
   "sources": [
     "sidid: Artline_Designs tag — author 'Antti Kangas (AK)', released 'Artline Designs', comment 'Player used by the group Artline Designs' (data/sidid.json, from cadaver/sidid's sidid.nfo: https://github.com/cadaver/sidid/blob/master/sidid.nfo)",
@@ -60,7 +61,12 @@
     "CSDb scener page, Antti Hannula (Flex)/Artline Designs: https://csdb.dk/scener/?id=5830 and https://csdb.dk/scener/?id=530",
     "CSDb scener page, Scorpion (TSC)/Artline Designs, id=897 — trivia: 'Main interest: coding. Did also graphics & music plus an own music player.' (self-attribution, groups Ziplers -> Contex 1989-1990 -> Artline Designs 1990-present)",
     "artlinedesigns.itch.io (checked 2026-07-23) — no music-routine source or technical docs published there, only one unrelated game project",
-    "WebSearch pass (2026-07-23) for public source/disassembly of the Artline Designs routine found nothing beyond the CSDb pages already cited — negative result recorded, not omitted"
+    "WebSearch pass (2026-07-23) for public source/disassembly of the Artline Designs routine found nothing beyond the CSDb pages already cited — negative result recorded, not omitted",
+    "CSDb webservice, SID entry 'Feelin'Blue' (queried 2026-07-31 via scripts/lib/csdb-client.js, type=sid, id=14445): Author 'Antti Hannula (Flex)', Released '1989 Artline Designs', LoadAddr 4096 ($1000), InitAddr 4096 ($1000), PlayAddr 4099 ($1003) — https://csdb.dk/sid/?id=14445",
+    "CSDb webservice, SID entry 'Frazze' (queried 2026-07-31, type=sid, id=14446): Author 'Antti Hannula (Flex)', Released '1990 Artline Designs/Contex', same native LoadAddr/InitAddr/PlayAddr pattern, first publicly used in release id=3216 — https://csdb.dk/sid/?id=14446",
+    "CSDb webservice, release 3216 'Handjob Lotion' by Contex (queried 2026-07-31, type=release, id=3216): Type 'C64 Demo', dated 15-May-1990 per its UsedIn cross-reference on the SID entries above — https://csdb.dk/release/?id=3216",
+    "CSDb webservice, group 285 full Trivia text (re-queried 2026-07-31, type=group, id=285, depth=2) — confirms 'The purpose was to make graphics and music commercially' as founding intent, but the full history (353 listed releases scanned for type) documents no distinct commercial game or graphics-tool release separate from the demo/music group — https://csdb.dk/group/?id=285",
+    "WebSearch pass (2026-07-31) for a separate 'Artline' C64 graphics/paint program distinct from the demo group found nothing — negative result recorded"
   ]
 }
 ```
@@ -73,18 +79,29 @@ Designs**, written by member **Scorpion** (also known by the handle "AK" —
 real name not disclosed on CSDb), per that group's own CSDb history page. It
 was mainly used by fellow member **Antti Hannula (Flex)** for his own tunes.
 Both Scorpion's and his "AK" alt-handle's own CSDb scener pages self-credit
-"an own music player", not just the group history text. The routine's active
-window appears narrow: CSDb dates group releases to 1990 (Contex's final
-demo) and music collections in Aug-1990/Apr-1992, then a decade-long lull
-until Flex resumed composing in 2009 with Goattracker — an unrelated tool —
-so files in this dataset likely date from ~1990-1992. In this project's
-dataset it covers 51 files across only 5 composers, 80% of them Flex — a
-composer-concentration signature consistent with a personal/small-scene
-routine rather than a published, widely-adopted tool. No CSDb release exists
-for the routine itself (no `csdb_release`), no editor product has been found
-publicly documented, and a web search plus a check of Artline Designs'
-itch.io page found no public source or disassembly, so every Tier 3 runtime
-fact stays `TODO`.
+"an own music player", not just the group history text. The earliest known
+tune using it, "Feelin'Blue" (CSDb sid id=14445), is dated 1989 — within
+weeks/months of the group's own founding on 10-Nov-1989 — and it and its
+sibling "Frazze" (id=14446, dated 1990) are named by the group's own CSDb
+history as "the first released tunes", publicly debuting in Contex's last
+demo "Handjob Lotion" (15-May-1990). Both tunes' native PSID load/init/play
+addresses confirm this is a directly-assembled 6510 routine (`platform:
+native C64`), not a cross-platform editor's replayer — no separate
+editor/tracker product has ever been documented. The routine's active window
+otherwise appears narrow: CSDb dates further group releases to Aug-1990 and
+Apr-1992, then a decade-long lull until Flex resumed composing in 2009 with
+Goattracker — an unrelated tool — so files in this dataset likely date from
+~1989-1992. In this project's dataset it covers 51 files across only 5
+composers, 80% of them Flex — a composer-concentration signature consistent
+with a personal/small-scene routine rather than a published, widely-adopted
+tool. No CSDb release exists for the routine itself (`csdb_release: null`,
+re-checked against the group's full 353-release list); the group's own
+trivia states its founding purpose was "to make graphics and music
+commercially" but documents no actual game or graphics-tool release distinct
+from the demo group, and no editor product has been found publicly
+documented. A web search, a check of Artline Designs' itch.io page, and a
+CSDb webservice query all found no public source or disassembly, so every
+Tier 3 runtime fact stays `TODO`.
 
 ## Quirks & gotchas
 

@@ -6,9 +6,9 @@
   "name": "Ed/Wrath (player routine)",
   "aliases": ["Ed/Wrath"],
   "authors": ["Eddie Svärd (Ed)"],
-  "released": "TODO: no explicit release year found — Ed's active HVSC period runs from the late 1980s (handle 'Ed', 1989+) into 2012 per his DeepSID/CSDb profile",
+  "released": "TODO: no single player/tool release date exists (personal in-house routine, not a packaged product) — direct per-file CSDb sid-entry lookups (type=sid) across all 69 'Ed/Wrath'-tagged files, run this pass via scripts/lib/csdb-client.js, confirm a real dated usage range: earliest 1997 ('Rept 11', CSDb sid id 11974, listed release 'Wrath Designs' 1997), latest 2012 ('Mellow', CSDb sid id 46533, listed release 'Wrath Designs' 2012), with the bulk clustered 2001-2008 under 'Wrath Designs' and 'Swappas With Attitude' release credits",
   "status": "stub",
-  "platform": "TODO: no CSDb tool release, source repo, or standalone download found — likely a composer-embedded in-tune routine rather than a distributed editor (see quirks), but not confirmed by a direct citation",
+  "platform": "TODO: no CSDb tool release, source repo, standalone download, or documentation confirms a distributed editor (native C64 or cross-platform) — re-checked this pass via CSDb Tool-release credits (none found, same negative result as prior pass) and targeted WebSearch queries naming lemon64.com and forum64.de (no relevant thread on either forum); working hypothesis remains an in-house, presumably native-C64 routine hand-coded per tune (see quirks), but that stays inference, not a direct citation",
   "csdb_release": null,
 
   "memory": {
@@ -49,7 +49,8 @@
     "'Ed/Wrath_Digi' (1 file) and 'Ed/Wrath_Digi_2' (2 files) are SEPARATE SIDId/Player-ID signatures from 'Ed/Wrath' (distinct COVERAGE.md rows — 'Ed/Wrath' is rank #8, 69 files; 'Ed/Wrath_Digi' is rank #199, 3 files combined), NOT consolidated onto this card's aliases despite the shared name/author/composer-exclusive usage — no source confirms they share code with the main routine, only that Eddie Svärd made both. Presumably a sample/digi-playback variant, but that stays a hypothesis, not an asserted fact.",
     "No CSDb tool/release page, no public source repository, and no format documentation were found for this routine during this pass — it looks like an embedded, never-separately-released in-tune driver rather than a published tracker/editor, similar in kind (if not scale) to the classic hand-coded in-game drivers like Rob Hubbard's.",
     "Confirmed on a second pass: Ed's own CSDb scener page (id 1671) lists his full 'Tool' release credits — 'The Miracle Writer' (1995, V2.17), 'Diamoneditor' (1997), '16 Pattern Animeditor' (2001), 'ED-itor Preview' (2001) — none typed as a music editor/routine on CSDb; no release anywhere in his catalogue is literally named 'Ed', 'Wrath', or 'Ed/Wrath'. This is direct (if negative) confirmation that the SIDId-fingerprinted routine was never packaged/released as a named tool.",
-    "CSDb holds Eddie Svärd under two separate scener IDs that both show 'Wrath Designs' membership with conflicting join dates — id 17435 ('Eddie Svärd') shows 2/2-2007, id 1671 ('Ed') shows 2-1992 — and the group's own page (csdb.dk/group/?id=274, founded October 1990) lists both as distinct inactive member rows for what is evidently the same person. Not resolved further; doesn't affect the player-identity facts above, but flagged so a future pass doesn't treat the two IDs as different people."
+    "CSDb holds Eddie Svärd under two separate scener IDs that both show 'Wrath Designs' membership with conflicting join dates — id 17435 ('Eddie Svärd') shows 2/2-2007, id 1671 ('Ed') shows 2-1992 — and the group's own page (csdb.dk/group/?id=274, founded October 1990) lists both as distinct inactive member rows for what is evidently the same person. Not resolved further; doesn't affect the player-identity facts above, but flagged so a future pass doesn't treat the two IDs as different people.",
+    "Re-research pass, 2026-07-31 (Tier 1/2 gap-fill: released/platform/csdb_release): (1) Queried CSDb's type=sid webservice endpoint directly (via scripts/lib/csdb-client.js, not the flaky HTML site) for the CSDb sid-entry id of every one of the 69 'Ed/Wrath'-tagged files in data/composers/ed.json — every file resolved to a real per-file 'Released' credit, giving a well-evidenced 1997-2012 usage range (see `released`) instead of the vaguer 'late 1980s-2012' estimate from the prior pass. (2) Re-fetched CSDb scener id 17435 at depth=3 and resolved the ID-ambiguity flagged in the prior quirk above: id 17435 ('Eddie Svärd') and id 1671 ('Ed') are BOTH Handle records pointing at the SAME underlying CSDb Scener (internal id 1659, which lists 8 handle IDs including both 1671 and 17435) — not two different people as the prior pass worried; the 'conflicting join dates' note stays in this card as history but is now understood to be a same-person handle-alias artifact, not an unresolved identity question. (3) Re-checked CSDb Tool-release credits for the same underlying Scener — still no music editor/routine release, confirming the prior pass's negative finding rather than changing it. (4) Ran WebSearch queries explicitly naming lemon64.com and forum64.de for 'Ed/Wrath'/'Eddie Svärd' plus 'editor'/'tool'/'routine'/'Musik' — no relevant thread found on either forum; only generic Musicians.txt bio hits and unrelated pages surfaced. Net result: `released` now carries a cited date range instead of a TODO guess, `platform` and `csdb_release` stay TODO/null because no packaged tool was ever found to classify or link."
   ],
   "sources": [
     "Local dataset: data/composers/ed.json — 69 files tagged 'Ed/Wrath' + 3 files tagged 'Ed/Wrath_Digi'/'Ed/Wrath_Digi_2', all authored by Eddie Svärd (Ed); see knowledge/COVERAGE.md rows #8 (Ed/Wrath, 69 files) and #199 (Ed/Wrath_Digi, 3 files)",
@@ -59,7 +60,10 @@
     "CSDb group-linked scener page (id 1671, matches data/composers/ed.json profile.csdb_id): https://csdb.dk/scener/?id=1671 — full release/tool credit list checked this pass, no music-editor/routine release found",
     "CSDb group page, Wrath Designs (id 274): https://csdb.dk/group/?id=274 — founded October 1990; lists both Eddie Svärd id-17435 and Ed id-1671 as distinct member rows",
     "8bittoday.com profile ('The work of Ed and Joe'): https://www.8bittoday.com/articles/32/the-work-of-ed-and-joe/ — 'James is the visual artist and Eddie does both audio and programming'; re-checked this pass for technical/tool detail, found none",
-    "DeepSID composer profile embedded locally (data/composers/ed.json): full_name Eddie Svärd, country Sweden, active 2012, csdb_id 1671"
+    "DeepSID composer profile embedded locally (data/composers/ed.json): full_name Eddie Svärd, country Sweden, active 2012, csdb_id 1671",
+    "CSDb webservice, type=sid, all 69 'Ed/Wrath'-tagged sid ids from data/composers/ed.json (queried this pass via scripts/lib/csdb-client.js): earliest 'Rept 11' (id 11974) 'Released: 1997 Wrath Designs'; latest 'Mellow' (id 46533) 'Released: 2012 Wrath Designs'; https://csdb.dk/sid/?id=11974 and https://csdb.dk/sid/?id=46533",
+    "CSDb webservice, type=scener, id 17435, depth=3 (queried this pass): 'Eddie Svärd' Handle resolves to the same underlying Scener (internal id 1659, 8 handle aliases incl. 1671 and 17435) as the id-1671 profile already cited above — https://csdb.dk/scener/?id=17435",
+    "WebSearch, 2026-07-31: queries naming lemon64.com and forum64.de explicitly for 'Ed/Wrath'/'Eddie Svärd' + editor/tool/routine — no relevant thread found on either forum (negative result, recorded for future passes)"
   ]
 }
 ```
@@ -76,6 +80,9 @@ concentration — points to this being Ed's own hand-coded, in-house music
 routine (named `<handle>/<group>` in scene convention) rather than a
 distributed editor used by other musicians. No CSDb tool release, source
 repository, or format documentation was found for the routine itself.
+Per-file CSDb lookups (2026-07-31 pass) across all 69 tagged files give a
+concrete, cited usage window instead of a guessed release year: earliest
+1997 ("Rept 11"), latest 2012 ("Mellow"), bulk 2001-2008 — see `released`.
 
 ## Quirks & gotchas
 
@@ -89,7 +96,15 @@ credits directly — his four registered 'Tool' releases are a text editor, a
 graphics/animation editor, and a diskmag editor, none typed as music software,
 and no release anywhere is literally titled 'Ed', 'Wrath', or 'Ed/Wrath' —
 reinforcing rather than changing the original conclusion that this is an
-unreleased in-tune driver, not a distributed product.
+unreleased in-tune driver, not a distributed product. A third pass
+(2026-07-31, this pass) targeted the three remaining Tier 1/2 gaps
+(`released`, `platform`, `csdb_release`): it sourced a real 1997-2012 usage
+range from per-file CSDb `type=sid` lookups (replacing the earlier
+"late 1980s+" estimate), resolved the two-scener-ID discrepancy noted below
+as a same-person handle-alias artifact rather than a real ambiguity, and
+searched Lemon64 and Forum64 by name for any editor/tool discussion — both
+came back empty, so `platform` stays an inference and `csdb_release` stays
+`null`.
 
 ## Disassembly notes
 
@@ -106,11 +121,15 @@ here: authorship (Eddie Svärd), the exclusive single-composer usage pattern
 Eddie's group/role context from CSDb and an independent interview (8bittoday).
 A follow-up pass (2026-07) re-confirmed all of the above against live CSDb
 pages and the interview, and additionally checked Ed's complete CSDb tool
-credit list and found no music-editor/routine release — still no runtime
-behaviour has been confirmed or reconstructed, so `status` stays `stub`.
+credit list and found no music-editor/routine release. A further pass
+(2026-07-31) confirmed a real dated usage range via CSDb's `type=sid`
+webservice for all 69 files, and confirmed (via `type=scener` depth=3) that
+the two CSDb scener IDs referenced above are handle aliases of one person,
+not two — still no runtime behaviour has been confirmed or reconstructed,
+so `status` stays `stub`.
 
 ## Sources
 
 See the `sources` array — the local composer dataset, the cached and upstream
-SIDId records, Eddie Svärd's CSDb scener profiles, and the 8bittoday.com
-profile article.
+SIDId records, Eddie Svärd's CSDb scener profiles, per-file CSDb `sid`-entry
+lookups, and the 8bittoday.com profile article.

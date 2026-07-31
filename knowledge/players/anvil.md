@@ -11,7 +11,7 @@
   "name": "Anvil",
   "aliases": ["Anvil"],
   "authors": ["Petri Reiman (Anvil)"],
-  "released": "TODO: no release year documented for the tool itself. SIDId's sidid.nfo entry has no `released` field; the composer's HVSC/CSDb profile lists `active: 1993` (Finland), but that is the composer's scene-activity marker, not a dated player release. His earliest CSDb music credit is 1989; the Anvil-tagged files span 1992 (Assembly'92 Compotune, CSDb SID 7883) through at least 1997 (Undead, CSDb SID 45151), so the routine was in active use by 1992.",
+  "released": "TODO: no release year documented for the tool itself (no distinct player/tool release exists on CSDb). Earliest attested use, from a 2026-07-31 census of the CSDb SID entry for all 20 Anvil-tagged files' own `Released` field (not UsedIn-release years): 1990 (\"Undead\", CSDb SID 45151, Released \"1990 Anvil\" — https://csdb.dk/sid/?id=45151). Latest attested use: 1993 (\"Fresh'n Sticky #7 (tune 10)\", CSDb SID 45152, and \"Graveyard Blues 3\" tunes 3/5, CSDb SID 7887/7888, all \"1993 Topaz Beerline\"). One file's own Released field is unresolved (\"Words by d'Arc\", CSDb SID 7899, literally \"19?? Topaz Beerline\"). So the routine was in use 1990-1993, per the tunes' own CSDb-recorded release dates, not the tool's own (undocumented) release date.",
   "status": "stub",
   "platform": "Native C64 playback routine, embedded in-sit-in each SID file — not a separately distributed tracker or editor. The 100% single-composer concentration (all 20 Anvil-tagged files are by Petri Reiman himself) strongly suggests a personal hand-coded routine rather than a published tool. A 2005 CSDb forum post (Twoflower, \"Music Editors - The Holy Grail\") refers to it as one of the \"stranger systems\" and \"odd ones gathering dust\" that the poster had heard of but never examined — consistent with a personal routine that was known to exist but never publicly released as a standalone tool.",
   "csdb_release": null,
@@ -53,7 +53,8 @@
     "Do not confuse with unrelated files that happen to share the title \"Anvil\": data/composers/andrew-rodger.json has a tune literally named \"Anvil.sid\" (by Drew Rodger, 1990, CSDb release 139475, tagged player \"Matt_Gray\"), and data/composers/josstintimberlake.json has \"Anvil_of_Doom.sid\" tagged \"GoatTracker_V1.x\" — coincidental title matches, not the Petri Reiman playback tool.",
     "No CSDb release entry, Codebase64 article, or format documentation found for the tool itself; CSDb does have a scener profile and release credits for Petri Reiman/Anvil as a composer (id 318), but nothing describing an \"Anvil\" player/editor as a distinct released tool. A 2005 CSDb forum post (Twoflower, \"Music Editors - The Holy Grail\" thread) describes it as one of the \"stranger systems\" the poster had heard about but never examined — the only external mention of the routine found.",
     "DeepSID's curated players.json has no entry for \"Anvil\" — it is an inferred player (from raw file tags), not one of the 129 curated DeepSID entries.",
-    "Composer Petri Reiman was also active under the handle \"Usurper\" (per his CSDb scener profile, id 318). 19 of his other 39 files in this dataset use \"FutureComposer_V1.0\" as player — he used multiple tools; the Anvil routine is one of at least two playback systems he employed."
+    "Composer Petri Reiman was also active under the handle \"Usurper\" (per his CSDb scener profile, id 318). 19 of his other 39 files in this dataset use \"FutureComposer_V1.0\" as player — he used multiple tools; the Anvil routine is one of at least two playback systems he employed.",
+    "Re-research pass, 2026-07-31: censused all 20 Anvil-tagged files' own CSDb SID-entry `Released` field (not a UsedIn-release year) via scripts/lib/csdb-client.js `type=sid`. Corrects a prior-pass error: the original card text said the tunes 'span 1992 ... through at least 1997 (Undead, CSDb SID 45151)' — CSDb SID 45151's own Released field is actually \"1990 Anvil\", not 1997; there is no 1997 file in this set. Full span per the census: 1990 (Undead, SID 45151, \"1990 Anvil\") through 1993 (three files tagged \"1993 Topaz Beerline\": Fresh'n Sticky #7 tune 10/SID 45152, Graveyard Blues 3 tunes 3 and 5/SID 7887,7888); one file (Words by d'Arc, SID 7899) has an unresolved year in CSDb itself (\"19?? Topaz Beerline\"). Note the 1990 \"Anvil\" credit on Undead is the release's own author-attribution field (matching the composer's own handle, no separate CSDb group id resolved for it) — not evidence of a CSDb group distinct from the composer. Also checked: CSDb group search and web search (Lemon64, Forum64) for an \"Anvil\" C64 music editor/player turned up nothing beyond what the original pass found (the 2005 Twoflower forum post, and Reiman's own composer credits); no new lineage or release evidence surfaced. csdb_release remains null — no CSDb release entry describes the tool itself, only music/demo releases crediting Reiman as composer."
   ],
   "sources": [
     "Local dataset: data/sidid.json byTag.\"Anvil\" (author only, no release/reference/comment)",
@@ -64,7 +65,9 @@
     "CSDb scener profile for Petri Reiman (Anvil): https://csdb.dk/scener/?id=318 — lists group memberships (Topaz Beerline, Motion, Death Sector, Sodom, founder of Overdrive) and music credits 1989-2012, but no mention of an authored player/routine. Also confirms the \"Usurper\" handle.",
     "CSDb forum post by Twoflower (2005-08-25, \"Music Editors - The Holy Grail\"): https://csdb.dk/forums/index.php?roomid=14&topicid=17384&showallposts=1 — refers to \"the player used by Anvil/Topaz\" as one of the \"stranger systems\" and \"odd ones gathering dust\" worth examining; the only known external reference to the routine.",
     "CSDb music release \"Anvil\" (id 139475): https://csdb.dk/release/?id=139475 — NOT the Anvil player/routine, but a C64 Music tune by Drew Rodger (1990, player: Matt Gray); confirmed as a title-coincidence, not the Petri Reiman tool.",
-    "CSDb search for an \"Anvil\" player/tool release: no result — only music/demo releases crediting Petri Reiman as composer"
+    "CSDb search for an \"Anvil\" player/tool release: no result — only music/demo releases crediting Petri Reiman as composer",
+    "2026-07-31 census (CSDb webservice, type=sid, all 20 Anvil-tagged CSDb SID ids: 7883,7884,7885,7887,7888,7889,7890,7891,7892,7893,7894,7896,7897,7898,7899,37787,39097,45151,45152,49078) via scripts/lib/csdb-client.js — each entry's own `Released` field read directly, not a UsedIn-release year; earliest 1990 (SID 45151 \"Undead\"), latest 1993 (SID 45152, 7887, 7888), one unresolved (SID 7899 \"19??\")",
+    "WebSearch, 2026-07-31: \"Anvil\" player/editor + Petri Reiman, queried against Lemon64 and Forum64 by name as required — no results beyond generic C64-music-editor forum threads and the composer's own tune credits; no new lineage evidence found"
   ]
 }
 ```
@@ -88,10 +91,14 @@ as one of the "stranger systems" the poster had heard about but never examined
 — the only known external mention of the routine, and itself evidence of the
 player's obscurity. DeepSID's curated players.json has no entry.
 
-The 20 Anvil-tagged tunes span at least 1992 (Assembly'92 Compotune) through
-roughly 1997 (Undead). Petri Reiman also used FutureComposer V1.0 for 19 other
-tunes in his composer folder; the Anvil routine was one of at least two
-playback systems he worked with.
+A 2026-07-31 census of all 20 Anvil-tagged CSDb SID entries' own `Released`
+fields (not UsedIn-release years) puts the routine's attested use span at
+1990 (Undead, CSDb SID 45151, "1990 Anvil") through 1993 (three tunes marked
+"1993 Topaz Beerline"); one file's own CSDb record has an unresolved year
+("19??"). This corrects an earlier pass's error, which had misread SID
+45151's release year as 1997. Petri Reiman also used FutureComposer V1.0 for
+19 other tunes in his composer folder; the Anvil routine was one of at least
+two playback systems he worked with.
 
 ## Quirks & gotchas
 

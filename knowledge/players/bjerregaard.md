@@ -12,7 +12,7 @@
   "name": "Bjerregaard (Johannes Bjerregaard's in-house music driver)",
   "aliases": ["Bjerregaard"],
   "authors": ["Johannes Bjerregaard"],
-  "released": "TODO: no exact year confirmed for this specific driver generation. VGMPF documents Bjerregaard wrote three successive drivers: a first in 1987 (for Tiger Mission), a second in 1987-1988 adapted from Rob Hubbard's driver and 'arranged in his DMC Edit' (programmed in Profi-Ass 64), and a third, faster Turbo Ass driver written after joining Maniacs of Noise in October 1988. This card's plain 'Bjerregaard' tag is most consistent with the pre-MoN driver(s) given its near-total self-use (see quirks) — not confirmed which generation(s) it covers exactly.",
+  "released": "1987-1988. Direct evidence (2026-07-31 pass): the earliest file carrying this exact 'Bjerregaard' Player-ID tag in this collection is the soundtrack to Tiger Mission (C64 game, published 1987 by Kele Line/Status Software; csdb_id 4063), matching VGMPF's account of Bjerregaard's FIRST self-written driver debuting on that game. Other 'Bjerregaard'-tagged files run through at least 1988 ('DMC Demo IV', csdb_id 44826, a Danish Music Company release dated 1988; 'When Will I Be Famous?', csdb_id 4068, dated 1988), overlapping VGMPF's second driver (1987-88, adapted from Rob Hubbard's code, arranged via his own 'DMC Edit'). So this tag's binary signature spans Bjerregaard's first and/or second driver generation(s), not a single discrete release; still not disassembled, so which generation(s) share one signature vs. two is unconfirmed. No standalone editor/tool was ever published for either generation individually — the only public artifact is CSDb tool-release 110685, a 2012 archival release of the DMC Edit disk (see below), not a contemporary 1987/88 release.",
   "status": "stub",
   "platform": "Native C64 in-house replay driver arranged via his own 'DMC Edit' editor tool (per VGMPF), not a publicly distributed GUI tracker in the CheeseCutter/GoatTracker sense.",
   "csdb_release": 110685,
@@ -56,7 +56,8 @@
     "'Bjerregaard' should not be confused with 'DMC_V4.x'/'DMC_V5.x'/'DMC_V6.x' etc. — those tags are Graffity's unrelated 'Demo Music Creator' editor (Balazs Farkas/Brian, per data/sidid.json and CSDb), a coincidentally similar 'DMC' initialism to Bjerregaard's own group 'Danish Music Company' (also abbreviated DMC on CSDb), but a completely different tool by a different author. Do not conflate the two DMCs.",
     "No public source code, format spec, or Codebase64 writeup was found for this driver — only the CSDb tool-release page (110685) and VGMPF's prose history. Every runtime field (memory map, entry points, data format, effects) is honestly TODO.",
     "Refined driver count from a direct VGMPF re-check (2026-07): Bjerregaard's first C64 music was actually on a RIPPED driver, not his own — 'For The Vikings (C64), he ripped an early driver by David Whittaker and appended his own composition.' His first OWN driver followed for Tiger Mission (1987), matching this card's 'released' field; the Rob-Hubbard-derived DMC-Edit driver (1987-88) and the post-Oct-1988 Turbo Ass driver (441 Hz, except Fruitbank) are his 2nd and 3rd own drivers respectively. Doesn't change which generation this 'Bjerregaard' tag covers (still unconfirmed) but corrects the count of driver generations in circulation before he owned one outright.",
-    "Re-checked the CSDb tool-release page (110685) directly (2026-07): its disk image contains '4 BASIC files,' the first of which documents how the EDITOR (not the runtime player) functions — no full 6502 source listing is provided, so this does not unlock any Tier 3 runtime fact and status stays 'stub', not 'in-progress'."
+    "Re-checked the CSDb tool-release page (110685) directly (2026-07): its disk image contains '4 BASIC files,' the first of which documents how the EDITOR (not the runtime player) functions — no full 6502 source listing is provided, so this does not unlock any Tier 3 runtime fact and status stays 'stub', not 'in-progress'.",
+    "Re-research pass, 2026-07-31 (released field): checked CSDb SID entries for the plain 'Bjerregaard'-tagged files directly to date the driver's first use, rather than relying only on VGMPF prose. Confirmed Tiger Mission (csdb_id 4063) — the file whose game VGMPF names as the debut of Bjerregaard's first own driver — carries this exact tag and is dated 'Released: 1987 Kele Line' on its CSDb SID entry (https://csdb.dk/sid/?id=4063), independently corroborated by Lemon64's game page (Tiger Mission, 1987, published by Status Software, Johannes Bjerregaard credited as Musician: https://www.lemon64.com/games/details.php?ID=2652) and MyAbandonware/YouTube listings agreeing on 1987/Kele Line. Also checked 'DMC Demo IV' (csdb_id 44826, dated 1988, Danish Music Company) and 'When Will I Be Famous?' (csdb_id 4068, dated 1988) to bound the tag's usage window at the far end. Also checked CSDb release 157271 ('Tiger Mission' by The OUG-Team, 1987) — this is a crack of the game, not the original publisher release, and carries no musician credit, so it was not used as the dating source. Also attempted https://8bitlegends.com/2022/11/05/we-say-last-goodbye-to-johannes-bjerregaard/ (obituary) — confirms Tiger Mission (1987) as an early/famous Bjerregaard work but adds no driver-development detail beyond VGMPF. MobyGames credits page returned HTTP 403 and could not be read. Did not search Forum64 (German-language; no indication a Danish 1987 game/driver history would be documented there beyond what Lemon64/CSDb/VGMPF already cover) — noting this as an unexplored avenue rather than a completed dead end."
   ],
   "sources": [
     "data/sidid.json byTag['Bjerregaard'] — author: Johannes Bjerregaard (no released/reference field)",
@@ -70,7 +71,12 @@
     "CSDb group page, Danish Music Company (id 1498) — https://csdb.dk/group/?id=1498",
     "knowledge/players/mon-deenen.md — sibling card documenting the same three-way MoN/Deenen vs MoN/FutureComposer vs MoN/Bjerregaard distinction from the SIDId/VGMPF angle",
     "knowledge/players/henning-andersen.md — prior note on the unresolved Henrik Jensen 'Bjerregaard' co-occurrence",
-    "data/composers/*.json (johannes-bjerregaard, henrik-jensen, etc.) — per-file player tag evidence"
+    "data/composers/*.json (johannes-bjerregaard, henrik-jensen, etc.) — per-file player tag evidence",
+    "CSDb SID entry, Tiger Mission (id 4063) — https://csdb.dk/sid/?id=4063 ('Released: 1987 Kele Line'; file carries this card's exact 'Bjerregaard' Player-ID tag)",
+    "Lemon64 game page, Tiger Mission — https://www.lemon64.com/games/details.php?ID=2652 (1987, published by Status Software; Johannes Bjerregaard credited as Musician)",
+    "CSDb SID entry, DMC Demo IV tune 1 (id 44826) — https://csdb.dk/sid/?id=44826 (1988, Danish Music Company; also carries this card's 'Bjerregaard' tag, bounding the tag's usage window through 1988)",
+    "CSDb SID entry, When Will I Be Famous? (id 4068) — https://csdb.dk/sid/?id=4068 ('Released: 1988 Johannes Bjerregaard')",
+    "CSDb release, Tiger Mission crack by The OUG-Team (id 157271) — https://csdb.dk/release/?id=157271 (checked and rejected as a dating source: a 1987 crack, no musician credit, not the original publisher release)"
   ]
 }
 ```
@@ -84,7 +90,12 @@ member of Maniacs of Noise (Oct 1988 - 1990). VGMPF documents him writing
 three successive, distinct drivers between 1987 and 1990; a CSDb tool
 release ("Bjerregaard DMC Editor", id 110685, from 2012) preserves the disk
 he sent Charles Deenen around 1988, arranged through his own "DMC Edit"
-editor. In this collection the plain `Bjerregaard` tag is heavily
+editor. Files carrying this card's exact `Bjerregaard` tag date from 1987
+(Tiger Mission, the C64 game VGMPF names as the debut of his first own
+driver, per its CSDb SID entry) through at least 1988 ("DMC Demo IV",
+"When Will I Be Famous?"), so the tag's first use is now pinned to 1987
+even though it isn't yet disassembled to say whether that spans one driver
+generation or two. In this collection the plain `Bjerregaard` tag is heavily
 self-used (61 of 65 files, 94%, by Bjerregaard himself) — a personal
 routine, not a widely published tool. This card was written alongside a
 sibling investigation into the separate `MoN/Bjerregaard` tag (77 files,
@@ -129,5 +140,8 @@ See the `sources` array — SIDId's `Bjerregaard` and `MoN/Bjerregaard`
 entries, `knowledge/COVERAGE.md`, local `data/composers/*.json`
 aggregation, VGMPF's Johannes Bjerregaard and Maniacs of Noise wiki pages,
 CSDb release 110685 ("Bjerregaard DMC Editor"), CSDb scener page 8138, CSDb
-group page 1498 (Danish Music Company), and the sibling `mon-deenen.md` and
-`henning-andersen.md` cards.
+group page 1498 (Danish Music Company), CSDb SID entries 4063 (Tiger
+Mission, 1987), 44826 (DMC Demo IV, 1988) and 4068 (When Will I Be Famous?,
+1988) used to date the driver's first/continued use, Lemon64's Tiger
+Mission game page, and the sibling `mon-deenen.md` and `henning-andersen.md`
+cards.

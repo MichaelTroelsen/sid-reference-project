@@ -6,7 +6,7 @@
   "name": "Antony Crowther V3 (uncertain authorship — Gremlin-era / widely-shared driver)",
   "aliases": ["Antony_Crowther_V3"],
   "authors": ["UNCONFIRMED — SIDId's raw tag name attributes this to Antony Crowther, but usage evidence points to a Gremlin Graphics in-house or otherwise widely-shared driver. Do NOT assert Crowther personally authored this. See quirks."],
-  "released": "TODO: earliest confirmed use 1986 (Ben Daglish's Gremlin catalogue), latest confirmed use 1993 (Steve Rowlands, Mayhem in Monsterland) — a 7-year span. No single first-release date/product found.",
+  "released": "No single tool release date exists to cite — unlike Antony_Crowther_V2 ('Music Master'), SIDId's Antony_Crowther_V3 entry itself carries no `name`/`reference` field (data/sidid.json; confirmed again against the fuller upstream github.com/cadaver/sidid copy, 2026-07-31), and no curated data/players.json entry exists for it either. Only per-GAME first-use dates are confirmed, via CSDb SID-file metadata: earliest 1986 (Gauntlet, Ben Daglish, Gremlin Graphics, https://csdb.dk/sid/?id=10322), latest 1993 (Mayhem in Monsterland, Steve Rowlands, Apex Computer Productions, https://csdb.dk/sid/?id=24661) — a 7-year span across unrelated composers/companies, not one product's release window. See quirks for the 2026-07-31 re-research pass that specifically searched for a named Gremlin in-house driver and found none.",
   "status": "stub",
   "platform": "Native C64. Presumed a professional/commercial-grade assembled player (unlike the BASIC type-in-listing 'Music Master' tool on [[antony-crowther]]), given its use across full commercial games rather than a magazine listing — but this is inferred from usage context, not confirmed by any disassembly.",
   "csdb_release": null,
@@ -28,7 +28,8 @@
     "TIMESPAN IS SUSPICIOUSLY WIDE FOR ONE ACTIVELY-MAINTAINED TOOL (1986-1993, 7 years, per CSDb release years for Gauntlet vs Mayhem in Monsterland) — much longer than the V1+V2 Music Master line's roughly 2-year span (1984-1986) or than an actively revised tool like [[john-player]] (2001-2002, with a documented version changelog). This is more consistent with either (a) a single, STABLE, unchanged routine that simply kept getting reused/copied for years once written (plausible for a solid commercial-game player), or (b) SIDId's fingerprint genuinely matching structurally similar but independently-written code across that whole span. No source distinguishes these.",
     "PER-GAME ENTRY-POINT METADATA (from CSDb SID pages, not a disassembly) DOES NOT CLEANLY CONFIRM A SHARED TEMPLATE: Gauntlet (Daglish, 1986) has play = load+$10; Krakout (Daglish, 1987) has play = load+1 with init relocated far from load ($E000 load, $F720 init); Mayhem in Monsterland (Rowlands, 1993) has play = load+3. These offsets are not consistent with each other, though differing packing/relocation could still hide a shared underlying routine — inconclusive either way without real disassembly. Reported, not resolved.",
     "COMPOSER CONCENTRATION: 83 files, 10 composers. Daglish 40 (48%), Crowther 12 (14%), Rowlands 13 (16%), Rock 6 (7%), Bjerregaard 5 (6%), FCS 3 (4%), and four composers with 1 file each (Crowley Mr, Olav Moerkrid, SMC, TN) — sums to 83. This is a genuinely wide spread by company/country/era (English commercial games industry, Danish and Finnish demoscene) — the KB's usual composer-concentration heuristic (few composers = personal routine) reads this as 'a real, adopted tool', but WHO built and owns it remains unconfirmed; the spread argues against it being any one person's private routine, Crowther's included.",
-    "DO NOT MERGE WITH [[antony-crowther]] (V1/V2, 'Music Master') without new evidence. If a future disassembly finds byte-identical or clearly-derived code between a V1/V2 file and a V3 file, revisit this decision and consider a `derives_from` edge — none is asserted here for lack of any such evidence."
+    "DO NOT MERGE WITH [[antony-crowther]] (V1/V2, 'Music Master') without new evidence. If a future disassembly finds byte-identical or clearly-derived code between a V1/V2 file and a V3 file, revisit this decision and consider a `derives_from` edge — none is asserted here for lack of any such evidence.",
+    "RE-RESEARCH PASS, 2026-07-31 (identity/provenance only — `released`/`csdb_release`, per task scope): searched specifically for (a) a named Gremlin Graphics in-house C64 music driver/routine distinct from Crowther's Music Master, (b) any CSDb release page documenting Antony_Crowther_V3 as a product (as opposed to per-game SID entries), and (c) Lemon64/Forum64 threads naming the Gremlin driver's author. Checked: VGMPF's Gremlin Graphics wiki page directly (states only 'Most of the time, Gremlin would have its own sound drivers' — no name/author given for the C64-era driver); VGMPF's Ben Daglish page again (confirms 'At Gremlin, Daglish used another driver' with no name); the Lemon64 'Gremlin Graphics Archive' forum thread (purely a book/archive announcement, no technical content); general web search for 'Krakout C64 SID player disassembly Daglish driver' (no hits beyond composer credits). No Forum64.de thread on this topic was found by web search either. Confirmed data/players.json has no curated entry for Antony_Crowther_V3 (only 'Music Master'/V2 is curated there). Net result: no new evidence found in either direction on `csdb_release` (stays `null`, honestly — there is no known CSDb release page for this driver as a product, as opposed to the per-game SID-file entries already cited) or on a single tool-level `released` date (stays a per-game usage range, not a product release). One unverified/discarded lead from this pass: an AI web-search summary briefly asserted a Gremlin driver author nicknamed 'Mule the Top Lad'/Axel Brown tied to Barry Leitch/Imagitec Design — this did NOT survive a direct WebFetch of VGMPF's actual Gremlin Graphics page (no such names appear there) and is recorded here only as a discarded false lead, not as fact, per this KB's no-guessing rule."
   ],
   "sources": [
     "sidid: Antony_Crowther_V3 entry (author 'Antony Crowther', comment 'A few editors are written for this player, see subids', NO name/reference fields — contrast with V2's 'Music Master' + CSDb reference) — deepsid_dl/sidid.nfo, imported to data/sidid.json",
@@ -44,7 +45,10 @@
     "SIDId project upstream source (fuller than the locally cached snapshot — carries the `(FCS_V1.0)`/`(FCS_V1.1)` subid entries under Antony_Crowther_V3 that deepsid_dl/sidid.nfo's import does not): https://github.com/cadaver/sidid/blob/master/sidid.nfo (lines ~71-85)",
     "CSDb release — We-Music Editor V1.0 (Finland Cracking Service, Finnish Gold, 10 Nov 1987): https://csdb.dk/release/?id=97497",
     "CSDb release — We-Music Editor V1.1 (Finland Cracking Service, Finnish Gold, 26 Jan 1988; music credits incl. Ben Daglish, FCS, Rock): https://csdb.dk/release/?id=97498",
-    "Local dataset: data/composers/fcs.json ('The Neon Nights', author 'Juha Granberg & Sami Seppä(Rock)', tag Antony_Crowther_V3, csdb_id 12680) and data/composers/rock.json (6 Antony_Crowther_V3-tagged files, several co-credited to J. Granberg) — corroborates the We-Music Editor/FCS/Rock connection found in the SIDId subids"
+    "Local dataset: data/composers/fcs.json ('The Neon Nights', author 'Juha Granberg & Sami Seppä(Rock)', tag Antony_Crowther_V3, csdb_id 12680) and data/composers/rock.json (6 Antony_Crowther_V3-tagged files, several co-credited to J. Granberg) — corroborates the We-Music Editor/FCS/Rock connection found in the SIDId subids",
+    "Re-research pass, 2026-07-31 (released/csdb_release — no new facts, checked to close out the gap honestly): VGMPF — Gremlin Graphics (no named C64-era in-house driver): https://vgmpf.com/Wiki/index.php/Gremlin_Graphics",
+    "Re-research pass, 2026-07-31: Lemon64 forum — 'The Gremlin Graphics Archive' thread (announcement only, no driver info): https://www.lemon64.com/forum/viewtopic.php?t=60991",
+    "Re-research pass, 2026-07-31: data/players.json checked directly (only a 'Music Master' entry exists, csdb_id 14590 — no Antony_Crowther_V3 entry) — confirms no curated CSDb release id is available for V3 anywhere in this project's local data"
   ]
 }
 ```
@@ -74,7 +78,13 @@ exists in this KB for "same name, different driver"
 (`dave-spicer-v1`/`dave-spicer-v15`), this card treats V3 as a
 genuinely separate, currently unidentified driver rather than folding
 it into the Music Master card on the strength of a shared tag prefix
-alone.
+alone. No single tool-level release date or CSDb release id could be
+established for `Antony_Crowther_V3` itself — a 2026-07-31 re-research
+pass specifically for a named Gremlin in-house driver (VGMPF's Gremlin
+Graphics page, the Ben Daglish page again, Lemon64/Forum64 search)
+turned up nothing beyond VGMPF's already-cited "another driver" line;
+`released` records the confirmed per-game usage span (1986-1993)
+instead, and `csdb_release` stays `null`.
 
 ## Quirks & gotchas
 
@@ -130,4 +140,7 @@ cached and, for the subids, the fuller upstream github.com/cadaver/sidid
 copy), this dataset's own composer/file breakdown, VGMPF's Ben Daglish
 page, three CSDb SID-file pages plus the two We-Music Editor release
 pages, the Steve Rowlands Lemon64 interview, and the related
-antony-crowther and dave-spicer-v1 cards.
+antony-crowther and dave-spicer-v1 cards. A 2026-07-31 re-research pass
+(VGMPF's Gremlin Graphics page, a Lemon64 forum thread, and a direct
+check of `data/players.json`) confirmed no named driver, product, or
+CSDb release id exists to cite for `Antony_Crowther_V3` as a tool.

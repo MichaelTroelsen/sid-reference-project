@@ -111,7 +111,7 @@ Card status across 520 cards: **184 verified / 53 in-progress / 283 stub**, cove
 | 53 | [[sosperec]] | ❌ not ported | 99 | 0 | verified, 2T |
 | 54 | [[chubrocker]] | ❌ not ported | 98 | 0 | stub, 6T |
 | 55 | [[walt-bonzai]] | ❌ not ported | 95 | 0 | stub, 6T |
-| 56 | [[tbb-sideb]] | ❌ not ported | 94 | 0 | stub, 9T |
+| 56 | [[tbb-sideb]] | ❌ not ported | 94 | 0 | stub, 8T |
 | 57 | [[jch-protracker]] | ❌ not ported | 91 | 1 | verified, 0T |
 | 58 | [[guy-shavitt]] | ❌ not ported | 90 | 0 | verified, 0T |
 | 59 | [[ninjatracker-v2x]] | ❌ not ported | 90 | 1 | verified, 4T |

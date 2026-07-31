@@ -13,7 +13,7 @@
   "released": "1989 (Sound Maker II, United Artists); V3/V4 undated",
   "status": "stub",
   "platform": "Native C64 tool (DeepSID players.json lists platform \"Native / C64 emulator\" for the SoundMaker IV entry)",
-  "csdb_release": null,
+  "csdb_release": 213749,
 
   "memory": {
     "load_address": "TODO: no public source/disassembly found",
@@ -53,7 +53,8 @@
     "Small, concentrated usage: only 8 composers use the SoundMaker family across 77 files in this dataset (30 V3 + 47 V4) — A-Man, Arne, Goesta Feiweier, Higgie, Noise_of_Victory, Sid_United_Artists, Viper, Zax Imperial. Viper only used V3; Arne only used V4; several composers used both. This spread (few composers, one at 57% of V4) is signal of a small-scene/personal-circle tool rather than a widely-published one — consistent with no independent CSDb release page existing for \"Sound Maker III\" or \"Sound Maker IV\" specifically (only \"Sound Maker II\", 1989, was found catalogued).",
     "No public source code or disassembly was found for any SoundMaker version (searched GitHub, CSDb, Codebase64) — every Tier 3 runtime field is honestly TODO.",
     "\"Sound Maker\"/\"Soundmaker\" is a generic, reused name on CSDb: at least three OTHER, unrelated C64 tools carry a near-identical title — \"Sound Maker\" by Psychobird (csdb.dk/release/?id=227635, no date/credits found), \"Sound-Maker V1.0\" by SkyLine Technics (csdb.dk/release/?id=129439, 1990, no credits found), and \"Soundmaker V1.0\" coded by Tasco for RCS International 2002/The Silicon Masters (csdb.dk/release/?id=216504, 1987). None of these three mention Pleite Geier, United Artists, or version numbering matching V3/V4 — they are name collisions, not part of this family. Only SIDId's explicit author attribution ties SoundMaker/_V3/_V4 to Pleite Geier; do not assume any other CSDb \"Sound Maker\" hit belongs here.",
-    "Re: the Arne-vs-Pleite-Geier authorship discrepancy (see above): Arne Puszelski's own CSDb scener page (csdb.dk/scener/?id=6512) lists him primarily as a musician (Alpha Flight, ex-Ability/Dance 2 Trance/Spirit) but DOES credit him as coder on other music tools — \"AFL - Noter V1.0\" (1994) and \"Soundeditor V1.0\" (1994, with Dance 2 Trance/Spirit). This makes DeepSID's \"developer: Arne\" attribution for SoundMaker IV at least plausible (he did code editors), but neither of those two credited tools is named SoundMaker/Sound-Maker, so this is corroborating context, not confirmation — the discrepancy with SIDId's Pleite Geier attribution remains unresolved."
+    "Re: the Arne-vs-Pleite-Geier authorship discrepancy (see above): Arne Puszelski's own CSDb scener page (csdb.dk/scener/?id=6512) lists him primarily as a musician (Alpha Flight, ex-Ability/Dance 2 Trance/Spirit) but DOES credit him as coder on other music tools — \"AFL - Noter V1.0\" (1994) and \"Soundeditor V1.0\" (1994, with Dance 2 Trance/Spirit). This makes DeepSID's \"developer: Arne\" attribution for SoundMaker IV at least plausible (he did code editors), but neither of those two credited tools is named SoundMaker/Sound-Maker, so this is corroborating context, not confirmation — the discrepancy with SIDId's Pleite Geier attribution remains unresolved.",
+    "Re-research pass, 2026-07-31 (csdb_release gap-fill): queried csdb.dk's webservice API directly (scripts/lib/csdb-client.js) rather than the HTML site, since csdb.dk was returning HTTP 503 to WebFetch during this pass. Pulled Pleite Geier's full Released+Credits list (type=scener, id=25228, depth=2) and the United Artists group's full 134-release catalog (type=group, id=8443, depth=2): across both, the ONLY \"Sound Maker\"-named release found anywhere is \"Sound Maker II\" (csdb.dk/release/?id=213749, October 1989) — no \"Sound Maker III\"/\"Sound Maker IV\"/\"SoundMaker 3\"/\"SoundMaker 4\" release exists on CSDb under Pleite Geier, under United Artists, or (re-checked) under Arne's own credit list (type=scener, id=6512 — still only \"AFL - Noter V1.0\"/\"Soundeditor V1.0\", no Sound Maker entry). WebSearch queries for \"Sound Maker III\"/\"Sound Maker IV\"/\"SoundMaker 3\" combined with Pleite Geier/Arne returned no matches. Conclusion: `csdb_release` is now set to 213749 (\"Sound Maker II\") as the one identifiable, catalogued CSDb entry for this family/lineage — it documents the V1/V2-era tool specifically, NOT the uncatalogued V3/V4 raw tags this card's `aliases` also cover; treat 213749 as \"closest known release,\" not a release id specific to V3 or V4. Also newly confirmed via the API (not visible on the earlier pass's rendered page excerpt): Pleite Geier's own Scener.Country field reads \"Germany\" directly (csdb.dk/webservice/?type=scener&id=25228), corroborating rather than just inferring his nationality from United Artists' group BaseCountry."
   ],
   "sources": [
     "data/sidid.json byTag: SoundMaker / (SoundMaker_V3) / (SoundMaker_V4) — name \"Sound-Maker\"/\"Sound-Maker V3\"/\"Sound-Maker V4\", author \"Pleite Geier\", released \"United Artists\" (sourced from deepsid_dl/sidid.nfo, https://github.com/cadaver/sidid/blob/master/sidid.nfo)",
@@ -62,7 +63,8 @@
     "CSDb release, Sound Maker II: https://csdb.dk/release/?id=213749 (C64 Tool, group United Artists, 10-1989, credits: Code — Pleite Geier; Music — Johannes Bjerregaard; Translation — Newcomer and Pleite Geier)",
     "CSDb scener profile, Arne/Alpha Flight: https://csdb.dk/scener/?id=6512 (musician; group memberships Alpha Flight, ex-Ability/Dance 2 Trance/Spirit; coder credits on \"AFL - Noter V1.0\" and \"Soundeditor V1.0\", both 1994 — neither is a SoundMaker release)",
     "CSDb search/release checks confirming three unrelated same-name tools are NOT this family: https://csdb.dk/release/?id=227635 (Psychobird), https://csdb.dk/release/?id=129439 (SkyLine Technics, 1990), https://csdb.dk/release/?id=216504 (Tasco/RCS International 2002+The Silicon Masters, 1987)",
-    "Local dataset: 77 files aggregated from data/composers/*.json (SoundMaker_V3: 30 files, SoundMaker_V4: 47 files) across 8 composers — re-verified directly: a-man 15, arne 27, goesta-feiweier 7, higgie 3, noise-of-victory 2, sid-united-artists 14, viper 8, zax-imperial 1"
+    "Local dataset: 77 files aggregated from data/composers/*.json (SoundMaker_V3: 30 files, SoundMaker_V4: 47 files) across 8 composers — re-verified directly: a-man 15, arne 27, goesta-feiweier 7, higgie 3, noise-of-victory 2, sid-united-artists 14, viper 8, zax-imperial 1",
+    "CSDb webservice API (2026-07-31 pass, via scripts/lib/csdb-client.js, used because csdb.dk's HTML site returned HTTP 503 to WebFetch): https://csdb.dk/webservice/?type=scener&id=25228&depth=2 (Pleite Geier's full Released+Credits lists — only Sound Maker release is 213749; Scener.Country = \"Germany\"), https://csdb.dk/webservice/?type=group&id=8443&depth=2 (United Artists' full 134-release catalog — only Sound Maker release is 213749), https://csdb.dk/webservice/?type=release&id=213749&depth=2 (\"Sound Maker II\", Oct 1989, Type C64 Tool, Code+Translation: Pleite Geier, Translation: Newcomer, Music: Johannes Bjerregaard — confirms Native C64 tool platform), https://csdb.dk/webservice/?type=scener&id=6512&depth=2 (Arne's full credit list re-checked — no Sound Maker credit found)"
   ]
 }
 ```
@@ -83,7 +85,13 @@ across only 8 composers, more than half of the V4 files from one composer
 DeepSID's own curated player entry for "SoundMaker IV" oddly credits developer
 "Arne" rather than Pleite Geier, an unresolved discrepancy noted in `quirks`
 rather than silently picked one way. No public source or disassembly exists,
-so every runtime fact is `TODO`.
+so every runtime fact is `TODO`. `csdb_release` is set to **213749**
+("Sound Maker II") — a 2026-07-31 pass queried CSDb's webservice API
+directly (Pleite Geier's full credit list, the United Artists group's full
+134-release catalog, and Arne's full credit list) and confirmed 213749 is
+the only "Sound Maker"-named release catalogued anywhere on CSDb; no
+separate release exists for the V3/V4 tags this card also covers, so the id
+documents the family's earliest catalogued version, not V3/V4 specifically.
 
 ## Quirks & gotchas
 
@@ -101,7 +109,12 @@ entry was asserted; (4) "Sound Maker"/"Soundmaker" is a generic name reused
 by at least three unrelated CSDb tool releases (Psychobird; SkyLine
 Technics 1990; Tasco/RCS International 2002+The Silicon Masters 1987) —
 none connected to Pleite Geier or United Artists, confirmed as name
-collisions, not part of this family.
+collisions, not part of this family; (5) `csdb_release: 213749` refers to
+"Sound Maker II" specifically — confirmed via CSDb's webservice API
+(2026-07-31 pass) to be the ONLY Sound Maker release catalogued under
+Pleite Geier, United Artists, or Arne — no CSDb entry exists for
+"Sound Maker III"/"IV", so don't read this id as documenting the V3/V4
+raw tags.
 
 ## Disassembly notes
 
@@ -121,16 +134,23 @@ Pleite Geier's authorship claim for the 1989 "Sound Maker II" release. A
 directly against `data/composers/*.json` (exact match), searched CSDb/
 Codebase64/GitHub again for source or documentation (none found), ruled out
 three unrelated same-named CSDb tools as not part of this family, and found
-supporting (not conclusive) context for the Arne authorship attribution. No
-runtime fact (memory map, entry points, data format, effects) is confirmed —
-all left `TODO` rather than guessed. Remains a `stub`: no public source or
-disassembly plainly documents a Tier 3 runtime fact, so promotion to
-`in-progress` is not warranted.
+supporting (not conclusive) context for the Arne authorship attribution. A
+2026-07-31 follow-up pass (to fill the `csdb_release` gap) queried CSDb's
+webservice API directly (`scripts/lib/csdb-client.js`) — the HTML site was
+returning HTTP 503 to WebFetch — pulling Pleite Geier's, United Artists',
+and Arne's full release/credit lists; confirmed 213749 ("Sound Maker II")
+is the only Sound Maker release catalogued anywhere under any of the three,
+so `csdb_release` was set to 213749 with an explicit caveat that it does
+not cover V3/V4. No runtime fact (memory map, entry points, data format,
+effects) is confirmed — all left `TODO` rather than guessed. Remains a
+`stub`: no public source or disassembly plainly documents a Tier 3 runtime
+fact, so promotion to `in-progress` is not warranted.
 
 ## Sources
 
 See the `sources` array — SIDId (`sidid.nfo`), DeepSID's `players.json`
-export, and CSDb pages (Pleite Geier's scener profile, the "Sound Maker II"
+export, CSDb pages (Pleite Geier's scener profile, the "Sound Maker II"
 release, Arne/Alpha Flight's scener profile, and three ruled-out same-named
 tool releases) fetched directly to corroborate/complicate the SIDId
-attribution and the DeepSID authorship discrepancy.
+attribution and the DeepSID authorship discrepancy, and (2026-07-31) CSDb's
+webservice API endpoints used to resolve `csdb_release`.

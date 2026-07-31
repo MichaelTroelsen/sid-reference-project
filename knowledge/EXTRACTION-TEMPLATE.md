@@ -49,6 +49,39 @@ Wikipedia/forums. Cite a URL for every fact.
 | First-release date / version history | `released` / Overview | CSDb release chain |
 | Lineage claims | `edges` + `quirks` | a source/manual/header that states derivation (e.g. CheeseCutter's `"Based on JCH NP 21.G4 by Laxity/VIB"`) — only assert an edge from real evidence |
 
+### Dating a routine: census every tagged file, never sample
+
+**A date derived from a handful of files is wrong often enough that it should
+be treated as provisional until every tagged file has been checked.** In a
+2026-07-31 research pass over 15 stub cards, four dates moved once the full
+set was swept — and all four moved *earlier*:
+
+| card | recorded | actual | why it was wrong |
+|---|---|---|---|
+| `tbb-sideb` | 1994 | 1991 | spot-checked a few files |
+| `trident-active` | 1996 | 1994 | 2-file sample |
+| `grg-tiny` | 2006 | 2002 | a tune's **title** year read as its release date |
+| `cycleburner-digi` | (later) | 1989-02-26 | earlier attestation missed |
+
+The bias is one-directional and has an obvious cause: any subset you happen to
+look at is unlikely to contain the earliest file, so sampling can only ever
+move a first-use date later. Sweep all of them.
+
+Practical notes for the sweep:
+
+- Query CSDb's XML webservice through `scripts/lib/csdb-client.js` rather than
+  fetching HTML. The HTML site returns 503 intermittently, and in one case
+  node's own `fetch` hung against `csdb.dk` where `curl` worked.
+- Read each tune's own `Released` field. Do **not** read a year out of a tune's
+  title, and do not take a `UsedIn` release's year as the tune's own.
+- **Say which kind of date you have.** "Earliest tune attested" is not "release
+  date", and a range of per-tune composition dates is neither. A personal or
+  in-house routine usually has no release date at all — record that, with
+  evidence, rather than promoting a first-use year into `released`.
+- PSID header values (`load`/`init`/`play`) gathered during the sweep are
+  header metadata, not disassembly facts. They belong in `quirks`; they must
+  never be written into Tier 3 `entry`/`memory` fields.
+
 ## Tier 3 — Runtime / reverse-engineering (usually TODO until disassembled)
 
 Source: a real disassembly of a representative `.sid` (public source if it

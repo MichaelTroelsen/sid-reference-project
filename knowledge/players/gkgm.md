@@ -51,7 +51,10 @@
     "NO PUBLIC SOURCE OR DISASSEMBLY FOUND for the C64 SoundMaker/MusicMaker sound engine specifically — GameMaker itself is a commercial retail product (still sold in reissue/emulation form), not released as open source. All Tier 3 runtime fields are honestly TODO.",
     "THE C64/128 MANUAL (Activision, 1985) IS PLATFORM-SPECIFIC AND DIFFERS FROM THE APPLE II ONE — an easy mix-up: the Apple II manual (archive.org item 'A2_Garry_Kitchens_GameMaker_manual') describes 2 voices and 4 instruments per channel (Apple II's sound hardware), while the C64/128 manual explicitly states 'The Commodore 64 or 128 computers have three voices... you can choose one of 13 instruments to be played on each channel.' Only the C64/128 manual's numbers apply to files tagged GKGM in this dataset. Source: https://archive.org/details/7btv-98wqvt-698qwvt-698bwvq-6t-98wbv-76",
     "MULTIPLE CSDb RELEASE ENTRIES EXIST FOR THE GAMEMAKER PRODUCT DISK ITSELF, ALL CRACKS — none is player-authorship documentation: id 116982 (Eagle Soft Incorporated, 1985, cited as csdb_release=null rationale above), plus id 133712 (The Crack Team, 1986) and id 20050 (Indiana Jones 1933, 1985), found during this pass. All three are scene crack/distribution credits, reinforcing rather than changing the existing null csdb_release decision.",
-    "THE TOOL WAS STILL BEING USED FOR NEW RELEASES DECADES LATER, OUTSIDE THIS DATASET — CSDb release id 257395, 'Lunadia' by Commodore Spain (21 Nov 2025), whose own release notes say 'Made with gkgm with a twist.' This confirms GKGM/GameMaker retained a small hobbyist user base long after 1985, though Lunadia is not one of the 50 HVSC-tagged files this card's composer counts are drawn from (its music is credited to Narcisound and Zyron, not composers already in data/composers/*.json under the GKGM tag). Source: https://csdb.dk/release/?id=257395"
+    "THE TOOL WAS STILL BEING USED FOR NEW RELEASES DECADES LATER, OUTSIDE THIS DATASET — CSDb release id 257395, 'Lunadia' by Commodore Spain (21 Nov 2025), whose own release notes say 'Made with gkgm with a twist.' This confirms GKGM/GameMaker retained a small hobbyist user base long after 1985, though Lunadia is not one of the 50 HVSC-tagged files this card's composer counts are drawn from (its music is credited to Narcisound and Zyron, not composers already in data/composers/*.json under the GKGM tag). Source: https://csdb.dk/release/?id=257395",
+    "A FOURTH CSDb CRACK RELEASE OF THE PRODUCT DISK WAS FOUND (id 212916, JEDI/'1103', undated) — same category as the other three (credits a cracker, not a player author; page mentions only a bundled sprite editor, no music/sound-engine credit), so it does not change the csdb_release=null decision. Source: https://csdb.dk/release/?id=212916",
+    "NO LINEAGE EDGE TO A KNOWN C64 SOUND DRIVER — VGMPF's Alex DeMeo page separately states 'DeMeo used Stuart E. Ross' sound drivers,' but explicitly for Game Boy/NES work, not for GameMaker's C64 SoundMaker/MusicMaker; the page does not connect the Ross driver to GameMaker at all. Checked specifically to avoid a false `edges.derives_from` claim. Source: https://www.vgmpf.com/Wiki/index.php/Alex_DeMeo",
+    "RE-RESEARCH PASS, 2026-07-31 — searched CSDb (site-restricted web search + direct fetch of release pages), Lemon64 forum search, Forum64.de search, and CSDb's musician-credit pages for a CSDb release entry documenting the GKGM player/tool itself (as opposed to a crack of the product disk). Found no such entry: all CSDb hits for 'GameMaker' resolve to product-disk cracks (116982, 133712, 20050, and newly-found 212916), none carrying player-authorship credits; Forum64.de search returned no GameMaker-specific threads at all; Lemon64 search surfaced only general GameMaker/sound-effects threads, no player-routine discussion. `csdb_release` remains honestly null — a commercial 1985 product's in-game music engine has no CSDb 'player' release entry, and none should be invented."
   ],
   "sources": [
     "SIDId (sidid.nfo, byTag['GKGM']): name 'Garry Kitchen's GameMaker', author Alex DeMeo, released 1985 Activision — data/sidid.json",
@@ -62,6 +65,7 @@
     "CSDb release (C64 cracked-disk release by Eagle Soft Incorporated, 1985 — crack/distribution credit only, not player authorship): https://csdb.dk/release/?id=116982",
     "CSDb release (The Crack Team, 1986, GameMaker product disk crack): https://csdb.dk/release/?id=133712",
     "CSDb release (Indiana Jones 1933, 1985, GameMaker product disk crack): https://csdb.dk/release/?id=20050",
+    "CSDb release (JEDI/'1103', undated, GameMaker product disk crack, found during 2026-07-31 re-research pass): https://csdb.dk/release/?id=212916",
     "CSDb release (Lunadia by Commodore Spain, 2025 — 'Made with gkgm with a twist', evidence of continued hobbyist use decades after 1985): https://csdb.dk/release/?id=257395",
     "Manual for Garry Kitchen's GameMaker for the Commodore 64/128 (Activision, 1985), full text via Internet Archive — MusicMaker/SoundMaker sections (3 voices, 13 instruments/channel, note-based Music Sheet UI, tie/tempo commands; SoundMaker's frame-based sound-effect model, up to 511 frames): https://archive.org/details/7btv-98wqvt-698qwvt-698bwvq-6t-98wbv-76",
     "Local dataset: 50 files tagged GKGM across 7 composer entities (see knowledge/COVERAGE.md and data/composers/*.json) — verified against data/composers/*.json's raw folder[].player field during this research pass: alan-bond (2), alex-demeo (19), del-priore-fabian (15), inc-imagineering (6), mark-darin (3), reitz-jennifer-diane (4), scroll (1)"
@@ -97,12 +101,13 @@ Gaboury, not Garry Kitchen** (Kitchen designed the overall product); the
 **composer list is dominated by the tool's own author**, which is expected
 for embedded demo content, not evidence of wide scene adoption; the
 **CSDb release id was deliberately left null** rather than borrowing any of
-the three cracked-disk release pages found for the product (116982, 133712,
-20050), none of which carry player-authorship credits — the same trap
-already flagged on the analogous `games-creator.md` card; and **the Apple II
-and C64/128 manuals disagree on voice/instrument counts** (2 voices/4
-instruments vs. 3 voices/13 instruments) — only the C64/128 numbers apply to
-GKGM-tagged files here.
+the four cracked-disk release pages found for the product (116982, 133712,
+20050, 212916), none of which carry player-authorship credits — the same trap
+already flagged on the analogous `games-creator.md` card, re-confirmed by a
+2026-07-31 pass across CSDb, Lemon64, and Forum64.de that turned up nothing
+new; and **the Apple II and C64/128 manuals disagree on voice/instrument
+counts** (2 voices/4 instruments vs. 3 voices/13 instruments) — only the
+C64/128 numbers apply to GKGM-tagged files here.
 
 ## Disassembly notes
 

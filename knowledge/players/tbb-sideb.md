@@ -10,9 +10,9 @@
   "name": "TBB/SideB",
   "aliases": ["TBB/SideB"],
   "authors": ["Tero Hilpinen (TBB)"],
-  "released": "TODO: no formal release year found for the routine itself; earliest attested use in the collection is 1994 (AMJ's \"Blasphemy\", group Side B — https://csdb.dk/sid/?id=7771)",
+  "released": "TODO: no formal release date exists for the player/routine itself — SIDId's sidid.nfo entry for this tag carries no Released field (author only). A full sweep of all 94 CSDb sid-entries tagged TBB/SideB in this collection (queried directly via csdb.dk's XML webservice, type=sid, one call per file) found the earliest attested year is 1991, shared by five tunes across three of the four composers: Page's 'Info Linker 1.0' (https://csdb.dk/sid/?id=23054, CSDb Released='1991 Side B'), Page's 'Koff - Part 1' (https://csdb.dk/sid/?id=23056, '1991 Side B/Death Sector'), Page's 'Soldier of Fortune' (https://csdb.dk/sid/?id=23060, '1991 Side B/Death Sector'), TBB's 'Griffie' (https://csdb.dk/sid/?id=27946, '1991 Side B'), and TBB's 'Return of the Galaxians' (https://csdb.dk/sid/?id=27955, '1991 Side B'). This corrects a prior pass's spot-checked claim of 1994, which checked only one AMJ tune (https://csdb.dk/sid/?id=7771). Group Side B itself was founded in 1989 (https://csdb.dk/group/?id=140), so the routine's true origin may predate 1991, but no earlier tagged file or other documentation was found.",
   "status": "stub",
-  "platform": "TODO: appears to be a native-C64, in-house player routine written by TBB (Tero Hilpinen) for the Finnish group Side B/Extend — no standalone editor, packaged tool, or CSDb tool release was found (see Overview). Not confirmed as cross-platform or native beyond that inference.",
+  "platform": "Native C64, in-house player routine — not a distributed editor or standalone tool. No standalone tool/editor release exists on CSDb (Side B's group page lists only 13 releases, all typed 'Music' — https://csdb.dk/group/?id=140) or Demozoo (TBB/AMJ scener profiles, see quirks). CSDb's Group webservice record for Side B additionally classifies its Grouptype as 'Music Group' (not a coding/tool-development group), founded 1989 by AMJ with brothers Page and TBB plus non-family member Anvil (https://csdb.dk/webservice/?type=group&id=140). Confirmed via targeted searches of both English-language Lemon64 (https://www.lemon64.com/forum/) and German-language Forum64 (https://www.forum64.de/) for this routine/handle by name: neither forum has any thread naming or discussing 'TBB/SideB' as a released player, consistent with it never having circulated outside the group.",
   "csdb_release": null,
 
   "memory": {
@@ -50,9 +50,10 @@
     "SIDId's own index (sidid.nfo) carries only an AUTHOR field for this tag — no Name/Released/Reference/Comment. Confirmed by fetching the raw entry from https://github.com/cadaver/sidid/blob/master/sidid.nfo directly (block reads exactly 'TBB/SideB / AUTHOR: Tero Hilpinen (TBB)', nothing else). This is consistent with an unpublished, in-house routine rather than a distributed tool: no CSDb release ID exists for the player/tool itself (only for individual .sid tunes that use it).",
     "Extremely concentrated usage: 94 files in this collection tag as TBB/SideB, spread across only 4 composers (per data/composers/*.json): Barracuda/Toni Nisula 57 (61%), AMJ/Juha-Matti Hilpinen 21 (22%), TBB/Tero Hilpinen himself 11 (12%), Page/Toni Hilpinen 5 (5%). Per HVSC Musicians.txt, TBB, AMJ, and Page are three siblings surnamed Hilpinen, all members of group Side B ('AMJ (Audio Master J) (Hilpinen, Juha-Matti) / Side B', 'Page (Hilpinen, Toni) / Side B / Deathsector', 'TBB (Hilpinen, Tero) / Side B & Extend' — https://www.hvsc.c64.org/download/C64Music/DOCUMENTS/Musicians.txt). This reads as a personal/family routine used inside one group, not a widely published tool — textbook 'small-scene routine' per the concentration heuristic in knowledge/EXTRACTION-TEMPLATE.md.",
     "Barracuda (Toni Nisula, Finland) is the outlier: he is not a Hilpinen, but per CSDb he is credited to group Extend (https://csdb.dk/group/?id=173), the same group TBB himself was a founding member of ('The Beasty Boy' is listed as one of Extend's seven founders, established 1989-12-12) and is explicitly tagged alongside in TBB's own HVSC line ('Side B & Extend'). Barracuda's tunes tagged TBB/SideB in this collection date as late as ~2015-2025 (composer profile active year 2025), decades after TBB's own 1990s tunes — suggesting the routine/tune template was handed down or reused within the Side B/Extend circle long after TBB's own active period, though this is an inference from group overlap, not a documented statement.",
-    "Load/init/play addresses checked on CSDb are NOT consistent across the four composers' tunes, so identical-binary reuse is not confirmed: TBB's 'Tribute 2 Sinatra' (https://csdb.dk/sid/?id=27958) is load $1000 / init $1000 / play $1003, and Barracuda's 'Aerial Core' (https://csdb.dk/sid/?id=52301) matches exactly ($1000/$1000/$1003) — but AMJ's 'SYS4096' (https://csdb.dk/sid/?id=7787) is load $1000 / init $2656 / play $265F, a different init/play pair. Do not assume a single fixed entry point without checking more files.",
+    "Load/init/play addresses checked across ALL 94 tagged files (via csdb.dk webservice, type=sid, one query per file — not a spot check) show a play-address entry point of $1003 (4099) in 78 of 94 files (83%), spanning the full 1991-2025 date range across all four composers — e.g. TBB's 1998 'Tribute 2 Sinatra' (https://csdb.dk/sid/?id=27958, play $1003) and Barracuda's 2015 'Aerial Core' (https://csdb.dk/sid/?id=52301, play $1003) match despite a 17-year gap. Load and init addresses vary more (load is $0900 in 50/94, $1000 in 26/94, and one-off values elsewhere; init clusters at $1000 in 48/94 and $0FF0/$0FF3/$0FF4 in another ~22) and 16 files (17%) have an entirely different play address (e.g. AMJ's 1995 'SYS4096', https://csdb.dk/sid/?id=7787, play $265F). This is suggestive of one core routine (fixed play entry) reused/re-linked at varying load addresses over decades, with a handful of genuinely different outliers — but it is metadata aggregation, not a disassembly, so no entry-point fact has been written into the `entry`/`memory` fields above.",
     "No standalone editor/tool release exists anywhere on CSDb or Demozoo for this routine, reinforcing the 'unpublished in-house routine' reading. Checked directly: the CSDb group page for Side B (Finland, https://csdb.dk/group/?id=140) lists 13 releases, all typed 'Music' (SID tunes only, 1993-1999) — no 'Music Editor' or 'Tool' release. TBB's own Demozoo scener profile (36 productions, 1990-2024, https://demozoo.org/sceners/3303/) and AMJ's (47 productions, https://demozoo.org/sceners/3188/) likewise show only demos/intros/music/musicdisks/one unrelated SEUCK-cracking tool (AMJ's 'SEUCK-Buster', 2006) — nothing resembling a music editor or player-routine release.",
-    "TBB's Demozoo profile lists two earlier scene aliases predating the 'TBB' handle: 'The Beasty Boy' and 'The Big Byte' (https://demozoo.org/sceners/3303/) — consistent with the 'Beasty Boy' founder credit already noted on the Extend group page."
+    "TBB's Demozoo profile lists two earlier scene aliases predating the 'TBB' handle: 'The Beasty Boy' and 'The Big Byte' (https://demozoo.org/sceners/3303/) — consistent with the 'Beasty Boy' founder credit already noted on the Extend group page.",
+    "Re-research pass, 2026-07-31: filled `released` and `platform` (both were TODO/incomplete) and confirmed `csdb_release` stays `null`. Queried csdb.dk's XML webservice (scripts/lib/csdb-client.js, type=sid) for all 94 tagged files' Released/LoadAddr/InitAddr/PlayAddr fields directly (not a spot check) — corrected `released`'s earliest-attested year from a prior pass's 1994 (one file checked) to 1991 (five files, confirmed exhaustively). Queried CSDb's group webservice for Side B (id=140) and confirmed Grouptype='Music Group', founded 1989 by AMJ with brothers Page/TBB plus Anvil. Searched Lemon64 (site:lemon64.com/forum, query 'TBB SideB player routine c64') and Forum64 (query 'forum64.de TBB SideB Player C64') by name per task instructions — both returned zero threads discussing this routine or handle as a released tool; negative result recorded, not just assumed. Did not find any CSDb release-type (editor/tool/utility) entry for 'TBB/SideB' — every result is either a Music-typed SID release (wrong ID namespace: csdb.dk/sid/?id=) or unrelated — so `csdb_release` remains `null`, honestly reflecting that no release of the player/tool itself exists to cite. Did not touch any Tier 3 field (memory/entry/speed/data_format/effects) — those stay exactly as the prior pass left them."
   ],
   "sources": [
     "SIDId sidid.nfo, tag TBB/SideB, author-only entry — https://github.com/cadaver/sidid/blob/master/sidid.nfo ; mirrored locally at data/sidid.json (byTag['TBB/SideB'])",
@@ -61,7 +62,10 @@
     "CSDb group page for Extend (Finland), founding members incl. 'The Beasty Boy' (TBB) — https://csdb.dk/group/?id=173",
     "CSDb group page for Side B (Finland), all 13 releases typed 'Music', no tool/editor release — https://csdb.dk/group/?id=140",
     "CSDb SID entries checked individually: Tribute 2 Sinatra (TBB, 1998) https://csdb.dk/sid/?id=27958 ; Viidakko (TBB, 1996) https://csdb.dk/sid/?id=27959 ; Blasphemy (AMJ, 1994) https://csdb.dk/sid/?id=7771 ; SYS4096 (AMJ, 1995) https://csdb.dk/sid/?id=7787 ; Aerial Core (Barracuda, 2015) https://csdb.dk/sid/?id=52301",
-    "Demozoo scener profiles cross-checked for tool/editor releases: TBB (36 productions) https://demozoo.org/sceners/3303/ ; AMJ (47 productions) https://demozoo.org/sceners/3188/"
+    "Demozoo scener profiles cross-checked for tool/editor releases: TBB (36 productions) https://demozoo.org/sceners/3303/ ; AMJ (47 productions) https://demozoo.org/sceners/3188/",
+    "2026-07-31 pass: full csdb.dk webservice sweep (type=sid) of all 94 tagged files' Released/LoadAddr/InitAddr/PlayAddr fields, via scripts/lib/csdb-client.js — earliest year 1991, confirmed by Page 'Info Linker 1.0' https://csdb.dk/sid/?id=23054 , Page 'Koff - Part 1' https://csdb.dk/sid/?id=23056 , Page 'Soldier of Fortune' https://csdb.dk/sid/?id=23060 , TBB 'Griffie' https://csdb.dk/sid/?id=27946 , TBB 'Return of the Galaxians' https://csdb.dk/sid/?id=27955 ; play-address consistency (78/94 files at $1003) computed from the same sweep",
+    "2026-07-31 pass: CSDb group webservice record for Side B (Grouptype='Music Group', founded 1989 by AMJ) — https://csdb.dk/webservice/?type=group&id=140 , human-readable https://csdb.dk/group/?id=140",
+    "2026-07-31 pass: negative-result searches by name on Lemon64 (https://www.lemon64.com/forum/) and Forum64 (https://www.forum64.de/) for 'TBB SideB player' / 'Side B player C64' — no threads found discussing this routine"
   ]
 }
 ```
@@ -71,28 +75,36 @@
 TBB/SideB is the Player-ID signature for a music replay routine attributed to
 Tero Hilpinen (handle TBB, "The Beasty Boy"), a Finnish musician and founding
 member of the demo/cracker group Extend (est. 1989-12-12) who was also active
-in group Side B. In this collection it tags 94 files across just 4 composers,
-almost all of them Hilpinen family members or close Side B/Extend groupmates
-(see `quirks`) — the textbook profile of a personal or small-group in-house
-routine rather than a widely distributed editor. No CSDb release entry, no
-public source, and no format documentation were found for the tool itself;
-SIDId's own index carries nothing beyond the author's name. This card exists
-to record that identity and usage picture accurately, not to claim any
-engine-level knowledge — every runtime field below is honestly `TODO`.
+in group Side B (a CSDb "Music Group" founded 1989 by AMJ, https://csdb.dk/group/?id=140).
+In this collection it tags 94 files across just 4 composers, almost all of
+them Hilpinen family members or close Side B/Extend groupmates (see
+`quirks`) — the textbook profile of a personal or small-group in-house
+routine rather than a widely distributed editor. The earliest attested use in
+the collection is 1991 (exhaustively confirmed across all 94 tagged files via
+CSDb's webservice, not a spot check); no CSDb release entry, no public
+source, and no format documentation were found for the tool itself; SIDId's
+own index carries nothing beyond the author's name. This card exists to
+record that identity and usage picture accurately, not to claim any
+engine-level knowledge — every Tier 3 runtime field below remains honestly
+`TODO`.
 
 ## Quirks & gotchas
 
 See the `quirks` array in the JSON block: the SIDId entry is author-only (no
 release/reference), usage is concentrated in one Finnish family/group
-(Hilpinen siblings TBB/AMJ/Page plus groupmate Barracuda), and spot-checked
-load/init/play addresses on CSDb are inconsistent across composers, so no
-single fixed entry point should be assumed. A follow-up pass cross-checked
-CSDb's Side B group page and both TBB's and AMJ's Demozoo profiles directly
-for any tool/editor release under this or a related name — none exists; every
+(Hilpinen siblings TBB/AMJ/Page plus groupmate Barracuda), and a full sweep
+of all 94 tagged files' CSDb metadata shows a consistent play-address entry
+point ($1003) in 83% of files spanning 1991-2025, with load/init addresses
+varying more — suggestive of one core routine reused over decades, but not a
+disassembly-confirmed fact. A follow-up pass cross-checked CSDb's Side B
+group page and both TBB's and AMJ's Demozoo profiles directly for any
+tool/editor release under this or a related name — none exists; every
 production is typed Music/Demo/Musicdisk (one unrelated SEUCK-cracking tool
-by AMJ). This is corroborating evidence, not new identity data, but it
-closes off the obvious "maybe it just isn't linked from SIDId" alternative
-explanation.
+by AMJ). A further 2026-07-31 pass additionally searched Lemon64 and Forum64
+by name (both negative) and queried CSDb's group webservice directly for
+Side B's Grouptype and founding details. This is corroborating evidence, not
+new identity data, but it closes off the obvious "maybe it just isn't linked
+from SIDId" alternative explanation.
 
 ## Disassembly notes
 

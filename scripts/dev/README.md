@@ -102,6 +102,32 @@ there too). CI is the real backstop: `--no-verify` bypasses the hook, not CI.
   158 genuinely changed; and TDZ's copy can legitimately be newer where SIDM2
   authored the card).
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
+- `sid2prg.js` — extract a PSID/RSID payload to a `.prg` (below).
+
+---
+
+## `sid2prg.js` — payload to `.prg`, for loading into a live debugger
+
+```
+node scripts/dev/sid2prg.js <in.sid> [out.prg]
+```
+
+Prints the header facts as JSON (magic, header load address, real load
+address, init, play, payload size, end address) and, when given an output
+path, writes `[load_lo, load_hi] + payload` — the plain `.prg` layout
+RetroDebugger's `retro_load` expects.
+
+**Why it exists.** `SIDdecompiler.exe` hangs indefinitely on some players, and
+four cards in `knowledge/players/` had each recorded that as a terminal
+blocker. RetroDebugger disassembles those same files without complaint, but it
+loads `.prg`, not `.sid` — so this four-line conversion was the only thing
+standing between "blocked" and "disassembled". See
+`knowledge/artifacts/siddecompiler-hang-class.txt` and lesson 95 in
+`.claude/agents/sid-player-verify.md`.
+
+It honours the `loadAddr === 0` case, where the real load address lives in the
+first two little-endian bytes of the payload rather than the header — get that
+wrong and everything lands two bytes off with no error.
 
 ---
 

@@ -2490,6 +2490,33 @@ them):
     `vsid-trace.js`. Corollary worth stating plainly: a hang is evidence about
     the *tool's model*, never evidence that a file is undisassemblable, and
     three cards sat blocked for a full pass each on that inference.
+
+96. **When a card carries an unresolved "does this other file share the
+    routine, or is it a loose Player-ID tag match?" question, a static
+    disassembly of the two entry points usually settles it outright — you do
+    not need a trace, a byte-diff, or even a full disassembly.** `4753-softcopy`
+    carried exactly that question about a cross-composer file across several
+    passes, correctly flagged and deliberately not asserted. One
+    `retro_disassemble` at each file's init address answered it: every landmark
+    sat at its known address plus a flat `+$600` (`$033C`->`$093C`,
+    `$039F`->`$099F`, `$03A5`->`$09A5`, `$03C5`->`$09C5`, NMI pad
+    `$03BA`->`$09BA`), and the SID-clear loop was byte-identical. The method
+    generalises: **take the operand and workspace addresses the verified card
+    already documents, subtract the two routines' base addresses, and check
+    whether every landmark shares one constant delta.** A single shared delta
+    across five-plus independent landmarks is not coincidence; a scatter of
+    different deltas means it is a different build. Two practical notes.
+    (a) Self-modified operand slots make the *best* landmarks precisely because
+    they are odd, specific addresses that a reimplementation would not
+    reproduce by chance — the same property that makes them hostile to static
+    disassemblers makes them excellent fingerprints. (b) Do NOT let this
+    upgrade `verified` scope: structural identity from a static disassembly is
+    a different and weaker claim than a register-write match, and the card
+    should say so explicitly rather than quietly widening its coverage
+    sentence. The same pass also found that two "different convention" outlier
+    files ($080d rather than $1000 load) were the same player with a longer
+    copy loop — same `$033B,X` destination base, 172 bytes instead of 160 —
+    so a differing load address is weak evidence of a different build.
 </lessons_learned>
 
 <success_criteria>

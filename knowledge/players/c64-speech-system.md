@@ -115,6 +115,46 @@ or are a repacked/relocated extract of just the record/playback routine.
 
 ## Verification
 
+### 2026-07-31 (batch33) — traced successfully; the 2-bit format confirmed at register level
+
+**`scripts/dev/vsid-trace.js` traces this player first try**, exactly as lesson
+92 predicts: it drives a real machine and needs no interrupt-vector handshake,
+so the never-returning init documented below is not an obstacle to it. This is
+the tracer to use for this card, not `sidm2-sid-trace.exe`.
+
+`Pet_Shop_Boy/Cocaine.sid`, 300 frames: **62,893 register writes, every single
+one to `$D418`** (filter mode / volume). Not one write to any oscillator,
+envelope or filter-cutoff register — this is a pure volume-register digi
+player, with the SID's synthesis hardware entirely unused.
+
+The value histogram is **exactly four distinct values, evenly spaced across the
+4-bit volume range**:
+
+| value | writes | share |
+|---|--:|--:|
+| `$00` | 8,339 | 13.3% |
+| `$05` | 11,239 | 17.9% |
+| `$0A` | 33,939 | 54.0% |
+| `$0F` | 9,376 | 14.9% |
+
+That is a 2-bit sample mapped to 4 levels, observed directly. **This card's
+"2-bit digitizer input, SID-only playback, 4 samples/byte" was sourced from the
+public GitHub mirror's `STRUCTURE.md` — documentation, not observation.** It is
+now independently confirmed by what the file does on a real machine. The
+distribution is markedly non-uniform (`$0A` alone is 54%), which is what real
+sample content looks like rather than a synthetic test pattern.
+
+Rate is ~210 writes/frame, roughly 10.5 kHz at 50 Hz — consistent with the
+card's cited "up to 18,000 samples/sec" ceiling without reaching it here.
+
+**Status stays `in-progress`.** This is a single-sided observation of the
+original file: nothing was reconstructed, reassembled or diffed. A register
+profile is cheap triage, not evidence of correctness. Both halves of the
+workflow are now open for this card (RetroDebugger for disassembly, per the
+batch31 note below; `vsid-trace.js` for tracing), so the remaining work is
+ordinary reconstruct-and-compare rather than anything blocked. Full profile
+and cross-player comparison: `knowledge/artifacts/unblocked-trace-profiles.txt`.
+
 ### 2026-07-31 (batch31) — the hang is explained: init never returns
 
 **RetroDebugger disassembled `Pet_Shop_Boy/Cocaine.sid` on the first attempt**

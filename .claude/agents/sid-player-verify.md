@@ -2517,6 +2517,32 @@ them):
     files ($080d rather than $1000 load) were the same player with a longer
     copy loop — same `$033B,X` destination base, 172 bytes instead of 160 —
     so a differing load address is weak evidence of a different build.
+
+97. **Trace the ORIGINAL file early as cheap triage — the register profile
+    tells you what kind of player you are dealing with before you have
+    reconstructed anything, and it costs ~7 seconds.** `vsid-trace.js --json`
+    on the untouched HVSC file gives write count, writes-per-frame, and which
+    of the 25 SID registers are ever touched. Measured across four players in
+    one pass: `c64-speech-system` 62,893 writes over 300 frames, ~210/frame,
+    **exactly one register** (`$D418`); `reflextracker` 26,514 over 200 frames,
+    ~133/frame, all 25; `assassin-sample-mixer` 20,450, ~102/frame, 20 of 25;
+    `defmon` 4,828, ~24/frame, all 25. Three readings fall straight out.
+    (a) **`$D418`-only is a definitive pure-digi fingerprint** — the synthesis
+    hardware is untouched and the player is a sample engine, so do not go
+    looking for order lists, wavetables or an effect encoding. (b) **The value
+    histogram recovers the sample bit depth**: `c64-speech-system`'s writes
+    take exactly four evenly-spaced values (`$00`/`$05`/`$0A`/`$0F`), i.e. 2
+    bits mapped across the 4-bit volume range, which independently confirmed a
+    fact that card had only from third-party documentation. Check for
+    non-uniformity while you are there — real sample content is lopsided
+    (`$0A` alone was 54%), a flat histogram would suggest a test pattern or a
+    mis-parse. (c) ~24 writes/frame with full register coverage is an ordinary
+    three-voice synth tracker; 100+ writes/frame means samples are involved
+    whatever else is going on. **Do not mistake this for verification** — it is
+    a single-sided observation of the original with nothing to compare against,
+    and no card should move status on it. Its value is that it shapes the
+    reconstruction you are about to attempt, and it works on files that defeat
+    `sidm2-sid-trace.exe` entirely (see lesson 92).
 </lessons_learned>
 
 <success_criteria>

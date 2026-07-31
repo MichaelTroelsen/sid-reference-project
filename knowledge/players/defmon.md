@@ -184,6 +184,19 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch33) — tracing confirmed open
+
+`scripts/dev/vsid-trace.js` traces `Antispeed.sid` first try: 200 frames,
+**4,828 register writes across all 25 SID registers**, ~24 per frame — the
+profile of a conventional three-voice synth tracker, consistent with the
+per-note SID-register-write template at `$1022` described below. Combined with
+the batch31 disassembly note, **both halves of the
+disassemble-reassemble-trace-diff workflow are now open for this card.**
+
+Single-sided observation of the original file — nothing reconstructed or
+diffed — so status is unchanged. Profile and cross-player comparison:
+`knowledge/artifacts/unblocked-trace-profiles.txt`.
+
 ### 2026-07-31 (batch31) — SIDdecompiler block routed around; hand-read confirmed
 
 **The SIDdecompiler blocker below is no longer terminal.** RetroDebugger

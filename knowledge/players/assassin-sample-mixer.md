@@ -95,6 +95,23 @@ from first.
 
 ## Verification
 
+### 2026-07-31 (batch33) — tracing confirmed open
+
+`scripts/dev/vsid-trace.js` traces `Man_Machine.sid` first try: 200 frames,
+**20,450 register writes across 20 of the 25 SID registers**, ~102 per frame.
+That is a mixed profile — neither a pure digi player (which would write `$D418`
+alone, as [[c64-speech-system]] does) nor a plain synth tracker — which fits a
+sample *mixer* driving samples alongside synthesised voices. Combined with the
+batch31 disassembly note, **both halves of the workflow are now open for this
+card.**
+
+Single-sided observation of the original file — nothing reconstructed or
+diffed — so status is unchanged. Note this also means the RSID `play=$0000`
+interrupt-driven design documented below is no obstacle to tracing, since
+`vsid-trace.js` runs a real machine rather than calling a play address.
+Profile and cross-player comparison:
+`knowledge/artifacts/unblocked-trace-profiles.txt`.
+
 ### 2026-07-31 (batch31) — SIDdecompiler block routed around
 
 **The tool block below is no longer terminal.** RetroDebugger disassembled

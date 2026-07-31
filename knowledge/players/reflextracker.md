@@ -94,6 +94,23 @@ over.
 
 ## Disassembly notes
 
+### 2026-07-31 (batch33) — tracing confirmed open
+
+`scripts/dev/vsid-trace.js` traces `Warlock/Abba-Gabba.sid` first try: 200
+frames, **26,514 register writes across all 25 SID registers**, ~133 per frame.
+Both the write volume and the full register coverage fit a sample-capable
+tracker rather than a pure digi player. Combined with the batch30 disassembly
+note below, **both halves of the disassemble-reassemble-trace-diff workflow are
+now open for this card** — it was the most-blocked card in the KB (131 files)
+and is now the largest fully-unblocked verify candidate.
+
+Single-sided observation of the original file — nothing reconstructed or
+diffed — so status is unchanged. Worth noting the trace succeeded despite the
+`$D7` busy-poll and absent `CLI` documented below, because `vsid-trace.js`
+runs a real machine rather than depending on a play address or a vector
+handshake. Profile and cross-player comparison:
+`knowledge/artifacts/unblocked-trace-profiles.txt`.
+
 ### 2026-07-31 (batch30) — SIDdecompiler block routed around via RetroDebugger
 
 **The tool-level block below is no longer the end of the line.** RetroDebugger

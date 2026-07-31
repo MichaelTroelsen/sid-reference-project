@@ -1,0 +1,72 @@
+Trace profiles for the four previously-blocked players
+======================================================
+
+Date:   2026-07-31 (batch33)
+Tool:   scripts/dev/vsid-trace.js (VICE vsid, -sounddev dump), --json
+Method: traced the ORIGINAL HVSC files directly. No reconstruction, no
+        reassembly, no diff — these are single-sided observations of what the
+        real files do, not verification evidence.
+
+WHY THIS FILE EXISTS. Batches 30-31 opened the DISASSEMBLY half for four cards
+that SIDdecompiler could not process. This records that the TRACING half is
+open too: all four trace first try with vsid-trace.js, including
+c64-speech-system, whose init never returns and which defeats
+sidm2-sid-trace.exe outright (lesson 92). Both halves of the
+disassemble-reassemble-trace-diff workflow are now available for all four.
+
+
+Profiles
+--------
+card                   file                frames  writes  per-frame  regs
+c64-speech-system      Cocaine.sid            300  62,893      ~210      1
+reflextracker          Abba-Gabba.sid         200  26,514      ~133     25
+assassin-sample-mixer  Man_Machine.sid        200  20,450      ~102     20
+defmon                 Antispeed.sid          200   4,828       ~24     25
+
+"regs" = distinct SID registers written at least once.
+
+
+c64-speech-system — a pure volume-register digi player, confirmed
+-----------------------------------------------------------------
+Every one of the 62,893 writes went to register 24 ($D418, filter mode /
+volume). NOT ONE write to any oscillator, envelope or filter-cutoff register.
+
+Value histogram across all 62,893 writes — exactly four distinct values,
+evenly spaced across the 4-bit volume range:
+
+    $00 ( 0)  :  8,339  13.3%
+    $05 ( 5)  : 11,239  17.9%
+    $0A (10)  : 33,939  54.0%
+    $0F (15)  :  9,376  14.9%
+
+This is a 2-bit sample mapped to 4 evenly-spaced volume levels, observed at
+the register level. The card's "2-bit digitizer input, SID-only playback, 4
+samples/byte" description was sourced from the public GitHub mirror's
+STRUCTURE.md walkthrough — documentation, not observation. It is now
+independently confirmed by what the file actually does on a real machine.
+
+The distribution is not uniform ($0A alone is 54%), which is what real sample
+content looks like rather than a test pattern.
+
+~210 writes per frame is roughly 10.5 kHz at 50 Hz, consistent with the card's
+cited "up to 18,000 samples/sec" ceiling without reaching it on this file.
+
+
+The other three
+---------------
+defmon writes all 25 registers at ~24 per frame — the profile of a
+conventional synth tracker driving three voices, and consistent with the
+card's per-note SID-register-write template at $1022.
+
+reflextracker writes all 25 registers at ~133 per frame. Both the volume of
+writes and the full register coverage fit a sample-capable tracker rather than
+a pure digi player.
+
+assassin-sample-mixer writes 20 of 25 registers at ~102 per frame — a mixed
+profile, neither pure digi (which would be $D418 alone) nor a plain synth
+tracker.
+
+NOTE ON WHAT THIS IS NOT. A register profile is cheap triage, not evidence of
+correctness. None of these four moved status on the strength of it. Verifying
+any of them still requires reconstructing the player and producing a
+register-write-exact match against these same originals.

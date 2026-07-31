@@ -184,6 +184,58 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch37) — RESOLVED: the relocation control is inapplicable to defMON
+
+**The relocation control never could have passed, and the reason was documented
+on this card the whole time. Both batch35's and batch36's diagnoses were wrong,
+and the disassembly is not implicated.**
+
+Adjudicating the 84 unexecuted instruction starts (batch36's bounded target)
+gave 78 fall-through-only, 3 genuine branch/call targets from executed code, 3
+inherited. The decisive test was a **partial relocation control**: rewrite only
+the 572 confirmed-executed sites and leave the 84 as literals, so misclassified
+data would stay intact and genuinely cold code would never run. If the 84 were
+the problem, that build should have traced clean.
+
+It traced **worse** — 3,364 writes against the original's 9,628. So the 84 are
+not simply data; at least some are real code reached in contexts the
+11,143-frame capture never hit (`$10D1` is a confirmed branch target from
+executed code). That falsifies "the 84 are the problem".
+
+**The actual cause, from this card's own `data_format` section:** defMON stores
+pattern base addresses as a **split lo/hi byte table in data** — `$1900-$19FF`
+lo bytes, `$1A80-$1AFF` hi bytes, 128 entries. Verified directly against the
+payload: **39 of those 128 entries resolve to addresses inside the payload**
+(e.g. `$1F21`). Symbolic relocation rewrites operands of *instructions* only, so
+those table entries kept their original values and the relocated player read
+pattern data from the pre-relocation addresses — precisely the observed
+symptom (first value divergence at frame 2 was a data-sourced register value,
+not a control-flow crash).
+
+This is also why `defMONRelocator` exists as a separate third-party tool, which
+this card already recorded as patching "three ZP addresses across **18+6+9
+offset tables within the player code**". **defMON tunes are not naively
+relocatable by construction.**
+
+**Why the earlier scan missed it**: batch35 searched data for **16-bit
+little-endian pairs** pointing in-range and found none, which was reported as
+ruling out pointer tables. A *split lo/hi byte array* is structurally invisible
+to that search — the lo and hi halves live 384 bytes apart. The scan was not
+wrong so much as asking a question that could not detect this layout.
+
+**Consequences.** (1) The relocation control is **not a valid verification
+route for this player** without first implementing the relocator's table
+patching. (2) Nothing observed across batches 34-37 is evidence against the
+disassembly: all 572 executed addresses check out as instruction starts, and
+the relocation failures are fully explained by unpatched data tables.
+(3) `status` stays `in-progress` — this clears an obstacle and corrects the
+record, it does not produce a register-write match.
+
+**Genuinely next**: either implement the lo/hi + offset-table patching (the
+`$1900`/`$1A80` LUT is known and bounded; the "18+6+9 offset tables" would need
+reading `defMONRelocator`'s C# source, already cited in `sources`), or drop
+relocation for this player and verify a different way.
+
 ### 2026-07-31 (batch36) — broad runtime coverage; batch35's diagnosis was wrong
 
 **Batch35 concluded the relocation failure was most likely an imperfect code/data

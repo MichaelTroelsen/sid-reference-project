@@ -7,7 +7,7 @@
   "aliases": ["Bubble_Bus/Love_R"],
   "authors": ["UNKNOWN — Nick Strange is the best candidate (INFERRED, not confirmed); Richard Clark secondary. R. Love composed only."],
   "released": "1983-1985",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. The in-house replay routine of Bubble Bus Software (UK) — used by FOUR different composers across SEVEN games, so the tag's composer name is not an authorship claim.",
   "csdb_release": null,
 
@@ -92,17 +92,55 @@ The **variant A → variant B** shift in 1985 (frame-divider counter → two-pha
 
 ## Verification
 
-`status: in-progress`. The house-driver conclusion is **strongly evidenced**: a
-7/61,157 fingerprint with zero false positives, and the composer/coder tables
-that follow from it. Entry points, ZP and init are measured.
+`status: verified`. All three of R. Love's own HVSC files
+(`MUSICIANS/L/Love_R/`) were independently disassembled with
+`SIDdecompiler.exe -r` (relocated to each file's own PSID load address,
+which matches the `-v2` map's own "Start:" address in every case — no
+gotcha-40 offset needed), reassembled with `64tass`, and byte-/trace-diffed
+against the pristine originals:
 
-**Not verified**: nothing reconstructed or re-run. Data format, instruments,
-tables and effect encoding are all `TODO`.
+| File | load/init/play | byte-diff (own file range) | native trace | relocation-control trace |
+|---|---|---|---|---|
+| Bumping_Buggies.sid | $19C8/$19C8/$1A0D | 1885/1885 = **100.0000%** (3 trailing zero-padding bytes past the traced end, at $2125-$2127, are unreferenced — see gotcha 9) | 41/41 writes, **cycle-exact** | rebuilt at $3050 (68/1885 bytes differ at matching offsets): 41/41 writes, **0 divergences** |
+| Flying_Feathers.sid | $2E96/$2E96/$2ED0 | 1386/1386 = **100.0000%** | 30/30 writes, **cycle-exact** | rebuilt at $5237 (56/2896 bytes differ): 30/30 writes, **0 divergences** |
+| Kick_Off.sid | $1200/$1200(JMP $120F)/$1203(JMP $1245) | 1307/1307 = **100.0000%** (full file length, no trailing gap) | 21/21 writes, **cycle-exact** | rebuilt at $4237 (82/1307 bytes differ): 21/21 writes, **0 divergences** |
 
-**Not determined**: R. Love's real first name, nationality, birth/death, or any
-credits beyond his three games; who actually wrote the driver (Strange only
-*inferred*); who "T. Owen" is; Wizard's Lair's true composer (Lemon64/HVSC
-conflict); Aqua Racer's composer; Bubble Bus's exact founding/closing years.
+The native builds are `-r`-produced and therefore byte-identical to the
+originals — a tautological trace by construction (lesson 63/65/69/70). To
+make the trace evidence real, each file was **also** reassembled at a
+second, non-page-aligned base (a genuinely different binary — 56-82 bytes
+differ at matching offsets per file, not a cosmetic rebuild) and traced
+against the *original* file's own register-write stream with cycle column
+stripped (lessons 69/70/72). All three passed with **zero register-write
+divergences**, which is real evidence the disassembly's instruction
+boundaries, operand relocation and self-modified-code handling are
+structurally correct, not just that the bytes happen to match.
+
+Kick_Off's `init jmp l120f` / `play jmp l1245` and 16-bit ZP song pointer
+`z4b`/`z4c` = $4B/$4C were confirmed by direct inspection of the generated
+`.asm`, matching the card's `memory.layout`/`zero_page` claims exactly.
+
+**Scope of this result**: only the three **Love_R-tagged** files (Variant A
+of the driver, per the card's own quirks) were tested — Hustler, Cave
+Fighter, Aqua Racer and Wizard's Lair (the other four fingerprint hits,
+under different composer tags, including the 1985 Variant B files) were
+**not** disassembled/traced in this pass; a byte/trace-exact result on
+Love_R's files does not by itself confirm Variant B or the other three
+composers' code. This is worth noting for whichever card owns those files
+next.
+
+**Still not reconstructed**: data format (order list, pattern encoding,
+instrument/wavetable/pulsetable/filtertable layout) and the effect encoding
+are all still `TODO` — this pass verified the *engine byte-for-byte*, not
+its data tables' semantics; a follow-up pass reading the disassembly's
+table-access code (`LDA (zp),Y` loops) could fill those in without any
+further tracing.
+
+**Not determined** (unchanged, not in scope of this pass): R. Love's real
+first name, nationality, birth/death, or any credits beyond his three games;
+who actually wrote the driver (Strange only *inferred*); who "T. Owen" is;
+Wizard's Lair's true composer (Lemon64/HVSC conflict); Aqua Racer's
+composer; Bubble Bus's exact founding/closing years.
 
 ## Sources
 

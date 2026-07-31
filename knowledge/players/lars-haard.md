@@ -99,8 +99,82 @@ reported — it wasn't instruction-aligned.
 register profile are measured. The Supercan/Captured relationship is confirmed
 independently of the forum claim.
 
-**Not verified**: nothing reconstructed. Data format internals are `TODO`; zero
-page is essentially unknown (only `$fb`-`$fe`, as copy pointers).
+**Reconstructed and register-write-exact on 3 of 6 files (2026-07-31): Supercan,
+Captured, 1943-One_Year_After.** Recipe, identical for all three:
+
+    SIDdecompiler.exe <file>.sid -o<f>.asm -a<DECIMAL of the -v2 "Start:"> -z -d -c -v2 -r
+    64tass.exe -a --cbm-prg -o <f>.prg <f>.asm
+
+`-v2`'s reported `Start:` differs from the PSID load address on Supercan
+($7800 vs load $7700, a $100 gap) and Captured ($7800 vs load $76ec, a $114
+gap) — relocating to `Start:` (gotcha 40/lesson 33) puts `init`/`play` back
+at their literal PSID-header addresses ($780c/$7816, unchanged, since the
+computed relocation offset is zero). 1943's `Start:` equals its load address
+($37c0) exactly, no gap. `-r` alone was sufficient on all three — no
+hand-patching needed.
+
+| file | load / init / play | payload | compared | byte-diff |
+|---|---|---|---|---|
+| Supercan | $7700 / $780c / $7816 | 3177 | 2899 | **100.0000%** |
+| Captured | $76ec / $780c / $7816 | 3211 | 1899 | **100.0000%** |
+| 1943-One_Year_After | $37c0 / $37e0 / $3846 | 1090 | 1084 | **100.0000%** |
+
+Trace-diff (`sidm2-sid-trace.exe`, 100 frames, native init/play — Supercan
+subtune 0, Captured subtune 0, 1943 both subtunes 0 and 1): **0 tuple
+mismatches** on every file (Supercan 194/194 writes, Captured 263/263,
+1943 62/62 + 72/72).
+
+**Non-tautological check** (a `-r` build that's byte-identical to the
+original makes a native trace-diff tautological — lessons 65/69/70): each
+file was also rebuilt from the same disassembly at base `$9a37` (a
+non-page-aligned delta) and traced there against the ORIGINAL's native
+trace, stripping the cycle column:
+
+| file | bytes differing at matching offsets | writes | tuple mismatches |
+|---|---|---|---|
+| Supercan | 398 / 2899 | 194 | **0** |
+| Captured | 404 / 1899 | 263 | **0** |
+| 1943-One_Year_After | 192 / 1084 | 62 + 72 | **0** |
+
+This is a real structural test, not a repeat of the byte-diff: 13-21% of
+each build's bytes are genuinely different machine code (relocated
+operands), and every one of them still reproduces the exact register-write
+sequence — a single mis-parsed instruction boundary would have broken this.
+
+**What the uncovered bytes are** (not code, not a defect): Supercan's and
+Captured's leading gap ($7700-$7800 / $76ec-$7800) is per-tune table data
+of the same shape/structure in both files but different values (not
+referenced by this trace at all, i.e. either a genuinely unused slot or
+the driver's own table region running past where this song's data needs
+it — not investigated further). Supercan's trailing 22 bytes are a plain
+`!$RIP:Panda/Paradise` ripper credit string. Captured's trailing region
+($7f6a-$8377, 1053 bytes) contains what look like live 6502 opcodes
+including a SID-register-clear loop (`LDX #$18 / LDA #$00 / STA
+$D400,X / DEX / BNE`) that SIDdecompiler's trace never reached under this
+PSID's own init/play vectors — plausibly an alternate entry point the
+original game called directly (e.g. a "stop music" routine) rather than
+part of this file's own playback path. None of this affects the
+register-write verification above; it's an honest note on what's outside
+the traced/compared window, not a gap in the driver reconstruction.
+
+**Not yet attempted — the harder 3 of 6, structurally different builds
+per the card's own memory-map notes, not a variant of the above recipe**:
+Three_Musketeers (5 relocated copies dispatched through a self-modified
+JMP high byte — SIDdecompiler's `-v2` map wasn't even run on it this
+pass), Soldier_One (two player instances plus a runtime page-copy to
+`$C000` — the copy-source/copy-destination duplication technique of
+lesson 62/lesson 88 is the likely tool here, not attempted), Blood_n_Guts
+(the ROM-banked file: a first `-v2` pass reports `Start: $0314 End:
+$9018` against a load address of `$69c0` — a huge, unexplained span far
+below the load address that most plausibly means either a self-installed
+IRQ vector at `$0314` (lesson 81's pattern) or genuine fixed low-RAM
+workspace (lesson 38's pattern), compounded by the `$01`-register ROM
+banking around every call the card already documents; this needs its own
+careful pass, not attempted here). These three remain the honest gap
+between this card's current state and a full-family `verified`.
+
+Data format internals are still `TODO`; zero page is essentially unknown
+outside the driver core (only `$fb`-`$fe`, as Soldier One's copy pointers).
 
 Not determined: whether Hård or Caroli wrote the driver — **the card's central
 question**; whether Lars and Nils are related; Greve Graphics' founding year and

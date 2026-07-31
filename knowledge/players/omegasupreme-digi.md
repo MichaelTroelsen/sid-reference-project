@@ -248,7 +248,9 @@ the Metal_Maniac section below.
 
 Structurally identical to Hero, relocated:
 - Load=$4B00, Init=$4C80
-- NMI handler at $4B31 (Phase 1) / $4B5A (Phase 2)
+- NMI handler at $4B31 (Phase 1) / $4B5C (Phase 2) — CORRECTED this run,
+  see "Live RetroDebugger pass" below; $4B5A/$4B5B is actually `PLA`/`RTI`,
+  Phase 1's own epilogue, not the Phase 2 entry point
 - Timer A HIGH ($DD05)=$00, Timer A LOW ($DD04)=$88 (136 cycles) —
   CORRECTED this run, was previously "$8800"
 - ZP pointers: $FB/$FC=$4D00, $FD/$FE=$4C00
@@ -303,6 +305,78 @@ Potential next steps if someone wants to close this:
   firings that matches the original payload bytes exactly would be a
   legitimate, if laborious, path to a verified register-write reasoning
   chain even without a working automated tracer.
+
+### Live RetroDebugger pass (2026-07-31): structure confirmed, one address corrected
+
+Followed the "best lead" above: a solo (singleton-respecting) `sid-player-verify`
+session with RetroDebugger available, targeting `Arla_tune_1.sid` (Metal_Maniac
+variant). This is the first pass to actually execute the real file live rather
+than reason from static bytes.
+
+**Method**: loaded the real .sid into RetroDebugger's `c64` platform, wrote a
+`JSR $4C80 / JMP *` stub at $C000, jumped the PC there, and used
+`retro_step_subroutine` to run init to completion (confirmed by PC landing
+exactly on the `JMP *` idle loop afterward). Then read live memory/CIA state
+and used `retro_disassemble` (which annotates each instruction with
+`isExecuted` from the emulator's own coverage tracking, not static guesswork)
+across the NMI handler region.
+
+**Confirmed byte-for-byte, all `[exec]`-flagged (i.e. actually run, not just
+present as bytes) at $4B31-$4BC3**:
+- Phase 1 ($4B31): `PHA/TXA/PHA/TYA/PHA` → `LDA #$36/STA $01` (bank switch
+  for fetch) → `LDY #$00/LDA ($FB),Y` → four `LSR` (top-nibble extract) →
+  `STA $D418` → self-installs the Phase 2 vector (`LDA #$5C/STA $0318`,
+  `LDA #$4B/STA $0319`) → `INC $DD0D` (acknowledge) → `LDA #$37/STA $01`
+  (bank restore) → register restore → `RTI`.
+- Phase 2 ($4B5C, not $4B5A — see correction below): register save → bank
+  switch to $36 → fetch same byte, `AND #$0F` (bottom-nibble extract) →
+  `STA $D418` → `INC $FB`/carry-`INC $FC` (advance sample pointer) →
+  `CMP #$A8` block-boundary check. On boundary: reads the block table via
+  `($FD),Y` and writes its three bytes to exactly the three documented
+  targets — byte[0] → `$FC` (next-PC-hi), byte[1] → `$4B77` (self-modifies
+  the `CMP #$A8` operand — the "end-check-CMP-byte"), byte[2] → `$DD04`
+  (Timer A LOW) — then resets `$FB` to 0 and advances the block-table
+  pointer `$FD/$FE` by 3. Either path falls through to $4BA2, which
+  re-installs the Phase 1 vector (`LDA #$31/STA $0318`, `LDA #$4B/STA
+  $0319`), `INC $DD0D` acknowledges again, restores bank/registers, `RTI`.
+  A zero byte read from the block table (order-list end) jumps to $4BB9,
+  which resets `$FD/$FE` to `$4C00` (matching this card's own documented
+  init ZP value for this variant) and loops back into the table-read path
+  — a wrap-to-start/repeat, not a crash or halt.
+- Live register state independently corroborates the above without reading
+  any code: immediately after the single `JSR $4C80` step (before any
+  `retro_continue`/warp was issued), `$DD0E`=$01 (Timer A running,
+  continuous mode), `$DD04` had already changed from its init value to a
+  new self-modified value, and `$D418` had already changed from its
+  pre-init default — i.e. one or more NMIs fired and completed correctly
+  during the init call's own cycles, exactly as the CIA2-Timer-A/NMI model
+  predicts.
+
+**Correction (real, not cosmetic)**: the card's stated Phase 2 address,
+`$4B5A`, is wrong by 2 bytes. `$4B5A`/`$4B5B` disassemble as `PLA`/`RTI` —
+the tail of Phase 1's own epilogue — and the live NMI vector (read from
+`$0318`/`$0319` and independently confirmed by Phase 1's own
+`LDA #$5C/STA $0318` write) is `$4B5C`. Likely origin of the error: an
+earlier pass translated Hero's `$095A` forward by the Hero→Metal_Maniac
+load-address delta without live-checking the result. Fixed in the facts
+block above.
+
+**Why `status` stays `in-progress`**: this confirms the manual disassembly
+against real execution coverage in exhaustive detail, but it is not the
+project's verification bar (a trace-diff between an independent
+reconstruction and the original). No separate reconstruction was built or
+diffed this run. What changed concretely: the two previously-cited tool
+blockers (SIDdecompiler crashing on play=$0; `sidm2_sid_trace.zig` having
+no NMI/$0318/$0319/$FFFA handling) are unchanged and still block the
+*automated* path — but RetroDebugger has now been shown to correctly model
+the CIA2-Timer-A/NMI chain live, which the static tools cannot. The
+concrete next step is now well-defined and lower-risk than before: hand-
+assemble a reconstruction from this run's byte-exact, execution-confirmed
+disassembly (the code is genuinely only ~180 bytes), load it into
+RetroDebugger the same way, and diff its live register-write sequence
+against the original file's live register-write sequence — both sides of
+that diff are now reachable with tooling already proven to work in this
+run, which was not true before it.
 
 ## Sources
 

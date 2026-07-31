@@ -7,7 +7,7 @@
   "aliases": ["Jim_Baguley/SolarSoft"],
   "authors": ["Jim Baguley (ATTRIBUTED by HVSC/DeepSID, not proven — see quirks)"],
   "released": "1984",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. A SHARED driver — used by two composers (Baguley and John P. Shay), and ported at SOURCE level, not copied as a binary.",
   "csdb_release": null,
 
@@ -45,7 +45,10 @@
     "AUTHORSHIP IS ATTRIBUTED, NOT PROVEN — the honest limit. Bytes cannot say whether Baguley or Shay wrote it. The evidence is CONSISTENT WITH Baguley authoring and Shay adopting: Shay's 1983 Galaxions uses a cruder, unrelated routine, and the shared driver appears in 1984 across both. HVSC/DeepSID attribute it to Baguley with no '?' marker. BUT Lemon64 credits Monkey_Magic SOLELY to Shay — Baguley isn't mentioned there at all.",
     "THE BYTE ANALYSIS INDEPENDENTLY REPRODUCES HVSC'S TAGGING — INCLUDING ITS TWO NEGATIVES, which is what makes it trustworthy. Tagged and sharing the core: Bizy_Beez, Jungle_Quest, Monkey_Magic. Untagged and genuinely different: Bogymen (Baguley, $2300/$2300/$2356 — uses absolute $09F0-$09F2) and Galaxions (Shay, 1983, $0811/$0811/$0847 — primitive, ZP $FD/$FE). HVSC got both exclusions right.",
     "IDENTITY: Jim Baguley, English (HVSC 'Baguley, Jim - UNITED KINGDOM'; DeepSID country England, active 1984, affiliation Solar Software, no handle, csdb_id: 0 — no CSDb scener page exists). Whether 'Jim' is short for James is undetermined. C64 credits (Lemon64): Bizy-Beezzzz, Bogymen, Jungle Quest (1984, Solar); Death Wake (1985, Quicksilva); Max Headroom (1986, Quicksilva); Storm (1986, Mastertronic); Dr. Jackle and Mr. Wide, Spore (1987, Bulldog).",
-    "LANDMINE (independently confirmed by several other cards this batch): csdb_id in data/composers/*.json is the CSDb SID id space, NOT the release id space. csdb.dk/release/?id=3860 returns 'Muskuripp #26', an unrelated Norwegian music collection; csdb.dk/sid/?id=3860 is Bizy Beez. The card template's csdb_release field invites exactly this error. The 3 SIDs are sid ids 3860/3861/3862; there is NO CSDb release for this driver, hence csdb_release: null."
+    "LANDMINE (independently confirmed by several other cards this batch): csdb_id in data/composers/*.json is the CSDb SID id space, NOT the release id space. csdb.dk/release/?id=3860 returns 'Muskuripp #26', an unrelated Norwegian music collection; csdb.dk/sid/?id=3860 is Bizy Beez. The card template's csdb_release field invites exactly this error. The 3 SIDs are sid ids 3860/3861/3862; there is NO CSDb release for this driver, hence csdb_release: null.",
+    "RECONSTRUCTED AND TRACE-VERIFIED (this pass) — see Verification for the full methodology. All three files disassemble (SIDdecompiler) and reassemble (64tass) to 100.0000% byte-exact over their real loaded content, and register-write trace (sidm2-sid-trace) exact over every subtune, once two file-specific gotchas are handled correctly (both below).",
+    "MONKEY_MAGIC IS RELOCATABLE, BUT ONLY TO A PAGE-ALIGNED BASE — a new instance of the 'implicit zero constant' self-modification idiom (see lessons_learned 87/91 in the verify agent for the general pattern). The init/clear routine at $601C loads `LDA #<l6300` purely to get the byte value $00 (since $6300 is page-aligned, its low byte is always zero) and uses it to zero-fill ZP $DF-$EF and part of $D400-$D418. A relocation-invariance control at a NON-page-aligned base ($9007, delta $3002) breaks this silently: `<l6300` evaluates to $02 instead of $00, so the 'clear' loop fills those bytes with $02 garbage instead of zero, corrupting SID/ZP state from the very first INIT call — no crash, no assembler warning, just wrong playback (all voices desynced by ~2 frames). A page-aligned control ($9005, delta $3000) traces register-write-exact across all 3 subtunes. Jungle_Quest's init ($6E42, `LDA #<l6000`) uses the identical trick and inherits the same page-alignment requirement.",
+    "BOTH RELOCATOR FILES' BLOCK-COPY DESTINATIONS ARE PROVABLY SAFE TO IGNORE FOR TRACE PURPOSES, but for two DIFFERENT reasons — worth keeping distinct. Bizy_Beez's init copies $6000->$4700 and $6100->$1610 (both write-only in SIDdecompiler's own -v2 map — never subsequently executed within any traced subtune/frame window), so those bytes are dead as far as the audible driver goes; relocating the disassembly to SIDdecompiler's own -v2 Start ($1610, below the $4E00 load address) and comparing only the real loaded window ($4E00-$6213) gives 100.0000% byte-exact. Jungle_Quest's init instead copies $6F00-$73FF -> $C900-$CDFF and then PLAYS FROM the copy (play=$CC0D lives inside it) — SIDdecompiler's default (non -r) trace captures a post-execution/self-modified snapshot of that copied region that differs from the pristine source by exactly the bytes the play routine self-modifies at runtime (e.g. `lccff .byte $54`, an `inc`-incremented counter) — but since init unconditionally re-copies fresh source bytes into that region on every single INIT call (`lda l6f00,X / sta lc900,X` ... across all 5 pages, X=0..255), whatever static value ends up baked into the reassembled .prg at the destination is irrelevant to runtime correctness. Confirmed: reassembled byte-diff 99.9814% (1 provably-dead workspace byte + the drifted copy-destination byte), trace-diff exact across all 3 subtunes."
   ],
   "sources": [
     "HVSC 85 local: Musicians.txt ('Baguley, Jim - UNITED KINGDOM'), STIL.txt, and disassembly/traces of the 5 .sid files analysed: https://www.hvsc.c64.org",
@@ -55,7 +58,8 @@
     "Giant List of Classic Game Programmers (both Bagley and Baguley entries, verbatim — the collision source): https://dadgum.com/giantlist/",
     "CSDb SID entries 3860/3861/3862: https://csdb.dk/sid/?id=3860 — and https://csdb.dk/release/?id=3860 as the namespace counter-example",
     "Collision: Jim Bagley https://www.mobygames.com/person/60414/jim-bagley/ vs Jim Baguley https://www.mobygames.com/person/69070/jim-baguley/ · https://www.vgmpf.com/Wiki/index.php/Jim_Bagley",
-    "SIDId sidid.nfo: no entry (grepped, confirmed absent)"
+    "SIDId sidid.nfo: no entry (grepped, confirmed absent)",
+    "This pass: SIDdecompiler.exe (disassembly) + 64tass (reassembly) + sidm2-sid-trace.exe (register-write trace) against the local HVSC copies of Bizy_Beez.sid, Jungle_Quest.sid and Monkey_Magic.sid (MUSICIANS/B/Baguley_Jim/ and GAMES/M-R/) — see Verification for exact invocations and results."
   ]
 }
 ```
@@ -101,10 +105,61 @@ interpretation and is flagged as such.**
 
 ## Verification
 
-`status: in-progress`. The shared-driver conclusion, the source-level port, the
-relocators and the entry points are all **verified by disassembly and trace**.
+`status: verified`. All three tagged files were independently disassembled
+(`SIDdecompiler.exe`), reassembled (`64tass`) and register-write traced
+(`sidm2-sid-trace.exe`) against the local HVSC copies this pass — the first
+time this card had an actual reconstruction to cite, not just static
+disassembly/trace observations.
 
-**Not verified**: nothing reconstructed or re-run. Data format is `TODO`.
+**Monkey_Magic.sid** (load $6000, init $6EB6, play $6050, 3 subtunes).
+`SIDdecompiler -a24576 -r` (decimal for $6000) reassembles 100.0000%
+byte-exact over the 3777 traced/decoded bytes ($6005-$6EC5); the 5 leading
+bytes ($6000-$6004, a `JSR $601A / NOP / NOP`) are unreached by init/play in
+this file and excluded — confirmed dead, not merely unreached, by every
+control below. Native trace: 0 register-write divergences over 50 frames on
+all 3 subtunes — but since `-r` reproduced the pristine bytes exactly, this
+native trace is tautological (guaranteed to match by construction; see the
+verify agent's own lessons_learned on this). A genuine, non-tautological
+relocation-invariance control was therefore run: rebuilding the same
+disassembly at a page-aligned base ($9005, delta $3000 from native) produces
+a binary differing from the original at 17 bytes (all correctly-relocated
+absolute operands) and traces register-write-exact across all 3 subtunes,
+50 frames each. (A first attempt at a NON-page-aligned base, $9007/delta
+$3002, failed — root-caused, not left unexplained: the driver's ZP/SID clear
+loop reuses the low byte of the page-aligned address `$6300` as an implicit
+`#$00` constant, which becomes `$02` under a non-page-aligned relocation —
+see the new quirk above. This is a real property of the driver, not a
+reconstruction defect.)
+
+**Jungle_Quest.sid** (load $5F00, init $6E00, play $CC0D, 3 subtunes,
+runtime block-copy $6F00-$73FF -> $C900-$CDFF). `SIDdecompiler -a24320`
+(no `-r`, since `-r` would erase the copy destination — see quirks)
+reassembles 99.9814% byte-exact over the real loaded window ($5F00-$73FF,
+1 diff: a dead self-modified subtune-index byte at $6EFF) plus one further
+drifted byte in the copy destination's static image ($CCFF, a self-modified
+counter irrelevant at runtime since init re-copies fresh source bytes on
+every call). Trace: 0 register-write divergences over 50 frames on all 3
+subtunes, using the file's own native init/play addresses directly (no
+relocation needed — SIDdecompiler's own Start address matched the PSID load
+address exactly for this file).
+
+**Bizy_Beez.sid** (load $4E00, init $6200, play $4E50, 1 subtune, runtime
+block-copy $6000->$4700 and $6100->$1610). SIDdecompiler's own -v2 map
+reports Start=$1610 (below the load address) because of the copy
+destinations; relocating to that Start (`-a5648`, decimal for $1610) per
+this project's own gotcha 40 correctly places the real loaded content at its
+true addresses. Byte-diff over the real loaded window ($4E00-$6213):
+100.0000% exact, no patching needed. Trace: 0 register-write divergences
+over 50 frames (1 subtune), using native init/play addresses directly.
+
+**Not yet verified / left TODO**: `data_format` (order_list, patterns,
+instruments, wavetable/pulsetable/filtertable) — the full command-byte
+semantics beyond the `#$80`/`#$81`/`#$FF` opcodes already confirmed by
+disassembly. The reassembled `.asm` for Monkey_Magic is complete enough to
+support this (most of the play routine decodes as real instructions, not
+`.byte` fallback), but working out the full data layout wasn't attempted
+this pass — a reasonable next step, using the reassembled `.asm` files as a
+starting point rather than a fresh disassembly.
 
 Not determined: whether Baguley or Shay wrote the driver; Baguley's full legal
 first name, birth year or whereabouts; whether his later games (Death Wake, Max

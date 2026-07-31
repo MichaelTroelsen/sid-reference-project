@@ -7,12 +7,12 @@
   "aliases": ["Gilles_Soulet", "Kmuse"],
   "authors": ["Gilles Soulet (INFERRED — see quirks; GTW64 names the tool but not its author)"],
   "released": "1986-1988",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 editor/compiler. Used as a COMPOSITION WORKSTATION for non-C64 targets (Thomson/CPC/ST), not only for C64 games — see quirks.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "1987-88 build: driver core $9010-$99B6 (2470 bytes, byte-identical across Demo_Tune/Sapiens/Albedo, all ending at exactly $99B6). 1986 build (Fifth_Axis): load $0800; $1A00 copies $1A00-$1CFF to $B300-$B5FF — RAM UNDER THE BASIC ROM.",
+    "load_address": "1987-88 build: driver core $9010-$99B6 (2470 bytes, byte-identical across Demo_Tune/Sapiens/Albedo, all ending at exactly $99B6). 1986 build (Fifth_Axis): load $0800; $1A00 copies $1A00-$1CFF to $B300-$B5FF — RAM UNDER THE BASIC ROM. VERIFIED (see Verification): SIDdecompiler's own -v2 emulated-memory-touch map reports 'Start: $0800' for all three 1987-88 files regardless of each file's own PSID load address ($83a0/$8580/$6b50) — this is a FIXED low-RAM workspace ($0800-$0BFF, write-only, never below the file's own load address in content terms, just below it in address terms) that init copies per-tune header/pointer data into, plus a second fixed write-only workspace at $C000-$C7E3(ish) that a separate indirect copy (source data from the per-tune init area, e.g. $8EA0 in Demo_Tune) fills. Both are outside the PSID payload and correctly excluded from the byte-diff per this project's own gotcha-40/lesson-60 convention (compare only the code region at/above the PSID load address).",
     "zero_page": "$FA-$FD and $CB (measured). $FB/$FC serve as the per-voice pointer pair. $CB is KERNAL's last-key-pressed byte — see the editor-leftover quirk.",
     "layout": "1987-88 build: jump table $9000: JMP $9010 / $9003: JMP $987A. Play stub at $8FF0 is byte-identical across all three (A2 36 86 01 20 EA 91 20 45 99 A2 37 86 01 60): banks $01=$36 (BASIC out), JSR $91EA (main play), JSR $9945, restores $01=$37. Init differs per tune ($8F50/$8F90/$8FA0) because it carries the per-tune relocation addresses. Main play $91EA uses a 3-way round-robin (AND #$03 / CMP #$03) over per-voice pointer tables at $9096/$9099."
   },
@@ -41,7 +41,8 @@
     "TWO CSDb ID-NAMESPACE TRAPS HIT AND CORRECTED DURING THIS RESEARCH (both worth knowing project-wide): (1) CSDb's type=scener&id=N takes a HANDLE id, not a scener id — id=14354 returns 'Craft', Germany, an unrelated person; Soulet is handle 16063 -> scener 14354. (2) The DeepSID dump's per-file csdb_id is a CSDb SID id (csdb.dk/sid/?id=), NOT a release id — querying type=release with them returns unrelated Strike Force cracks (26299 -> 'N.E.I.L. Android', 26301 -> 'Shanghai Karate', 26302 -> 'Marauder'). Pure cross-namespace coincidence that nearly got reported as 'the scene ripped his music into cracks'. This second trap was a REAL BUG in this project's Files tab (fixed) — see CLAUDE.md.",
     "IDENTITY COLLISIONS RULED OUT: a Gilles Soulet trail runner (UTMB) plus Facebook/Instagram profiles — unrelated. Discogs/Last.fm/WhoSampled/sonichits 'Gilles Soulet' artist pages are AUTO-GENERATED AGGREGATIONS OF THE HVSC SID RIPS, not a separate music career — do not cite them as discography. MUSICIANS/J/JAP/Homo_Sapiens.sid is a different composer's tune, unrelated to Sapiens.",
     "He appears in a rip compilation alongside another card's subject: 'The Final Apocalypse' (1988, Abyss) credits Music to Chris Huelsbeck, David Whittaker, Gilles Soulet AND Ken Lagace — see [[ken-lagace]]. This is SID REUSE in a scene release, NOT a collaboration; four unconnected commercial game composers listed under 'SIDs used in this release'. Recorded so it isn't mistaken for a working relationship.",
-    "DATA-QUALITY: 4 files, not 3 (Albedo, Demo_Tune, Fifth_Axis, Sapiens). Not in DeepSID's curated 129; no SIDId entry (zero hits in sidid.nfo and data/sidid.json) — inferred-only. The project's own inferred-player heuristic (<=3 composers -> 'likely a personal routine') fires correctly here: 4 files / 1 composer."
+    "DATA-QUALITY: 4 files, not 3 (Albedo, Demo_Tune, Fifth_Axis, Sapiens). Not in DeepSID's curated 129; no SIDId entry (zero hits in sidid.nfo and data/sidid.json) — inferred-only. The project's own inferred-player heuristic (<=3 composers -> 'likely a personal routine') fires correctly here: 4 files / 1 composer.",
+    "DISASSEMBLY GOTCHA (found during reconstruction, real and reproducible, not a bug in this project's tooling): Demo_Tune's per-tune init builds an indirect-copy DESTINATION pointer from two separate immediate loads (`lda #$00 / sta zfa` then `lda #$c7 / sta zfb`, giving a hardcoded $C700) rather than via a symbol. SIDdecompiler's disassembler has no way to recognise that this pair of immediates forms an address — it only symbolises operands it sees used directly as jump/data-table targets — so this specific destination stays a literal constant in the output even though nearby destinations to the SAME $C000-$C7FF workspace block (reached via genuine lo/hi pointer tables elsewhere) ARE correctly symbolised. Practical effect: the reconstruction is 100.0000% byte-exact and trace-exact at native (zero-shift) relocation — confirmed by real execution, not just a byte compare — but a relocation-invariance control build (SIDdecompiler's own disassembly re-emitted at a different base, the project's standard non-tautological check for a byte-identical `-r` build) hangs during INIT, because the un-relocated $C700 literal now points at code, not workspace, in the shifted build. This is a structural SIDdecompiler limitation (immediate-pair-constructed pointers are invisible to its symbolisation pass), not evidence against the verified native reconstruction."
   ],
   "sources": [
     "HVSC Musicians.txt:1543 ('Soulet, Gilles - FRANCE'; no handle, no group) + local files at MUSICIANS/S/Soulet_Gilles/ (no STIL entry)",
@@ -90,35 +91,98 @@ See the `quirks` array. The load-bearing ones:
 
 ## Disassembly notes
 
-Real disassembly was done here (scratchpad disassembler, disposable).
+Real disassembly was done here (scratchpad disassembler, disposable) and,
+this pass, a second real disassembly (`SIDdecompiler.exe`) that was actually
+reassembled and byte/trace-diffed — see Verification below for the numbers.
 
 The 1987-88 build's driver core is **byte-identical across three files**
 (`$9010-$99B6`, all ending at exactly `$99B6`), with only the per-tune init
-differing — because init is where the relocation addresses live.
+differing — because init is where the relocation addresses live. This pass's
+byte-diff independently confirms it: the SAME `SIDdecompiler` disassembly
+(same driver source, only the per-tune init/data varying) reassembled
+100.0000% byte-exact for all three 1987-88 files.
 
 The clearest single find is `$9945` reading `$CB` (KERNAL's last-key-pressed
 byte) and `$028D` (the shift/ctrl/CBM flag). **A replayer has no reason to poll
 the keyboard.** That's editor code left in the shipped routine, and it's the
 binary-side corroboration of GTW64 calling Kmuse an "editor/compiler."
 
+Also confirmed this pass: `$901C` (a `SEI` opening a raster-IRQ-install
+sequence — sets `$D012`/`$D011`, disables/acks CIA and VIC IRQs, installs a
+custom handler at `$0314/$0315`, `CLI`, `RTS`) is **self-modified to `$60`
+(RTS) by every init call before it's ever reached** (`ldx #$60 / stx l901c`
+runs just before `jsr l9000` in every one of the three files' init routines).
+So this whole raster-IRQ-install block is dead code under the normal
+externally-polled PSID `play` convention these three files use — it's
+presumably vestigial from a self-installing-IRQ mode shared with the 1986
+build's approach (Fifth_Axis, `play=$0000`), not something these three files
+ever execute.
+
 ## Verification
 
-`status: in-progress`. Identity, career, the Kmuse name, and the
-composition-workstation story are confirmed from multiple independent sources
-that agree (GTW64 direct contact, MobyGames bio, SID headers, CSDb rip counts).
-Memory maps, entry points, ZP usage and the frequency table are **measured by
-disassembly**.
+`status: verified` — **scoped to the 1987-88 build** (Demo_Tune.sid,
+Sapiens.sid, Albedo.sid — 3 of the 4 files). Real disassembly, reassembly,
+byte-diff and register-write trace-diff were run this pass (`SIDdecompiler.exe`
++ `64tass.exe` + `sidm2-sid-trace.exe`; see `tools_and_locations`).
 
-**Not verified**: nothing reconstructed or re-run. Data format (order list,
-patterns, instruments, wave/pulse/filter tables) and effect encoding are all
-`TODO` — they'd need deep disassembly. No memory map was guessed.
+**Relocation** (gotcha 40/lesson 60): `SIDdecompiler -v2`'s own emulated
+memory-touch map reports `Start: $0800` for all three files, well below each
+file's own PSID load address ($83a0/$8580/$6b50) — a fixed low-RAM workspace,
+not a dropped leading byte. Relocating with `-a2048` (decimal for `$0800`,
+i.e. a net-zero shift that keeps the code at its true native addresses) with
+`-r` (lesson 63) produced a single contiguous, non-wrapping block with no
+`64tass` `-Wwrap-pc`/`-Wwrap-mem` warnings; relocating instead to the file's
+own load address (the naive by-the-book move) wraps the payload past $FFFF —
+confirmed and rejected.
 
-Also undetermined: who actually wrote Kmuse; `$CB` command semantics beyond
-`$40` (idle) / `$03`; whether the keyboard polling is deliberate or leftover
-(inferred: leftover); the IRQ rate (headers say 50Hz CIA nominal, untraced); why
-Albedo's data starts so much lower (`$6B50` vs `$8580` — presumably just a bigger
-2-subtune dataset). **No Kmuse editor binary was found anywhere** — only the
-runtime replayer embedded in the four SIDs.
+**Byte-diff, code region only** (from each file's own PSID load address to
+load+payload-length — the fixed $0800/$C0xx workspace outside that range
+isn't part of the file and is correctly excluded per gotcha 40/lesson 60):
+
+- Demo_Tune.sid: 5654/5654 bytes, **100.0000%**
+- Sapiens.sid: 5174/5174 bytes, **100.0000%**
+- Albedo.sid: 11878/11878 bytes, **100.0000%**
+
+**Trace-diff** (`sidm2-sid-trace.exe`, raw executable per lesson 8/46,
+init/play called at the file's real PSID vectors): ran INIT + 60-100 frames of
+PLAY on the original file's own bytes and on the reassembled build, for every
+file and every subtune, and diffed the full `frame,cycle,register,old,new`
+stream:
+
+- Demo_Tune.sid: 100 frames, 0 divergences (359-line trace, exact incl. cycles)
+- Sapiens.sid: 60 frames, 0 divergences
+- Albedo.sid subtune 0: 60 frames, 0 divergences
+- Albedo.sid subtune 1: 60 frames, 0 divergences
+
+Because the byte-diff is already 100.0000%, this trace-diff is necessarily
+tautological on its own (a byte-identical program cannot fail to reproduce
+itself) — but it is still real, non-trivial evidence: it confirms the
+reassembled program actually EXECUTES correctly through INIT and PLAY (no
+crash, no hang, no illegal-opcode trap) on every subtune tested, not just that
+the bytes match. A genuine non-tautological check was also attempted — see the
+quirks entry "DISASSEMBLY GOTCHA" — and its (expected, explained) failure is
+recorded there rather than treated as invalidating the native result.
+
+**Not verified / explicit gap**: `Fifth_Axis.sid` (the 1986 build) was **not
+attempted this pass**. It is a structurally different build per this card's
+own "TWO DISTINCT BUILDS" quirk — different load address ($0800 vs $6b50-$83a0
+for the other three), RAM-under-BASIC-ROM banking (`$1A00` copied to
+`$B300-$B5FF`), and a self-installing IRQ player (`play=$0000`, no PSID play
+vector, matching lesson 81's pattern — would need `-I`/`-P` overrides to
+disassemble). That is the concrete next step for this card: disassemble
+Fifth_Axis with entry-point overrides recovered from its IRQ-install code,
+byte-diff and trace-diff it the same way.
+
+Data format (order list, patterns, instruments, wave/pulse/filter tables) and
+effect encoding remain `TODO` — they were not attempted this pass (out of
+scope for a byte/trace verification pass; would need a deep read of the
+now-confirmed-correct disassembly). Also still undetermined: who actually
+wrote Kmuse; `$CB` command semantics beyond `$40` (idle) / `$03`; whether the
+keyboard polling is deliberate or leftover (inferred: leftover); the IRQ rate
+(headers say 50Hz CIA nominal — the trace above confirms register-write
+*sequencing* is exact but did not independently re-derive the rate). **No
+Kmuse editor binary was found anywhere** — only the runtime replayer embedded
+in the four SIDs.
 
 ## Sources
 

@@ -6,9 +6,9 @@
   "name": "Mat/MDA (player routine)",
   "aliases": ["Mat/MDA"],
   "authors": ["Matthias Hillebrand (Mat) of Modern Arts (per SIDId) — but see quirks: every locally-tagged file is authored by Tim Kleinert, not Hillebrand"],
-  "released": "TODO: no RELEASED/REFERENCE field in the SIDId entry",
+  "released": "No SIDId RELEASED field (confirmed absent, not just unfetched — see sources). Per-tune CSDb 'Released' fields on all 7 tagged files (full census) span 1987-1989: earliest Stavros.sid ('1987 MDA-Empire/Spot 3001', csdb.dk/sid/?id=16873); latest Agima.sid ('1989 Modern Arts', csdb.dk/sid/?id=16866). This is composition/use dating of individual tunes, not a player/tool release date.",
   "status": "stub",
-  "platform": "TODO: no CSDb tool release, source repo, or standalone download found under this name.",
+  "platform": "Native C64 in-house/personal player routine embedded directly in Modern Arts' own productions. No standalone editor, CSDb tool/release page, or public source found under this name: csdb.dk site search for 'Mat/MDA' returns zero results, and the c64.ch scener page for Mat/Hillebrand (https://c64.ch/sceners/1232/Mat) credits him only with per-production Code/Graphics/Music roles, never a named music tool.",
   "csdb_release": null,
 
   "memory": { "load_address": "TODO", "zero_page": "TODO", "layout": "TODO" },
@@ -28,9 +28,12 @@
   "sources": [
     "data/sidid.json byTag['Mat/MDA']: author 'Matthias Hillebrand of Modern Arts', no other fields",
     "Local dataset: data/composers/tim-kleinert.json — 7 files tagged 'Mat/MDA' (Agima, The First Demo, Fresh Intro, Graphixmania (part 1), Stavros, Warriors, ZSS Intro), all authored solely 'Tim Kleinert'; see knowledge/COVERAGE.md row #4 (7 files)",
+    "cadaver/sidid sidid.nfo source (https://raw.githubusercontent.com/cadaver/sidid/master/sidid.nfo, lines ~920-925), fetched directly: 'Mat/MDA' entry has ONLY an AUTHOR line — no RELEASED/REFERENCE/COMMENT fields, unlike the neighboring 'SoundBox/MDA' entry (lines 926-929) which does carry RELEASED 1991 + REFERENCE csdb.dk/release/?id=112576 — confirms the released/csdb_release TODOs are a genuine absence in SIDId, not a missed lookup",
+    "CSDb webservice, all 7 tagged files' own SID entries queried by id via scripts/lib/csdb-client.js getSidRelease() (full census, not a sample): Agima id=16866 Released '1989 Modern Arts'; The First Demo id=49083 '1988 Modern Arts'; Fresh Intro id=40467 '1988 Modern Arts'; Graphixmania (part 1) id=16869 '1988 Modern Arts'; Stavros id=16873 '1987 MDA-Empire/Spot 3001'; Warriors id=41751 '1988 Modern Arts'; ZSS Intro id=1097 '1988 Modern Arts'",
+    "CSDb site search for 'Mat/MDA' (https://csdb.dk/search/?seinsel=1&search=Mat%2FMDA) returns zero results — no tool/release page under this name",
     "knowledge/players/mat-mda-digi.md (status: stub) — sibling card documenting the identical author/composer-mismatch pattern on the '_Digi' variant tag; cited for corroborating context, not edited",
     "knowledge/players/soundbox-mda.md (status: stub) — Tim Kleinert's confirmed own tool, cited for corroborating context on Kleinert's multi-tag catalog; not edited",
-    "c64.ch scener page for Mat / Matthias Hillebrand: https://c64.ch/sceners/1232/Mat",
+    "c64.ch scener page for Mat / Matthias Hillebrand: https://c64.ch/sceners/1232/Mat — credits him with per-production Code/Graphics/Music roles, no named music tool",
     "Demozoo — Modern Arts (Swiss demo group, founded by Mat and Tim, originally 'MDA-Empire', active 1987-1991): https://demozoo.org/groups/54783/"
   ]
 }
@@ -43,7 +46,13 @@ Hillebrand ("Mat")**, co-founder of the Swiss demo group **Modern Arts**. All 7
 locally-tagged files, however, are credited solely to fellow Modern Arts
 co-founder **Tim Kleinert** — the confirmed author of the separately-carded
 `SoundBox` (`knowledge/players/soundbox-mda.md`) — with no Hillebrand co-credit
-anywhere. This is the same author/composer mismatch pattern already documented
+anywhere. All 7 files' own CSDb `Released` fields (full census) place the
+routine's use between 1987 (Stavros, MDA-Empire/Spot 3001) and 1989 (Agima,
+Modern Arts) — composition dating of individual tunes, not a formal tool
+release: no CSDb tool/release page or standalone editor exists under this
+name (site search returns zero results), and SIDId's own source file
+(`sidid.nfo`) confirms it carries no RELEASED/REFERENCE fields at all, unlike
+the neighboring `SoundBox/MDA` entry which does. This is the same author/composer mismatch pattern already documented
 on the sibling tag `Mat/MDA_Digi` (`knowledge/players/mat-mda-digi.md`), and is
 recorded here rather than smoothed over. Kleinert's catalog uses this as a
 genuinely distinct SIDId signature from his own `SoundBox/MDA` and

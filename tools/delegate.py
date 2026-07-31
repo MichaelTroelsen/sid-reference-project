@@ -84,6 +84,22 @@ FALLBACK_CHAIN = {
 # (rate limit / capacity / transient server errors).
 RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
+# Not every 429 is a rate limit. Providers also return 429 for "your account is
+# out of money" / "quota exhausted" / "suspended", which no amount of waiting
+# fixes -- retrying one of those burns PRIMARY_MAX_RETRIES * the delay (4.5
+# minutes at the current settings) before the fallback chain is even tried.
+# Observed on Moonshot: HTTP 429 "account is suspended due to insufficient
+# balance", retried 10 times. If any of these appear in a 429 body, skip
+# straight to the fallback.
+PERMANENT_429_MARKERS = (
+    "insufficient balance",
+    "exceeded_current_quota",
+    "insufficient_quota",
+    "suspended",
+    "billing",
+    "recharge",
+)
+
 # Retry behaviour for the PRIMARY (requested/cheapest) model only. Each call
 # always starts on the requested model from scratch — there is no
 # "stickiness" to a fallback across calls, so the next task automatically
@@ -171,6 +187,16 @@ def call_model(variant_name: str, prompt: str, system: str | None,
     except requests.exceptions.RequestException as exc:
         raise ProviderUnavailable(f"request for '{variant_name}' failed: {exc}")
 
+    if response.status_code == 429 and any(
+        marker in response.text.lower() for marker in PERMANENT_429_MARKERS
+    ):
+        # Raised as Misconfigured, not Unavailable, because that is exactly the
+        # existing "don't retry, do fall back" path.
+        raise ProviderMisconfigured(
+            f"'{variant_name}' returned HTTP 429 for a quota/billing reason, which retrying "
+            f"cannot fix: {response.text.strip()}"
+        )
+
     if response.status_code in RETRYABLE_STATUS_CODES:
         raise ProviderUnavailable(f"'{variant_name}' returned HTTP {response.status_code}: {response.text}")
     if response.status_code != 200:
@@ -202,8 +228,10 @@ def call_with_fallback(variant_name: str, prompt: str, system: str | None,
                         max_tokens: int, temperature: float, timeout: int) -> str:
     fallbacks = FALLBACK_CHAIN.get(variant_name, [])
     last_error = None
+    attempts_made = 0
 
     for attempt in range(1, PRIMARY_MAX_RETRIES + 1):
+        attempts_made = attempt
         try:
             return call_model(variant_name, prompt, system, max_tokens, temperature, timeout)
         except ProviderMisconfigured as exc:
@@ -236,8 +264,13 @@ def call_with_fallback(variant_name: str, prompt: str, system: str | None,
             last_error = exc
             continue
 
+    tried = (
+        f"{attempts_made} attempt{'s' if attempts_made != 1 else ''}"
+        if attempts_made < PRIMARY_MAX_RETRIES else
+        f"{PRIMARY_MAX_RETRIES} retries"
+    )
     raise SystemExit(
-        f"Error: '{variant_name}' failed after {PRIMARY_MAX_RETRIES} retries, and all "
+        f"Error: '{variant_name}' failed after {tried}, and all "
         f"fallbacks {fallbacks} also failed. Last error: {last_error}"
     )
 

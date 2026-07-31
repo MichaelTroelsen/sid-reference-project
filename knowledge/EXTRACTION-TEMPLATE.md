@@ -49,23 +49,63 @@ Wikipedia/forums. Cite a URL for every fact.
 | First-release date / version history | `released` / Overview | CSDb release chain |
 | Lineage claims | `edges` + `quirks` | a source/manual/header that states derivation (e.g. CheeseCutter's `"Based on JCH NP 21.G4 by Laxity/VIB"`) — only assert an edge from real evidence |
 
-### Dating a routine: census every tagged file, never sample
+### Census every tagged file. Never spot-check.
 
-**A date derived from a handful of files is wrong often enough that it should
-be treated as provisional until every tagged file has been checked.** In a
-2026-07-31 research pass over 15 stub cards, four dates moved once the full
-set was swept — and all four moved *earlier*:
+**Any claim derived from a subset of a card's tagged files should be treated as
+provisional until every file has been checked.** Across 27 stub cards
+researched on 2026-07-31, **eleven** claims were corrected, and every single
+correction came from replacing a spot-check with a full census:
 
-| card | recorded | actual | why it was wrong |
+| card | recorded | actual | what was wrong |
 |---|---|---|---|
 | `tbb-sideb` | 1994 | 1991 | spot-checked a few files |
 | `trident-active` | 1996 | 1994 | 2-file sample |
 | `grg-tiny` | 2006 | 2002 | a tune's **title** year read as its release date |
 | `cycleburner-digi` | (later) | 1989-02-26 | earlier attestation missed |
+| `anvil` | 1997 | 1990 | a `Released` field transcribed wrong |
+| `micropearl-fitzpatrick` | 1984 | 1983 | two 1983 files missed |
+| `galbard-atoo` | 1988 | 1986 | 3-file sample |
+| `tiny-sound-images` | 1988-1994 | 1988-1991 | estimate, and cited "Turtles" files that carry no such tag |
+| `daisy` | 2 load addresses | **5** | 2-file sample of PSID headers |
+| `rob-hubbard-digi` | "vintage rips" | 2018 Project Hubbard | provenance assumed, not checked |
+| `trackplayer` | adopted via Motiv 8 (1996+) | Airwolf-Team | earliest tunes predate the membership |
 
-The bias is one-directional and has an obvious cause: any subset you happen to
-look at is unlikely to contain the earliest file, so sampling can only ever
-move a first-use date later. Sweep all of them.
+Dates skew **late** for a structural reason: any subset you happen to look at
+is unlikely to contain the earliest file, so sampling can only move a first-use
+date later. But note the bottom four rows — the same failure corrupts header
+counts, provenance, and causal reasoning, not just dates. One card
+(`rob-hubbard-digi`) had a date that turned out **correct**; it was still worth
+censusing, because "right but unverified" and "right" are different states.
+
+Two more traps this pass surfaced:
+
+- **A recorded reference id can be dead.** `background-musiceditor`'s
+  `sidid.json` reference (`release/?id=138743`) resolves to nothing — the
+  webservice returns its generic error. Follow the link; don't trust that a
+  stored id still points somewhere.
+- **File counts can over-count.** `chris-huelsbeck`'s 22 tagged file records
+  resolve to only 12 distinct CSDb SID ids — the rest are duplicates across
+  alt-spelling composer caches.
+
+### Search-engine AI summaries are leads, never sources
+
+Two independent passes on 2026-07-31 were offered confident, specific,
+citeable-sounding claims by search-engine AI summaries that **evaporated when
+the underlying page was fetched directly**: a Gremlin driver author tied to
+Barry Leitch/Imagitec (`antony-crowther-v3`), and a shared "repetition format"
+across CRL drivers (`companion-jay-derrett`). Both were caught only because the
+pass was required to cite a real URL for every fact. Fetch the page. If the
+claimed text isn't in it, record the lead as discarded — that is itself worth
+writing down, so the next pass doesn't chase it again.
+
+### Working with CSDb's webservice
+
+- The HTML site 503s intermittently. Query the XML webservice through
+  `scripts/lib/csdb-client.js` instead.
+- Node's own `fetch` has been observed hanging against `csdb.dk` where `curl`
+  succeeded (three separate agents hit this, one specifically at `depth=4`).
+- Read each tune's own `Released` field. Do **not** read a year out of a tune's
+  title, and do not take a `UsedIn` release's year as the tune's own.
 
 Practical notes for the sweep:
 

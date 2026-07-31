@@ -6,7 +6,7 @@
   "name": "GalBard",
   "aliases": ["GalBard/ATOO"],
   "authors": ["Anders Andréen (ATOO)"],
-  "released": "TODO: no explicit release date for the tool itself (absent from sidid.nfo); earliest GalBard-tagged tunes in the dataset are CSDb-dated 1987-1988 (e.g. 'American', 1988: https://csdb.dk/sid/?id=8483)",
+  "released": "TODO: no explicit release date for the tool itself (absent from sidid.nfo, and no dated CSDb tool release exists). Re-researched 2026-07-31: full census of all 17 GalBard/ATOO-tagged files' CSDb 'Released' fields (not filenames/UsedIn) gives earliest attested tune 1986 ('ATOO's First' https://csdb.dk/sid/?id=8484 and 'ATOO's Second' https://csdb.dk/sid/?id=8485, both 'Released: 1986 Anders Andréen'), predating the prior 1988 estimate ('American', https://csdb.dk/sid/?id=8483) which was drawn from a 3-file sample. This is a tune composition date, not a tool release date — GalBard as a routine has no attested release at all.",
   "status": "stub",
   "platform": "Native C64. A script-based personal music editor/routine written by its sole known user, Anders Andréen (ATOO, Sweden) — not found as a distributed public tool release.",
   "csdb_release": null,
@@ -48,7 +48,10 @@
     "No dedicated CSDb release exists under the name 'GalBard' — a CSDb site search for the term returns zero results (https://csdb.dk/search/?seinsel=all&search=GalBard). ATOO's own CSDb 'C64 Tool' releases ('Music Expansion 64', 1987; 'Terrific Types', undated) carry no mention of GalBard in their credits/description, so neither can be confirmed as the same thing.",
     "sidid.nfo's entry for this tag has NO 'RELEASED' and NO 'REFERENCE' field (unlike many other SIDId entries) — confirmed by fetching the raw sidid.nfo. That's why released/csdb_release stay TODO/null rather than a guess.",
     "PSID header load/init/play addresses differ across GalBard-tagged .sid files on CSDb (American: load $B000, init $C000, play $C003 — https://csdb.dk/sid/?id=8483; Compleeto!: load $301A, init $301A, play $304E — https://csdb.dk/sid/?id=8486; Yie-Ar Sanxion: load $B000, init $C000, play $C003 — https://csdb.dk/sid/?id=8499). This is consistent with a personal editor whose output is relocated/repacked per tune rather than a single fixed player binary — do not record one 'the' load address from this alone.",
-    "No public source or disassembly found anywhere searched (CSDb, GitHub, Codebase64). Every runtime field is an honest TODO."
+    "No public source or disassembly found anywhere searched (CSDb, GitHub, Codebase64). Every runtime field is an honest TODO.",
+    "Re-research pass, 2026-07-31: censused all 17 GalBard/ATOO-tagged sid entries (ids 8483-8499 and 49079) via the CSDb webservice (scripts/lib/csdb-client.js, type=sid), reading each file's own Released field (not a filename year, not a UsedIn release year). Full list: American 1988 (8483), ATOO's First 1986 (8484), ATOO's Second 1986 (8485), Compleeto! 1989 (8486), GBK-Test 1989 (8487), Harmonic 1989 (8489), Ivanhoe Loader 1988 (8490), Madmusic v0.8 1988 (8491), Mad Hiscore v0.8 1988 (8492), Muzatoo 1 1987 (8493), Post War 1988 (8494), Radio Waves 1987 (8495), Relax (beta) 1989 (8496), Rock Madly 1988 (8497), Space Bar Demo 1987 (8498), Weird 1988 (49079), Yie-Ar Sanxion 1988 (8499). Earliest is 1986 ('ATOO's First'/'ATOO's Second'), which moved the dataset's earliest-attested year two years earlier than the previously-sampled 1988. No tune's CSDb entry carries any 'GalBard' mention beyond the Player-ID tag itself.",
+    "Re-research pass, 2026-07-31: checked ATOO's full CSDb scener record (webservice type=scener, id=11335, depth=3) — FreelanceFunctions lists only 'Musician' with no group membership (Attended events only), consistent with GalBard being a personal in-house routine rather than a group-published tool. AKA field on CSDb: 'ATOO The Odd One, Anders Tycker Om Ost' — trivia, not provenance.",
+    "Re-research pass, 2026-07-31: explicitly searched Lemon64 (lemon64.com) and Forum64 (forum64.de) for 'GalBard' — no results on either. Also re-checked CSDb's own site search and a CSDb forum thread comparing C64 music editors (topicid=128259, page 503'd on fetch but the search-engine cache of it showed no GalBard mention). No new provenance found beyond what was already documented; the tool-level released/csdb_release TODOs stand."
   ],
   "sources": [
     "sidid:GalBard/ATOO (data/sidid.json byTag, imported from cadaver/sidid's sidid.nfo): https://github.com/cadaver/sidid/blob/master/sidid.nfo",
@@ -57,7 +60,10 @@
     "CSDb sid entries used to check PSID header addresses: 'American' https://csdb.dk/sid/?id=8483 ; 'Compleeto!' https://csdb.dk/sid/?id=8486 ; 'Yie-Ar Sanxion' https://csdb.dk/sid/?id=8499",
     "CSDb site search confirming no 'GalBard'-named release exists: https://csdb.dk/search/?seinsel=all&search=GalBard",
     "CSDb ATOO tool releases checked and ruled inconclusive as the same tool: 'Music Expansion 64' https://csdb.dk/release/?id=129436 ; 'Terrific Types' https://csdb.dk/release/?id=243642",
-    "Local dataset: 17 files tagged GalBard/ATOO, all by 1 composer (ATOO) — see knowledge/COVERAGE.md (rank #12 uncarded family) and data/composers/atoo.json"
+    "Local dataset: 17 files tagged GalBard/ATOO, all by 1 composer (ATOO) — see knowledge/COVERAGE.md (rank #12 uncarded family) and data/composers/atoo.json",
+    "2026-07-31 census of all 17 GalBard/ATOO sid entries via CSDb webservice (type=sid): https://csdb.dk/sid/?id=8483 (American, 1988), https://csdb.dk/sid/?id=8484 (ATOO's First, 1986), https://csdb.dk/sid/?id=8485 (ATOO's Second, 1986), https://csdb.dk/sid/?id=8486 (Compleeto!, 1989), https://csdb.dk/sid/?id=8487 (GBK-Test, 1989), https://csdb.dk/sid/?id=8489 (Harmonic, 1989), https://csdb.dk/sid/?id=8490 (Ivanhoe Loader, 1988), https://csdb.dk/sid/?id=8491 (Madmusic v0.8, 1988), https://csdb.dk/sid/?id=8492 (Mad Hiscore v0.8, 1988), https://csdb.dk/sid/?id=8493 (Muzatoo 1, 1987), https://csdb.dk/sid/?id=8494 (Post War, 1988), https://csdb.dk/sid/?id=8495 (Radio Waves, 1987), https://csdb.dk/sid/?id=8496 (Relax (beta), 1989), https://csdb.dk/sid/?id=8497 (Rock Madly, 1988), https://csdb.dk/sid/?id=8498 (Space Bar Demo, 1987), https://csdb.dk/sid/?id=49079 (Weird, 1988), https://csdb.dk/sid/?id=8499 (Yie-Ar Sanxion, 1988)",
+    "CSDb scener record for ATOO (webservice type=scener, id=11335, depth=3), confirming freelance Musician with no group membership: https://csdb.dk/scener/?id=11335",
+    "2026-07-31 negative-result searches: 'GalBard' on lemon64.com (no results) and forum64.de (no results); CSDb forum thread 'Comparison of C64 Music Editors by JCH' https://csdb.dk/forums/?roomid=14&topicid=128259 (page unavailable, 503, but search-engine indexing shows no GalBard mention)"
   ]
 }
 ```
@@ -74,7 +80,11 @@ search returns nothing) and the absence of `RELEASED`/`REFERENCE` fields in
 its `sidid.nfo` entry, this reads as a personal in-house tool rather than a
 distributed editor, in the same vein as [[adam-gilmore]]'s own driver — worth
 a card mainly as a documented instance of the project's "single composer,
-personal routine" pattern rather than as a widely-used player family.
+personal routine" pattern rather than as a widely-used player family. A
+2026-07-31 census of all 17 tagged files' own CSDb `Released` fields (not a
+sample) puts the earliest attested GalBard-tagged tune at 1986 ("ATOO's
+First"/"ATOO's Second"); that is a tune composition date, not a tool release
+— the tool itself has no attested release date.
 
 ## Quirks & gotchas
 

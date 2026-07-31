@@ -310,3 +310,40 @@ tracing a smooth waveform (`03 03 04 05 06 08 08 09 09 09 08 07 06 05 04 03`):
 Note for scripted use: digi traces are large. `child_process.execFileSync`'s
 default 1 MB `maxBuffer` overflows (`ENOBUFS`) on them — raise it or use
 `--out`.
+
+---
+
+## `dis6502.js` — static recursive-descent disassembler for stuck payloads
+
+```
+node scripts/dev/dis6502.js <in.prg> <org-hex> <entry,entry,...> <out.asm>
+```
+
+Emits 64tass source plus a `<out>.map.json` recording every instruction-start
+and covered address. Pair it with `sid2prg.js` to go from a `.sid` straight to
+assemblable source.
+
+**Why it exists.** `SIDdecompiler.exe` hangs on self-modifying players (lesson
+95). It is a hybrid static/dynamic tool whose trace state diverges when a
+player writes into its own code. A purely static recursive-descent pass has no
+such state — it reads whatever bytes are present, which are exactly the bytes
+that must be reproduced. All four previously-blocked players reassemble
+byte-exact from its output.
+
+**Read this before trusting its output.** A 100% byte-exact reassembly proves
+*nothing at all* about whether the code/data split is right, because everything
+not classified as code is emitted as `.byte` and round-trips perfectly. A run
+that misidentifies all code as data still reports 100.000000%. The split has to
+be validated separately — cross-check against addresses RetroDebugger's
+`retro_code_map` reports as actually executed. Doing exactly that on `defmon`
+found a real defect: the player executes the **undocumented opcode `$CB`**
+(AXS/SBX) at `$14C3` and `$154A`, which stopped the walker dead and silently
+turned everything downstream into `.byte` while the byte-diff still read 100%.
+
+Undocumented opcodes are therefore decoded by the walker (so control flow
+continues) but emitted as raw `.byte` with the decode in a comment, because
+64tass rejects several of the mnemonic spellings outright (`ALR #$7f`).
+
+A low code percentage is a warning sign, not a result: sample-heavy players
+legitimately sit under 5%, but so does a run that missed code reachable only
+through a copied routine or a computed jump.

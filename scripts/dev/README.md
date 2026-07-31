@@ -347,3 +347,30 @@ continues) but emitted as raw `.byte` with the decode in a comment, because
 A low code percentage is a warning sign, not a result: sample-heavy players
 legitimately sit under 5%, but so does a run that missed code reachable only
 through a copied routine or a computed jump.
+
+### `--symbolic` and `rewrap_reloc.js` — building a relocation control
+
+`dis6502.js --symbolic` emits every in-range absolute operand as `ORG + $offset`
+and defines `ORG` once at the top, so changing that single line relocates the
+whole player. This handles addresses that land *mid-instruction*, which a
+label-based scheme cannot name at all — necessary because self-modifying players
+write into their own operand bytes.
+
+`rewrap_reloc.js <orig.sid> <reloc.bin> <delta-hex> <out.sid>` wraps the result
+back into the original header, shifting the embedded load address and the
+header's init/play by the same delta. (`rewrap.js` deliberately preserves the
+original load address, which is right for a same-address rebuild and wrong here
+— leaving init pointing at the old address makes the player jump into whatever
+now occupies it, failing for a reason unrelated to the disassembly.)
+
+**Why bother**: a byte-identical rebuild's trace match is tautological
+(lesson 92) and a 100% byte-diff proves nothing about the split (lesson 98). A
+*relocated* rebuild that still traces cycle-identically is the real evidence.
+
+**Known limitation, and it matters when a control fails**: only operands of
+decoded instructions are rewritten. Absolute addresses stored inside data —
+pointer tables, or address bytes loaded as immediates — are not. So a failed
+relocation control has two possible causes (wrong code/data split, or
+unrelocated address data) and they must be told apart before concluding
+anything. On `defmon` the data-side explanations were checked and came back
+negative, which points at the split.

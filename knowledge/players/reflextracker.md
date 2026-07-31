@@ -94,6 +94,55 @@ over.
 
 ## Disassembly notes
 
+### 2026-07-31 (batch30) — SIDdecompiler block routed around via RetroDebugger
+
+**The tool-level block below is no longer the end of the line.** RetroDebugger
+disassembled this player on the first attempt, where SIDdecompiler hangs on
+every file tried. Method: extract the RSID payload to a `.prg` (2-byte LE load
+address + payload), `retro_load` it, then `retro_disassemble`. No SIDdecompiler
+involvement at any step. Full excerpts, with method and header facts, are in
+`knowledge/artifacts/reflextracker.txt`.
+
+Confirmed on `MUSICIANS/W/Warlock/Abba-Gabba.sid` (RSID, load `$32C9`, payload
+38,071 bytes ending `$C77F`, init `$C006`, play `$0000`):
+
+- **`$C006` is the real code entry**, not just a header claim: `SEI / LDA #$36 /
+  STA $01` (RAM+I/O, KERNAL banked out) `/ JSR $C02C`.
+- **The busy-poll design is now disassembly-confirmed.** The card previously
+  recorded this as "an unverified hex-level read, not disassembly-confirmed".
+  `$C016` is `LDA $D7 / BPL`, polling a zero-page flag seeded to `#$81` by the
+  setup routine, and there is **no `CLI` anywhere on this path**.
+- **Evidence against the interrupt-driven alternative.** The `entry.play`
+  field offered "poll-driven main loop *or* real-hardware-interrupt-driven" as
+  two live hypotheses. Setup writes `$DD0D <- #$7F`, which **masks off** every
+  CIA2 interrupt source rather than enabling one, then sets CIA2 timer A
+  (`$DD04/$DD05 <- $93/$00`) and starts it (`$DD0E <- #$41`). A started timer
+  whose interrupt is explicitly masked, plus a ZP busy-poll and no `CLI`,
+  favours **polled**, not interrupt-driven. Not runtime-confirmed — the write
+  that satisfies the `$D7` poll was not traced.
+- **Heavy operand self-modification.** ZP flags `$D8`/`$D9` each select which
+  of two byte-sets is live by copying bytes between fixed code addresses
+  (`$C05C`<->`$C09D`, `$C08C`<->`$C0CD`, `$C08F`<->`$C0D0`, `$C10A`<->`$C141`).
+  The player rewrites its own operands rather than indexing a table — which is
+  itself a plausible contributor to static disassemblers struggling here.
+- **`$C09C` is a self-modifying 16-bit pointer walker**: `LDA #$00 / SBC #$E4 /
+  STA $C09D` rewrites its own operand, walking a descending `$D0/$D1` pointer
+  bounds-checked against a 16-bit limit. Shape fits a sample/replay pointer
+  rather than a pattern cursor, consistent with a sample-based tracker — but
+  the data it walks was not identified, so this is a reading, not a fact.
+- Zero page observed in use: `$D0/$D1` pointer, `$D6` counter, `$D7` poll flag,
+  `$D8`/`$D9` byte-set selectors.
+
+**Scope of this pass, stated plainly:** one file, static disassembly only. The
+code was never executed (`isExecuted=false` throughout), nothing was
+reassembled, and no byte-diff or trace-diff was run. Status therefore stays
+`in-progress` — this pass removes the blocker and establishes structure, it
+does not meet this project's register-write-exact bar. The concrete next step
+is no longer "get RetroDebugger": it is to disassemble the full `$C000-$C77F`
+range, reassemble, and trace-diff against the original.
+
+### 2026-07-23 — the original SIDdecompiler block
+
 **Attempted 2026-07-23; genuinely blocked at the tool level, not a byte-diff
 quality problem.** Following `knowledge/playbooks/disassemble-a-player.md`
 and this project's `sid-player-verify` methodology:
@@ -170,8 +219,23 @@ there is nothing to compare. `data_format`, `effects.encoding`, and the true
 (disassembly-confirmed) entry points remain `TODO`. The "open-source" claim
 in the local coverage table was specifically investigated in a prior pass
 and could not be substantiated; it is not carried into this card as fact.
-RetroDebugger (live, interrupt-capable emulation) is the concrete next step
-— not available in this session, see Disassembly notes above.
+
+**Updated 2026-07-31 (batch30): the SIDdecompiler blocker has been routed
+around.** RetroDebugger disassembled the player on the first attempt (payload
+extracted to `.prg`, `retro_load`, `retro_disassemble`), so "no `.asm` was
+ever produced" above is no longer true — see Disassembly notes and
+`knowledge/artifacts/reflextracker.txt`. That pass confirmed `$C006` as the
+real code entry, confirmed the ZP busy-poll (`$D7`) that was previously only
+an unverified hex-level read, and produced evidence against the
+interrupt-driven hypothesis (`$DD0D <- #$7F` masks CIA2 interrupts off).
+
+**Status stays `in-progress` regardless**, because that pass was a static
+disassembly of one file: the code was never executed, nothing was
+reassembled, and no byte-diff or register-write trace-diff exists. This
+project's bar for `verified` is a register-write match, and there is still
+nothing to compare. `data_format` and `effects.encoding` remain `TODO`. What
+changed is the next step, which is no longer "obtain a live debugger" but
+"disassemble `$C000-$C77F` in full, reassemble, trace-diff".
 
 ## Sources
 

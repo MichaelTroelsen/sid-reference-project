@@ -8,7 +8,7 @@
   "authors": ["Piotr Pisula"],
   "released": "1992 Piotr Pisula",
   "status": "stub",
-  "platform": "TODO: native C64 tool vs cross-platform editor not documented anywhere found — no CSDb release, no author page, no Codebase64/HVSC writeup located",
+  "platform": "TODO: native C64 tool vs cross-platform editor not documented anywhere found — no CSDb release, no author page, no Codebase64/HVSC/c64-wiki writeup, no Lemon64 or Forum64 thread, and no mention in chordian.net's C64 music-editor roundup located (2026-07-31 re-check)",
   "csdb_release": null,
 
   "memory": {
@@ -46,12 +46,16 @@
     "Only 8 files in the local dataset carry the Noise-Mon_V2 Player-ID tag, split between exactly 2 composers — Moog (Sebastian Bachliński, 6 files) and Snowball (Sebastian Sobczyk, 2 files), both Polish sceners. Author 'Piotr Pisula' is also plausibly Polish, but no source directly ties him to either composer or names a group/team — this is an observation, not a claimed connection.",
     "SIDId's own database (sidid.nfo, the source of the author/year fields here) records NO `reference` (no CSDb release id) and NO `comment` for this tag — unusually thin even by SIDId's standards, where most entries at least link a CSDb release.",
     "Extensive CSDb search (release/scener full-text search for both 'Noise-Mon' and 'Pisula') returned zero hits — no release page, no scener page. This tool/author combination appears to have no CSDb presence at all, which is itself notable: most tagged C64 tools have at least a stub release entry.",
-    "Given the file count (8), composer concentration (2 composers, 6/8 = 75% one composer), and total absence of independent documentation, this reads as a small/personal or very short-lived routine rather than a widely published editor — but that is inference from the numbers, not a sourced claim."
+    "Given the file count (8), composer concentration (2 composers, 6/8 = 75% one composer), and total absence of independent documentation, this reads as a small/personal or very short-lived routine rather than a widely published editor — but that is inference from the numbers, not a sourced claim.",
+    "2026-07-31 re-check widened the search beyond CSDb to Lemon64, Forum64, c64-wiki, and chordian.net's own C64 music-editor list — all came back empty. This tool has no discoverable web footprint of any kind under either the 'Noise-Mon'/'Noise Monitor' name or the author name 'Piotr Pisula', including on the two large scene forums."
   ],
   "sources": [
-    "sidid:Noise-Mon_V2 (author Piotr Pisula; released 1992 Piotr Pisula; no reference, no comment) — deepsid_dl/sidid.nfo line 1132, mirrored in data/sidid.json",
+    "sidid:Noise-Mon_V2 (author Piotr Pisula; released 1992 Piotr Pisula; no reference, no comment) — deepsid_dl/sidid.nfo line 1132, mirrored in data/sidid.json (re-checked 2026-07-31, still no `reference` field for this tag)",
     "Local dataset: 8 files tagged Noise-Mon_V2 across 2 composers (Moog, Snowball) — see knowledge/COVERAGE.md rank 29 and data/composers/Moog.json, data/composers/Snowball.json",
-    "CSDb full-text search for 'Noise-Mon' and 'Pisula' (2026-07-17): no results in either case — https://csdb.dk/search/?seinsel=all&search=noise-mon , https://csdb.dk/search/?seinsel=all&search=pisula",
+    "CSDb full-text search for 'Noise-Mon' and 'Pisula' (checked 2026-07-17 and re-checked 2026-07-31, both return CSDb's standard no-results message): https://csdb.dk/search/?seinsel=all&search=noise-mon , https://csdb.dk/search/?seinsel=all&search=pisula",
+    "Web search (general, plus queries scoped to lemon64.com and forum64.de) for 'Noise-Mon'/'Noisemon'/'Noise Monitor' + 'Piotr Pisula', 2026-07-31: no matching thread, release, or scener page found on either forum",
+    "chordian.net C64 music-editor roundup, checked 2026-07-31 (http://chordian.net/c64editors.htm) — lists GoatTracker, CheeseCutter, SID-Wizard, SID Duzz' It, Blackbird, Virtuoso, defMON, NinjaTracker, JCH Editor, Polyanna, DMC, SidTracker 64, DefleMask; no 'Noise-Mon' entry",
+    "c64-wiki.com SMON page, checked 2026-07-31 (https://www.c64-wiki.com/wiki/SMON) — no mention of Noise-Mon, Piotr Pisula, or a 'Monitor'-family editor lineage",
     "Not present in data/players.json (no curated DeepSID player entry exists for this tag; it is DeepSID-inferred/synthetic only)"
   ]
 }
@@ -100,4 +104,8 @@ or independent documentation of this tool was found anywhere searched
 See the `sources` array — SIDId's `sidid.nfo` entry (the only identity
 source found), this project's local dataset (`data/composers/*.json`,
 `knowledge/COVERAGE.md`), and the negative result of a CSDb search for both
-the tool name and the author's name.
+the tool name and the author's name, re-confirmed 2026-07-31 and widened to
+Lemon64, Forum64, c64-wiki, and chordian.net's C64 editor roundup — all
+still empty. `platform` and `csdb_release` remain the two Tier 1/2 gaps
+this pass was asked to close; both stay `TODO`/`null` because there is
+genuinely nothing to cite, not because the search was shallow.

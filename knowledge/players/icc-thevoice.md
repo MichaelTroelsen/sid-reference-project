@@ -6,7 +6,7 @@
   "name": "ICC/TheVoice",
   "aliases": ["ICC/TheVoice"],
   "authors": ["Incredibly Confused Coder (ICC)"],
-  "released": "TODO: year (files in the collection are Goofy tunes from ~1989-1991, but no CSDb release documents the routine itself)",
+  "released": "1989 (earliest/only tune date attested, not a tool release date — see quirks; CSDb's own \"Released\" field on all 8 ICC/TheVoice-tagged SID entries reads 1989)",
   "status": "stub",
   "platform": "Almost certainly a demo-embedded, hand-coded 6502 music DRIVER, not a distributed editor/tool — no CSDb tool release, manual, or source has been found for it.",
   "csdb_release": null,
@@ -46,8 +46,9 @@
     "SIDId only records the author, no released year or CSDb reference: sidid.nfo entry \"ICC/TheVoice\": author \"Incredibly Confused Coder (ICC)\" (see data/sidid.json byTag).",
     "In this project's dataset ALL 8 files tagged ICC/TheVoice are by a single composer, Goofy (see data/composers/goofy.json) — 100% composer concentration, the strongest possible signal of a personal/small-scene routine rather than a published tool (per EXTRACTION-TEMPLATE.md's concentration heuristic).",
     "CSDb resolves the coder: 'Incredibly Confused Coder' (ICC) was an Austrian scener, ex-member of the group 'The Voice' (csdb.dk/group/?id=1403, founded 1988, Austria) and 'The Austrian Union' — https://csdb.dk/scener/?id=7275. Goofy (the sole composer using this tag) was ALSO a member of The Voice (csdb.dk/scener/?id=7274, joined 1988, role Coder/Graphician/Musician) — so the tag names ICC's own in-demo music driver, used by his groupmate Goofy to score The Voice's own productions.",
-    "Corroborating evidence: several of Goofy's ICC/TheVoice-tagged tune titles match The Voice's own demo releases by name — 'Border Show (tune 1)' and 'Imagination (tune 1)' correspond to the group's demos 'Border Show' (CSDb release 10909, 1989) and 'Imagination' (CSDb release 10910, 1989), both crediting Goofy for Music.",
-    "No CSDb tool/release entry, manual, source archive, or Codebase64 article was found for the routine itself (searched CSDb search, group page, and scener credits for ICC and for 'TheVoice' player/editor releases) — this is consistent with it being an in-demo driver rather than a released, packaged tool. Treat as closed/undocumented, not confirmed open or closed license — there is simply no tool release to license."
+    "Corroborating evidence: 'Imagination (tune 1)' (one of the 8 ICC/TheVoice-tagged files, CSDb sid id 45540) matches the title of the group's own demo 'Imagination' (CSDb release 10910, 1989), on which Goofy is credited for Music. CORRECTION (2026-07-31 full census of all 8 tagged files): 'Border Show (tune 1)' — cited in an earlier draft of this card as a second title match — is NOT tagged ICC/TheVoice; it is a separate Goofy file tagged FutureComposer_V1.0 (csdb.dk sid id 1038, data/composers/goofy.json). It still shares the same CSDb Released field ('1989 The Voice') and the same title as the group's demo 'Border Show' (CSDb release 10909), but it is evidence that Goofy used more than one player for The Voice, not evidence for ICC/TheVoice specifically — dropped from the corroboration claim.",
+    "Full census (2026-07-31) of all 8 ICC/TheVoice-tagged files' own CSDb 'Released' field (csdb.dk/webservice/, type=sid, ids 13654/45540/13655/13656/45539/1069/13657/13658): seven read \"1989 The Voice\", one (Terra Mix, id 13658) reads \"1989 Goofy\" — every tagged file dates to 1989, with no spread into 1990/1991. This is a tune composition date recorded by CSDb, not a documented tool/routine release date — no such release exists (see next quirk) — so `released` records it as an attested date, not a publisher release year.",
+    "No CSDb tool/release entry, manual, source archive, or Codebase64 article was found for the routine itself (searched CSDb search, group page, and scener credits for ICC and for 'TheVoice' player/editor releases, plus web search for 'ICC/TheVoice' and 'Incredibly Confused Coder' + music editor, 2026-07-31) — this is consistent with it being an in-demo driver rather than a released, packaged tool. `csdb_release` is confirmed null, not merely unresearched. Treat as closed/undocumented, not confirmed open or closed license — there is simply no tool release to license."
   ],
   "sources": [
     "sidid:ICC/TheVoice (author \"Incredibly Confused Coder (ICC)\", no released year, no CSDb reference) — data/sidid.json byTag",
@@ -56,7 +57,9 @@
     "CSDb scener profile, Goofy: https://csdb.dk/scener/?id=7274 (cached at data/csdb/goofy.json)",
     "CSDb group profile, The Voice (Austria): https://csdb.dk/group/?id=1403",
     "CSDb release, Border Show (1989, The Voice, Goofy credited Music): https://csdb.dk/release/?id=10909",
-    "CSDb release, Imagination (1989, The Voice, Goofy credited Music): https://csdb.dk/release/?id=10910"
+    "CSDb release, Imagination (1989, The Voice, Goofy credited Music): https://csdb.dk/release/?id=10910",
+    "CSDb webservice, type=sid, full census of all 8 ICC/TheVoice-tagged files' Released field (2026-07-31): ids 13654 (Eurhythmix), 45540 (Imagination tune 1), 13655 (Minolta), 13656 (New Sound!), 45539 (One Year tune 1), 1069 (One Year tune 6), 13657 (Small Tune), 13658 (Terra Mix) — https://csdb.dk/webservice/?type=sid&id=<id>",
+    "CSDb webservice, type=sid, id=1038 (Border Show tune 1, tagged FutureComposer_V1.0, NOT ICC/TheVoice) — used only to correct an earlier draft's title-match claim: https://csdb.dk/webservice/?type=sid&id=1038"
   ]
 }
 ```
@@ -71,19 +74,29 @@ strongest composer-concentration signal available (see
 `EXTRACTION-TEMPLATE.md`'s heuristic: near-total concentration on one composer
 means "likely a personal/small-scene routine," not a published tool). CSDb
 resolves why: both ICC and Goofy were members of the Austrian demo group **The
-Voice** (founded 1988), and at least two of Goofy's ICC/TheVoice-tagged tunes
-share their titles with The Voice's own demo releases ("Border Show",
-"Imagination"), on which Goofy is credited for Music. The picture this
-supports is that ICC coded a music driver in-house for the group's demos, and
-Goofy — the group's musician — used it to score them, without it ever becoming
-a released, documented, standalone tool.
+Voice** (founded 1988), and one of Goofy's ICC/TheVoice-tagged tunes,
+"Imagination (tune 1)", shares its title with The Voice's own demo release
+"Imagination" (1989), on which Goofy is credited for Music. A full census of
+all 8 ICC/TheVoice-tagged files' CSDb `Released` fields (2026-07-31) shows
+every one dates to 1989 — a tune-composition date, not a documented tool
+release, since no CSDb tool/release entry for the routine itself exists
+(confirmed by a dedicated web/CSDb search, not merely unresearched). The
+picture this supports is that ICC coded a music driver in-house for the
+group's demos, and Goofy — the group's musician — used it to score at least
+some of them in 1989, without it ever becoming a released, documented,
+standalone tool.
 
 ## Quirks & gotchas
 
 See the `quirks` array. The load-bearing facts: (1) the 100% single-composer
 concentration, (2) the identification of ICC and Goofy as demo-group
-colleagues in "The Voice" via CSDb, and (3) the title-match corroboration
-against two of the group's actual demo releases. No tool release, source, or
+colleagues in "The Voice" via CSDb, (3) the title-match corroboration against
+one of the group's actual demo releases ("Imagination"), and (4) a full
+census (2026-07-31) of all 8 tagged files' CSDb `Released` fields, all reading
+1989. An earlier draft additionally cited "Border Show (tune 1)" as a second
+title match; the census found that file is tagged `FutureComposer_V1.0`, not
+ICC/TheVoice, so it was dropped from the corroboration claim (kept in the
+quirks as a correction, not silently removed). No tool release, source, or
 documentation was found anywhere for the routine itself — this card is
 identity-only.
 

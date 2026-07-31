@@ -8,7 +8,7 @@
   "authors": ["Stellan Andersson (Dane) / Booze Design"],
   "released": "2004–2008 (earliest sampled files dated 29 Feb 2004; latest 25 Oct 2008 — all predate the 2011 \"JCH-Editor 3.1 + NP22-25\" release covered by dane-newplayer.md by 3–7 years)",
   "status": "stub",
-  "platform": "TODO: not established — no packaged/distributed tool found (see quirks). Native C64 player code of some kind (plays back from real .sid files), but whether it is editor-authored or hand-coded is unconfirmed.",
+  "platform": "Native C64, hand-coded player routine — NOT an editor/tracker, NOT a distributed tool. PRIMARY-SOURCE CONFIRMATION from the author: on Lemon64 thread 'SIDplayer routines' (viewtopic.php?t=26021), user 'Dane' posted 14 Feb 2008 15:01 UTC: 'Why do you ask? The best player is always custom made for your needs.' followed by a spec for his 'Cycle music player' (voice1: vibrato, slide, 4x pulse; voice2: filter, vibrato, slide, 4x wave+freq; voice3: vibrato, slide, 4x wave+freq; size: min $1000 bytes; <$18 [24 dec] rasterlines) — the name matches the 2004 'Cycle' demo (csdb.dk/release/?id=11959) that contains 4 of this card's 8 files (Break_the_Cycle, Live_Forever, Naiv_Loop, Round_and_Round). Given Dane's own 'custom made for your needs' framing plus the wide per-file load-address spread already logged in quirks, this was most likely a bespoke routine per production, not one player reused unchanged across all 8 files — the 2005 (Gaijin) and 2008 (Disgrace/Edge_of_Disgrace/Pseudocode) files are not confirmed to share the exact 2004 'Cycle' routine's code, only the same author's hand-coding practice. CSDb release credits corroborate hand-coded-per-demo, not a packaged tool: Dane holds a Code credit (alongside HCL) on both Cycle (2004, release 11959) and Tsunami (2005, release 17913, which carries Gaijin.sid) — the player travels embedded in the composer's own SID data rather than existing as a separate distributable tool.",
   "csdb_release": null,
 
   "memory": {
@@ -48,7 +48,9 @@
     "CSDb's own scener profile for Dane (csdb.dk/scener/?id=435) lists his code/idea/docs credit on exactly ONE packaged tool release across his whole scene history: 'JCH-Editor 3.1 + NP22-25' (2011). His CSDb credits do also include one OTHER editor, 'JCH Editor V3.04', but in a Music (not Code) role — i.e. he's credited as a user of that earlier JCH editor, not its author. Narrowly: no OTHER tool/routine is credited to Dane as CODE author anywhere on CSDb found during this pass — the pre-2011 files were composed/played back some other way that never got named or packaged as a distributable tool by him, consistent with SIDId's sparse author-only signature entry.",
     "LOAD ADDRESSES ARE ALL OVER THE MAP, MUCH MORE SO THAN THE 2011 FORK: $1100 (Break_the_Cycle/Live_Forever, 2004 files, load 4352), $1000 (Naiv_Loop and Disgrace, load 4096), $2080 (Gaijin, load 8320), $083E (Edge_of_Disgrace, load 2110), $E000 (Pseudocode, load 57344). This spread across only 8 files strongly suggests the routine (whatever it is) gets relocated/reassembled per host demo rather than shipping as one fixed-address binary — a hand-integrated routine, not a standalone player loaded at a conventional address. Not a disassembly-confirmed conclusion, just what the header data shows.",
     "Composer concentration: 8/8 files (100%) by Stellan Andersson (Dane) alone — same 'personal routine, not a published tool' signal as the later JCH-fork tags in dane-newplayer.md, but here there is no CSDb release, no bundled docs, and no name at all, i.e. an even more purely personal/undocumented case than the packaged 2011 fork.",
-    "UNCONFIRMED HYPOTHESIS, DELIBERATELY NOT ASSERTED AS AN EDGE: it is plausible this early routine is an ancestor/precursor of Dane's later JCH-based fork (same author, chronologically prior, no other tool credited to him) — but no source, manual, or disassembly states a derivation between the two, so no `edges` entry is asserted here per this project's evidence rule. Treat any lineage between `dane` and `dane-newplayer` as an open question for a future disassembly pass, not a fact."
+    "UNCONFIRMED HYPOTHESIS, DELIBERATELY NOT ASSERTED AS AN EDGE: it is plausible this early routine is an ancestor/precursor of Dane's later JCH-based fork (same author, chronologically prior, no other tool credited to him) — but no source, manual, or disassembly states a derivation between the two, so no `edges` entry is asserted here per this project's evidence rule. Treat any lineage between `dane` and `dane-newplayer` as an open question for a future disassembly pass, not a fact.",
+    "RESOLVES `platform`: Dane himself confirms 'custom made' hand-coded routines on Lemon64 (thread 'SIDplayer routines', https://www.lemon64.com/forum/viewtopic.php?t=26021, post by user 'Dane' 2008-02-14T15:01:56Z), naming his 'Cycle music player' with a per-voice feature spec (vibrato/slide/pulse/wave/filter) and giving size (min $1000 bytes) and rastertime (<$18 rasterlines) — direct author testimony, not inference. 'Cycle' matches the 2004 demo containing 4/8 of this card's files. CSDb release credits independently corroborate: Dane has a Code credit (with HCL) on both Cycle (release 11959, 2004) and Tsunami (release 17913, 2005, which used Gaijin.sid) — the player is embedded per-tune/per-demo code, never listed on CSDb as a standalone tool release, consistent with the earlier finding that his only tool/code CSDb release ever is the unrelated 2011 JCH-Editor fork.",
+    "CSDb `type=release` webservice lookups (2026-07-31 pass) on the releases containing these 8 files show a mixed pattern, not one uniform player: Cycle (11959, 2004) and Tsunami (17913, 2005) are C64 Demos with Dane credited as Code; Disgrace's own release (72646, 'C64 Music' type, 25 Oct 2008) carries only a Music credit for Dane (no separate Code credit, since it's not a demo); Pseudocode.sid was used in a demo ('PseudoCode', release 69185, St LCP 2008) coded by 'Shadow', not Dane — showing the player travels with the .sid file itself regardless of which demo group's coder is credited for the wrapper demo. `csdb_release` re-confirmed still absent: no CSDb release of any kind documents a distributable 'Dane player' tool; SIDId's `Dane` tag entry (data/sidid.json) still carries no `reference` field."
   ],
   "sources": [
     "sidid:Dane — author Stellan Andersson (Dane), no name/released/reference/comment fields — data/sidid.json / deepsid_dl/sidid.nfo lines 270-271",
@@ -64,7 +66,13 @@
     "CSDb webservice type=sid id=38904 'Pseudocode' (3 Aug 2008, St LCP 2008, load $E000): https://csdb.dk/webservice/?type=sid&id=38904",
     "CSDb scener profile, Dane/Booze Design (id 435) — only tool/code credit found is the 2011 JCH-Editor 3.1 + NP22-25 release: https://csdb.dk/scener/?id=435",
     "knowledge/COVERAGE.md (before this card existed) — family 'Dane', 8 files, rank 24, uncarded",
-    "knowledge/players/dane-newplayer.md — sibling card for the 2011 JCH-based fork, used here only for date/tag contrast, not as an edge"
+    "knowledge/players/dane-newplayer.md — sibling card for the 2011 JCH-based fork, used here only for date/tag contrast, not as an edge",
+    "Lemon64 forum, thread 'SIDplayer routines': https://www.lemon64.com/forum/viewtopic.php?t=26021 — post by user 'Dane' (post id 310865, memberlist u=1059), 2008-02-14T15:01:56Z: 'Why do you ask? The best player is always custom made for your needs. Cycle music player: voice1: vibrato, slide, 4x pulse / voice2: filter, vibrato, slide, 4x wave+freq / voice3: vibrato, slide, 4x wave+freq / size: min $1000 bytes / <$18 rasterlines' — author's own description of the routine, resolving `platform`",
+    "CSDb webservice type=release id=11959 'Cycle' (2004, Booze Design) — Code credits: HCL and Dane: https://csdb.dk/webservice/?type=release&id=11959 (HTML: https://csdb.dk/release/?id=11959)",
+    "CSDb webservice type=release id=17913 'Tsunami' (2005, Booze Design, carries Gaijin.sid) — Code credits: HCL and Dane: https://csdb.dk/webservice/?type=release&id=17913",
+    "CSDb webservice type=release id=72646 'Disgrace' (C64 Music release, 25 Oct 2008) — Music credit only (Dane), no Code credit: https://csdb.dk/webservice/?type=release&id=72646",
+    "CSDb webservice type=release id=69185 'PseudoCode' (St LCP 2008 demo) — Code credit: Shadow (not Dane): https://csdb.dk/webservice/?type=release&id=69185",
+    "Forum64 (forum64.de) searched for 'Dane'/'Stellan Andersson'/'Booze Design' player routine (2026-07-31): found one relevant thread, 'Edge of Disgrace - Booze Design' (forum64.de/wbb3/board106-szene/board216-demos-intros-gfx/26025-edge-of-disgrace-booze-design/, covers Edge_of_Disgrace.sid, one of this card's 8 files) — could not be read (HTTP 403 via WebFetch, no claude-in-chrome tools available this session), so no content from it is asserted here; a future pass with browser access should check it for player/routine detail. No other Forum64 thread naming a Dane player routine was found."
   ]
 }
 ```
@@ -86,6 +94,16 @@ this being an earlier, undocumented personal player/coding routine Dane used
 before later building his JCH-based fork, rather than the same tool
 mis-tagged, but no source states a derivation between the two, so no lineage
 edge is asserted.
+
+`platform` is now resolved with direct author testimony: on Lemon64 (thread
+"SIDplayer routines"), Dane himself posted in 2008 that "the best player is
+always custom made for your needs" and gave a spec for his "Cycle music
+player" — matching the 2004 "Cycle" demo that contains 4 of these 8 files.
+This is a native, hand-coded C64 routine, not an editor/tracker, and CSDb
+release credits (Code credit for Dane on both the 2004 Cycle and 2005 Tsunami
+demos) corroborate that it travels embedded per-tune rather than existing as
+a distributable tool — consistent with `csdb_release` remaining null (no
+CSDb tool/source release for this routine was found, re-checked this pass).
 
 ## Quirks & gotchas
 
@@ -111,15 +129,27 @@ code directly, since no distributable binary release exists to examine.
 **Not verified — `status: stub`.** Identity (author), usage (8/8 files one
 composer), and chronology (all pre-2011) are confirmed from SIDId, this
 project's own composer dataset, and CSDb webservice lookups on all 8 files.
-No runtime fact (memory map, entry points, data format, effect encoding) has
-been established. The relationship (if any) between this routine and the
-later `dane-newplayer` fork is explicitly left as an open, unconfirmed
-question — not asserted as an `edges` entry — since no source states a
-derivation.
+`platform` is now confirmed from a direct author statement (Dane's own 2008
+Lemon64 post describing his "Cycle music player" as custom-made, hand-coded)
+plus corroborating CSDb Code credits — a Tier 2 provenance fact, not a
+runtime fact. `csdb_release` was re-checked this pass (SIDId's `Dane` tag
+entry, CSDb release credits for all 8 files' host releases) and remains
+genuinely absent — no CSDb release documents this routine as a distributable
+tool. No Tier 3 runtime fact (memory map, entry points, data format, effect
+encoding) has been established or touched in this pass. The relationship (if
+any) between this routine and the later `dane-newplayer` fork is explicitly
+left as an open, unconfirmed question — not asserted as an `edges` entry —
+since no source states a derivation.
 
 ## Sources
 
 See the `sources` array — SIDId's `Dane` and `(Dane_NewPlayer)` entries
 (for contrast), this project's `data/composers/dane.json`, eight individual
 CSDb `type=sid` webservice lookups (one per file) for release dates and load
-addresses, and Dane's CSDb scener profile for his tool/code credit history.
+addresses, Dane's CSDb scener profile for his tool/code credit history, four
+CSDb `type=release` webservice lookups for Code-credit corroboration
+(Cycle/Tsunami/Disgrace/PseudoCode), and — new this pass — Dane's own 2008
+Lemon64 forum post describing his "Cycle music player" as custom-made
+hand-coding, which resolves `platform`. A Forum64 thread covering
+Edge_of_Disgrace was found but could not be read this pass (403, no browser
+tool available) and is not used as a source.

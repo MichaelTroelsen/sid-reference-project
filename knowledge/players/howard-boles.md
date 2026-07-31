@@ -46,11 +46,13 @@
     "100% single-composer tag: all 8 files in this project's dataset tagged '?Howard_Boles' belong to the composer Howard Boles (data/composers/howard-boles.json) — a textbook 'personal/in-house routine' case per the composer-concentration heuristic, not a widely-published tool.",
     "The 8 tagged files match exactly the 8 Commodore 64 games Lemon64 credits to Howard Boles: Amazon (1984), Dragonworld (1984), Fahrenheit 451 (1984), Rendezvous with Rama (1984), Nine Princes in Amber (1985), Perry Mason: The Case of the Mandarin Murder (1985) — all Telarium — plus Treasure Island (1985) and The Wizard of Oz (1985), published by Windham Classics (Telarium's sister imprint, both under Spinnaker Software). All are literary text/graphic adventures. Source: https://www.lemon64.com/games/list.php?list_individual=howard-boles",
     "Load/init addresses differ between titles (Amazon $7700 vs Dragonworld $5E00, per CSDb SID entries) — the routine is reassembled/relocated per game rather than shipping as a fixed-address shared engine, though whether the underlying code is identical across titles has not been checked (no disassembly).",
-    "No SIDId (sidid.nfo) entry and no CSDb tool/release page exists for this as a named player — it is only visible as a Player-ID fingerprint distinct from other known players, hence the leading '?' in the raw tag."
+    "No SIDId (sidid.nfo) entry and no CSDb tool/release page exists for this as a named player — it is only visible as a Player-ID fingerprint distinct from other known players, hence the leading '?' in the raw tag.",
+    "csdb_release is confirmed absent, not merely unchecked: CSDb's webservice (type=scener, id=14742, depth=4) returns only a Handle/FreelanceFunctions(Musician) record for Howard Boles with no Releases node at all — he has zero CSDb release credits of any kind, tool or otherwise."
   ],
   "sources": [
-    "Local dataset: data/composers/howard-boles.json — 8 files, all authored by Howard Boles, raw player tag '?Howard_Boles' (see knowledge/COVERAGE.md rank #26, 8 files)",
+    "Local dataset: data/composers/howard-boles.json — 8 files, all authored by Howard Boles, raw player tag '?Howard_Boles' (see knowledge/COVERAGE.md rank #26, 8 files); census of all 8 confirms exact match to Lemon64 discography (Amazon, Dragonworld, Fahrenheit 451, Nine Princes in Amber, Perry Mason: Mandarin Murder, Rendezvous with Rama, Treasure Island, Wizard of Oz)",
     "CSDb scener profile (function: Musician): https://csdb.dk/scener/?id=14742",
+    "CSDb webservice query (type=scener, id=14742, depth=4, run 2026-07-31) — Handle record shows only FreelanceFunctions: Musician, no Releases node, confirming no CSDb release (player or otherwise) exists for this person",
     "CSDb SID entry, Amazon (load/init $7700, play $7703, 16 subtunes): https://csdb.dk/sid/?id=41181",
     "CSDb SID entry, Dragonworld (load/init $5E00, play $5E03, 38 subtunes): https://csdb.dk/sid/?id=41177",
     "Lemon64 game list for Howard Boles (8 C64 titles, Telarium/Windham Classics, 1984-1985): https://www.lemon64.com/games/list.php?list_individual=howard-boles",

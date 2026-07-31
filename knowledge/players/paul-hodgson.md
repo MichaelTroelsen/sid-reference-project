@@ -10,7 +10,7 @@
   "name": "Paul Hodgson's player",
   "aliases": ["?Paul_Hodgson"],
   "authors": ["Paul Hodgson (Taskset)"],
-  "released": "TODO: no single dated release — signature found on files spanning c. 1983-1986 (embedded in individual Taskset games, not a distributed tool with its own release)",
+  "released": "TODO: no single dated release — an in-game routine, not a distributed tool. All 8 tagged files censused via CSDb webservice (type=sid), per-file 'Released' fields: Super Pipeline 1983 Taskset (csdb.dk/sid/?id=14247), Jammin' 1983 Taskset (id=13317), Bozo's Night Out 1984 Taskset (id=14243), Gyropod 1984 Taskset (id=14245), Poster Paster 1984 Taskset (id=14246), Seaside Special 1984 Taskset (id=38693), Super Pipeline II 1985 Taskset (id=14248), Uchi Mata 1986 Martech (id=14244, publisher change from Taskset). Confirmed range 1983-1986, publisher Taskset except the last (Martech).",
   "status": "stub",
   "platform": "Native C64 in-game music routine, not a distributed standalone tracker/editor or player tool. Embedded directly inside Taskset's own game binaries; each .sid in the collection was ripped from a different game.",
   "csdb_release": null,
@@ -51,7 +51,8 @@
     "Unlike most SIDId-tagged entries, this tag has NO metadata card in cadaver/sidid's sidid.nfo (no author/released/reference fields) — checked https://github.com/cadaver/sidid/blob/master/sidid.nfo directly, no 'Hodgson' match. That's why data/sidid.json's byTag has no entry for it either: DeepSID only knows the detection signature and a hand-written display name ('Paul Hodgson's player', from Chordian/deepsid php/pretty_player_names.php), not full provenance.",
     "Despite being named for one composer, 2 of the 8 tagged files in this collection are credited to a DIFFERENT composer, Tony Gibson (Jammin', Seaside_Special) — both, like Hodgson, credited to Taskset (CSDb scener profiles: Hodgson id 17488, Gibson id 17486; neither page states a country — 'England' was an earlier unverified assumption, corrected). Consistent with a shared in-house Taskset routine rather than something used by Hodgson alone.",
     "Not a portable/relocatable player: load, init, and play addresses vary wildly file-to-file, confirmed from CSDb's per-file PSID header data — Super Pipeline II (load $2000 / init $2023 / play $30B6, https://csdb.dk/sid/?id=14248), Gyropod (load $081A / init $083E / play $081A, https://csdb.dk/sid/?id=14245), Bozo's Night Out (load $AB00 / init $B980 / play $AB03, https://csdb.dk/sid/?id=14243). This is the signature of an in-game routine assembled wherever each individual game happened to place it, not a standalone tool with a fixed footprint.",
-    "Composer concentration: only 2 composers across 8 files, both Taskset staff — a textbook 'personal/small-scene routine', not a published tool (per this project's own composer-concentration heuristic in CLAUDE.md)."
+    "Composer concentration: only 2 composers across 8 files, both Taskset staff — a textbook 'personal/small-scene routine', not a published tool (per this project's own composer-concentration heuristic in CLAUDE.md).",
+    "Full census of all 8 tagged files (CSDb webservice, type=sid, 2026-07-31) confirms a 1983-1986 date range and Taskset as publisher for 7 of 8 — the exception is Uchi Mata (1986), published by Martech rather than Taskset, the only file in the set NOT credited to Hodgson's home publisher. Per-file: Super Pipeline 1983, Jammin' 1983, Bozo's Night Out 1984, Gyropod 1984, Poster Paster 1984, Seaside Special 1984, Super Pipeline II 1985, Uchi Mata 1986 (Martech)."
   ],
   "sources": [
     "Player-ID detection signature: https://github.com/WilfredC64/player-id/blob/master/config/sidid.cfg (search 'Paul_Hodgson')",
@@ -60,7 +61,7 @@
     "DeepSID display-name mapping ('Paul Hodgson's player'): https://github.com/Chordian/deepsid/blob/master/php/pretty_player_names.php",
     "CSDb composer profile, Paul Hodgson (Taskset; page does not state a country): https://csdb.dk/scener/?id=17488",
     "CSDb composer profile, Tony Gibson (Synthia, Taskset; page does not state a country): https://csdb.dk/scener/?id=17486",
-    "CSDb SID entries used for address data: Super Pipeline II https://csdb.dk/sid/?id=14248, Gyropod https://csdb.dk/sid/?id=14245, Bozo's Night Out https://csdb.dk/sid/?id=14243, Jammin' https://csdb.dk/sid/?id=13317",
+    "CSDb SID entries, full census of all 8 tagged files via csdb.dk webservice (type=sid) 2026-07-31: Super Pipeline 1983 Taskset https://csdb.dk/sid/?id=14247, Jammin' 1983 Taskset https://csdb.dk/sid/?id=13317, Bozo's Night Out 1984 Taskset https://csdb.dk/sid/?id=14243, Gyropod 1984 Taskset https://csdb.dk/sid/?id=14245, Poster Paster 1984 Taskset https://csdb.dk/sid/?id=14246, Seaside Special 1984 Taskset https://csdb.dk/sid/?id=38693, Super Pipeline II 1985 Taskset https://csdb.dk/sid/?id=14248, Uchi Mata 1986 Martech https://csdb.dk/sid/?id=14244",
     "Local dataset: 8 files / 2 composers (Paul Hodgson: 6, Tony Gibson: 2) — knowledge/COVERAGE.md, data/composers/paul-hodgson.json, data/composers/tony-gibson.json"
   ]
 }
@@ -74,7 +75,11 @@ composer Paul Hodgson (Taskset; CSDb does not state a country for him). It has 8
 composers in this project's dataset: 6 by Hodgson himself (Bozo's Night Out,
 Gyropod, Poster Paster, Super Pipeline, Super Pipeline II, Uchi Mata) and 2 by
 fellow Taskset musician Tony Gibson (Jammin', Seaside Special), suggesting a
-routine shared in-house rather than Hodgson's alone. There is no known
+routine shared in-house rather than Hodgson's alone. A full census of all 8
+files' own CSDb `Released` fields (not a sample) confirms the 1983-1986 range
+exactly: earliest is 1983 (Super Pipeline, Jammin'), latest is 1986 (Uchi
+Mata) — and Uchi Mata is also the one file published by Martech rather than
+Taskset, the outlier in an otherwise single-publisher set. There is no known
 standalone release, no source, and no public documentation beyond the
 detection signature itself — this is an identity-only stub built entirely from
 Tier 1/2 evidence.

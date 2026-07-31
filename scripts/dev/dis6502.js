@@ -23,7 +23,20 @@ const fs = require('fs');
 // This exists to build the relocation control: a byte-identical rebuild proves
 // nothing (lesson 98), but a RELOCATED rebuild that still traces identically
 // proves the code/data split was right.
-const args = process.argv.filter((a) => a !== '--symbolic');
+// --keep-literal <file> : instruction starts listed in <file> (hex, whitespace
+// separated) keep LITERAL absolute operands even in --symbolic mode, so they
+// emit byte-identical content at any ORG. This isolates a relocation control to
+// a trusted subset: bytes that are really data stay intact, and any that are
+// genuinely cold code never execute anyway, so neither can perturb the trace.
+const keepIdx = process.argv.indexOf('--keep-literal');
+const KEEP = new Set();
+if (keepIdx > -1) {
+  for (const t of require('fs').readFileSync(process.argv[keepIdx + 1], 'utf8').trim().split(/\s+/)) {
+    if (t) KEEP.add(parseInt(t, 16));
+  }
+}
+const args = process.argv.filter((a, i) =>
+  a !== '--symbolic' && a !== '--keep-literal' && i !== keepIdx + 1);
 const SYMBOLIC = process.argv.includes('--symbolic');
 const [, , prgPath, orgHex, entryList, outPath] = args;
 const raw = fs.readFileSync(prgPath);
@@ -208,7 +221,7 @@ while (a < END) {
       operand = inRange(t) ? lbl(t) : `$${hex4(t)}`;
     } else if (mode !== IMP) {
       const t = at(a + 1) | (at(a + 2) << 8);
-      const base = SYMBOLIC && inRange(t) ? `ORG+$${hex4(t - org)}`
+      const base = SYMBOLIC && inRange(t) && !KEEP.has(a) ? `ORG+$${hex4(t - org)}`
                  : inRange(t) && labels.has(t) ? lbl(t)
                  : `$${hex4(t)}`;
       operand = mode === ABS ? base

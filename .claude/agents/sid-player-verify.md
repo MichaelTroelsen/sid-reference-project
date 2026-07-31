@@ -2594,6 +2594,32 @@ them):
     remained unexecuted, 51 of them carrying in-range absolute operands that
     relocation rewrote on no runtime evidence at all. Quantify that residual
     surface explicitly rather than reporting the clean cross-check alone.
+
+100. **Before running a relocation control, check whether the player is
+    relocatable AT ALL — and search data for SPLIT LO/HI byte tables, not just
+    16-bit pairs.** Three batches were spent on `defmon` treating a failed
+    relocation control as evidence about the disassembly. It was not. defMON
+    stores pattern base addresses as a split lo/hi array (`$1900-$19FF` lo,
+    `$1A80-$1AFF` hi, 128 entries, 39 of them resolving inside the payload), so
+    a symbolic relocator that rewrites instruction operands leaves every one of
+    them pointing at pre-relocation addresses. The player then reads its pattern
+    data from the wrong place, and the first divergence looks like a
+    data-sourced register value going wrong rather than a crash — which reads
+    exactly like a bad code/data split and is not. Four things to carry.
+    (a) **The existence of a dedicated third-party relocator tool is the tell.**
+    `defMONRelocator` was cited in this card's own sources the entire time,
+    described as patching "three ZP addresses across 18+6+9 offset tables within
+    the player code". A player needing a bespoke relocator is by definition not
+    naively relocatable; check `sources` and `data_format` for one BEFORE
+    building the control. (b) **A scan for 16-bit LE pointer pairs cannot see a
+    split lo/hi table** — the halves sat 384 bytes apart here. Scan for byte
+    arrays whose values cluster in the payload's page range instead, and try
+    pairing candidate lo/hi regions. (c) A **partial** relocation control
+    (relocate only confirmed-executed sites, leave suspect ones literal) is a
+    genuinely good discriminator and worth keeping: it cleanly falsified the
+    hypothesis that the unexecuted starts were the problem, because the build
+    got *worse* rather than better. (d) When the control is inapplicable, say so
+    and stop — do not keep refining a diagnosis built on an invalid experiment.
 </lessons_learned>
 
 <success_criteria>

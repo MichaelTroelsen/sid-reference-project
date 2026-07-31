@@ -40,7 +40,8 @@
     "WHY THIS IS A SEPARATE CARD FROM [[david-thiel]] AND [[russell-lieblich-driver]]: both composers already have their own KB cards for a DIFFERENT, individually-named Player-ID tag each ('Thiel_Sound_System'/DDTSS — 5 files, none of them Artillery Duel; 'Russell_Lieblich' — 11 files, none of them Decathlon). Since `?Action_Graphics` is a third, distinct tag covering neither composer's usual tag and spans BOTH composers, it reads as SIDId identifying a shared, earlier/company-level driver signature specific to these two 1983-1984 files — plausibly an in-house Action Graphics driver used before Thiel's own later, self-named DDTSS existed (DDTSS's known titles are dated 1985-1986 per the david-thiel.md card, i.e. after Artillery Duel/Decathlon). This is offered as a HYPOTHESIS grounded in the dated tag correlation, not an asserted fact — no source directly states DDTSS supersedes an earlier Action Graphics-house driver, so no `derives_from`/`successor_of` edge is asserted here.",
     "NOT IN SIDId: `data/sidid.json`'s `byTag` has no entry for `Action_Graphics` or `?Action_Graphics` (checked directly) — consistent with the leading '?' marking this as one of Player-ID's own uncertain/heuristic matches rather than a confirmed signature with a maintained database entry.",
     "NOT IN data/players.json either (checked directly, no match) — this tag has no curated DeepSID player-spec entry, only the raw Player-ID string.",
-    "CSDb's `type=sid` entries for both files carry ONLY the standard header table (load/init/play, PSID metadata, release list) — no player-routine credit field, no mention of 'Action Graphics' on the CSDb SID pages themselves. The company identification comes entirely from C64-Wiki (Decathlon) and VGMPF/Lemon64 (Artillery Duel/Thiel), not from CSDb."
+    "CSDb's `type=sid` entries for both files carry ONLY the standard header table (load/init/play, PSID metadata, release list) — no player-routine credit field, no mention of 'Action Graphics' on the CSDb SID pages themselves. The company identification comes entirely from C64-Wiki (Decathlon) and VGMPF/Lemon64 (Artillery Duel/Thiel), not from CSDb.",
+    "csdb_release GAP CLOSED, CONFIRMED NULL: CSDb's own site search for 'Action Graphics' (https://csdb.dk/search/?seinsel=all&seinsel_more=0&search=Action+Graphics) returns zero results ('We were unable to find anything for you') — there is no CSDb group, company, or release page for Action Graphics at all. The Artillery Duel SID entry's only credited group is 'WiC64-Team' (csdb.dk group id 12320), tied to an unrelated 2023 'Artillery Duel Deluxe' crack re-release, not to the original 1983-1984 C64 conversion or to Action Graphics. `csdb_release` therefore stays `null` as a confirmed absence, not an unresearched gap."
   ],
   "sources": [
     "C64-Wiki — Decathlon (credits 'Action Graphics' as the C64 conversion company, Russell Lieblich as musician): https://www.c64-wiki.com/wiki/Decathlon",
@@ -52,7 +53,9 @@
     "data/sidid.json — no byTag entry for 'Action_Graphics' or '?Action_Graphics' (checked directly)",
     "data/players.json — no entry for 'Action_Graphics' (checked directly)",
     "knowledge/COVERAGE.md — '?Action_Graphics', 2 files, uncarded prior to this card",
-    "Sibling KB cards (cross-referenced, not edited): knowledge/players/david-thiel.md, knowledge/players/russell-lieblich-driver.md"
+    "Sibling KB cards (cross-referenced, not edited): knowledge/players/david-thiel.md, knowledge/players/russell-lieblich-driver.md",
+    "CSDb site search for 'Action Graphics' (zero results, confirms no group/release page exists): https://csdb.dk/search/?seinsel=all&seinsel_more=0&search=Action+Graphics",
+    "CSDb — Artillery Duel SID entry re-checked for group credits (only 'WiC64-Team', id 12320, tied to an unrelated 2023 re-release): https://csdb.dk/sid/?id=1148"
   ]
 }
 ```

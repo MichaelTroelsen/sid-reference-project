@@ -6,7 +6,7 @@
   "name": "CharlesCallet/MusicPro (player routine)",
   "aliases": ["CharlesCallet/MusicPro"],
   "authors": ["Charles Callet"],
-  "released": "TODO: SIDId gives no year for the C64-side routine; the Amstrad CPC tool it is named after ('Music Pro') was released 1987 by Callet's own company Music Logiciel — see quirks, these are not confirmed to be the same code",
+  "released": "TODO: no C64 release exists for this routine (personal/unreleased driver, see platform), so there is no player release year — but all 4 tagged files are now censused via CSDb's per-SID 'Released' field (not a title-year guess): 'Passengers on the Wind II' 1987 Infogrames (csdb_id 1731), 'Bob Moran - Rittertum' 1988 Infogrames (csdb_id 41139), 'Bob Moran - Science Fiction' 1988 Infogrames (csdb_id 1196), 'Iznogoud' 1988 Infogrames (csdb_id 5620) — earliest tune attested is 1987, not a player release date, per EXTRACTION-TEMPLATE guidance not to promote a first-use year into `released`",
   "status": "stub",
   "platform": "Amstrad CPC tool 'Music Pro' (1987, Music Logiciel) had NO official C64 release — but per VGMPF's Charles Callet biography, Callet 'had drivers for various platforms including Commodore 64 ... for personal use' though he 'did not release a dedicated editor' for those systems. The 4 locally-tagged C64 SID files are consistent with exactly that: a personal C64 player driver of his own, styled after/named for his released CPC editor, never packaged as a standalone C64 tool.",
   "csdb_release": null,
@@ -23,7 +23,9 @@
     "SIDId's reference field points at cpcrulez.fr, an AMSTRAD CPC documentation site — NOT a C64 source: data/sidid.json byTag['CharlesCallet/MusicPro'] = {name:'Music Pro', author:'Charles Callet', reference:'https://cpcrulez.fr/applications_music-music-pro.htm?t=VA=='}. Fetching that page confirms 'Music Pro' is a French Amstrad CPC music editor released 1987 by Callet's own company Music Logiciel, sold on tape/disk, and explicitly states Callet made 'no C64 editor, as he thought there was no market.'",
     "DESPITE THAT, ALL 4 LOCALLY-TAGGED FILES ARE GENUINE C64 SIDS by Charles Callet himself (data/composers/charles-callet.json: 'Bob Moran - Rittertum', 'Bob Moran - Science Fiction', 'Iznogoud', 'Passengers on the Wind II' — the latter two matching Infogrames game titles ('Les passagers du vent', 'Iznogoud') that the same VGMPF-sourced research says Callet scored). This is resolved, not contradictory: VGMPF's Callet biography separately states he 'had drivers for various platforms including Commodore 64 ... for personal use' but never released a packaged C64 editor — i.e. this SIDId tag fingerprints Callet's own unreleased personal C64 player, presumably styled after his released CPC tool of the same name, not a ported/released version of Music Pro itself.",
     "Single-composer tag (4 of 4 files by Callet) — the classic personal-routine signature, consistent with the 'unreleased C64 editor' reading above.",
-    "A separate plain tag 'Charles_Callet' (1 file, see knowledge/players/charles-callet.md) also exists in this dataset for the same composer — no source confirms whether it is the same underlying routine or a different one; recorded as a distinct SIDId signature, not merged."
+    "A separate plain tag 'Charles_Callet' (1 file, see knowledge/players/charles-callet.md) also exists in this dataset for the same composer — no source confirms whether it is the same underlying routine or a different one; recorded as a distinct SIDId signature, not merged.",
+    "All 4 tagged files censused (not sampled) against CSDb's XML webservice (type=sid) for their own per-file 'Released' field: 'Passengers on the Wind II' (csdb_id 1731) = 1987 Infogrames; 'Bob Moran - Rittertum' (csdb_id 41139), 'Bob Moran - Science Fiction' (csdb_id 1196), and 'Iznogoud' (csdb_id 5620) all = 1988 Infogrames. This is a first-use/attestation range for files carrying the tag, not a player release date — no C64 release of the player itself exists to date (see platform).",
+    "No CSDb release/player entry exists for this signature: checked data/players.json for any 'Callet'/'Music Pro' entry (found only unrelated 'The Advanced Music Programmer' and 'The Music Processor' via substring match) and SIDId's own reference field is a cpcrulez.fr URL, not a csdb.dk/release URL — csdb_release is confirmed null, not merely unresearched."
   ],
   "sources": [
     "data/sidid.json byTag['CharlesCallet/MusicPro']: name 'Music Pro', author 'Charles Callet', reference https://cpcrulez.fr/applications_music-music-pro.htm?t=VA==",
@@ -31,7 +33,9 @@
     "VGMPF wiki, Music Pro (platform, release, and Callet's cross-platform personal-use drivers note): https://www.vgmpf.com/Wiki/index.php?title=Music_Pro",
     "VGMPF wiki, Charles Callet: https://www.vgmpf.com/Wiki/index.php/Charles%20Callet",
     "64 NOPs (French), 'Les logiciels de composition musicale sur CPC': https://64nops.wordpress.com/2017/12/29/les-logiciels-de-composition-musicale-sur-cpc/",
-    "Local dataset: data/composers/charles-callet.json — 4 files tagged 'CharlesCallet/MusicPro'; see knowledge/COVERAGE.md row #39 (4 files)"
+    "Local dataset: data/composers/charles-callet.json — 4 files tagged 'CharlesCallet/MusicPro'; see knowledge/COVERAGE.md row #39 (4 files)",
+    "CSDb webservice (csdb.dk/webservice/?type=sid&id=<id>), queried via scripts/lib/csdb-client.js, for each of the 4 tagged files' own 'Released' field: ids 1731, 41139, 1196, 5620",
+    "data/players.json — checked for any Callet/Music Pro player entry; none found (only unrelated substring matches)"
   ]
 }
 ```
@@ -47,7 +51,12 @@ the C64, without ever packaging a dedicated C64 editor. The 4 locally-tagged
 C64 files (all by Callet, including two matching Infogrames game titles he is
 documented to have scored) are consistent with exactly that: his own unreleased
 C64 player, presumably styled after or named for his CPC tool, not a port of
-Music Pro itself.
+Music Pro itself. All 4 tagged files are censused: their own CSDb `Released`
+fields run 1987 ("Passengers on the Wind II") to 1988 (the three "Bob Moran"/
+"Iznogoud" tunes), all Infogrames — a first-use range for the tag, not a
+player release date, since no C64 release of the player itself was ever made.
+No CSDb release id applies to this signature (`csdb_release: null`, confirmed
+rather than merely unresearched).
 
 ## Quirks & gotchas
 

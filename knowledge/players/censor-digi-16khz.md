@@ -8,7 +8,7 @@
   "authors": ["Fredrik Ternell (Swallow)"],
   "released": "2013 (Wonderland XII, Censor Design, BFP 2013)",
   "status": "stub",
-  "platform": "TODO: presumed a native-C64 digi routine embedded directly in one Censor Design demo, not a standalone distributed editor/tool — no CSDb tool release or source archive found under this name",
+  "platform": "Native C64 — coded directly into the Wonderland XII demo part, not a standalone distributed editor/tool. Censor Design is a Sweden-based group (CSDb group 2310: BaseCountry Sweden, Grouptypes Cracker/Demo/Fixing/Import Group/Magazine Staff, founded 1989-06-28, no Amiga/PC crossover listed): https://csdb.dk/group/?id=2310 . No CSDb tool/editor release found under 'Censor Digi/16khz' or '16khz' (re-checked 2026-07-31 via CSDb webservice group record + targeted web search; only unrelated Censor Design tools Pixcen and C6510 surfaced, same as the sibling censor-digi card's finding).",
   "csdb_release": null,
 
   "memory": {
@@ -47,7 +47,8 @@
     "No SIDId entry exists for 'Censor_Digi/16khz' — deepsid_dl/sidid.nfo has no matching tag at all (checked by direct search of the imported data/sidid.json). This mirrors the sibling 'Censor_Digi' (also no SIDId entry), but contrasts with 'Censor_8bit_Digi_1/_2' (which DO have SIDId author entries, one with a technique comment). Attribution here comes only from this project's own composer-data aggregation, not SIDId.",
     "Extremely concentrated and single-production: all 4 files are 'Wonderland XII - Digi (part 1-4)', one composer (Fredrik Ternell/Swallow), one demo, one release (CSDb 120907, Censor Design, 3 Aug 2013, 1st place at BFP 2013). This reads as a routine built for ONE specific demo, not a reused personal tool spanning years — even more concentrated than a typical personal-routine finding.",
     "CLUSTER NOTE (batch hypothesis test): this tag's usage is chronologically ISOLATED from its two siblings. Plain 'Censor_Digi' spans 1990-1993 (Wonderland V through Spasmolytic, per the sibling censor-digi.md card); this '16khz' tag appears only in 2013 — a 20+ year gap. Same author (Swallow) and same demo series name ('Wonderland') recur, but the SID-header entry points ($0800/$1400/$0000) were not checked against the 1990s Censor_Digi files, and no CSDb credit, source archive, or SIDId comment states these are versions of one routine. The era gap argues AGAINST a simple 'baseline/16kHz/8-bit quality ladder built at one time' story and toward '16kHz' being a separately-built, later achievement for this one demo — but this is inference from usage pattern and public release chronology, not a byte-level or source-level confirmation. No edges asserted to either sibling.",
-    "CSDb credits list Swallow's role on Wonderland XII specifically as 'Sampling' (distinct from the 'Code' credit shared by five other members) — consistent with a bespoke digi/sampling contribution for this release rather than reuse of a shared group codebase, though this is a production credit, not a code-provenance statement."
+    "CSDb credits list Swallow's role on Wonderland XII specifically as 'Sampling' (distinct from the 'Code' credit shared by five other members) — consistent with a bespoke digi/sampling contribution for this release rather than reuse of a shared group codebase, though this is a production credit, not a code-provenance statement.",
+    "Re-research pass, 2026-07-31: gap-fill for `platform`/`csdb_release`. `platform` confirmed native C64 via the CSDb group record for Censor Design (Sweden-based, C64-only Grouptypes — same group record used by the sibling `censor-digi` card) plus a targeted web search for a 'Censor Digi/16khz' or '16khz' CSDb tool/editor release, which again returned only the two known-unrelated Censor Design tools (Pixcen, C6510). `csdb_release` confirmed to stay `null` — no dedicated tool/editor release exists, only the demo release (Wonderland XII, id 120907, already cited) that the digi is embedded in. Census re-confirmed: all 4 tagged files checked directly in data/composers/swallow.json (csdb_id 49548, 49550, 49551, 49552 for parts 2,4,3,1 respectively — not a contiguous 49548-49552 range as an earlier read implied, since 49549 does not appear). `status` stays `stub`; no Tier 3 field was touched."
   ],
   "sources": [
     "data/composers/swallow.json — 4 files tagged Censor_Digi/16khz, all 'Wonderland XII - Digi (part 1-4)', csdb_id 49548-49552, all solo Fredrik Ternell (Swallow)",
@@ -56,7 +57,9 @@
     "CSDb release Wonderland XII (date, credits, 'Sampling: Swallow'): https://csdb.dk/release/?id=120907",
     "Lemon64 thread on Wonderland XII, source for the '16khz ... no noticeable carrier' post-fix quote: https://www.lemon64.com/forum/viewtopic.php?t=48956",
     "Demozoo record (release date, team list, cross-check): https://demozoo.org/productions/82035/",
-    "CSDb scener Swallow (Fredrik Ternell) / Censor Design: https://csdb.dk/scener/?id=2547"
+    "CSDb scener Swallow (Fredrik Ternell) / Censor Design: https://csdb.dk/scener/?id=2547",
+    "CSDb group Censor Design record (BaseCountry Sweden, Grouptypes Cracker/Demo/Fixing/Import Group/Magazine Staff, founded 1989-06-28), fetched via scripts/lib/csdb-client.js type=group id=2310, used to confirm native-C64 platform (2026-07-31 gap-fill pass): https://csdb.dk/group/?id=2310",
+    "2026-07-31 web search for a 'Censor Digi/16khz' or '16khz' CSDb tool/editor release (none found; only unrelated Censor Design tools Pixcen and C6510 turned up, matching the sibling censor-digi card's finding): https://csdb.dk/release/?id=122077 (Pixcen)"
   ]
 }
 ```
@@ -71,7 +74,10 @@ demo **Wonderland XII** (BFP 2013, 1st place), credited to **Fredrik Ternell
 source archive exists for it — this looks like a bespoke routine built for one
 production, not a distributed editor. The "16kHz" name is directly attested by
 a scene forum post-release note ("pure 16khz samples... no noticeable
-carrier"), not merely restated from the tag.
+carrier"), not merely restated from the tag. Platform is confirmed native C64
+via the Censor Design CSDb group record (Sweden-based, C64-only Grouptypes);
+`csdb_release` stays `null` since no dedicated tool/editor release page exists
+for this routine, only the demo (Wonderland XII) it ships in.
 
 ## Quirks & gotchas
 

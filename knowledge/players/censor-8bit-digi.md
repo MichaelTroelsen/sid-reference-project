@@ -6,9 +6,9 @@
   "name": "Censor 8-bit Digi (Swallow / Censor Design)",
   "aliases": ["Censor_8bit_Digi_1", "Censor_8bit_Digi_2"],
   "authors": ["Fredrik Ternell (Swallow)"],
-  "released": "TODO: no explicit release date for the routine itself; earliest attested local use is 2014-10-25 (Comaland, tag _1); latest is 2016 (Wonderland XIII, tag _2)",
+  "released": "TODO: no explicit release date for the routine itself — in-house code, not a distributed tool. Full census (2026-07-31, all 3 tagged files, via scripts/lib/csdb-client.js type=sid) of each file's own CSDb `Released` field: Comaland (tune 3), csdb sid 50483, tag _1, 'Released: 2014 Censor Design/Oxyron' (used in Comaland, release 133940, 2014-10-25 at X'2014); Fantasmolytic (tune 2), csdb sid 51659, tag _1, 'Released: 2015 Oxyron/Censor Design' (used in Fantasmolytic, release 139263, 2015-06-20 at Nordlicht 2015); Wonderland XIII (tune 1), csdb sid 53739, tag _2, 'Released: 2016 Censor Design' (used in Wonderland XIII, release 151275, 2016-10-30 at X'2016). Earliest attested is 2014-10-25 (Comaland, _1); latest is 2016-10-30 (Wonderland XIII, _2) — confirms, and slightly sharpens (adds exact dates), the card's prior figure.",
   "status": "stub",
-  "platform": "TODO: presumed a native-C64 in-house routine embedded in Censor Design demo code, not a standalone distributed editor/tool — no CSDb tool/editor release or source archive found under this name (same pattern as the sibling Censor_Digi family)",
+  "platform": "Native C64 — coded directly into Censor Design demo parts, not a standalone distributed editor/tool. Confirmed 2026-07-31 via CSDb webservice: the Censor Design group record (id 2310) lists Grouptypes 'Cracker Group, Demo Group, Fixing Group, Import Group, Magazine Staff' with BaseCountry Sweden and no Amiga/PC crossover; a full census of all 518 releases credited to the group (fetched at depth=3) contains zero releases of Type Tool/Editor and zero releases with 'digi' in the Name — i.e. no dedicated 'Censor 8-bit Digi' (or any digi) tool/editor release exists anywhere in the group's own CSDb catalogue, matching the sibling Censor_Digi/Censor_Digi_16khz families' findings for the same group.",
   "csdb_release": null,
 
   "memory": {
@@ -50,7 +50,8 @@
     "Both composers are confirmed Censor Design members with overlapping tenure: Fredrik Ternell (Swallow), Sweden, founded/has led Censor Design since September 1989 (coder + musician). Magnar Harestad, Sweden, has been a Censor Design member since October 2012 (coder/graphician/musician/organizer) — his membership window covers all three known files here (2014-2016), consistent with him having in-group access to a shared routine rather than reverse-engineering or independently reinventing it.",
     "No CSDb tool/editor release exists for a 'Censor 8-bit Digi' product, matching the sibling Censor_Digi family's finding — this looks like in-house Censor Design demo code, not a distributed editor.",
     "CSDb's own parsed PSID header for all 3 known files shows play address $0000 (load $2000 or $0A00, init = load address) — flagged as a quirk, NOT confirmed as a real entry-point fact, since this project's role does not include re-disassembling or re-tracing the file to confirm CSDb's header parsing. A play address of zero is unusual for a standalone player and would be consistent with an embedded/demo-driven digi routine (no independent periodic play call), but that reading is speculative.",
-    "Even smaller and more concentrated than the sibling Censor_Digi family (3 files/2 composers vs 14 files/2 composers) — squarely a personal/in-house routine used by a handful of Censor Design members, not a published tool, consistent with this batch's general expectation."
+    "Even smaller and more concentrated than the sibling Censor_Digi family (3 files/2 composers vs 14 files/2 composers) — squarely a personal/in-house routine used by a handful of Censor Design members, not a published tool, consistent with this batch's general expectation.",
+    "Re-research pass, 2026-07-31: gap-fill for `released`/`platform`/`csdb_release`. All 3 tagged files re-verified directly against CSDb's webservice `type=sid` records (not just the SID-entry page URLs already cited) — each file's own `Released` field text is now recorded verbatim (see `released` above), confirming rather than changing the card's prior earliest/latest-use figures. `platform` upgraded from 'presumed' to confirmed: fetched the Censor Design group record at depth=3 and censused all 518 credited releases directly (not a targeted web search, which was unavailable this pass — see below) — zero are Type Tool/Editor and zero have 'digi' in the Name, a stronger negative than a keyword web search since it covers the group's entire own catalogue. `csdb_release` confirmed to stay `null` on the same evidence. WebSearch was unavailable this session (budget exhausted before any query returned) and the CSDb HTML site 503'd on a direct search-page fetch, so the group-catalogue census via the XML webservice was used as the substitute — a broader, more exhaustive check than the sibling cards' web searches, not a weaker one, though it cannot surface a tool release NOT credited to Censor Design as a group (e.g. a personal page). No Tier 3 field was touched; `status` stays `stub`."
   ],
   "sources": [
     "deepsid_dl/sidid.nfo / data/sidid.json byTag: Censor_8bit_Digi_1 (author Fredrik Ternell (Swallow); comment: 'Uses the same technique to play 8-bit samples as in OxyMod/THCM.'), Censor_8bit_Digi_2 (author Fredrik Ternell (Swallow), no comment) — https://github.com/cadaver/sidid/blob/master/sidid.nfo",
@@ -62,7 +63,10 @@
     "CSDb scener Magnar Harestad (Sweden; Censor Design member since October 2012; coder/graphician/musician/organizer): https://csdb.dk/scener/?id=16913",
     "knowledge/players/oxymod4bit-thcm.md (sibling card in this knowledge base) — establishes OxyMod/THCM as a distinct tool by a different author (Uwe Anfang / THCM, Oxyron), used here only to confirm the technique-vs-authorship distinction, not to assert any edge",
     "knowledge/players/censor-digi.md (sibling card) — confirms SIDId has no entry at all for Censor_Digi_1/_2, contrasted here with this family's two documented entries",
-    "Demozoo, Comaland credits (Censor Design + Oxyron, 25 October 2014): https://demozoo.org/productions/124841/"
+    "Demozoo, Comaland credits (Censor Design + Oxyron, 25 October 2014): https://demozoo.org/productions/124841/",
+    "2026-07-31 gap-fill pass: CSDb webservice type=sid records for all 3 tagged files, fetched via scripts/lib/csdb-client.js getSidRelease() — own `Released` field, LoadAddr/InitAddr confirmed: sid 50483 (Comaland tune 3, 'Released: 2014 Censor Design/Oxyron', Load=Init=8192/$2000), sid 51659 (Fantasmolytic tune 2, 'Released: 2015 Oxyron/Censor Design', Load=Init=8192/$2000), sid 53739 (Wonderland XIII tune 1, 'Released: 2016 Censor Design', Load=Init=2560/$0A00)",
+    "2026-07-31 gap-fill pass: CSDb webservice type=group id=2310 record, fetched via scripts/lib/csdb-client.js csdbGet() at depth=3 — Grouptypes ('Cracker Group, Demo Group, Fixing Group, Import Group, Magazine Staff'), BaseCountry Sweden, and a full census of all 518 credited Release entries (zero Type=Tool/Editor, zero Name containing 'digi') used to confirm native-C64 platform and the absence of any dedicated tool/editor release: https://csdb.dk/group/?id=2310",
+    "data/composers/magnar.json and data/composers/swallow.json re-confirmed per-file tag assignment this pass: Comaland tune 3 = Censor_8bit_Digi_1 (csdb_id 50483), Fantasmolytic tune 2 = Censor_8bit_Digi_1 (csdb_id 51659), Wonderland XIII tune 1 = Censor_8bit_Digi_2 (csdb_id 53739) — census matches the 3-file/2-composer count already on this card, no new files found"
   ]
 }
 ```
@@ -80,10 +84,17 @@ here with an author (Swallow) and, for `_1`, an explicit technique comment:
 real evidence for the "8-bit" claim in the name — but it names a
 **technique-level similarity** to a different, unrelated tool (THCM/Uwe
 Anfang's personal MOD-to-C64 converter, see `knowledge/players/oxymod4bit-thcm.md`),
-not a code-sharing or authorship link, so no `edges` are asserted to it. No
-CSDb tool/editor release exists under this name — like `Censor_Digi`, this
-reads as in-house Censor Design demo code, here even more concentrated (3
-files vs 14) and squarely a personal/small-group routine.
+not a code-sharing or authorship link, so no `edges` are asserted to it.
+Platform is confirmed **native C64**, and `csdb_release` confirmed to stay
+`null`: a 2026-07-31 census of all 518 releases credited to the Censor
+Design CSDb group record (Sweden-based, no Amiga/PC crossover) found zero
+Tool/Editor-type releases and zero "digi"-named releases anywhere in the
+group's catalogue — like `Censor_Digi`, this reads as in-house Censor Design
+demo code, here even more concentrated (3 files vs 14) and squarely a
+personal/small-group routine. `released` stays `TODO` for the routine itself
+(no dedicated release exists) but the full 3-file census is now pinned to
+exact dates: 2014-10-25 (Comaland, tag `_1`) through 2016-10-30 (Wonderland
+XIII, tag `_2`).
 
 ## Quirks & gotchas
 

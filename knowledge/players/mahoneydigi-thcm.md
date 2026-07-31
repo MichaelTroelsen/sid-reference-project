@@ -9,9 +9,9 @@
     "Pex Tufvesson (Mahoney) — inferred from the tag name; not directly confirmed for THIS tag (see quirks)",
     "Uwe Anfang (The Human Code Machine / THCM) — inferred from the tag name and THCM's established X/THCM naming pattern; not directly confirmed for THIS tag (see quirks)"
   ],
-  "released": "TODO: no year given anywhere for this exact tag (no SIDId entry exists); observed files in this dataset span 2018 (C=Bit 18) to 2023 (Next Level)",
+  "released": "TODO: no formal release year exists for this tag/tool (no SIDId entry, no CSDb release id of its own). Earliest attestation in this dataset, confirmed via each file's own CSDb `Released` field (not the UsedIn release's year): 2018 (Immigrant Song, csdb.dk sid id 56130, `Released: '2018 Performers'`); the other three files are all 2023 (Next Level of Insomnia, Next Level of Insomnia short, Sky Buster, csdb.dk sid ids 62219/62227/62222, all `Released: '2023 Performers'`) — queried live via scripts/lib/csdb-client.js this session, all 4/4 files censused.",
   "status": "stub",
-  "platform": "TODO: not confirmed as a standalone tool at all. No SIDId entry, no CSDb release, no source found under this name. Best-supported reading (see quirks): a per-track configuration of THCM's own personal, never-publicly-released C64-executable-building routine (already carded here as `oxymod4bit-thcm` under its SIDId names OxyMod/THCM and OxyMod4Bit/THCM, aka \"THCMod\") — NOT independently confirmed, kept as prose hypothesis only.",
+  "platform": "Native C64 output, cross-platform composition workflow — now evidenced (previously TODO): THCM's tool, publicly named 'THCMod' by 2023-2024, converts/combines a ProTracker-format MOD (composed off-platform, e.g. in OpenMPT, for the sample/digi channels) with a GoatTracker2- or CheeseCutter-authored .sid (for the SID channels) into a single native C64 executable containing its own custom IRQ-driven replayer — 'A THCMod is not just a simple music called once per frame. It's using custom code to play the music (1) AND all the needed sample work (2)' and 'Thcmod generates a peculiar SID, with its own irq routine, so you don't have to make irq calls to the player's jsr' (csdb.dk forum topic https://csdb.dk/forums/?roomid=14&topicid=168462). It is a build/conversion tool, not a distributed editor — no CSDb release entry, no source repo found. Corroborating: 'THCM's MOD converter (today named THCMod) which could play back Protracker files on the C64' (remix64.com interview with LMan, https://remix64.com/interviews/interview-with-lman-sid-chip-club.html). NOT yet confirmed that THIS specific tag (`MahoneyDigi/THCM`) is THCMod's output — see quirks.",
   "csdb_release": null,
 
   "memory": {
@@ -51,7 +51,10 @@
     "All four tagged files are Jammer tracks inside Performers-group demo productions that credit BOTH Pex Tufvesson (Mahoney) and Uwe Anfang (The Human Code Machine / THCM) as coders: 'Immigrant Song' (csdb.dk/sid/?id=56130) in C=Bit 18, Performers, 2018 (csdb.dk/release/?id=170950, code credits list Mahoney and The Human Code Machine); 'Next Level of Insomnia' (csdb.dk/sid/?id=62219), 'Next Level of Insomnia (short)' (csdb.dk/sid/?id=62227) and 'Sky Buster' (csdb.dk/sid/?id=62222), all in Next Level, Performers, 2023 (csdb.dk/release/?id=232976, code credits list Mahoney and The Human Code Machine among others).",
     "Jammer himself — the sole composer of every file carrying this tag — commented directly on the Next Level release page describing THCM's tool: \"THCMod is mainly a vessel for software mixing of digi channels - it can have different playback methods assigned\" (csdb.dk/release/?id=232976, comment dated 24 June 2023). This is first-party evidence from the actual composer of these exact tracks, not a secondhand guess.",
     "HYPOTHESIS, NOT CONFIRMED — kept as prose only, no edges[] asserted per this repo's rule that implied/inferred lineage must not become a machine-readable edge: 'THCMod' is the same tool already carded in this repo as `oxymod4bit-thcm.md` (there merged from SIDId tags OxyMod/THCM + OxyMod4Bit/THCM, partly on the remix64 LMan interview naming it 'THCMod'). If so, 'MahoneyDigi/THCM' could be a THIRD SIDId-visible fingerprint of that same per-track digi-mixing tool, this instance configured to use Mahoney's specific volume-register 8-bit technique (per SIDId's separate '8bitDigi/Mahoney' comment: '...via the volume register') rather than the frequency-register technique OxyMod/THCM's own SIDId comment describes. FOR: THCM's well-established one-tool/many-tag pattern (see oxymod4bit-thcm.md's own merge precedent), Jammer's direct statement that the tool supports multiple assignable playback methods, and Mahoney+THCM sharing the coder credit on every release these exact files come from. AGAINST/UNCERTAIN: no source states this equivalence outright for this specific tag; SIDId added entries for THCM's other two tags but never this one, which could equally mean it is a genuinely distinct, unrelated routine that merely happens to share THCM's naming convention. Left as an open, sourced hypothesis for a future pass (a byte-level disassembly diff against an OxyMod/THCM file, per the plan already noted in oxymod4bit-thcm.md, would resolve it either way).",
-    "Real shared-scene-circle link, offered as corroboration only, not proof of authorship: THCM and Jammer are both long-standing members of the same group, MultiStyle Labs (THCM since 15 Oct 2016 per csdb.dk/scener/?id=9589; Jammer since 2002 per csdb.dk/scener/?id=8105)."
+    "Real shared-scene-circle link, offered as corroboration only, not proof of authorship: THCM and Jammer are both long-standing members of the same group, MultiStyle Labs (THCM since 15 Oct 2016 per csdb.dk/scener/?id=9589; Jammer since 2002 per csdb.dk/scener/?id=8105).",
+    "NEW THIS PASS — direct third-party statement naming Jammer as the one who connected LMan to THCM's tool: 'Jammer introduced me to THCM and the tool, after I had expressed admiration of the filtered section of his track Still Floateeing' (LMan, in remix64.com's interview about the SID Chip Club album, https://remix64.com/interviews/interview-with-lman-sid-chip-club.html). This is corroboration of a personal Jammer-THCM working relationship, from a named third party, not a statement that this exact tag is THCMod's output.",
+    "NEW THIS PASS — PSID header match: all 4 tagged files carry the identical PSID load/init pair LoadAddr $0801 (2049) / InitAddr $080D (2061) (queried live via scripts/lib/csdb-client.js, type=sid, this session). This exactly matches the CSDb forum's description of THCMod's default output format: ThcMod 'always appears exported by default to the address $0801' and produces 'an executable that starts by doing a sys $080d' (https://csdb.dk/forums/?roomid=14&topicid=168462). This is PSID header metadata, not a disassembly fact (kept out of the Tier 3 `entry`/`memory` fields per this repo's rule), but it is real, checkable corroboration for the 'this tag = THCMod's output' hypothesis below — the strongest evidence found this pass, short of an actual byte-level diff.",
+    "NEW THIS PASS — platform confirmed via CSDb forum + remix64 interview (see `platform` field): THCMod is a native-C64-executable-producing conversion tool with an embedded custom IRQ replayer, built from a cross-platform composition workflow (ProTracker/OpenMPT for samples, GoatTracker2/CheeseCutter for SID channels). No source repo or CSDb release entry for the tool itself was found; a CSDb forum post about relocating its output notes doing so requires hand-editing an included 'replayer.asm', implying at least partial source (the replayer stub) ships with the tool's output, though the tool's own build source was not found."
   ],
   "sources": [
     "Local dataset: 4 files, 1 composer (Jammer, 100%) — aggregated from data/composers/jammer.json (raw 'player' field on 4 folder records)",
@@ -63,7 +66,11 @@
     "CSDb release, Next Level by Performers (2023) — code credits include Mahoney and The Human Code Machine; music credits include Jammer's 'Next Level of Insomnia', 'Next Level of Insomnia (short)', 'Sky Buster'; Jammer's own comment describing THCMod as \"a vessel for software mixing of digi channels\" — https://csdb.dk/release/?id=232976",
     "CSDb SID entries: https://csdb.dk/sid/?id=56130 (Immigrant Song), https://csdb.dk/sid/?id=62219 (Next Level of Insomnia), https://csdb.dk/sid/?id=62227 (Next Level of Insomnia short), https://csdb.dk/sid/?id=62222 (Sky Buster)",
     "CSDb scener profiles: The Human Code Machine — https://csdb.dk/scener/?id=9589 ; Jammer — https://csdb.dk/scener/?id=8105 (both list MultiStyle Labs membership)",
-    "knowledge/players/oxymod4bit-thcm.md (this repo) — sibling card establishing THCM's tool identity/history ('THCMod'), cited here only for the hypothesis in quirks, not asserted as a confirmed edge"
+    "knowledge/players/oxymod4bit-thcm.md (this repo) — sibling card establishing THCM's tool identity/history ('THCMod'), cited here only for the hypothesis in quirks, not asserted as a confirmed edge",
+    "scripts/lib/csdb-client.js, type=sid, ids 56130/62219/62227/62222 — queried live this session; confirms each file's own `Released` field (not the UsedIn release's year) and PSID LoadAddr/InitAddr, both used to correct/confirm the `released` field and add the PSID-header-match quirk per a full 4/4-file census",
+    "CSDb forum topic 'ThcMOD to an address other than $0801' — https://csdb.dk/forums/?roomid=14&topicid=168462 — describes THCMod's default output ($0801 load, sys $080d, custom embedded IRQ replayer, requires editing included replayer.asm to relocate)",
+    "remix64.com interview with LMan on the 'SID Chip Club' album — https://remix64.com/interviews/interview-with-lman-sid-chip-club.html — names THCM as THCMod's author ('THCM's MOD converter (today named THCMod)'), and quotes LMan stating Jammer introduced him to THCM and the tool",
+    "CSDb forum topic 'Airwolf.sid or AxelF.sid - with very latest THCMod tech' — https://csdb.dk/forums/?roomid=9&topicid=158253 — checked this pass; contains no technical/attribution content beyond the thread title, discarded as a lead"
   ]
 }
 ```
@@ -85,7 +92,21 @@ tool ("THCMod") as a multi-mode digi-channel mixer. That is real, sourced
 corroboration that this tag plausibly denotes THCM's tool configured to use
 Mahoney's specific technique for these Jammer tracks — but it stops short of
 being a stated fact, so it is recorded here as a cited hypothesis in `quirks`,
-not as a machine-readable `edges` relationship.
+not as a machine-readable `edges` relationship. This pass added two further,
+independently-sourced corroborations without closing the gap to certainty:
+a remix64.com interview with LMan (of the "SID Chip Club" C64 house/techno
+album) states plainly "Jammer introduced me to THCM and the tool," and a
+CSDb forum thread describes THCMod's default output as loading at $0801 with
+a `sys $080d` entry and its own embedded IRQ replayer — exactly the PSID
+`LoadAddr`/`InitAddr` pair (2049/2061) all 4 of this tag's files share, per a
+live CSDb webservice query this session. `platform` is now filled from that
+same forum/interview evidence: THCMod is a native-C64-executable-producing
+conversion tool (ProTracker/OpenMPT MOD + GoatTracker2/CheeseCutter .sid in,
+one self-contained C64 program out), not a distributed editor. `released`
+remains `TODO` for the tool itself (no formal release exists), but the
+per-file earliest-attestation dates are now confirmed against each file's own
+CSDb `Released` field rather than its release page: 2018 for "Immigrant
+Song," 2023 for the other three.
 
 ## Quirks & gotchas
 
@@ -97,7 +118,12 @@ coders on every release these files come from; (4) the composer's own CSDb
 comment describes THCM's tool as a configurable digi mixer, which is
 consistent with — but does not prove — this tag being a third fingerprint of
 the same tool already carded as `oxymod4bit-thcm`. That equivalence is
-deliberately NOT asserted as an `edges` entry.
+deliberately NOT asserted as an `edges` entry. (5) All 4 files' PSID
+LoadAddr/InitAddr ($0801/$080D) match THCMod's documented default output
+exactly, and (6) a named third party (LMan) states Jammer personally
+introduced him to THCM and the tool — both add real weight to the hypothesis
+without being a direct statement that this specific tag is THCMod's output,
+so `edges` stays empty.
 
 ## Disassembly notes
 

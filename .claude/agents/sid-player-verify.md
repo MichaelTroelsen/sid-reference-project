@@ -2543,6 +2543,33 @@ them):
     and no card should move status on it. Its value is that it shapes the
     reconstruction you are about to attempt, and it works on files that defeat
     `sidm2-sid-trace.exe` entirely (see lesson 92).
+
+98. **A 100% byte-exact reassembly proves NOTHING about a code/data split when
+    the disassembler emits unclassified bytes as `.byte` — a run that
+    misidentifies every instruction as data also reports 100.000000%.** This is
+    a different trap from lesson 92's tautological trace-diff, and it bites
+    harder because the number looks exactly like the project's own success
+    criterion. `scripts/dev/dis6502.js` (written this session because
+    `SIDdecompiler.exe` hangs on self-modifying players) reassembled `defmon`
+    byte-exact on its first run while silently misclassifying 8 of 79 executed
+    addresses as data. **The split must be validated by a mechanism independent
+    of the round-trip**: cross-check against the addresses RetroDebugger's
+    `retro_code_map` reports as genuinely executed, which is dynamic evidence
+    the static pass cannot manufacture. That check found the cause — **defMON
+    executes the undocumented opcode `$CB` (AXS/SBX)** at `$14C3` and `$154A`,
+    so a walker lacking it stops dead at the first occurrence and turns the
+    rest of the routine into `.byte`. Three consequences. (a) **Decode
+    undocumented opcodes even if you do not emit them**, or control flow
+    terminates at the first one; emit them as raw `.byte` with the decode in a
+    comment, since 64tass rejects several mnemonic spellings (`ALR #$7f`)
+    outright. (b) **A low code percentage is a warning, not a result** —
+    sample-heavy players legitimately sit under 5% (`assassin-sample-mixer`
+    came out at 0.8%), but so does a run that missed a copied routine or a
+    computed jump, and the byte-diff cannot tell the two apart. (c) Broad
+    runtime coverage via `retro_step_subroutine` is impractical: a play entry
+    that is a `JMP` returns immediately and coverage barely grows, so treat the
+    executed-address set as a spot check and use a relocation control
+    (lesson 91) for the actual correctness claim.
 </lessons_learned>
 
 <success_criteria>

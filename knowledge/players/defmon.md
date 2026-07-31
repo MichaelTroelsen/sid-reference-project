@@ -184,6 +184,50 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch34) — byte-exact reassemblable disassembly; uses undocumented opcodes
+
+**`Antispeed.sid` now has a full disassembly that reassembles byte-exact**, via
+a new static recursive-descent disassembler (`scripts/dev/dis6502.js`) seeded
+from the three entry points `$1000`/`$1003`/`$1006`. 1,562 code bytes (32.9% of
+the 4,741-byte payload), 3,179 data bytes, 86 labels. 64tass reassembles it to
+**4,741 bytes at `$1000-$2284`, 0 diffs, 100.000000%**.
+
+**Read that figure correctly: on its own it proves nothing.** Everything not
+classified as code is emitted as `.byte`, so a run that misidentified *all*
+code as data would also report 100.000000%. The byte-diff tests self-consistency,
+not the code/data split.
+
+**The split was validated independently**, against the addresses RetroDebugger's
+`retro_code_map` reports as actually executed (init plus play, 79 addresses).
+That cross-check found a real defect on the first pass: **defMON executes the
+undocumented opcode `$CB` (AXS/SBX) at `$14C3` and `$154A`.** With `$CB` absent
+from the opcode table the walker stopped dead at it and silently classified
+everything downstream as data — 8 of 79 executed addresses landed in `.byte`
+runs — while the byte-diff still read 100.000000%. After adding the
+undocumented opcodes, **all 79 executed addresses are covered**, and code
+classification rose from 1,410 to 1,562 bytes.
+
+Decoded around the first occurrence:
+
+```
+$14C2:  8a        TXA
+$14C3:  cb 31     AXS #$31      ; undocumented
+$14C5:  30 03     BMI $14CA
+$14C7:  4c e6 13  JMP $13E6
+$14CA:  60        RTS
+```
+
+**Status stays `in-progress`.** Two things are missing for `verified`. (1) There
+is no trace-diff of a *reconstruction*: the reassembly is byte-identical to the
+original, so tracing it and comparing is tautological — the batch29 lesson
+applies exactly. (2) The code/data split is validated on 79 executed addresses
+only, which is one init call plus two play calls, not broad coverage. **What
+would close it**: a relocation control, as used for `4753-softcopy` — relocate
+the player by a deliberately non-page-aligned delta, reassemble, and require a
+cycle-identical `$D400-$D418` write match against the original via
+`vsid-trace.js`. That is now a well-specified piece of work with every tool in
+place, rather than anything blocked.
+
 ### 2026-07-31 (batch33) — tracing confirmed open
 
 `scripts/dev/vsid-trace.js` traces `Antispeed.sid` first try: 200 frames,

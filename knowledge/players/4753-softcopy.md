@@ -12,7 +12,7 @@
   "csdb_release": null,
 
   "memory": {
-    "load_address": "CONFIRMED for 32 of 34 real HVSC files under MUSICIANS/0-9/4753_Softcopy/: PSID/RSID load=init=$1000 (verified by reading all 34 real headers directly, not just the two previously cited on CSDb). 2 outliers use load=init=$080d (A_New_Love.sid, Jack_Your_Body.sid); SIDdecompiler hangs on both, but as of 2026-07-31 (batch38) both are reconstructed byte-exact via scripts/dev/dis6502.js and VERIFIED by a relocation control (0 divergences including cycle) — they run the same copied $033C routine with a longer copy, so `verified` covers all 34 of $4753's own files. The cross-composer file James_Brown_Is_Dead.sid (Denis Knitter/'Bad') uses a third address, load=$0810/init=$0838, and also hangs SIDdecompiler — consistent with, but not proof of, it NOT sharing the $1000-convention routine.",
+    "load_address": "CONFIRMED for 32 of 34 real HVSC files under MUSICIANS/0-9/4753_Softcopy/: PSID/RSID load=init=$1000 (verified by reading all 34 real headers directly, not just the two previously cited on CSDb). 2 outliers use load=init=$080d (A_New_Love.sid, Jack_Your_Body.sid); SIDdecompiler hangs on both, but as of 2026-07-31 (batch38) both are reconstructed byte-exact via scripts/dev/dis6502.js and VERIFIED by a relocation control (0 divergences including cycle) — they run the same copied $033C routine with a longer copy, so `verified` covers all 34 of $4753's own files (and, as of batch39 below, all 35 files under the tag). The cross-composer file James_Brown_Is_Dead.sid (Denis Knitter/'Bad') uses a third address, load=$0810/init=$0838, and also hangs SIDdecompiler; it DOES share the routine — relocated a flat +$600 and running in-place at $093C rather than being copied — established structurally in batch32 and VERIFIED by an in-place relocation control in batch39 (0 divergences including cycle). The earlier 'consistent with, but not proof of, it NOT sharing the routine' reading is disproven.",
     "zero_page": "CONFIRMED (disassembly, $1000-convention files): $FD/$FE (a 16-bit pointer walking the current sample segment's raw PCM data) and $02 (the order-list read index). Small, sample-player-shaped ZP usage, not a tracker's usual wide ZP table.",
     "layout": "CONFIRMED (disassembly, $1000-convention files, e.g. Paid_in_Fuff.sid): the file's own $1000+ payload holds (a) a small init/dispatch routine, (b) an order-list byte-stream at $1200 (terminated $FF), (c) a 4-byte-tuple segment table at $1120 ([start_hi,start_lo,end_hi,end_lo] per entry, indexed by order-byte<<2), and (d) the raw PCM sample data itself, scattered through the payload (segments observed starting at $1380/$2300/$2a00/$3100/$3300/$4100/$bf00 in Paid_in_Fuff.sid). CRITICALLY: SIDdecompiler's own '-v2' memory-touch map reports the actual lowest touched address as $033c, NOT $1000 — the real decode/playback subroutine executes from the C64 cassette buffer, at exactly $033c-$03db (160 bytes). It is NOT part of the loaded image at that address: init copies it there from the payload's own $1003-$10a2 with `ldx #$a0 / lda $1002,X / sta $033b,X / dex / bne` (X counts $a0 down to $01, so $1003 lands on $033c), then calls it with `jsr $033c`. Relocating to this Start address (not the PSID header's $1000 load address) was required for a byte-exact reassembly — see gotcha 40/emitted lesson below. Within the copied routine: $038f = the busy-wait delay constant (operand of `ldx #imm` at $038e); $039f/$03a5 = the segment end-address lo/hi `cmp #imm` operands; $03bb = the current source byte scratch; $03bc-$03bf = per-segment working storage written by the dispatcher; $03c0-$03c3 = the constant 4-entry volume LUT ($09,$06,$03,$00); $03c4/$03c5 = saved $d015/A; $03ba = an RTI byte used as the NMI landing pad."
   },
@@ -248,7 +248,7 @@ zeros there and emits a constant `$09` (LUT index 0) for that stretch. This
 is independent confirmation that those 23 bytes really are load-bearing
 sample data, audible in the output, not dead workspace.
 
-### 2026-07-31 (batch38) — the two `$080d` outliers now VERIFIED; scope 32/34 -> 34/34
+### 2026-07-31 (batch38) — the two `$080d` outliers VERIFIED; scope 32/34 -> 34/34
 
 **Both `$080d`-convention files pass a real relocation control, so `verified`
 now covers all 34 of $4753's own files, not 32.**
@@ -285,13 +285,40 @@ regardless of content. Verified by diffing the two *originals* against each
 other: 140,419 divergences, i.e. genuinely different tunes producing the same
 write count. All four files confirmed distinct by MD5.
 
-**`James_Brown_Is_Dead.sid` (cross-composer) is NOT included** and remains
-structurally-identified only, from batch32. It differs mechanically: its
-routine sits **in-place at `$093C`** rather than being copied, so a relocation
-control means physically moving bytes. Measured constraint: the routine ends at
-`$09E7` with only **24 bytes of zero padding** before real code resumes at
-`$0A00` (`LDA #$3B / STA $D011`), so the `+$20` delta used above would overwrite
-it — any delta must be `<= $18`. Feasible, not attempted.
+### 2026-07-31 (batch39) — the cross-composer file VERIFIED too; coverage now 35/35
+
+**`James_Brown_Is_Dead.sid` (Denis Knitter/'Bad', Fantasia) passes a relocation
+control as well, so every one of the 35 files tagged `4753_Softcopy` is now
+covered by a register-write-exact match.** Batch32 established that it reuses
+$4753's routine structurally, relocated `+$600`; this proves it at the register
+level.
+
+It needed a different control because it differs mechanically: the routine sits
+**in-place at `$093C`** rather than being copied to the tape buffer, so the
+control is a **physical move** rather than a copy-source patch. Extracted and
+disassembled at `$093C` it is 126 code bytes of 172 (73.3%) — the identical
+proportion to the `$080d` files, further confirming one routine.
+
+Delta constraint, measured rather than assumed: the routine ends at `$09E7` and
+real code resumes at `$0A00` (`LDA #$3B / STA $D011`), leaving only **24 bytes
+of zero padding**. The `+$20` used for the other files would have overwritten
+live code, so this used **`+$10`** (`$094C..$09F7`), still non-page-aligned.
+
+| | value |
+|---|--:|
+| routine self-references patched | 9 |
+| loader references patched | 12 |
+| bytes differing from original | 148 |
+| writes per side (500 frames) | 165,976 |
+| **divergences including cycle** | **0** |
+
+Its volume LUT is `$00,$05,$0A,$0F` (ascending) where $4753's own files use
+`$09,$06,$03,$00` (descending) — a per-tune data difference inside the same
+routine, not a code difference.
+
+**This settles the question this card carried unasserted across several
+passes.** The cross-composer file does not merely resemble $4753's routine: it
+is that routine, relocated, and its reconstruction is register-write-exact.
 
 ### RESOLVED 2026-07-31 (batch32) — all three outliers are the same player
 

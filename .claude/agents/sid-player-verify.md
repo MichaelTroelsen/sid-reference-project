@@ -2464,6 +2464,32 @@ them):
     derived from it may be written up as runtime-confirmed. Confirming
     structure this way removes the blocker but does NOT approach `verified` —
     there is still no reassembly and no trace to diff.
+
+95. **"SIDdecompiler hangs" is one symptom with at least two unrelated causes,
+    and telling them apart costs a single `retro_disassemble` at the header's
+    init address.** Four cards in this KB had independently recorded the
+    identical observation — hangs indefinitely, process still alive, still
+    burning CPU, zero bytes of output, survives a full flag sweep — and three
+    of them treated it as terminal. All four disassemble fine in RetroDebugger.
+    The two causes found so far: **(a) self-modified immediate operands**
+    (`defmon`, `assassin-sample-mixer`) — the player writes into its own code,
+    so a hybrid static/dynamic tracer's internal state diverges from reality
+    and it never settles; the signature is `STA $xxxx` where `$xxxx` lands
+    inside the player's own code range, and `defmon`'s init makes it explicit by
+    zeroing seven operand slots inside its play routine before starting.
+    **(b) An init that never returns** (`c64-speech-system`) — `$1210` is
+    `JSR $0A00 / JMP $1210`, an infinite main loop, which for an RSID with
+    `play=$0000` is correct by design; a disassembler tracing init to completion
+    has no completion to reach, so hanging is the *right* behaviour, not a bug.
+    Diagnostic: if init falls through into an ordinary routine, suspect (a) and
+    grep the disassembly for stores targeting the code range; if init contains a
+    `JMP` back to itself, it is (b). This matters because the two need different
+    responses — (a) wants a live debugger or a hand-walked disassembly, while
+    (b) additionally explains any `sidm2-sid-trace.exe` "self-installing IRQ
+    vector never resolved" failure on the same file and points at lesson 92's
+    `vsid-trace.js`. Corollary worth stating plainly: a hang is evidence about
+    the *tool's model*, never evidence that a file is undisassemblable, and
+    three cards sat blocked for a full pass each on that inference.
 </lessons_learned>
 
 <success_criteria>

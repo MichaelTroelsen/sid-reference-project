@@ -1,0 +1,158 @@
+Three SIDdecompiler-hang players, disassembled via RetroDebugger
+================================================================
+
+Date:   2026-07-31 (batch31)
+Method: extract the PSID/RSID payload to a .prg (2-byte LE load address +
+        payload, honouring the loadAddr===0 embedded-address branch), then
+        retro_load + retro_disassemble. See scratchpad/sid2prg.js.
+        No SIDdecompiler involvement at any step.
+
+WHY THIS FILE EXISTS. Three separate cards (defmon, assassin-sample-mixer,
+c64-speech-system) had each independently recorded "SIDdecompiler.exe hangs
+indefinitely" as a terminal blocker, after full flag sweeps. All three
+disassemble fine in RetroDebugger. This file records what each one actually
+is, and identifies TWO distinct root causes behind the single shared symptom.
+
+SCOPE: every instruction below came back isExecuted=false — these are STATIC
+disassemblies of freshly loaded images. Nothing was executed, reassembled,
+byte-diffed or trace-diffed. No card's status changed on the strength of this.
+
+
+--------------------------------------------------------------------------
+CAUSE 1 — self-modified immediate operands (defmon, assassin-sample-mixer)
+--------------------------------------------------------------------------
+
+defMON — MUSICIANS/G/Goto80/Antispeed.sid
+  PSID, load=$1000 (embedded), init=$1000, play=$1003, payload 4,741 bytes,
+  ends $2284.
+
+.1000  4C FE 14  JMP $14FE      ; init
+.1003  4C 22 10  JMP $1022      ; play
+.1006  AD D8 10  LDA $10D8      ; alternate entry: save the opcode at $10D8
+.1009  48        PHA
+.100A  A9 60     LDA #$60
+.100C  8D D8 10  STA $10D8      ; patch it to RTS
+.100F  20 22 10  JSR $1022      ; call play, which now returns early
+.1012  68        PLA
+.1013  8D D8 10  STA $10D8      ; restore
+.1016  4C BE 12  JMP $12BE
+
+.1022  A2 00     LDX #$00       ; play: per-note SID write template.
+.1024  A9 05     LDA #$05       ; every immediate below is a self-modified
+.1026  8E 02 D4  STX $D402      ; operand slot, not a constant
+.1029  8D 03 D4  STA $D403
+.102C  A2 17     LDX #$17
+.102E  A9 1A     LDA #$1A
+.1030  8E 00 D4  STX $D400
+.1033  8D 01 D4  STA $D401
+
+.14FE  8D EB 10  STA $10EB      ; init: subtune number written INTO the code
+.1501  A0 17     LDY #$17
+.1503  A9 00     LDA #$00
+.1505  99 00 D4  STA $D400,Y    ; clear SID
+.1508  88        DEY
+.1509  10 FA     BPL $1505
+.150B  8D B6 10  STA $10B6      ; zero SEVEN operand slots inside the
+.150E  8D BE 10  STA $10BE      ; play routine before starting
+.1511  8D B9 10  STA $10B9
+.1514  8D C0 10  STA $10C0
+.1517  8D CA 10  STA $10CA
+.151A  8D AA 10  STA $10AA
+.151D  8D AF 10  STA $10AF
+.1520  20 CB 14  JSR $14CB
+.1523  A2 62     LDX #$62
+.1525  A9 00     LDA #$00
+.1527  9D CE 12  STA $12CE,X    ; clear runtime tables
+.152A  9D 61 13  STA $1361,X
+
+  CONFIRMS THE CARD'S OWN HAND-DERIVED READ, INDEPENDENTLY. The card had
+  predicted, from hand-reading payload bytes without a disassembler, both the
+  $10D8 patch-to-$60-and-restore trick and the "#$05 / #$1A / #$17" operand
+  set at $1022, and had proposed self-modified immediate operands as the
+  likely mechanism killing the disassembler. All three are correct. The seven
+  explicit operand-slot zeroings at $150B-$151D put it beyond doubt.
+
+
+Assassin Sample Mixer — MUSICIANS/J/JFK/Man_Machine.sid
+  RSID, load=$1000 (embedded), init=$1000, play=$0000, payload 45,568 bytes,
+  ends $C1FF.
+
+.1000  4C A1 14  JMP $14A1      ; init
+.1017  C9 FF     CMP #$FF       ; sentinel resolver, called from init
+.1019  F0 0E     BEQ $1029
+.101B  C9 FE     CMP #$FE
+.101D  D0 09     BNE $1028
+.101F  BD D1 18  LDA $18D1,X
+.1022  AA        TAX
+.1023  68        PLA
+.1024  68        PLA            ; drops the return address
+.1025  4C A8 14  JMP $14A8
+.1028  60        RTS
+
+.14A1  A5 01     LDA $01
+.14A3  8D 49 14  STA $1449      ; save the CPU port INTO the code
+.14A6  A2 00     LDX #$00
+.14A8  8E 0A 10  STX $100A      ; subtune index INTO the code
+.14AB  A9 00     LDA #$00
+.14AD  8D 11 D0  STA $D011      ; blank screen
+.14B0  8A        TXA
+.14B1  0A        ASL
+.14B2  AA        TAX            ; subtune * 2 -> word table index
+.14B3  BD EC 15  LDA $15EC,X
+.14B6  20 17 10  JSR $1017      ; resolve $FF/$FE sentinels
+.14B9  8D 15 10  STA $1015      ; result written INTO a code operand
+.14BC  BD ED 15  LDA $15ED,X
+.14BF  20 17 10  JSR $1017
+.14C2  8D 16 10  STA $1016      ; ditto
+.14C5  BD D0 18  LDA $18D0,X
+.14C8  8D 49 13  STA $1349      ; ditto
+.14CB  BD D1 18  LDA $18D1,X
+.14CE  8D 4B 13  STA $134B      ; ditto
+.14D1  20 D0 13  JSR $13D0
+
+  Same family as defMON: per-subtune word tables at $15EC/$15ED and
+  $18D0/$18D1 indexed by subtune*2, whose values are written into code
+  operands ($1015, $1016, $1349, $134B) rather than kept in variables. The
+  $FF/$FE sentinel resolver at $1017 manipulates the stack directly
+  (PLA/PLA then JMP) to redirect control flow, which compounds the problem
+  for a static tracer.
+
+
+--------------------------------------------------------------------------
+CAUSE 2 — an init that never returns (c64-speech-system)
+--------------------------------------------------------------------------
+
+C64 Speech System — MUSICIANS/P/Pet_Shop_Boy/Cocaine.sid
+  RSID, load=$0820 (embedded), init=$1210, play=$0000, payload 51,167 bytes,
+  ends $CFFE.
+
+.1210  EA        NOP            ; nine NOPs of patch space
+.1211  EA        NOP
+ ...                            ; ($1212-$1218, all EA)
+.1219  20 00 0A  JSR $0A00
+.121C  4C 10 12  JMP $1210      ; <-- unconditional jump back to $1210
+.121F  EA        NOP
+.1220  C9 4D     CMP #$4D
+.1222  D0 EC     BNE $1210
+.1224  4C 00 0E  JMP $0E00
+
+  THE INIT IS AN INFINITE LOOP BY DESIGN. $1210 calls $0A00 and jumps
+  straight back to $1210 forever. This is an RSID with play=$0000: the file
+  runs its own main loop and never hands control back, exactly as the
+  card's cited STRUCTURE.md describes. A disassembler that traces init to
+  completion has no completion to reach — which is a categorically different
+  failure from CAUSE 1, despite producing the identical "hangs indefinitely,
+  process still alive, burning CPU" symptom the three cards all recorded.
+
+  This is the concrete instance of lesson 90's never-returning-init check.
+
+
+--------------------------------------------------------------------------
+Takeaway
+--------------------------------------------------------------------------
+"SIDdecompiler hangs" is a symptom with at least two unrelated causes, and
+neither is "this file is undisassemblable". Distinguishing them costs one
+retro_disassemble at the header's init address:
+  - init falls through into a normal routine -> suspect CAUSE 1, look for
+    STA into addresses inside the player's own code range.
+  - init contains a JMP back to itself or an equivalent loop -> CAUSE 2.

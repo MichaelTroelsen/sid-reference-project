@@ -95,6 +95,35 @@ from first.
 
 ## Verification
 
+### 2026-07-31 (batch31) — SIDdecompiler block routed around
+
+**The tool block below is no longer terminal.** RetroDebugger disassembled
+`MUSICIANS/J/JFK/Man_Machine.sid` on the first attempt (payload extracted to
+`.prg`, `retro_load`, `retro_disassemble`). Excerpts in
+`knowledge/artifacts/siddecompiler-hang-class.txt`.
+
+Established: `$1000 -> JMP $14A1` is init. Init saves the CPU port `$01` into
+the code at `$1449`, writes the subtune index into the code at `$100A`, blanks
+the screen, then indexes per-subtune word tables at `$15EC`/`$15ED` and
+`$18D0`/`$18D1` by `subtune*2` and writes the resolved values **into code
+operands** at `$1015`, `$1016`, `$1349` and `$134B`. A sentinel resolver at
+`$1017` handles `$FF`/`$FE` control bytes and redirects control flow by
+manipulating the stack directly (`PLA`/`PLA` then `JMP`, discarding its own
+return address).
+
+This puts the player in the same family as [[defmon]]: **self-modified
+immediate operands**, which is the mechanism behind the shared "SIDdecompiler
+hangs" symptom. The direct stack manipulation at `$1017` compounds it for a
+static tracer. No `shares_routine_with` edge is asserted — this is a shared
+*technique*, not shared code, and nothing here shows common authorship.
+
+**Status stays `in-progress`.** One file, static disassembly, code never
+executed (`isExecuted=false` throughout), nothing reassembled, no byte-diff or
+trace-diff. The RSID `play=$0000` / interrupt-driven finding below is unchanged
+and unaffected.
+
+### 2026-07-23 — the original tool block
+
 **Attempted, genuinely blocked — `status` remains `in-progress`.** All 14
 files tagged `Assassin_Sample_Mixer` in the local dataset (JFK 6, Puma 7,
 Mamba 1) were checked directly against the HVSC collection at

@@ -115,6 +115,43 @@ or are a repacked/relocated extract of just the record/playback routine.
 
 ## Verification
 
+### 2026-07-31 (batch31) — the hang is explained: init never returns
+
+**RetroDebugger disassembled `Pet_Shop_Boy/Cocaine.sid` on the first attempt**
+(payload to `.prg`, `retro_load`, `retro_disassemble`), and the disassembly
+explains *why* both tools failed below, which the prior pass could only infer
+from `STRUCTURE.md`:
+
+```
+.1210  EA ... EA  NOP x9        ; patch space
+.1219  20 00 0A   JSR $0A00
+.121C  4C 10 12   JMP $1210     ; unconditional jump back to itself
+```
+
+**The init routine is an infinite loop by design.** `$1210` calls `$0A00` and
+jumps straight back to `$1210`, forever. This is an RSID with `play=$0000`: the
+file runs its own main loop and never returns control, exactly as
+`STRUCTURE.md` describes. A disassembler that traces init to completion has no
+completion to reach — so `SIDdecompiler.exe` hanging "indefinitely, still alive,
+burning CPU" is the correct and inevitable behaviour for this file, not a bug
+and not a wrong flag. Equally, `sidm2-sid-trace.exe`'s "self-installing IRQ
+vector never resolved" is that tool's model failing on the same structure (see
+lesson 92 — the fix there is `scripts/dev/vsid-trace.js`, which has no vector
+handshake; not yet run against this player).
+
+Note this is a **different root cause** from [[defmon]] and
+[[assassin-sample-mixer]], which hang for self-modified immediate operands
+instead. Same symptom, unrelated mechanism. Both are written up in
+`knowledge/artifacts/siddecompiler-hang-class.txt`.
+
+**Status stays `in-progress`.** One file, static disassembly, code never
+executed, nothing reassembled, no byte-diff or trace-diff. `$0A00` and `$0E00`
+were not followed. The concrete next step is now specific rather than blocked:
+trace with `vsid-trace.js` (which tolerates a non-returning init), and
+disassemble outward from `$0A00`.
+
+### 2026-07-23 — the original tool block
+
 **Still not independently verified — `status: in-progress` (unchanged).**
 Identity (author, year, CSDb release, alternate name) and the general
 recording/playback mechanism (2-bit digitizer input, SID-only playback, up

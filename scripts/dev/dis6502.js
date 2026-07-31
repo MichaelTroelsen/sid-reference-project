@@ -35,8 +35,10 @@ if (keepIdx > -1) {
     if (t) KEEP.add(parseInt(t, 16));
   }
 }
+// NB: guard on keepIdx > -1. Without it, keepIdx+1 === 0 drops argv[0] and
+// shifts every positional argument by one.
 const args = process.argv.filter((a, i) =>
-  a !== '--symbolic' && a !== '--keep-literal' && i !== keepIdx + 1);
+  a !== '--symbolic' && a !== '--keep-literal' && !(keepIdx > -1 && i === keepIdx + 1));
 const SYMBOLIC = process.argv.includes('--symbolic');
 const [, , prgPath, orgHex, entryList, outPath] = args;
 const raw = fs.readFileSync(prgPath);

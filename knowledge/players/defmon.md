@@ -184,6 +184,34 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch31) — SIDdecompiler block routed around; hand-read confirmed
+
+**The SIDdecompiler blocker below is no longer terminal.** RetroDebugger
+disassembled `Antispeed.sid` on the first attempt (payload extracted to `.prg`,
+`retro_load`, `retro_disassemble` — no SIDdecompiler involvement). Full excerpts
+in `knowledge/artifacts/siddecompiler-hang-class.txt`.
+
+**This independently confirms the prior pass's hand-derived facts, all of them.**
+That pass read payload bytes by hand, without a working disassembler, and
+predicted: the `$1006` alternate entry patches `$10D8` from `$AD` to `$60` (RTS),
+`JSR $1022`, then restores it; the play routine at `$1022` is a per-note SID
+write template whose immediate operands (`#$05`, `#$1A`, `#$17`) are
+self-modified; and self-modified immediate operands are the likely mechanism
+killing the disassembler. The live disassembly shows all three exactly as
+predicted, and settles the third: init at `$14FE` explicitly zeroes **seven
+operand slots inside the play routine** (`$10B6`, `$10BE`, `$10B9`, `$10C0`,
+`$10CA`, `$10AA`, `$10AF`) before starting, and writes the subtune number into
+the code at `$10EB`. Entry structure confirmed: `$1000 -> JMP $14FE` (init),
+`$1003 -> JMP $1022` (play).
+
+**Status stays `in-progress`.** Static disassembly of one file only — code never
+executed (`isExecuted=false` throughout), nothing reassembled, no byte-diff, no
+trace-diff. The sound-program row binary format remains undocumented. What
+changed is that the disassembly route is open, so the next attempt no longer has
+to "route around SIDdecompiler entirely" as an unsolved problem.
+
+### 2026-07-23 — the original SIDdecompiler block
+
 **Not verified -- `status: in-progress` (unchanged this pass).** Tier 1 (identity) and
 Tier 2 (provenance) facts are confirmed from SIDId, two CSDb release pages, DeepSID's
 cached player spec box, and external web sources. Tier 3 (runtime) facts come from

@@ -184,6 +184,52 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch36) — broad runtime coverage; batch35's diagnosis was wrong
+
+**Batch35 concluded the relocation failure was most likely an imperfect code/data
+split. With 7× more runtime evidence that conclusion does not hold, and the real
+risk surface is now measured rather than guessed.**
+
+Method for the coverage that was missing: `retro_step_subroutine` returns
+immediately on defmon's `JMP`-based play entry, which is why batch34 only ever
+had 79 executed addresses. Instead, install a real IRQ — write
+`JSR $1003 / JMP $EA31` at `$C000`, point `$0314/$0315` at it, park the CPU in a
+`CLI / JMP *` idle loop, and run under warp. That produced **11,143 frames**
+(~3.7 minutes of playback) and **572 executed code bytes**, spanning `$1000-$177E`
+including a `$168C-$177E` region the earlier passes never reached.
+
+**Cross-check result: all 572 executed addresses are covered by the static map,
+and every one of them is an instruction start. Zero mismatches.**
+
+**The asymmetry that matters**, and which batch35 missed: an executed-address
+check can only catch **false negatives** (real code classified as data). It is
+structurally incapable of catching **false positives** (data classified as
+code) — and false positives are exactly what breaks a relocation control,
+because `--symbolic` rewrites the "operands" of anything it believes is an
+instruction.
+
+Measured false-positive surface:
+
+| | count |
+|---|--:|
+| code-classified instruction starts | 656 |
+| confirmed executed | 572 (87.2%) |
+| **never executed — unvalidated** | **84** |
+| of those, carrying an in-range absolute operand | **51** |
+
+So relocation rewrote **51 operand sites on bytes with no runtime evidence they
+are instructions at all**. If some of those 84 are really data, that is enough
+to corrupt playback while leaving the byte-diff at 100.000000% — which is
+precisely what was observed.
+
+**Status stays `in-progress`.** This does not fix the reconstruction; it
+replaces a vague suspicion with a specific, bounded target. The next step is no
+longer "get more coverage" — it is to adjudicate those 84 unexecuted
+instruction starts individually: reachable-but-cold code (a rare effect branch)
+versus recursive descent having walked into data. A relocation control that
+rewrites only the 572 confirmed-executed sites and leaves the 84 untouched would
+separate the two cleanly.
+
 ### 2026-07-31 (batch35) — relocation control FAILED; the disassembly is not trustworthy yet
 
 **Attempted the relocation control described as the next step below. It failed,

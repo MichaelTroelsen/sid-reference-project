@@ -2570,6 +2570,30 @@ them):
     that is a `JMP` returns immediately and coverage barely grows, so treat the
     executed-address set as a spot check and use a relocation control
     (lesson 91) for the actual correctness claim.
+
+99. **To get real runtime coverage in RetroDebugger, install an IRQ and let the
+    machine run — do not step. And know what the resulting check can and cannot
+    prove.** `retro_step_subroutine` returns immediately when a player's play
+    entry is a `JMP` rather than a `JSR`, which is why one `defmon` pass sat at
+    79 executed addresses and drew a wrong conclusion from them. The working
+    recipe: `retro_cpu_jump` to init and step it once, `retro_memory_write` a
+    stub at a free address (`JSR <play> / JMP $EA31`), point `$0314/$0315` at
+    the stub, `retro_memory_write` a `CLI / JMP *` idle loop, jump the PC there,
+    `retro_warp` on, `retro_continue`, wait, `retro_pause`. That yielded 11,143
+    frames and 572 executed code bytes in about 25 seconds of wall time, 7×
+    the stepping approach, and reached a whole region the earlier passes never
+    touched. **The asymmetry to keep in mind**: comparing executed addresses
+    against a static disassembly catches only **false negatives** — real code
+    the static pass called data. It is structurally incapable of catching
+    **false positives** — data the static pass called code — because data that
+    is never executed simply never appears in the comparison. False positives
+    are the ones that break a relocation control, since a symbolic relocator
+    rewrites the operands of anything it believes is an instruction. So
+    "all N executed addresses check out" is real evidence but bounded evidence:
+    on `defmon` it held for all 572 while 84 code-classified instruction starts
+    remained unexecuted, 51 of them carrying in-range absolute operands that
+    relocation rewrote on no runtime evidence at all. Quantify that residual
+    surface explicitly rather than reporting the clean cross-check alone.
 </lessons_learned>
 
 <success_criteria>

@@ -1,0 +1,146 @@
+Reflextracker — live disassembly excerpts via RetroDebugger
+===========================================================
+
+File:    MUSICIANS/W/Warlock/Abba-Gabba.sid  (HVSC 85)
+Header:  RSID v2, dataOffset=$7c, loadAddr=$0000 (embedded), init=$C006,
+         play=$0000. Real load $32C9, payload 38,071 bytes, ends $C77F.
+Method:  payload extracted to a .prg (2-byte LE load address + payload),
+         loaded via retro_load, disassembled via retro_disassemble.
+         SIDdecompiler.exe hangs indefinitely on this player (6 files, 5
+         composers, both header init variants) — see the card. RetroDebugger
+         produced this on the first attempt.
+Date:    2026-07-31 (batch30)
+
+NOTE: this is a STATIC disassembly of the loaded image. The code was not
+executed (isExecuted=false on every instruction below), so no claim here
+depends on runtime behaviour. Nothing was reassembled and no byte-diff or
+trace-diff was run. Card status remains in-progress.
+
+
+init entry — $C006
+------------------
+.C006  78        SEI
+.C007  A9 36     LDA #$36
+.C009  85 01     STA $01        ; RAM + I/O visible, KERNAL banked out
+.C00B  20 2C C0  JSR $C02C      ; setup (below)
+.C00E  8D 20 D0  STA $D020
+.C011  8D 11 D0  STA $D011      ; blank screen / border (A=0 from setup)
+.C014  D0 00     BNE $C016      ; branch to next instruction — effectively a no-op
+.C016  A5 D7     LDA $D7        ; <-- busy-poll flag, no CLI anywhere
+.C018  10 0A     BPL $C024
+.C01A  20 19 C2  JSR $C219
+.C01D  A5 D7     LDA $D7
+.C01F  F0 F5     BEQ $C016
+.C021  4C B2 C1  JMP $C1B2
+.C024  F0 F0     BEQ $C016
+.C026  20 44 C2  JSR $C244
+.C029  4C B2 C1  JMP $C1B2
+
+
+setup subroutine — $C02C
+------------------------
+.C02C  A9 81     LDA #$81
+.C02E  85 D7     STA $D7        ; seed the poll flag
+.C030  A9 00     LDA #$00
+.C032  A2 18     LDX #$18
+.C034  9D 00 D4  STA $D400,X    ; clear all 25 SID registers
+.C037  CA        DEX
+.C038  10 FA     BPL $C034
+.C03A  A2 7F     LDX #$7F
+.C03C  8E 0D DD  STX $DD0D      ; CIA2 ICR <- $7F : mask OFF all CIA2 sources
+.C03F  A2 93     LDX #$93
+.C041  8E 04 DD  STX $DD04      ; CIA2 timer A low  <- $93
+.C044  8D 05 DD  STA $DD05      ; CIA2 timer A high <- $00  (A still 0)
+.C047  A2 FF     LDX #$FF
+.C049  8E 02 D4  STX $D402      ; voice 1 pulse width lo
+.C04C  8E 03 D4  STX $D403      ; voice 1 pulse width hi
+.C04F  8E 06 D4  STX $D406      ; voice 1 sustain/release
+.C052  A2 41     LDX #$41
+.C054  8E 04 D4  STX $D404      ; voice 1 control: test+pulse ($41)
+.C057  8E 0E DD  STX $DD0E      ; CIA2 CRA <- $41 : start timer A
+.C05A  60        RTS
+
+Reading: $DD0D <- #$7F MASKS OFF every CIA2 interrupt source rather than
+enabling one, and there is no CLI on this path. Combined with the $D7
+busy-poll at $C016, this is evidence AGAINST the card's alternative
+"real-hardware-interrupt-driven" hypothesis and FOR the poll-driven one:
+the CIA2 timer appears to be polled, not to raise NMIs. Not runtime-
+confirmed — the flag write that satisfies the $D7 poll was not traced.
+
+
+main loop head — $C1B2, and the self-modify bank swap
+-----------------------------------------------------
+.C1B2  4C 9C C0  JMP $C09C
+.C1B5  C6 D6     DEC $D6
+.C1B7  D0 F9     BNE $C1B2
+.C1B9  A5 D8     LDA $D8
+.C1BB  0A        ASL
+.C1BC  30 14     BMI $C1D2
+.C1BE  AD 5C C0  LDA $C05C      ; swap set A -> set B
+.C1C1  8D 9D C0  STA $C09D
+.C1C4  AD 8C C0  LDA $C08C
+.C1C7  8D CD C0  STA $C0CD
+.C1CA  AD 8F C0  LDA $C08F
+.C1CD  8D D0 C0  STA $C0D0
+.C1D0  D0 12     BNE $C1E4
+.C1D2  AD 9D C0  LDA $C09D      ; swap set B -> set A (mirror of above)
+.C1D5  8D 5C C0  STA $C05C
+.C1D8  AD CD C0  LDA $C0CD
+.C1DB  8D 8C C0  STA $C08C
+.C1DE  AD D0 C0  LDA $C0D0
+.C1E1  8D 8F C0  STA $C08F
+.C1E4  A5 D9     LDA $D9
+.C1E6  0A        ASL
+.C1E7  30 09     BMI $C1F2
+.C1E9  AD 0A C1  LDA $C10A
+.C1EC  8D 41 C1  STA $C141
+.C1EF  4C 16 C0  JMP $C016      ; back to the poll
+.C1F2  AD 41 C1  LDA $C141
+.C1F5  8D 0A C1  STA $C10A
+.C1F8  4C 16 C0  JMP $C016
+
+Reading: ZP flags $D8 and $D9 each select which of two byte-sets is live,
+by copying bytes between fixed code addresses. These are operands of
+instructions in the $C05C/$C08C/$C08F/$C09D/$C0CD/$C0D0/$C10A/$C141 set,
+i.e. the player rewrites its own operands rather than indexing a table.
+
+
+pointer walker — $C09C
+----------------------
+.C09C  A9 00     LDA #$00       ; operand at $C09D is self-modified (see above)
+.C09E  E9 E4     SBC #$E4
+.C0A0  8D 9D C0  STA $C09D      ; writes its own operand back
+.C0A3  B0 0A     BCS $C0AF
+.C0A5  AD D0 C0  LDA $C0D0
+.C0A8  C9 C7     CMP #$C7
+.C0AA  49 01     EOR #$01
+.C0AC  8D D0 C0  STA $C0D0
+.C0AF  A5 D0     LDA $D0        ; 16-bit pointer $D0/$D1
+.C0B1  E9 00     SBC #$00
+.C0B3  85 D0     STA $D0
+.C0B5  AA        TAX
+.C0B6  A5 D1     LDA $D1
+.C0B8  B0 07     BCS $C0C1
+.C0BA  E9 00     SBC #$00
+.C0BC  85 D1     STA $D1
+.C0BE  8D CD C0  STA $C0CD
+.C0C1  C9 6A     CMP #$6A
+.C0C3  90 0F     BCC $C0D4
+.C0C5  D0 04     BNE $C0CB
+.C0C7  E0 B2     CPX #$B2
+.C0C9  90 09     BCC $C0D4
+
+Reading: a descending 16-bit pointer ($D0/$D1) walked with a self-modified
+fractional step, bounds-checked against a 16-bit limit ($6AB2 here). Shape
+is consistent with a sample/replay pointer rather than a note/pattern
+cursor, which fits Reflextracker being sample-based — but the data it walks
+was not identified, so this is a reading, not an established fact.
+
+
+Zero page observed in use
+-------------------------
+$D0/$D1  16-bit descending pointer (walker above)
+$D6      loop/repeat counter (DEC $D6 / BNE at $C1B5)
+$D7      poll flag, seeded #$81 by setup, polled at $C016
+$D8      selects which byte-set is live (first swap block)
+$D9      selects which byte-set is live (second swap block)

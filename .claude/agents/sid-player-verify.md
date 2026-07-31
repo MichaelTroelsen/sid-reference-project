@@ -2438,6 +2438,32 @@ them):
     workspace, `$03c4` saved `$d015` — 8 of 160 on both files). It is the
     cheapest available evidence that the instruction decode is right in a
     region the byte-diff only ever sees as data.
+
+94. **A SIDdecompiler hang is not a dead end — RetroDebugger will disassemble
+    the same file, and the payload-to-`.prg` conversion that makes it possible
+    is four lines.** Lesson 90 already says a hang is often not "this file is
+    impossible"; this is the concrete escape hatch. `reflextracker` had been
+    blocked for a full pass with SIDdecompiler hanging indefinitely on 6 files
+    across 5 composers (both header init variants, full flag sweep, zero bytes
+    ever written), and the card recorded "no `.asm` was ever produced, so no
+    byte-diff and no register-write trace-diff could be run — there is nothing
+    to compare". RetroDebugger disassembled it on the first attempt. The
+    method: read the RSID header, honour lesson 75's `loadAddr===0` branch to
+    find the real load address in the payload's first 2 LE bytes, write
+    `[load_lo, load_hi] + payload` as a `.prg`, `retro_load` it, then
+    `retro_disassemble` at the header's init address. Three things worth
+    keeping. (a) **RetroDebugger is main-thread only.** Subagents in this
+    project get no MCP tools at all (confirmed directly — a batch29 subagent
+    reported having none), so a card whose next step needs the live debugger
+    cannot be dispatched to `sid-player-verify`; the orchestrating session has
+    to drive it. (b) `retro_disassemble` returns both structured instructions
+    and a ready-formatted `text` field with bytes and operands — use `text`
+    for the artifact file, it is already in listing form. (c) Every instruction
+    comes back `isExecuted: false` on a freshly loaded image, which is a useful
+    honesty check: it marks the output as a STATIC disassembly, so nothing
+    derived from it may be written up as runtime-confirmed. Confirming
+    structure this way removes the blocker but does NOT approach `verified` —
+    there is still no reassembly and no trace to diff.
 </lessons_learned>
 
 <success_criteria>

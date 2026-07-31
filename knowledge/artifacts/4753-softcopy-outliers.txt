@@ -1,0 +1,122 @@
+4753-softcopy — the three files SIDdecompiler could not disassemble
+===================================================================
+
+Date:   2026-07-31 (batch32)
+Method: scripts/dev/sid2prg.js -> retro_load -> retro_disassemble.
+        No SIDdecompiler involvement. All three disassembled first try.
+
+WHY THIS FILE EXISTS. The 4753-softcopy card reached `verified` covering only
+32 of its 34 $1000-convention files. Three files were left undisassembled
+because SIDdecompiler hangs on them, and the card carried an explicitly
+unresolved question about the third: whether the cross-composer file genuinely
+reuses $4753's routine or is a looser Player-ID tag match, "flagged, not
+asserted" across several passes.
+
+Both questions are now answered. All three are the same player.
+
+SCOPE: static disassembly only (isExecuted=false throughout). Nothing was
+executed, reassembled, byte-diffed or trace-diffed. The card's `verified`
+status and its 32-of-34 scope are NOT extended on the strength of this — what
+is established here is structural identity, not a register-write match.
+
+
+REFERENCE — the verified $1000-convention layout, from the card
+---------------------------------------------------------------
+Decode routine copied to $033C-$03DB (160 bytes) by
+    ldx #$a0 / lda $1002,X / sta $033b,X
+Self-modified operands and workspace inside it:
+    $038F  delay constant
+    $039F  segment-end cmp operand
+    $03A5  segment-end cmp operand
+    $03C4  saved $D015
+    $03C5  saved $D020
+NMI vector written to $FFFA/$FFFB <- $03BA (an RTI pad)
+
+
+FILE 1 & 2 — the $080d outliers: same routine, longer copy
+-----------------------------------------------------------
+A_New_Love.sid      RSID, load=init=$080d, payload 62,195 bytes, ends $FAFF
+Jack_Your_Body.sid  RSID, load=init=$080d, payload 56,622 bytes, ends $E53A
+
+A_New_Love.sid entry:
+.080D  A9 01     LDA #$01
+.080F  8D 8F 03  STA $038F      ; <-- the delay constant, same address
+.0812  A9 0B     LDA #$0B
+.0814  8D 11 D0  STA $D011
+.0817  4C 91 08  JMP $0891      ; -> the copy loop
+
+Per-segment setup, called repeatedly:
+.081B  A9 F6     LDA #$F6 / STA $FD      ; sample pointer lo
+.081F  A9 38     LDA #$38 / STA $FE      ; sample pointer hi
+.0823  A9 79     LDA #$79 / STA $03A5    ; <-- segment-end cmp operand
+.0828  A9 80     LDA #$80 / STA $039F    ; <-- segment-end cmp operand
+.082D  20 3C 03  JSR $033C               ; <-- THE decode routine
+.0830  60        RTS
+.0831  A9 00     LDA #$00 / STA $FD      ; next segment, same shape
+.0835  A9 1A     LDA #$1A / STA $FE
+.0839  A9 3A     LDA #$3A / STA $03A5
+.083E  A9 00     LDA #$00 / STA $039F
+
+The copy loop:
+.0891  A2 AC     LDX #$AC
+.0893  BD 9E 08  LDA $089E,X
+.0896  9D 3B 03  STA $033B,X    ; <-- same $033B,X destination base
+.0899  CA        DEX
+.089A  D0 F7     BNE $0893
+.089C  4C 73 08  JMP $0873
+
+Head of the copied block (source $089F -> destination $033C):
+.089F  AD 20 D0  LDA $D020 / STA $03C5   ; <-- saved $D020, same address
+.08A5  AD 15 D0  LDA $D015 / STA $03C4   ; <-- saved $D015, same address
+.08AB  A9 00     LDA #$00 / STA $D015
+.08B0  A9 00     LDA #$00 / LDY #$14 / STA $D400,Y / DEY / BPL   ; clear SID
+.08BA  A9 BA     LDA #$BA / STA $FFFA    ; <-- NMI vector lo, same $BA
+.08BF  A9 03     LDA #$03 ...            ;     high byte $03 -> $03BA
+
+CONCLUSION. Identical routine at an identical destination, with identical
+self-modified operand addresses and the identical $03BA NMI pad. The only
+difference from the $1000 convention is the copy length: LDX #$AC (172 bytes,
+$033C-$03E7) versus LDX #$A0 (160 bytes, $033C-$03DB), and a different loader
+wrapper around it. These two files are NOT a different build — they are the
+same player with a larger copied block.
+
+
+FILE 3 — the cross-composer file: same routine, relocated +$600
+----------------------------------------------------------------
+James_Brown_Is_Dead.sid (MUSICIANS/B/Bad/, Denis Knitter 'Bad', Fantasia)
+    RSID, load=$0810, init=$0838, payload 25,328 bytes, ends $6AFF
+
+Order-list walker:
+.0815  85 FD     STA $FD
+.0817  BD 00 0C  LDA $0C00,X / STA $FE     ; pointer hi from a table page
+.081C  BD 00 0D  LDA $0D00,X / STA $099F   ; <-- $039F + $600
+.0822  BD 00 0E  LDA $0E00,X / STA $09A5   ; <-- $03A5 + $600
+.0828  20 3C 09  JSR $093C                 ; <-- $033C + $600
+.082B  EE 11 08  INC $0811                 ; segment counter
+.082E  AD 11 08  LDA $0811
+.0831  C9 20     CMP #$20                  ; 32 segments
+.0833  F0 03     BEQ $0838
+.0835  4C 10 08  JMP $0810
+
+Head of the decode routine at its relocated base:
+.093C  AD C6 09  LDA $09C6      ; <-- $03C6 + $600
+.093F  0C 16 D0  NOP $D016      ; illegal opcode $0C (TOP), used as a 3-byte skip
+.0942  AD C5 09  LDA $09C5      ; <-- $03C5 + $600, the saved $D020 slot
+.0945  0C 16 D0  NOP $D016
+.0948  A9 FF     LDA #$FF
+.094A  0C 15 D0  NOP $D015
+.094D  A9 00     LDA #$00
+.094F  A0 14     LDY #$14
+.0951  99 00 D4  STA $D400,Y / DEY / BPL   ; same SID-clear loop
+.0957  A9 BA     LDA #$BA / STA $FFFA      ; <-- NMI vector lo, same $BA
+.095C  A9 09     LDA #$09 / STA $FFFB      ;     high byte $09 -> $09BA
+.0961  78        SEI
+
+CONCLUSION. Every landmark sits at exactly its $03xx address plus $600:
+$033C->$093C, $039F->$099F, $03A5->$09A5, $03C5->$09C5, $03C6->$09C6, and the
+NMI pad $03BA->$09BA. The SID-clear loop is byte-identical. This RESOLVES the
+card's standing question in the affirmative: James_Brown_Is_Dead.sid genuinely
+reuses $4753's routine, relocated, and is not a loose Player-ID tag match.
+
+Note the relocation is a flat +$600 on a page-aligned boundary, so it does not
+exercise the unaligned-relocation hazard of lesson 79 / lesson 91.

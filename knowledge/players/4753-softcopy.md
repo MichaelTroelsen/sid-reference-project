@@ -248,19 +248,48 @@ zeros there and emits a constant `$09` (LUT index 0) for that stretch. This
 is independent confirmation that those 23 bytes really are load-bearing
 sample data, audible in the output, not dead workspace.
 
-### Separately unresolved
+### RESOLVED 2026-07-31 (batch32) — all three outliers are the same player
 
-SIDdecompiler hangs (confirmed via a live
-still-running-after-90s process check, not just slowness, independent of
-`-t`) on the 2 outlier $080d-convention files (`A_New_Love.sid`,
-`Jack_Your_Body.sid`) and on the 1 cross-composer file
-(`James_Brown_Is_Dead.sid`) — all three remain fully undisassembled. Whether
-they share the $1000-convention's routine (relocated) or are a genuinely
-different build is still unconfirmed. The `verified` status above covers the
-32-of-34 files using the `$1000` convention, of which 2 were reconstructed
-and traced; it does not extend to those 3.
+The three files SIDdecompiler could not touch were disassembled via
+RetroDebugger (`scripts/dev/sid2prg.js` -> `retro_load` -> `retro_disassemble`,
+no SIDdecompiler). Full excerpts: `knowledge/artifacts/4753-softcopy-outliers.txt`.
 
-**Best next lead for those 3**: the hang is very likely lesson 90's shape —
+**The 2 `$080d` outliers are the same routine with a longer copy.**
+`A_New_Love.sid` writes `#$01` to **`$038F`** (the delay constant) at its very
+first instruction, sets **`$03A5`** and **`$039F`** (the two segment-end `cmp`
+operands) per segment, and calls **`JSR $033C`** — every one of those the same
+address this card already documents. Its copy loop is
+`ldx #$ac / lda $089e,X / sta $033b,X`: the **same `$033B,X` destination base**
+as the `$1000` convention's `ldx #$a0 / lda $1002,X / sta $033b,X`, just 172
+bytes instead of 160. The copied block's head saves `$D020`->`$03C5` and
+`$D015`->`$03C4` and writes the `$03BA` NMI pad, all identical. These are not a
+different build — same player, larger copied block, different loader wrapper.
+
+**The cross-composer file genuinely reuses the routine, relocated `+$600`.**
+This card previously flagged, and deliberately did not assert, whether
+`James_Brown_Is_Dead.sid` (Denis Knitter/'Bad', Fantasia) shares the routine or
+was a looser Player-ID tag match. It shares it. Every landmark sits at exactly
+its `$03xx` address plus `$600`: `$033C`->`$093C`, `$039F`->`$099F`,
+`$03A5`->`$09A5`, `$03C5`->`$09C5`, `$03C6`->`$09C6`, and the NMI pad
+`$03BA`->`$09BA`. The SID-clear loop (`LDY #$14 / STA $D400,Y / DEY / BPL`) is
+byte-identical. Its order-list walker counts 32 segments (`CMP #$20`) against
+table pages at `$0C00`/`$0D00`/`$0E00`.
+
+**The `verified` status is NOT extended by this.** It still covers the 32-of-34
+`$1000`-convention files, of which 2 were reconstructed and trace-diffed. What
+these three now have is established *structural identity* from a static
+disassembly — `isExecuted=false` throughout, nothing reassembled, no byte-diff,
+no trace-diff. Extending `verified` to them needs the same reconstruct-and-trace
+treatment the other two got, which is now unblocked and straightforward.
+
+**Superseded 2026-07-31 — kept for the record.** The lead below guessed the
+hang was lesson 90's never-returning-`init` shape and proposed a patch-to-`$60`
+workaround. It was never tested, and it turned out to be unnecessary rather
+than wrong: RetroDebugger disassembles all three files as-is, no patching, no
+diagnosis of the hang required. Recorded because "plausible workaround that
+became moot once a better tool was tried" is itself worth seeing next time.
+
+~~**Best next lead for those 3**~~: the hang is very likely lesson 90's shape —
 a never-returning `init`. Dump ~$60 bytes at each file's own PSID init
 address and walk it to the first `rts`; if it reaches a `jmp` to itself, or
 a `cmp $dc01 / bne` key-wait, patch that one byte to `$60` in a working

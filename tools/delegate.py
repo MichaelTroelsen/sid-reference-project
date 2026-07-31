@@ -21,6 +21,17 @@ Required environment variables (only the one for the provider(s) you use):
     DEEPSEEK_API_KEY
     MOONSHOT_API_KEY
     NVIDIA_NIM_API_KEY
+
+Exit codes:
+    0   success
+    2   output truncated at the token limit (partial output WAS printed)
+    3   model returned empty content (nothing printed)
+    1   hard failure (all retries and fallbacks exhausted, bad HTTP status)
+
+Codes 2 and 3 exist because reasoning models spend max_tokens on internal
+thinking before emitting anything, so a call can come back 200 OK with a
+well-formed body and no usable content. Check the exit code when scripting a
+batch -- do not assume a written file means a good result.
 """
 
 import argparse
@@ -167,9 +178,24 @@ def call_model(variant_name: str, prompt: str, system: str | None,
 
     data = response.json()
     try:
-        return data["choices"][0]["message"]["content"]
+        choice = data["choices"][0]
+        content = choice["message"]["content"]
     except (KeyError, IndexError):
         raise SystemExit(f"Error: unexpected response shape from '{variant_name}': {data}")
+
+    # Reasoning models spend max_tokens on internal thinking before emitting
+    # anything, so a call can return truncated or completely empty content while
+    # still being a 200 with a well-formed body. Carry the metadata that
+    # distinguishes those cases back to main() instead of discarding it.
+    usage = data.get("usage") or {}
+    details = usage.get("completion_tokens_details") or {}
+    return {
+        "content": content or "",
+        "finish_reason": choice.get("finish_reason"),
+        "model": variant_name,
+        "completion_tokens": usage.get("completion_tokens"),
+        "reasoning_tokens": details.get("reasoning_tokens"),
+    }
 
 
 def call_with_fallback(variant_name: str, prompt: str, system: str | None,
@@ -242,7 +268,38 @@ def main() -> None:
         temperature=args.temperature,
         timeout=args.timeout,
     )
-    print(result)
+
+    content = result["content"]
+    if content:
+        print(content)
+
+    # A truncated or empty completion is a 200 with a well-formed body, so
+    # without this the caller sees exit 0 and a silently unusable file. Both
+    # are usually the reasoning-tokens-ate-max_tokens failure: raising
+    # --max-tokens can make it WORSE, since more headroom means more thinking.
+    spent = result.get("reasoning_tokens")
+    budget = (
+        f" (reasoning tokens: {spent}, completion tokens: {result.get('completion_tokens')})"
+        if spent is not None else
+        f" (completion tokens: {result.get('completion_tokens')})"
+    )
+
+    if not content.strip():
+        print(
+            f"[delegate.py: '{result['model']}' returned EMPTY content, "
+            f"finish_reason={result['finish_reason']!r}{budget}. Nothing was written. "
+            f"Try a lower --max-tokens, or a non-reasoning model.]",
+            file=sys.stderr,
+        )
+        raise SystemExit(3)
+
+    if result["finish_reason"] == "length":
+        print(
+            f"[delegate.py: '{result['model']}' output was TRUNCATED at the token "
+            f"limit{budget}. What was printed is incomplete — do not use it as-is.]",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

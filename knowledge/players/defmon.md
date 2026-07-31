@@ -184,6 +184,61 @@ without attempting a full disassembly of the self-modified sound engine.
 
 ## Verification
 
+### 2026-07-31 (batch35) — relocation control FAILED; the disassembly is not trustworthy yet
+
+**Attempted the relocation control described as the next step below. It failed,
+and that is the honest headline: `defmon` is further from `verified` than the
+100.000000% byte-diff made it look.**
+
+Method (the batch29 methodology that produced this session's only `verified`
+flip): added a `--symbolic` mode to `scripts/dev/dis6502.js` that emits every
+in-range absolute operand as `ORG + $offset`, so changing one `ORG` definition
+relocates the whole player — including addresses landing mid-instruction, which
+matters here because this player writes into its own operand bytes.
+
+- **Transformation is lossless**: at delta `$0000` the symbolic build reassembles
+  to 4,741 bytes, 0 diffs, 100.000000% — identical to the original.
+- **Relocated build at `+$120`** (deliberately not page-aligned): assembles to
+  4,741 bytes at `$1120-$23A4`, **596 bytes differing (12.6%)** from the
+  original, so it is a genuinely different binary and not a cosmetic change.
+- Both wrapped into the original PSID header with load/init/play shifted by the
+  same delta (`$1000->$1120`, `$1003->$1123`) via a relocation-aware rewrap.
+
+Trace-diff over 400 frames, `(frame, cycle, register, value)`:
+
+| comparison | writes | divergences |
+|---|--:|--:|
+| original vs native rebuild (delta `$0000`) | 9,628 / 9,628 | **0** — and tautological, the binaries are identical |
+| original vs **relocated** (delta `$120`) | 9,628 / 9,628 | **8,956 including cycle, 7,598 ignoring cycle** |
+
+First 52 writes match, then it diverges. First value divergence is frame 2,
+register 16 (voice 3 pulse-width lo): original writes `$00`, relocated writes
+`111`. That is a data-sourced value going wrong, not a control-flow crash.
+
+**Diagnosis attempted and inconclusive.** Three candidate mechanisms were
+checked and all three came back negative: (a) in-payload pointer tables in data
+that relocation would not rewrite — the 404 apparent hits were an artifact of
+reading one ascending *byte* table as overlapping 16-bit values, not a pointer
+table; (b) `LDA #<hi-byte>` immediates stored to zero page as pointer setup — 0
+occurrences; (c) address-byte immediates written into the player's own code
+operands — 0 occurrences.
+
+**What this most likely means.** With those ruled out, the leading explanation
+is that the code/data split is genuinely imperfect: bytes that are really data
+were classified as code, so `--symbolic` rewrote their "operands" during
+relocation and corrupted them. That is the control doing its job — falsifying a
+reconstruction that the byte-diff scored at 100.000000%. The split was only ever
+validated against 79 executed addresses (one init call plus two play calls),
+which the batch34 note already flagged as a spot check rather than coverage.
+
+**Status stays `in-progress`, and the batch34 disassembly should not be treated
+as verified-quality.** It is byte-exact and it round-trips, but it has now
+failed the one test that could have shown the split was right. Next leads, in
+order: get much broader runtime coverage (a real IRQ-driven run rather than
+`retro_step_subroutine`, which returns immediately on a `JMP` play entry) and
+re-check every executed address against the map; then re-run this control. A
+relocation control that fails is more informative than a byte-diff that passes.
+
 ### 2026-07-31 (batch34) — byte-exact reassemblable disassembly; uses undocumented opcodes
 
 **`Antispeed.sid` now has a full disassembly that reassembles byte-exact**, via

@@ -42,6 +42,36 @@ function extractFacts(md, file) {
   }
 }
 
+/**
+ * Count connected components over the edge list, treating every edge type as
+ * undirected. This is the "M connected clusters" figure docs/SID-HISTORY.md
+ * quotes alongside the edge count; isolated cards (no edges at all) are not
+ * clusters and are excluded.
+ */
+function countClusters(edges) {
+  const adj = new Map();
+  for (const e of edges) {
+    if (!adj.has(e.from)) adj.set(e.from, []);
+    if (!adj.has(e.to)) adj.set(e.to, []);
+    adj.get(e.from).push(e.to);
+    adj.get(e.to).push(e.from);
+  }
+  const seen = new Set();
+  let clusters = 0;
+  for (const start of adj.keys()) {
+    if (seen.has(start)) continue;
+    clusters++;
+    const stack = [start];
+    while (stack.length) {
+      const cur = stack.pop();
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      for (const next of adj.get(cur) || []) if (!seen.has(next)) stack.push(next);
+    }
+  }
+  return clusters;
+}
+
 function detectCycles(nodes, edges) {
   // Only derivation edges should be acyclic.
   const adj = new Map(nodes.map((n) => [n.id, []]));
@@ -106,6 +136,11 @@ function main() {
   console.log(`Wrote ${path.relative(path.join(__dirname, '..'), OUT_PATH)}`);
   console.log(`  nodes: ${nodes.length} (${Object.entries(byStatus).map(([k, v]) => `${v} ${k}`).join(', ') || 'none'})`);
   console.log(`  edges: ${edges.length}${Object.keys(byType).length ? ` (${Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(', ')})` : ''}`);
+  // docs/SID-HISTORY.md quotes an "N edges across M connected clusters" figure
+  // and points readers here for the live number -- but the cluster half was
+  // never printed, so the pointer only resolved half the sentence and the
+  // figure rotted (55/19 in prose vs 53/18 real). Print both.
+  console.log(`  connected clusters: ${countClusters(edges)} (over ${new Set(edges.flatMap((e) => [e.from, e.to])).size} linked cards)`);
   if (dangling.length) console.log(`  dangling edge targets (no card yet — next candidates): ${dangling.join(', ')}`);
   if (cycles.length) console.log(`  ! derivation cycles detected: ${cycles.join(' | ')}`);
 }

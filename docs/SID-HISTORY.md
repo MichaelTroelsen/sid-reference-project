@@ -44,7 +44,7 @@ honest SID history:
    routine with another. Recorded as a machine `edges[]` relationship
    (`derives_from` / `successor_of` / `shares_routine_with`), and only when
    there is disassembly, source, or author-statement evidence. There are
-   currently **55 such edges across 19 connected clusters** (`build-graph.js`
+   currently **53 such edges across 18 connected clusters** (`build-graph.js`
    — run `node knowledge/build-graph.js` for the live figure rather than
    trusting this one).
    These are the *technical* family tree.

@@ -124,6 +124,17 @@ access layer, `mcp-c64` is the verification loop — a card only becomes
 Card counts drift every batch — run `node knowledge/build-graph.js` for
 the current figure rather than trusting a number written here.
 
+**RetroDebugger is a singleton — only one session at a time.** Never run
+`mcp__retrodebugger__*` from two places at once. It is a single live
+6502/C64 emulator process, so two agents sharing it each see the other's
+breakpoints, loaded file and memory state — an active-process race that
+corrupts results *silently* rather than erroring. Any card whose blocker
+needs RetroDebugger gets its own solo `/sid-verify` run; it never goes
+into a `parallel()`/`Workflow` batch alongside others, and every batch
+agent's dispatch prompt should say so explicitly (the `sid-player-verify`
+agent definition carries the same constraint, but state it at dispatch
+too). Check `retro_list_platforms` before starting.
+
 The disassembly-derived fields (memory map, ZP, entry points, effect
 encodings) are largely sourced from the **SIDM2 project**
 (`c64server/SIDM2` — reverse-engineers Laxity-family SID players into

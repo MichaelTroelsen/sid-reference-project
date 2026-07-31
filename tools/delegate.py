@@ -217,6 +217,16 @@ def call_with_fallback(variant_name: str, prompt: str, system: str | None,
 
 
 def main() -> None:
+    # On Windows, a redirected stdout defaults to the ANSI codepage (cp1252),
+    # so printing a model response containing an en-dash, curly quote or
+    # non-breaking hyphen dies with UnicodeEncodeError *after* the API call has
+    # already been paid for. Force UTF-8 before any output happens.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
     parser = build_parser()
     args = parser.parse_args()
     prompt = resolve_prompt(args)

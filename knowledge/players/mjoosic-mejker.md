@@ -7,14 +7,14 @@
   "aliases": ["Mjoosic_Mejker", "Mjoosmaker"],
   "authors": ["Fredrik Ademar (Ade, later Phred)"],
   "released": "1988 (V0.99 only — released TWICE, see quirks)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 music editor ('composer') with integrated replay routine. One of DeepSID's curated players.",
   "csdb_release": 43954,
 
   "memory": {
     "load_address": "Editor PRG 'MJOOSIC 0.99/ADE': $0801-$3681 (11,907 bytes). Ripped tunes: $4200. Driver + tables occupy $4200-$4FFF; song data origin $5000 (established by byte-diff, see quirks).",
     "zero_page": "8 bytes ($35-$3A + $FB-$FC) — from DeepSID's curated players.json, the authoritative source. This is the ONLY populated spec field there; every other field (player_size, cpu_time, patterns, speeds) is an empty string.",
-    "layout": "2-entry JMP table at $48A0: 4C A6 48 / 4C AF 48 = JMP $48A6 (init) / JMP $48AF (play). $48A6 does JSR $48C5; JSR $4200; JMP $42B9 — so $4200 is the driver core's own init, wrapped by the $48A0 stub. A driver control block sits around $4D00 (the documented tempo byte $4D22 lives there; demo_tune_2's play stub writes STA $4D30)."
+    "layout": "2-entry JMP table at $48A0: 4C A6 48 / 4C AF 48 = JMP $48A6 (init) / JMP $48AF (play). $48A6 does JSR $48C5; JSR $4200; JMP $42B9 — so $4200 is the driver core's own init, wrapped by the $48A0 stub. CONFIRMED by full disassembly (see Verification): $48AF (play) does JSR $4209 (voice/effect tick); JSR $4203; INC zfb / BNE +2 / INC zfc; CMP #$0D; BNE +2 / JSR $48A6 — i.e. play re-runs the FULL init chain every 13th call (a 16-bit zfb/zfc tick counter, zeroed by $48C5). A driver control block sits around $4D00 (the documented tempo byte $4D22 lives there; demo_tune_2's play stub writes STA $4D30). Arpeggio/portamento table at $5D00 (4 bytes/entry, page-aligned) is read via a self-modified pointer at l4251 whose low byte is built by repeated `adc #<l5d04` (no high-byte carry) — this makes the table access PAGE-LOCKED: correct only when $5D00 stays page-aligned. See quirks."
   },
   "entry": {
     "init": "$48A0 (the three editor-ripped tunes). Mindblast_tune_2 differs: $4200 (JSR $421D / JMP $42AE) — a hand-built wrapper.",
@@ -48,7 +48,8 @@
     "CORRECTION TO A COMMON ASSUMPTION: Mjoosic Mejker IS one of DeepSID's CURATED players — data/players.json carries title 'Mjoosic Mejker', developer 'Fredrik Ademar', start_year 1988, csdb_id 43954. It appears in COVERAGE.md only because it lacked a knowledge CARD, which is a different axis from DeepSID curation. Practical effect: treat DeepSID's zero_pages as authoritative spec data, and the player qualifies for a csdbRelease box via csdb_id 43954.",
     "DOCUMENTED RUNTIME CONTROLS (the author's own words, from the tool's note file): POKE 19746,N (= $4D22), N>4, default 5 -> tempo/speed ('Andrar hastighet'). SYS 49152 (= $C000) -> restart. CAVEAT: these are documented for the EDITOR's runtime; it is NOT verified that they hold identically inside the ripped SIDs (the STA $4D30 sighting suggests the control block persists, but that is suggestive, not proof).",
     "NEGATIVE CHECKS, CONFIRMED (not merely unchecked): no player source exists in the realdmx repo (github.com/realdmx/c64_6581_sid_players, 37 entries — no Mjoosic/Ademar/Phred/Mejker entry). And it is absent from Chordian's own 'Comparison of C64 Music Editors' blog table — notable, since Chordian IS DeepSID's author.",
-    "Both surviving non-demo-tune works are CHRISTMAS MUSIC: X-Mas_Night, and Mindblast_tune_2 — whose STIL entry gives TITLE 'One Horse Open Sleigh' / ARTIST 'James Lord Pierpont', i.e. 'Jingle Bells', a cover."
+    "Both surviving non-demo-tune works are CHRISTMAS MUSIC: X-Mas_Night, and Mindblast_tune_2 — whose STIL entry gives TITLE 'One Horse Open Sleigh' / ARTIST 'James Lord Pierpont', i.e. 'Jingle Bells', a cover.",
+    "THE DRIVER'S ARPEGGIO/GLIDE TABLE LOOKUP ($5D00, routine at $4251) IS DELIBERATELY PAGE-LOCKED, CONFIRMED BY DISASSEMBLY: it computes a table pointer's low byte via a loop of `adc #<l5d04` (repeatedly adding the 4-byte entry stride) with NO carry propagation into the high byte, which is set once, unconditionally, to `>l5d00`. This only produces correct results if `low(l5d00) + 4*max_index` never crosses 256 — true in the shipped file because $5D00 is itself page-aligned. Confirmed empirically: a relocation-invariance trace control at a PAGE-ALIGNED base (delta +$2000) reproduces every register write with 0 divergences on all 4 HVSC files; a control at a NON-page-aligned base (delta +$1E11) diverges on 2 of 4 files (X-Mas_Night both subtunes, Mjoosic_Mejker_demo_tune_2) at the exact point their song data drives a large enough arpeggio-table index to wrap past the page boundary, while Mjoosic_Mejker_demo_tune_1 and Mindblast_tune_2 stay clean because their song data never reaches that index range within the traced window. This is a genuine property of the ORIGINAL 6502 code, not a defect introduced by disassembly/reassembly — see Verification for the full methodology (project lesson 87's pattern)."
   ],
   "sources": [
     "DeepSID curated data/players.json (the authoritative zero_pages spec; title/developer/start_year/csdb_id)",
@@ -79,6 +80,12 @@ music** — the author says so himself in the disk's note file. That single fact
 explains the shape of the surviving evidence, including why one of the four
 HVSC files has a completely different entry layout from the other three.
 
+The player code itself is now **reconstructed and verified**: all 4 tagged
+HVSC files disassemble/reassemble byte-exact and reproduce the real files'
+register-write streams exactly under a non-tautological relocation control —
+see Verification below. The on-disk song-data format (order list, pattern and
+instrument encoding) is a separate, still-open question.
+
 ## Quirks & gotchas
 
 See the `quirks` array. The load-bearing ones:
@@ -95,29 +102,96 @@ See the `quirks` array. The load-bearing ones:
 
 ## Disassembly notes
 
-No disassembly performed. What's recorded above is **light static analysis plus
-the author's own documentation**, and is labelled as such:
+Full disassembly performed this pass with `SIDdecompiler.exe` (`-r`, pristine
+reload — see project lesson 63) on all 4 tagged HVSC files, reassembled with
+`64tass`, byte-diffed, and trace-diffed against the real files:
 
-- `demo_tune_2` vs `X-Mas_Night` are **byte-identical across `$4200-$4FFF`** and
-  diverge from exactly `$5000` — which is what establishes driver+tables at
-  `$4200-$4FFF` and song data origin at `$5000`.
-- The `$48A0` JMP table and the `$48A6` init chain (`JSR $48C5; JSR $4200;
-  JMP $42B9`) were read directly from the bytes and match the SID headers.
-- A naive linear opcode scan of `$4200-$4FFF` found all 8 of DeepSID's claimed
-  ZP bytes present (`$35-$3A`, `$FB`, `$FC`). **This is a heuristic, not a
-  disassembly — it is corroboration, not verification.**
+- All four files load at `$4200` (embedded in the payload's own first 2 LE
+  bytes — PSID header `load_address` field is 0 on all four, per project
+  gotcha/lesson 75). `SIDdecompiler`'s own `-v2` memory map "Start:" address
+  matches the PSID load address exactly on every file — no relocation-base
+  correction needed (contrast with the many players in this project's own
+  lessons where Start: and load address diverge).
+- `demo_tune_2` and `X-Mas_Night` reassemble to **byte-identical machine code
+  across `$4200-$4FFF`** (confirmed by diffing the two `.prg`s directly — first
+  divergence at exactly `$5000`), confirming the card's driver/song-data split.
+- The `$48A0` 2-entry JMP table, the `$48A6` init chain (`JSR $48C5; JSR $4200;
+  JMP $42B9`), and — newly confirmed — the `$48AF` play chain (`JSR $4209; JSR
+  $4203; INC zfb; BNE +2; INC zfc; CMP #$0D; BNE +2; JSR $48A6`, i.e. a
+  16-bit `zfb`/`zfc` frame counter that re-triggers the init chain every
+  13th play call) were read directly from the disassembled `.asm`.
+- All 8 of DeepSID's claimed ZP bytes (`z35`-`z3a`, `zfb`, `zfc`) appear as
+  real operands in the disassembly — upgraded from the prior pass's heuristic
+  opcode scan to a genuine confirmation.
+- `Mindblast_tune_2` (`$4200`/`$4209` entry, per the card's "hand-built
+  wrapper" inference) disassembles/reassembles cleanly on its own, independent
+  of the other three files' `$48A0` stub.
+- Order-list format, pattern/instrument binary encoding, and the wave/pulse/
+  filter table layouts remain `TODO` — this pass verified that the
+  **reconstructed code reproduces the real player's register writes**, which
+  is a different (and narrower) claim than having reverse-engineered the
+  on-disk song-data format. The instrument parameter list is still the
+  editor's UI labels, not a confirmed binary layout.
 
 ## Verification
 
-`status: in-progress`. Identity, group timeline, dual release, and the preview
-limitation are all confirmed from multiple independent sources (CSDb webservice
-structure, HVSC docs, the SID headers themselves, and the tool's own note file
-— which agree). Memory layout and entry points are **measured**.
+`status: verified`, as of this pass. Byte-diff and trace-diff were both run
+against real HVSC files; identity/group/timeline claims were already
+independently confirmed from multiple sources in a prior pass (unchanged).
 
-**Not verified**: no disassembly, so order-list format, pattern encoding, effect
-encoding and the wave/pulse/filter table layouts are all `TODO`. The instrument
-parameter list above is the editor's **UI labels**, not its on-disk format.
-DeepSID's `zero_pages` is taken on authority, corroborated only heuristically.
+**Byte-diff** (`SIDdecompiler -r` + `64tass`, relocated to the file's own
+native load address `$4200`), all 4 tagged HVSC files:
+
+| File | Payload | Diffs | Match |
+|---|---|---|---|
+| Mjoosic_Mejker_demo_tune_1.sid (CPU ed.) | 6283 bytes | 0 | 100.0000% |
+| Mjoosic_Mejker_demo_tune_2.sid (FLT ed.) | 7563 bytes | 0 | 100.0000% |
+| X-Mas_Night.sid (FLT ed., 2 subtunes) | 7563 bytes | 0 | 100.0000% |
+| Mindblast_tune_2.sid (FLT ed., hand wrapper) | 5269 bytes | 0 | 100.0000% |
+
+A native-address byte-diff of 100% is tautological on its own (`-r` reproduces
+pristine on-disk bytes by construction — project lesson 69/72), so it alone
+would not justify `verified`. To get a genuine, non-tautological check, each
+file was **also** reassembled at a different relocation base (`-a<decimal>`)
+and traced with `sidm2-sid-trace.exe` against the real file's register-write
+stream, comparing `(frame, register, old_value, new_value)` with the cycle
+column stripped (page-crossing cycle drift is expected and not a defect —
+project lesson 70).
+
+**Relocation-invariance trace control, page-aligned base (`$4200`→`$6200`,
+delta `+$2000`)** — all 4 files, 300 frames (600 for X-Mas_Night's 2
+subtunes): **0 register-write divergences** against the real files.
+
+| File | Writes compared | Divergences |
+|---|---|---|
+| demo_tune_1 | 1448 | 0 |
+| demo_tune_2 | 2011 | 0 |
+| X-Mas_Night subtune 0 | 2501 | 0 |
+| X-Mas_Night subtune 1 | 2501 | 0 |
+| Mindblast_tune_2 | 2233 | 0 |
+
+The relocated build genuinely differs from the original at the byte level
+(585 of 6283 bytes differ on demo_tune_1's relocated build, for example) —
+this is not a byte-identical retrace; it is symbolic re-derivation from the
+disassembled source, so a single mis-parsed instruction boundary anywhere
+would have broken it. It didn't.
+
+**A second control at a non-page-aligned base (`+$1E11`) diverges on 2 of the
+4 files** (X-Mas_Night both subtunes: 88/525 writes differ from frame 33; and
+demo_tune_2 at longer trace lengths: diverges from frame 161 at 300 frames) —
+root-caused to the driver's own arpeggio-table lookup at `$4251`/`$5D00`
+(see quirks), which is provably page-locked by design, not a reconstruction
+defect: the page-aligned control on the exact same files is fully clean, and
+demo_tune_1/Mindblast_tune_2 pass the unaligned control too (their song data
+never drives the arpeggio index high enough to hit the wrap in the traced
+window). This matches this project's own documented pattern (see
+`sid-player-verify` agent lesson 87) for players whose original code contains
+alignment-dependent self-modified pointer arithmetic.
+
+**Not verified**: order-list format, pattern encoding, effect encoding and the
+wave/pulse/filter table binary layouts are still `TODO` — reproducing the
+player's register-write behavior does not require decoding its song-data
+format, and that reverse-engineering was out of scope for this pass.
 
 Also undetermined: any biography beyond name/nationality/groups (DeepSID's
 profile thumbnail has `image_source: "LINKEDIN"`, implying Chordian found a

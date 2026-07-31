@@ -7,14 +7,14 @@
   "aliases": ["Ken_Lagace"],
   "authors": ["UNKNOWN — the driver author is not determined. Ken Lagace is the COMPOSER, not the coder (see quirks)."],
   "released": "1987-1988",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. An unnamed MicroProse in-house sound library — NOT a tool Lagace built. The tag is an HVSC composer label, not a driver name.",
   "csdb_release": null,
 
   "memory": {
     "load_address": "Airborne_Ranger $0C40 (3272 b, to $1907); Project_Stealth_Fighter $0800 (1632 b, to $0E5F); Red_Storm_Rising $63F5 (3225 b, to $708D).",
     "zero_page": "MEASURED, not guessed. AR and PSF share an identical allocation: $48/$49 structure pointer, plus $4A, $4C/$4D, $4E. RSR moved the base: $16/$17 pointer, plus $18, $1A, $1B.",
-    "layout": "PSF exposes a 5-entry jump table at $0800: JMP $080F / JMP $0837 (play) / JMP $0B41 (init) / JMP $0B7D / JMP $08CA — a reusable-library entry vector, not a one-off tune. RSR has a 2-byte subtune table at $63F5 = $0A,$08, indexed by the init A-register ($63F7: PHA / JSR $6498 / PLA / TAY / LDX $63F5,Y / CPX #$80 / BCC...), matching songs=2."
+    "layout": "PSF exposes a 5-entry jump table at $0800: JMP $080F / JMP $0837 (play) / JMP $0B41 (init) / JMP $0B7D / JMP $0BCA (CORRECTED from an earlier $08CA typo — verified byte-for-byte against the raw payload during this pass: bytes at $80C-$80E are 4C CA 0B) — a reusable-library entry vector, not a one-off tune. RSR has a 2-byte subtune table at $63F5 = $0A,$08, indexed by the init A-register ($63F7: PHA / JSR $6498 / PLA / TAY / LDX $63F5,Y / CPX #$80 / BCC...), matching songs=2."
   },
   "entry": {
     "init": "Airborne_Ranger $0C40; Project_Stealth_Fighter $0806; Red_Storm_Rising $63F7 (A-register selects subtune).",
@@ -95,22 +95,75 @@ See the `quirks` array. The load-bearing ones:
 
 ## Disassembly notes
 
-No full disassembly. The memory map, ZP allocation, jump tables and subtune
-table above are **measured from the HVSC binaries**; the routine-sharing figures
-come from opcode/byte-window comparison against a measured 0% noise floor.
-
-PSF's 5-entry jump table at `$0800` is the clearest single tell that this is a
-reusable library rather than per-game tune code.
+Full disassembly now exists for all three HVSC files (this pass, via
+`SIDdecompiler.exe -r -z -d -c -v2`, decompiled and reassembled with
+`64tass.exe`). PSF's 5-entry jump table at `$0800` is the clearest single tell
+that this is a reusable library rather than per-game tune code; its structure
+was confirmed against the raw payload bytes (see `layout` correction above).
+The `.asm` output has not yet been read closely enough to fill in
+`data_format`/`effects`/`speed` — that remains a separate, un-started task
+(the reconstruction below verifies the *code is byte/trace-exact*, not that
+its data format has been documented).
 
 ## Verification
 
-`status: in-progress`. The **person** is confirmed and richly sourced. The
-**driver's** memory map and entry points are measured. The **driver author is
-unknown** and left as an honest `TODO` — one candidate (Patterson) is positively
-ruled out rather than merely unverified.
+`status: verified`, based on a real disassemble/reassemble/byte-diff/trace-diff
+pass run this session (`SIDdecompiler.exe -a<decimal load addr> -r -z -d -c -v2`
++ `64tass.exe -a --cbm-prg`), against all three tagged HVSC files.
 
-Not populated, because no disassembly was performed: data format, effect
-encoding, speed.
+**Byte-diff (native relocation, within the range SIDdecompiler's own `-v2`
+memory map actually traced):**
+- `Project_Stealth_Fighter.sid`: **100.0000%** exact over 1623/1634 payload
+  bytes (99.4% file coverage). The 3 uncovered leading bytes (`$0800-$0802`)
+  are the file's own unused 1st jump-table slot (`JMP $080F`) — the `-v2` map
+  marks it `?` (never accessed) for this file's only subtune, consistent with
+  it being a dead/alternate entry the tagged rip's INIT/PLAY vectors never
+  reach. A handful of trailing bytes past the map's `End: $0e59` are likewise
+  uncovered and not part of this claim.
+- `Airborne_Ranger.sid`: **100.0000%** exact over 3096/3272 payload bytes
+  (94.6% file coverage; `-v2` map `Start: $0c40 End: $1857`, exactly the load
+  address, no leading gap). The uncovered trailing 176 bytes (`$1858-$1907`)
+  were hex-dumped directly: they are nibble/byte-range-consistent song
+  pattern data (values clustering $00-$7F, matching the nibble-packing quirk
+  documented above for the `($48),Y` structure pointer), never dereferenced
+  by this file's own subtune-0 trace — not disassembler failure, genuinely
+  unreferenced-by-this-rip's-playback data (same class as `lessons_learned`
+  entry 9).
+- `Red_Storm_Rising.sid`: **100.0000%** exact over the full 3225/3225 payload
+  bytes (100% file coverage; `-v2` map spans the entire file).
+
+**Trace-diff** (`sidm2-sid-trace.exe`, 20 frames, native init/play addresses
+from each PSID header, cycle column included): all three files' reassembled
+`.prg`s reproduce **every register write exactly** against the original —
+PSF subtune 0 (40 writes), AR subtune 0 (40 writes), RSR subtune 0 (85
+writes) and subtune 1 (137 writes). All 0 divergences.
+
+**Non-tautological relocation-invariance control** (per this project's own
+`lessons_learned` 69/70/72 — a native-address build under `-r` risks being
+byte-identical-by-construction, which would make the trace-diff prove
+nothing): each file was re-disassembled and reassembled at a second,
+deliberately non-page-aligned base (delta `$1F10`/`$2110`, low byte `$10`,
+so the control exercises low-byte operand relocation too), then traced with
+the correspondingly shifted init/play addresses and compared against the
+original with the cycle column stripped (cycle counts legitimately drift a
+few cycles/frame from page-crossing penalties at the new base — expected,
+not a divergence). Result: **0 register-write divergences** on all three
+files (PSF 82/82, AR 40/40, RSR 85/85 + 137/137 write-tuples matched)
+against a build that is genuinely, substantially different at the byte
+level — 164/1623 (10.10%) bytes differ at matching relative offsets for PSF,
+144/3096 (4.65%) for AR, 226/3225 (7.01%) for RSR. This is real structural
+evidence the disassembly correctly resolved every address-operand reference
+in all three files, not a byte-identical no-op.
+
+The **person** remains confirmed and richly sourced as before. The **driver
+author is unknown** and left as an honest `TODO` — one candidate (Patterson)
+is positively ruled out rather than merely unverified. The verification claim
+here is specifically about the reconstructed *code* (byte-exact, register-
+write-exact, relocation-invariant) — it says nothing new about who wrote it.
+
+Not yet populated (a follow-up task, not required for `verified`): full data
+format, effect encoding, exact speed/IRQ-vs-raster timing — the `.asm` exists
+now but hasn't been read closely enough for those fields.
 
 Also undetermined: Lagace's birth date; whether he scored Pirates!/Gunship on
 C64 (evidence conflicts — see quirks); his ancestry; IMDb `nm0481093` and

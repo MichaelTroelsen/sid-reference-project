@@ -2383,6 +2383,61 @@ them):
     when the engine sits at fixed absolute addresses in every file, which
     lesson 44's load-address-varies-but-code-does-not pattern is exactly the
     setup for.
+
+92. **A `sidm2-sid-trace.exe` "self-installing IRQ vector never resolved
+    after 2000000 steps (installed=false, handler=$0000)" failure is NOT the
+    untraceable dead-end its message implies — the fix is to switch tracer,
+    not to hunt for an entry point or escalate to a live debugger.** This is
+    not lesson 81's RSID `play=$0000` case. On `4753-softcopy` a full prior
+    pass recorded on the card that register-write trace verification was
+    "structurally blocked for this whole player", reasoning that an init
+    which decodes and plays an entire 52KB PCM track synchronously with SEI
+    held, never touching `$FFFE/$FFFF`, can never satisfy that tracer's
+    completion heuristic at any step budget. That reasoning is correct and
+    the conclusion was still wrong: this project already ships the right
+    tool. `scripts/dev/vsid-trace.js` wraps VICE's `vsid` in `-sounddev
+    dump` mode, runs a real machine with no vector handshake of any kind,
+    and traced 514,078 `$D400-$D418` writes over 2000 frames in ~7s per run.
+    The trap is that the tracer's error text is a confident *behavioural*
+    diagnosis ("this player's INIT likely waits on its own IRQ firing as a
+    handshake") phrased as a property of the file rather than of the tool,
+    and closes with "untraceable with this tool" — which reads as
+    "untraceable". Three corollaries. (a) The wrapper takes a `.sid` path
+    only, so re-wrap the reassembled `.prg` into the ORIGINAL file's header
+    per lesson 67, honouring lesson 75's `loadAddr===0` branch. (b) Its
+    `--json` output carries per-write cycle counts, so `(frame, cycle, reg,
+    value)` diffs come free. (c) 2000 frames of a ~10 kHz digi player is a
+    90MB JSON — diff it with `node --max-old-space-size=6000` and a
+    flatten-then-compare script, never by reading it.
+
+93. **Lesson 78's `-r` trap fires on a player whose code-copy DESTINATION
+    lies BELOW its own load address, not just above it — and the classic C64
+    cassette buffer makes the case easy to miss because nothing about the
+    file looks unusual.** `4753-softcopy`'s init copies 160 bytes from its
+    own payload at `$1003-$10a2` down to `$033c-$03db` and runs from there,
+    via `ldx #$a0 / lda $1002,X / sta $033b,X`. The PSID load address is an
+    ordinary `$1000` and play is `$0000`, so lesson 78's stated detector
+    ("does the PSID play address fall inside `[load, load+len)`") does not
+    fire. Measured on `Paid_in_Fuff.sid`: `-r` reaches 100.000000%
+    byte-exact with **no** hand patching (versus 23 bytes of
+    `$d011`/`$d400-$d418` I/O-shadow patching without it — genuinely
+    tempting) while reducing the `$033c` block to garbage: 20 of 160 bytes
+    still match the copy source, versus 152 of 160 in the default build. The
+    byte-diff cannot see this, because the copy SOURCE at `$1003` is real
+    file data that passes through verbatim either way. Two generalisations.
+    (a) Restate the detector as "does the file copy code anywhere at init?"
+    — grep for a `sta $xxxx,X` / `dex` / `bne` loop near the entry point per
+    lesson 62's diagnostic (a), regardless of load-address arithmetic.
+    (b) **When a file carries its own routine twice — once as executable
+    code at the copy destination, once as the copy source — that is a free,
+    byte-level correctness check on the disassembly, fully independent of
+    the byte-diff.** On a correct build every difference between the two
+    copies should be an address you can name as a self-modified operand or
+    workspace byte (here `$038f` delay constant, `$039f`/`$03a5` segment-end
+    `cmp` operands, `$03bb` sample scratch, `$03bc-$03bf` per-segment
+    workspace, `$03c4` saved `$d015` — 8 of 160 on both files). It is the
+    cheapest available evidence that the instruction decode is right in a
+    region the byte-diff only ever sees as data.
 </lessons_learned>
 
 <success_criteria>

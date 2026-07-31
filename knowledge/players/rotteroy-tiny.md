@@ -6,9 +6,9 @@
   "name": "Rotteroy_tiny (player routine)",
   "aliases": ["Rotteroy_tiny"],
   "authors": ["Roy Johan Widding (Rotteroy) of Megastyle"],
-  "released": "TODO: no RELEASED/REFERENCE field; data/sidid.json has no entry for this tag at all",
+  "released": "TODO: no formal tool-release date exists for the routine itself — data/sidid.json has no byTag entry for 'Rotteroy_tiny' at all (no RELEASED/REFERENCE field to read). Full census of all 5 CSDb sid-entries tagged 'Rotteroy_tiny' (queried via csdb.dk's XML webservice, type=sid, depth=1, one call per file, 2026-07-31) gives earliest attested year 2016: 'Lumberjack' by Vidar Bang/Drumtex (https://csdb.dk/sid/?id=53882, Released='2016 Megastyle/Protovision') — notably NOT one of Rotteroy's own files. Rotteroy's own 3 files ('City Bomber 4k' id=57655, 'Kung Poo Fighter' id=58340, 'Panic in the Bank' id=59222) are all Released='2020 Megastyle'; the 5th file, 'BrumBrum' by Roy Fielding/Roysterini (id=61265), is Released='2022 Megastyle'. This is earliest-tune-attested, not a tool release date — the routine may predate 2016, and no source states when it was first written.",
   "status": "stub",
-  "platform": "TODO: no CSDb tool release or source repo found. The '_tiny' suffix and the composer's own size-limited productions (see quirks) suggest a compact routine used for small intros, but this is inferred from usage, not a sourced fact.",
+  "platform": "Native C64, in-house/personal player routine, not a distributed editor or standalone tool. No CSDb release page, source repo, or documentation for a 'Rotteroy'/'Rotteroy_tiny' music-editor/tool was found. Confirmed via targeted web searches (2026-07-31) including 'site:csdb.dk Rotteroy player editor routine', 'Rotteroy player routine C64 SID Vidar Bang Megastyle lemon64.com', and 'forum64.de Rotteroy Player C64 SID' — no thread on Lemon64 or Forum64, no CSDb release entry, and no Codebase64 article names a 'Rotteroy' tool; all hits resolve to Rotteroy's (Roy Johan Widding's) demoscene/game credits with Megastyle, Out of Order and Protovision, not a music tool. CSDb's own scener trivia for Rotteroy (handle ID 954, https://csdb.dk/webservice/?type=scener&id=954) states the handle itself originated from filenames on early sid tunes ('After making a couple of sid tunes with the filename \"Rotteroy\", the handle also became the c64 scene name'), consistent with a personal/hand-coded routine rather than a published tool. This absence, plus the composer-concentration pattern (see quirks), supports the existing inference — evidence-based, not a sourced statement of intent.",
   "csdb_release": null,
 
   "memory": { "load_address": "TODO", "zero_page": "TODO", "layout": "TODO" },
@@ -24,7 +24,10 @@
     "3 of 5 locally-tagged files are by Widding_Roy_Johan himself ('City Bomber 4k', 'Kung Poo Fighter', 'Panic in the Bank' — all CSDb-titled as small/compo productions consistent with the '_tiny' suffix), the other 2 by Drumtex ('Lumberjack') and Toy (credited author 'Roy Fielding (Roysterini)', csdb id 61265, 'BrumBrum'). Roy Johan Widding's own handle is 'Rotteroy' (confirmed: CSDb/Demozoo, Norwegian scener, group Megastyle, active since 1986) — so this is predominantly a self-authored routine that spread to 2 other composers.",
     "SIBLING TAG ALREADY CARDED: composer Drumtex (Vidar Bang) and Widding_Roy_Johan also share a DIFFERENT SIDId-tagged signature, plain 'Drumtex' (knowledge/players/drumtex.md, 9 files: 7 by Drumtex, 2 by Widding_Roy_Johan) — that card notes both are members of the same group (Megastyle Inc.) as a plausible, unconfirmed reason for shared signatures. This tag, 'Rotteroy_tiny', is the converse case: predominantly Widding's own tag, with Drumtex as a minority user. No source proves the two tags ('Drumtex' and 'Rotteroy_tiny') are the same underlying code — they are recorded as distinct SIDId signatures.",
     "Roy Johan Widding (Rotteroy) is independently well-documented: born 1972, active on the C64 scene since 1986, contributes music/graphics to the Norwegian group/studio Megastyle (game ports such as 'Bruce Lee: Return of Fury', 'SNAFU '64'), per Demozoo and itch.io listings.",
-    "The third composer, 'Toy', is locally credited as author 'Roy Fielding (Roysterini)' for 'BrumBrum' (csdb id 61265) — a different real name/handle from Rotteroy despite the similar-sounding folder grouping; no group-membership evidence found connecting Roysterini to Megastyle."
+    "The third composer, 'Toy', is locally credited as author 'Roy Fielding (Roysterini)' for 'BrumBrum' (csdb id 61265) — a different real name/handle from Rotteroy despite the similar-sounding folder grouping; no group-membership evidence found connecting Roysterini to Megastyle.",
+    "FULL CENSUS (all 5 tagged files, csdb.dk webservice type=sid depth=1, 2026-07-31): the earliest attested Released date is 2016 ('Lumberjack', csdb id=53882, 'Released: 2016 Megastyle/Protovision') and it belongs to Drumtex/Vidar Bang, NOT to Rotteroy — Rotteroy's own 3 files are all 'Released: 2020 Megastyle' (City Bomber 4k id=57655, Kung Poo Fighter id=58340, Panic in the Bank id=59222), and the 5th file, 'BrumBrum' (Roysterini, id=61265), is 'Released: 2022 Megastyle'. This inverts the naive assumption that the tag's namesake would also hold the earliest file.",
+    "PSID header metadata (not disassembly facts — recorded here per knowledge/EXTRACTION-TEMPLATE.md, never in Tier 3 fields): LoadAddr/InitAddr differ per file with no fixed base — City Bomber 4k $307E(12414), Kung Poo Fighter $1237(4663), Panic in the Bank $0B7E(2942), Lumberjack $1000(4096, but Init=$1110/4368, i.e. init and load differ), BrumBrum $4000(16384). All 5 files use SIDModel=8580, ClockSpeed=PAL. Wildly varying load addresses (unlike the fixed $1000 base seen across the sibling 'Drumtex' tag's 9 files) is consistent with a small, per-tune-relinked personal routine rather than a fixed-address distributed player, but is not itself a disassembly fact.",
+    "Platform/provenance web searches (2026-07-31) found no distributed 'Rotteroy' tool: CSDb has no release page, Lemon64 and Forum64 have no matching thread, and Rotteroy's own CSDb scener trivia (handle ID 954) states the handle originated from filenames on his own early sid tunes ('After making a couple of sid tunes with the filename \"Rotteroy\", the handle also became the c64 scene name') — supporting a personal/hand-coded routine reading, not a proof of code identity."
   ],
   "sources": [
     "data/sidid.json: no entry for 'Rotteroy_tiny' (checked, absent)",
@@ -32,7 +35,10 @@
     "knowledge/players/drumtex.md (status: stub) — sibling card documenting the same two composers (Drumtex, Widding_Roy_Johan) sharing a different tag ('Drumtex'); cited for corroborating context, not edited",
     "Demozoo scener profile for Roy Johan Widding ('Rotteroy', Megastyle): https://demozoo.org/sceners/59230/",
     "itch.io — Kung Poo Fighter C64 4Kb by Roysterini: https://roysterini.itch.io/kung-poo-fighter-c64",
-    "GamesThatWerent — Lumberjack Deluxe (C64), 2018 Megastyle: https://www.gamesthatwerent.com/gtw64/lumberjack-deluxe/"
+    "GamesThatWerent — Lumberjack Deluxe (C64), 2018 Megastyle: https://www.gamesthatwerent.com/gtw64/lumberjack-deluxe/",
+    "Full census of all 5 tagged files' CSDb sid entries via csdb.dk webservice (type=sid, depth=1), 2026-07-31, for Released/LoadAddr/InitAddr/PlayAddr fields: https://csdb.dk/sid/?id=57655 (City Bomber 4k), 58340 (Kung Poo Fighter), 59222 (Panic in the Bank), 53882 (Lumberjack), 61265 (BrumBrum)",
+    "CSDb webservice scener record for Rotteroy (Roy Johan Widding, handle ID 954), including handle-origin trivia: https://csdb.dk/webservice/?type=scener&id=954",
+    "Web searches confirming no distributed 'Rotteroy' tool exists (2026-07-31): 'site:csdb.dk Rotteroy player editor routine', 'Rotteroy player routine C64 SID Vidar Bang Megastyle lemon64.com', 'forum64.de Rotteroy Player C64 SID' — no CSDb release, no Lemon64 (lemon64.com) or Forum64 (forum64.de) thread naming it as a tool; all hits are Rotteroy's/Megastyle's game and demoscene credits"
   ]
 }
 ```
@@ -48,14 +54,25 @@ productions consistent with the "_tiny" suffix), plus Vidar Bang ("Drumtex",
 folder "Toy"). Notably, Widding and Drumtex also share a *different*,
 already-carded tag (`Drumtex`, see `knowledge/players/drumtex.md`) — the two
 tags are recorded as distinct signatures, with no source proving shared code
-between them.
+between them. A full census of all 5 tagged files' CSDb Released fields puts
+the earliest attested tune at 2016 ("Lumberjack" — by Drumtex, not by Rotteroy
+himself), with Rotteroy's own 3 files all dated 2020 and the fifth file
+("BrumBrum", Roysterini) at 2022 — a tune composition/release-use date, not a
+tool release date. Native C64 platform is confirmed by the PSID headers
+themselves; targeted web searches (CSDb, Lemon64, Forum64) found no
+distributed editor/tool release, reinforcing rather than just inferring the
+"personal/hand-coded routine" reading also used for the sibling `Drumtex` card.
 
 ## Quirks & gotchas
 
-See the `quirks` array. Load-bearing: no SIDId fingerprint entry exists for
-this tag at all (identity rests on local composer credits only); and the
+See the `quirks` array. Load-bearing: (1) no SIDId fingerprint entry exists
+for this tag at all (identity rests on local composer credits only); (2) the
 overlap with the already-carded `Drumtex` tag on two of the same composers is
-flagged but not asserted as an edge.
+flagged but not asserted as an edge; (3) the census inverted a naive
+assumption — the earliest-attested file (2016, "Lumberjack") belongs to
+Drumtex, not to Rotteroy, whose own files all date to 2020; (4) PSID load
+addresses vary widely across all 5 files with no fixed base, unlike the
+sibling `Drumtex` tag's fixed $1000 base.
 
 ## Disassembly notes
 
@@ -64,12 +81,17 @@ or disassembly located.
 
 ## Verification
 
-**Not verified — `status: stub`.** Only identity/usage facts are established
-from local composer-file aggregation and Demozoo/itch.io provenance research.
-No SIDId corroboration exists for this tag.
+**Not verified — `status: stub`.** Only identity/usage facts and Tier 2
+provenance are established: local composer-file aggregation, a full CSDb
+webservice census of all 5 tagged files' Released/PSID-header fields, and
+Lemon64/Forum64/CSDb searches confirming no distributed tool exists. No SIDId
+corroboration exists for this tag, and no runtime fact was disassembled or
+traced.
 
 ## Sources
 
 See the `sources` array — local composer-file aggregation, the sibling
-`drumtex.md` card (cited, not edited), and Demozoo/itch.io/GamesThatWerent
-provenance pages for Rotteroy/Megastyle.
+`drumtex.md` card (cited, not edited), Demozoo/itch.io/GamesThatWerent
+provenance pages for Rotteroy/Megastyle, a full CSDb webservice census of all
+5 tagged sid entries, and Lemon64/Forum64/CSDb web searches for a distributed
+tool.

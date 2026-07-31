@@ -12,7 +12,7 @@
   "csdb_release": null,
 
   "memory": {
-    "load_address": "CONFIRMED for 32 of 34 real HVSC files under MUSICIANS/0-9/4753_Softcopy/: PSID/RSID load=init=$1000 (verified by reading all 34 real headers directly, not just the two previously cited on CSDb). 2 outliers use load=init=$080d (A_New_Love.sid, Jack_Your_Body.sid) — SIDdecompiler could not disassemble either (see Verification; a genuine tool-hang, not confirmed to reflect different code). The cross-composer file James_Brown_Is_Dead.sid (Denis Knitter/'Bad') uses a third address, load=$0810/init=$0838, and also hangs SIDdecompiler — consistent with, but not proof of, it NOT sharing the $1000-convention routine.",
+    "load_address": "CONFIRMED for 32 of 34 real HVSC files under MUSICIANS/0-9/4753_Softcopy/: PSID/RSID load=init=$1000 (verified by reading all 34 real headers directly, not just the two previously cited on CSDb). 2 outliers use load=init=$080d (A_New_Love.sid, Jack_Your_Body.sid); SIDdecompiler hangs on both, but as of 2026-07-31 (batch38) both are reconstructed byte-exact via scripts/dev/dis6502.js and VERIFIED by a relocation control (0 divergences including cycle) — they run the same copied $033C routine with a longer copy, so `verified` covers all 34 of $4753's own files. The cross-composer file James_Brown_Is_Dead.sid (Denis Knitter/'Bad') uses a third address, load=$0810/init=$0838, and also hangs SIDdecompiler — consistent with, but not proof of, it NOT sharing the $1000-convention routine.",
     "zero_page": "CONFIRMED (disassembly, $1000-convention files): $FD/$FE (a 16-bit pointer walking the current sample segment's raw PCM data) and $02 (the order-list read index). Small, sample-player-shaped ZP usage, not a tracker's usual wide ZP table.",
     "layout": "CONFIRMED (disassembly, $1000-convention files, e.g. Paid_in_Fuff.sid): the file's own $1000+ payload holds (a) a small init/dispatch routine, (b) an order-list byte-stream at $1200 (terminated $FF), (c) a 4-byte-tuple segment table at $1120 ([start_hi,start_lo,end_hi,end_lo] per entry, indexed by order-byte<<2), and (d) the raw PCM sample data itself, scattered through the payload (segments observed starting at $1380/$2300/$2a00/$3100/$3300/$4100/$bf00 in Paid_in_Fuff.sid). CRITICALLY: SIDdecompiler's own '-v2' memory-touch map reports the actual lowest touched address as $033c, NOT $1000 — the real decode/playback subroutine executes from the C64 cassette buffer, at exactly $033c-$03db (160 bytes). It is NOT part of the loaded image at that address: init copies it there from the payload's own $1003-$10a2 with `ldx #$a0 / lda $1002,X / sta $033b,X / dex / bne` (X counts $a0 down to $01, so $1003 lands on $033c), then calls it with `jsr $033c`. Relocating to this Start address (not the PSID header's $1000 load address) was required for a byte-exact reassembly — see gotcha 40/emitted lesson below. Within the copied routine: $038f = the busy-wait delay constant (operand of `ldx #imm` at $038e); $039f/$03a5 = the segment end-address lo/hi `cmp #imm` operands; $03bb = the current source byte scratch; $03bc-$03bf = per-segment working storage written by the dispatcher; $03c0-$03c3 = the constant 4-entry volume LUT ($09,$06,$03,$00); $03c4/$03c5 = saved $d015/A; $03ba = an RTI byte used as the NMI landing pad."
   },
@@ -50,7 +50,7 @@
     "The one cross-composer file (James_Brown_Is_Dead.sid, Denis Knitter/'Bad', 1992, group Fantasia) has a different PSID load/init address than $4753's own Paid_in_Fuff.sid — whether this reflects genuine reuse of the same hand-written routine (relocated/reassembled) or a looser Player-ID/tag match was NOT independently confirmed here; flagged, not asserted.",
     "No entry for this tag in data/sidid.json (SIDId's sidid.nfo) — checked directly, confirmed absent. No CSDb release exists representing this 'player' as a distributed product (csdb_release left null for that reason, not merely unresearched).",
     "Paid_in_Fuff.sid is unusually large for a SID (PSID data size 52,736 / $CE00 bytes) — fits the 'DJ Collection' concept (sampled dance-mix snippets/'digi' audio) referenced in its parent release title. CONFIRMED by disassembly (not just inferred from size/context any more): this is genuinely a one-shot, order-list-driven PCM/digi sample player, not a conventional multi-channel tracker engine — see data_format.order_list.",
-    "DISASSEMBLED THIS PASS: SIDdecompiler + 64tass reconstruction of 2 real files (Paid_in_Fuff.sid, Push_It.sid), both using the $1000-load convention, reached 100.0000% byte-exact reassembly (one required patching 23 explained bytes — see Verification). 32 of the 34 real HVSC files under this tag use this same $1000 load/init convention (checked all 34 headers directly this pass); the remaining 2 (A_New_Love.sid, Jack_Your_Body.sid, load/init=$080d) plus the one cross-composer file (James_Brown_Is_Dead.sid, load=$0810/init=$0838) could not be disassembled — SIDdecompiler hangs indefinitely on all three (confirmed via process-still-alive check, not just a slow run) regardless of the '-t' trace-count flag. Genuinely unresolved, not investigated further this pass.",
+    "DISASSEMBLED THIS PASS: SIDdecompiler + 64tass reconstruction of 2 real files (Paid_in_Fuff.sid, Push_It.sid), both using the $1000-load convention, reached 100.0000% byte-exact reassembly (one required patching 23 explained bytes — see Verification). 32 of the 34 real HVSC files under this tag use this same $1000 load/init convention (checked all 34 headers directly this pass); the remaining 2 (A_New_Love.sid, Jack_Your_Body.sid, load/init=$080d) plus the one cross-composer file (James_Brown_Is_Dead.sid, load=$0810/init=$0838) could not be disassembled — SIDdecompiler hangs indefinitely on all three (confirmed via process-still-alive check, not just a slow run) regardless of the '-t' trace-count flag. Genuinely unresolved, not investigated further this pass. SUPERSEDED 2026-07-31: all three were disassembled via RetroDebugger/dis6502.js (batch32, batch38); the two $080d files are now verified by relocation control, the cross-composer file is structurally identified but not verified.",
     "sidm2-sid-trace.exe CANNOT trace this player, but that is a tracer-model mismatch, not a code mystery, and it is NOT a blocker — it was worked around this pass. That tracer fails with 'self-installing IRQ vector never resolved after 2000000 steps (installed=false, handler=$0000)' because its completion heuristic waits for an interrupt vector to be written, which this player never does (it plays the whole track synchronously inside init with SEI held, never touching $FFFE/$FFFF). The project's own VICE wrapper scripts/dev/vsid-trace.js has no such handshake requirement — it runs a real emulated machine and simply logs $D400-$D418 — and traced both disassembled files without complaint (see Verification). Reach for vsid-trace.js, not sidm2-sid-trace.exe, for any file in this family.",
     "DO NOT use SIDdecompiler's -r flag on this player, even though it makes the byte-diff look easier. -r reaches 100.000000% byte-exact on Paid_in_Fuff.sid with no hand patching (vs. 23 bytes needed without it), which is tempting — but it simultaneously DESTROYS the disassembly of the actual decode routine: because that routine's runtime home ($033c-$03db) is below and outside the file's own $1000-$ddff load range, -r resets it to the pristine on-disk image, i.e. to nothing. Measured: in the -r build only 20 of the routine's 160 bytes still match the file's own copy source at $1003-$10a2, versus 152 of 160 in the default build (and those 8 are exactly the self-modified/workspace bytes $038f/$039f/$03a5/$03bb/$03bc-$03bf/$03c4). The byte-diff cannot detect this, because the copy SOURCE at $1003 is genuine file data and passes through verbatim either way."
   ],
@@ -93,7 +93,7 @@ entirely inside a single blocking `init` call with interrupts disabled — see
 
 ## Quirks & gotchas
 
-See the `quirks` array. Load-bearing points as of this pass: **32 of the 34
+See the `quirks` array. Load-bearing points (note: the 32-of-34 split below is superseded — as of batch38 `verified` covers all 34 of $4753's own files): **32 of the 34
 real files use a shared $1000 load/init convention** (checked all 34 headers
 directly, not just the two originally cited from CSDb) and reassemble
 byte-exact from a real disassembly; **2 outlier files (+ the 1 cross-composer
@@ -248,6 +248,51 @@ zeros there and emits a constant `$09` (LUT index 0) for that stretch. This
 is independent confirmation that those 23 bytes really are load-bearing
 sample data, audible in the output, not dead workspace.
 
+### 2026-07-31 (batch38) — the two `$080d` outliers now VERIFIED; scope 32/34 -> 34/34
+
+**Both `$080d`-convention files pass a real relocation control, so `verified`
+now covers all 34 of $4753's own files, not 32.**
+
+SIDdecompiler hangs on both. Reconstructed instead with
+`scripts/dev/dis6502.js`: `A_New_Love.sid` and `Jack_Your_Body.sid` both
+reassemble **100.000000% byte-exact** (62,195 and 56,622 bytes, 0 diffs).
+
+The payload disassembly alone only reaches 0.2-0.3% code, and that is correct
+rather than a failure: the descent stops at `JSR $033C`, which is outside the
+payload. **The decode routine exists in the payload only as copy-source bytes**
+and becomes code once copied. Extracting it and disassembling at its runtime
+address gives 126 code bytes of 172 (73.3%), matching this card's documented
+mechanics exactly — `$D020`->`$03C5`, `$D015`->`$03C4`, the SID clear, the
+`$FFFA/$FFFB <- $03BA` NMI pad, and the `$01` port toggling `$34`/`$35` around
+each sample read with `$03BB` as scratch.
+
+Relocation control, the same `+$20` non-page-aligned move batch29 used on the
+`$1000` files (`$033C -> $035C`). Two edit sites are needed and no others: the
+routine's own absolute self-references, which live in the copy-source bytes,
+and the loader's references to it (the `$033b,X` copy destination, the `JSR`
+target, and the per-segment operand pokes `$038F`/`$039F`/`$03A5`). Operands
+were patched only inside identified instructions — a blind 16-bit scan would
+fire constantly inside 60KB of PCM.
+
+| file | copy loop | bytes changed | writes/side | divergences incl. cycle |
+|---|---|--:|--:|--:|
+| `A_New_Love.sid` | `ldx #$ac / lda $089e,X / sta $033b,X` | 23 | 148,932 | **0** |
+| `Jack_Your_Body.sid` | `ldx #$aa / lda $08c9,X / sta $033b,X` | 23 | 148,932 | **0** |
+
+**The identical write count is a property of the player, not an error** — it is
+a fixed-rate `$D418` digi loop, so 500 frames yields the same number of writes
+regardless of content. Verified by diffing the two *originals* against each
+other: 140,419 divergences, i.e. genuinely different tunes producing the same
+write count. All four files confirmed distinct by MD5.
+
+**`James_Brown_Is_Dead.sid` (cross-composer) is NOT included** and remains
+structurally-identified only, from batch32. It differs mechanically: its
+routine sits **in-place at `$093C`** rather than being copied, so a relocation
+control means physically moving bytes. Measured constraint: the routine ends at
+`$09E7` with only **24 bytes of zero padding** before real code resumes at
+`$0A00` (`LDA #$3B / STA $D011`), so the `+$20` delta used above would overwrite
+it — any delta must be `<= $18`. Feasible, not attempted.
+
 ### RESOLVED 2026-07-31 (batch32) — all three outliers are the same player
 
 The three files SIDdecompiler could not touch were disassembled via
@@ -275,7 +320,7 @@ its `$03xx` address plus `$600`: `$033C`->`$093C`, `$039F`->`$099F`,
 byte-identical. Its order-list walker counts 32 segments (`CMP #$20`) against
 table pages at `$0C00`/`$0D00`/`$0E00`.
 
-**The `verified` status is NOT extended by this.** It still covers the 32-of-34
+**The `verified` status was NOT extended by batch32** (batch38 later extended it to 34/34 for the two $080d files; see above). At the time of batch32 it covered the 32-of-34
 `$1000`-convention files, of which 2 were reconstructed and trace-diffed. What
 these three now have is established *structural identity* from a static
 disassembly — `isExecuted=false` throughout, nothing reassembled, no byte-diff,

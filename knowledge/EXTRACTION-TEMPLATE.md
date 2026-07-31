@@ -52,9 +52,11 @@ Wikipedia/forums. Cite a URL for every fact.
 ### Census every tagged file. Never spot-check.
 
 **Any claim derived from a subset of a card's tagged files should be treated as
-provisional until every file has been checked.** Across 27 stub cards
-researched on 2026-07-31, **eleven** claims were corrected, and every single
-correction came from replacing a spot-check with a full census:
+provisional until every file has been checked — even a large subset.**
+`glover` sampled 6 of 11 files (more than half) and still missed a whole
+cluster of five. A majority sample is not a census; only "every tagged file"
+counts. Across 36 stub cards researched on 2026-07-31, **17** claims were
+corrected, every one from replacing a partial check with a full census:
 
 | card | recorded | actual | what was wrong |
 |---|---|---|---|
@@ -69,13 +71,20 @@ correction came from replacing a spot-check with a full census:
 | `daisy` | 2 load addresses | **5** | 2-file sample of PSID headers |
 | `rob-hubbard-digi` | "vintage rips" | 2018 Project Hubbard | provenance assumed, not checked |
 | `trackplayer` | adopted via Motiv 8 (1996+) | Airwolf-Team | earliest tunes predate the membership |
+| `censor-digi` | 1990 | 1989 | partial read missed one file |
+| `glover` | 1999-2003 | 1997-2003 | 6/11 sampled (a majority!) still missed a cluster |
+| `twynn` | "1991-1999" | 1992-1999 | the 1991 endpoint had no source at all — no such file exists |
+| `samplomed` | dates in wrong order | corrected | co-productions vs solo tracks were transposed |
+| `companion` | "unverified 2018 retro-homage?" flag | 1986, settled | a card's OWN prior doubt was itself wrong |
 
 Dates skew **late** for a structural reason: any subset you happen to look at
 is unlikely to contain the earliest file, so sampling can only move a first-use
-date later. But note the bottom four rows — the same failure corrupts header
-counts, provenance, and causal reasoning, not just dates. One card
-(`rob-hubbard-digi`) had a date that turned out **correct**; it was still worth
-censusing, because "right but unverified" and "right" are different states.
+date later. But note the rows below the first four — the same failure
+corrupts header counts, provenance, causal reasoning, field ordering, and even
+a card's own stated uncertainty, not just dates. Two cards
+(`rob-hubbard-digi`, `grg`, `toaster-digi`) had claims that turned out
+**correct**; censusing them still mattered, because "right but unverified" and
+"right" are different states, and now they're the latter.
 
 Two more traps this pass surfaced:
 

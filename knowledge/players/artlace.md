@@ -48,7 +48,8 @@
     "Artlace's own output is NOT exclusively tied to this player: other tunes by the same composer in the same folder are tagged DMC, DMC_V4.x, Music_Assembler, and GoatTracker_V2.x (data/composers/artlace.json) — so ARL-Editor was one of several tools he used across his career, not his only routine.",
     "A later CSDb release, \"Artlace Editor V26x\" aka \"The Ultimate Version\" (id 168740), lists NO credits and no releasing group at all (csdb.dk/release/?id=168740, checked 2026-07-24) — it also does not appear among Artlace's own credited releases on his CSDb scener profile (csdb.dk/scener/?id=327, checked 2026-07-24), which lists only ARL-Editor V2.2. Its authorship and its relation to this card's player family therefore remain unconfirmed; not merged into this card's facts.",
     "Artlace himself left a comment on the ARL-Editor V2.2 release page describing the code informally: \"The code is 'whoelse?'. Please ignore the crap in the note and enjoy the editor—there's not much to it.\" (csdb.dk/release/?id=152723, checked 2026-07-24) — a direct author statement, but it makes no lineage claim to any other player and does not name a source it derives from.",
-    "No public source code or disassembly was found for this player (WebSearch for \"Artlace Editor\"/\"ARL-Editor\" source/disassembly returned no matches, and a further check for a codebase64/format-spec article also found none) — only a D64 disk image and an unencrypted PRG binary are distributed from CSDb."
+    "No public source code or disassembly was found for this player (WebSearch for \"Artlace Editor\"/\"ARL-Editor\" source/disassembly returned no matches, and a further check for a codebase64/format-spec article also found none) — only a D64 disk image and an unencrypted PRG binary are distributed from CSDb.",
+    "Census of all 19 files tagged \"Artlace\" (not a sample) via CSDb's `type=sid` webservice: every file's own embedded PSID `Released` string reads 1993, 1994, 1996, or 1997 — none earlier than 1993, corroborating the `released` field's 1993 date rather than contradicting it (checked 2026-08-01)."
   ],
   "sources": [
     "sidid:Artlace — data/sidid.json byTag.Artlace (name, author, released, reference; matches github.com/cadaver/sidid sidid.nfo verbatim, fetched 2026-07-16)",
@@ -59,7 +60,9 @@
     "knowledge/COVERAGE.md — rank 16, 19 files, single grouped raw tag \"Artlace\"",
     "CSDb release comments — https://csdb.dk/release/?id=152723 (Artlace's own comment on the code; iAN CooG's 2017 unencrypted-PRG upload note)",
     "CSDb scener profile — https://csdb.dk/scener/?id=327 (\"Artlace/Active/Chorus/Lethargy\", country Hungary, credited releases list; checked 2026-07-24, no V26x listed)",
-    "CSDb release page (unconfirmed relation) — https://csdb.dk/release/?id=168740 (\"Artlace Editor V26x\" aka \"The Ultimate Version\", no credits/group listed; checked 2026-07-24)"
+    "CSDb release page (unconfirmed relation) — https://csdb.dk/release/?id=168740 (\"Artlace Editor V26x\" aka \"The Ultimate Version\", no credits/group listed; checked 2026-07-24)",
+    "CSDb webservice, type=sid, ids 7980,7981,7982,7985,7986,7987,7988,7989,53129,7990,7991,7992,7993,50844,7998,8000,8001,8002,8003 (https://csdb.dk/webservice/?type=sid&id=<id>) — full census of all 19 \"Artlace\"-tagged files' own PSID `Released` fields, checked 2026-08-01",
+    "CSDb release page re-verified — https://csdb.dk/release/?id=152723 (ReleaseDay 19, ReleaseMonth 9, ReleaseYear 1993, group Rebels; re-confirmed 2026-08-01)"
   ]
 }
 ```
@@ -107,7 +110,10 @@ only, per this card's scope.
 
 **Not verified — `status: stub`.** Identity facts (author, CSDb release,
 release date, credits) are confirmed via the cached SIDId entry and CSDb's
-own release/scener data. The two runtime-looking figures present
+own release/scener data. A full census of all 19 "Artlace"-tagged files'
+own PSID `Released` fields (not a sample; 2026-08-01) found none earlier
+than 1993, corroborating rather than contradicting the tool's own CSDb
+release date of 1993-09-19. The two runtime-looking figures present
 (`zero_page` ≈ $FA-$FC, `speed` ≈ 28-32 rasterlines) are carried over
 verbatim from DeepSID's own player database (`data/players.json`) with their
 DeepSID origin stated explicitly — they are NOT independently confirmed by

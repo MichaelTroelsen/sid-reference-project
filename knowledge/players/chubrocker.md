@@ -6,7 +6,7 @@
   "name": "Chubrocker",
   "aliases": ["Chubrocker_V3.x", "Chubrocker V3.1a", "Chubrocker V3.1c", "Advanced Chubrocker V3.1a+ (aka V3.1d)", "Advanced Chubrocker V2.9"],
   "authors": ["László Benke (Dec) / Natural Beat"],
-  "released": "1994-1996 (Advanced Chubrocker V2.9, Cadgers; Advanced Chubrocker V3.1a+ / 'V3.1d', 8 Feb 1995, Amorphis+Cadgers; Chubrocker V3.1a, 1995, Onslaught; Chubrocker V3.1c, 1996, Acrise+Excess)",
+  "released": "1995-1996 confirmed (Advanced Chubrocker V3.1a+ / 'V3.1d', 8 Feb 1995, Amorphis+Cadgers — release/?id=114185 'Release Date' field '8/2-1995'; Chubrocker V3.1a, 1995, Onslaught — release/?id=46805 'Release Date' field '1995'; Chubrocker V3.1c, 1996, Acrise+Excess — release/?id=75813 'Release Date' field '1996'). Advanced Chubrocker V2.9 (Cadgers) is an earlier version in the same chain but its CSDb page (release/?id=256642) carries no 'Release Date' field at all — do not assume 1994 or any other year for it; its release date is genuinely unattested.",
   "status": "stub",
   "platform": "Native C64 tool (editor + its own C64 replay routine); built-in documentation was Hungarian, translated to English in the v3.1c release. No public source code located (DeepSID players.json: source_code 'No').",
   "csdb_release": 114185,
@@ -49,6 +49,7 @@
     "No public source code, format documentation, or third-party disassembly was located (CSDb, general web search) — every Tier 3 runtime field is an honest TODO for that reason, not a research shortcut.",
     "Re-research pass, 2026-07-24: explicitly re-checked Lemon64 (lemon64.com), Forum64 (forum64.de), CSDb search/release pages (114185, 75813), and GitHub for a Chubrocker source repo, disassembly, or format manual — none found. The CSDb release pages for both 114185 and 75813 were re-fetched directly and contain only credits/download-file listings, no docs. No change to any Tier 3 field or to status; this confirms rather than extends the prior pass.",
     "SIDId's author field ('László Benke (Dec)') and this project's own per-file composer records agree closely: files under HVSC MUSICIANS/D/Dec/ list the author as 'László Benke Jr. (Dec)' (note the 'Jr.') — treat as the same person; the discrepancy is just a stylistic 'Jr.' suffix, not a different identity.",
+    "Correction, 2026-08-01 gap-fill pass: a prior draft of `released` stated an overall range starting '1994', implicitly dating 'Advanced Chubrocker V2.9' to 1994. Re-fetched all four CSDb release pages directly (114185, 46805, 75813, 256642): V3.1a+ / 'V3.1d' = '8/2-1995', V3.1a = '1995', V3.1c = '1996', all confirmed by an explicit 'Release Date' field — but V2.9's page (256642) has no 'Release Date' field at all, only 'Released by: Cadgers' and credits. There is no CSDb-attested year for V2.9; '1994' was an unsourced guess and has been removed. `released` now reads '1995-1996 confirmed' with V2.9 flagged as undated. Also re-ran a full census of every `Chubrocker_V3.x`-tagged file in data/composers/*.json (not a sample): 98 files, 17 composers, matching the counts already in this card's quirks/sources exactly — no discrepancy found.",
     "SHARED HUNGARIAN-SCENE COMPOSER CIRCLE with [[sosperec]] — surfaced 2026-07-17 by a composer-overlap connection scan over data/composers/*.json. Four composers used BOTH this editor and Sosperec (Gabor Torday/Grabowsky's 1991 Hungarian tracker): Chubrock, DOS, Mercury and Peet — all Hungarian, and none of them the author of either tool. This is the same mid-1990s Hungarian scene circle (Natural Beat / Trays / Graffity / Samar and affiliates) picking up both native-Hungarian trackers — a shared-USERS / same-scene relationship, NOT shared code (different coders, László Benke/Dec vs Gabor Torday/Grabowsky, and neither is disassembled). No `shares_routine_with` edge asserted; navigational link only."
   ],
   "sources": [
@@ -57,7 +58,9 @@
     "Local dataset: 98 files tagged Chubrocker_V3.x across 17 composers (knowledge/COVERAGE.md rank 14; verified by direct read of data/composers/*.json 'folder[].player' records)",
     "CSDb release 'Advanced Chubrocker V3.1a+' (V3.1d, Amorphis+Cadgers, 8 Feb 1995, code: Dec of Natural Beat, bug-fix: booker of Amorphis+Caution): https://csdb.dk/release/?id=114185",
     "CSDb release 'Chubrocker V3.1c' (Acrise+Excess, 1996, crack/linking: H-Bloxx): https://csdb.dk/release/?id=75813",
-    "CSDb search results confirming the version chain (V2.9 Cadgers; V3.1a Onslaught 1995; V3.1a+ Amorphis+Cadgers 1995; V3.1c Acrise+Excess 1996): https://csdb.dk/search/?seinsel=all&search=Chubrocker"
+    "CSDb search results confirming the version chain (V2.9 Cadgers; V3.1a Onslaught 1995; V3.1a+ Amorphis+Cadgers 1995; V3.1c Acrise+Excess 1996): https://csdb.dk/search/?seinsel=all&search=Chubrocker",
+    "CSDb release pages fetched directly, 2026-08-01, for their 'Release Date' fields: https://csdb.dk/release/?id=114185 (8/2-1995), https://csdb.dk/release/?id=46805 (1995), https://csdb.dk/release/?id=75813 (1996), https://csdb.dk/release/?id=256642 (no Release Date field present — V2.9 is undated on CSDb)",
+    "Full census of data/composers/*.json for this pass, 2026-08-01: 98 files tagged 'Chubrocker_V3.x' across 17 composers (Bax 2, Booker 3, Chubrock 23, Compod 3, Daf 1, Dec 3, Decoy 16, DOS 2, Mercury 3, Nebula 2, Oxygen Wizard 1, Peet 21, Phobos 2, Shogoon 1, Silc 7, Spike 2, Taki 6) — confirms, does not change, the counts already cited above"
   ]
 }
 ```
@@ -66,9 +69,11 @@
 
 Chubrocker is a native C64 music editor/tracker by Hungarian coder László
 Benke ("Dec"), of the group Natural Beat, circulating in the mid-1990s scene
-via a chain of releases: Advanced Chubrocker V2.9 (Cadgers), Advanced
-Chubrocker V3.1a+ / "V3.1d" (Amorphis+Cadgers, 8 Feb 1995), Chubrocker V3.1a
-(Onslaught, 1995), and Chubrocker V3.1c (Acrise+Excess, 1996). It ranks 14th
+via a chain of releases: Advanced Chubrocker V2.9 (Cadgers, undated on CSDb),
+Advanced Chubrocker V3.1a+ / "V3.1d" (Amorphis+Cadgers, 8 Feb 1995), Chubrocker
+V3.1a (Onslaught, 1995), and Chubrocker V3.1c (Acrise+Excess, 1996) — 1995-1996
+is the confirmed range; V2.9, though clearly the earliest in the chain, has no
+CSDb-attested release date and should not be assumed to be 1994. It ranks 14th
 by file count in this collection's player-family breakdown (98 files,
 `knowledge/COVERAGE.md`), used by 17 composers with no single dominant user —
 though usage stayed concentrated in a small circle of Hungarian-scene names

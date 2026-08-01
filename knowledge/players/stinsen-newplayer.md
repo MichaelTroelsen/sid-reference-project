@@ -5,7 +5,7 @@
   "id": "stinsen-newplayer",
   "name": "Stinsen (Laxity NP21 fork)",
   "aliases": ["Stinsen", "Stinsens_Last_Night_of_89"],
-  "authors": ["TODO: not confirmed by SIDM2 (cluster is named after the tune 'Stinsens Last Night of 89')"],
+  "authors": ["TODO: no player-code author confirmed. Census (2026-08-01) confirms the cluster name is not a player-code credit at all: HVSC STIL.txt (/MUSICIANS/L/Laxity/Stinsens_Last_Night_of_89.sid) says the tune 'Covers /MUSICIANS/S/Stinsen/Last_Night.sid... Declared first by Stinsen, organizer and only judge of said compo' — 'Stinsen' is scener Johan Samuelson (CSDb id 23584), whose CSDb FreelanceFunctions is 'Musician' only (no coder credit), who wrote/organized the song this tune covers. The exemplar SID's own credited musician (CSDb release 201399) is Thomas E. Petersen (Laxity) — consistent with this being Laxity's own driver, but no source names who specifically coded this NP21 sub-variant."],
   "released": "TODO",
   "status": "stub",
   "platform": "Native C64 player routine — NP21-architecture fork; audio plays back via SF2's embedded-Laxity-driver passthrough (the original binary is copied into the SF2 file and JMPed into), NOT a distinct registered SF2 driver",
@@ -43,6 +43,7 @@
   },
 
   "quirks": [
+    "CENSUS RESULT (2026-08-01): zero raw dataset player tags match either alias ('Stinsen', 'Stinsens_Last_Night_of_89') anywhere across data/composers/*.json — checked case-insensitively, no typo/casing/prefix mismatch found. This is not a spelling bug: the exemplar file itself IS present (data/composers/laxity.json, 'Stinsens_Last_Night_of_89.sid'), but its raw player tag is the generic 'SidFactory_II/Laxity' — shared by ~280+ other Laxity/SF2-driver files in the dataset that belong to entirely different NP21-fork sub-clusters (Beast/Angular, Drax, Vibrants2000AD, Wizax-A all sit under the same generic tag; confirmed their own cards' aliases ('Beast','Angular','2000 A.D.','2000AD') also match zero raw tags). SIDM2's per-cluster names are disassembly/fingerprint-derived, not Player-ID signature strings — there is no tag-based way to enumerate this cluster's files from this repo's dataset; aliases left unchanged since adding 'SidFactory_II/Laxity' here would misattribute hundreds of unrelated files to this specific sub-variant.",
     "SF2's editor (F1-F5) is fully wired and edit-propagating for this player DESPITE no full disassembly existing — SIDM2 located and RE'd only the specific tables needed for editing (instrument/pulse/filter), not the whole player.",
     "Instrument table is COLUMN-major, unlike native Laxity NP21 (row-major) and unlike Beast/Angular (also row-major) — a genuine format divergence within the 'NP21 fork family', not just a cosmetic difference.",
     "Filter data is a two-mode state machine (SET vs SWEEP dispatched by a bit-7 flag), not a flat value table — don't assume the Beast/Angular 'direct cutoff value stream' model applies here.",
@@ -55,7 +56,11 @@
     "SIDM2 memory:stinsen-instr-layout.md",
     "SIDM2 memory:stinsen-pulse-architecture.md",
     "SIDM2 memory:stinsen-filter-architecture.md",
-    "SIDM2 memory:stinsen-load-crash-resolved.md"
+    "SIDM2 memory:stinsen-load-crash-resolved.md",
+    "data/composers/laxity.json — dataset record for Stinsens_Last_Night_of_89.sid (player tag 'SidFactory_II/Laxity', not a distinct 'Stinsen' tag)",
+    "HVSC STIL.txt, entry /MUSICIANS/L/Laxity/Stinsens_Last_Night_of_89.sid (fetched via data/hvsc/STIL.txt)",
+    "CSDb release https://csdb.dk/release/?id=201399 (via CSDb XML webservice, fetched 2026-08-01) — 'Stinsen's Last Night of '89', Laxity/Bonzai, released 2021-03-14, 1st place at event 3043 'Last Night (melody compo)'; Credits list Music only (Laxity), no separate code/programmer credit",
+    "CSDb scener https://csdb.dk/scener/?id=21086 (handle Stinsen, id 23584, via data/csdb/stinsen.json) — FreelanceFunctions: Musician only, member of Genesis Project"
   ]
 }
 ```
@@ -70,6 +75,20 @@ into the SF2 file and jumping to its own play routine (the same mechanism
 every card in this fork family uses). SIDM2's actual work here was
 reverse-engineering just enough of its instrument/pulse/filter tables to wire
 SID Factory II's editor views (F1-F5) — not a full disassembly.
+
+**Census note (2026-08-01):** this cluster has no discoverable footprint in
+this repo's dataset — `aliases` match zero raw player tags in
+`data/composers/*.json`, and this is not a fixable typo. The one exemplar
+file this cluster is named after is present in the dataset, but tagged only
+with the generic `SidFactory_II/Laxity` string shared by every SF2-embedded
+Laxity-family driver, so it cannot be told apart from other NP21-fork
+sub-clusters by tag alone (the same is true of this family's sibling cards:
+`beast-angular-newplayer`, `vibrants-2000ad`). Provenance research (HVSC
+STIL.txt, CSDb) further clarifies that "Stinsen" itself is not a player-code
+credit at all: it's scener Johan Samuelson's handle, a musician (CSDb
+FreelanceFunction) who wrote and judged a 2021 "Last Night" cover compo that
+this Laxity tune won — see the `authors` TODO and `quirks` for the full
+citation chain.
 
 ## Quirks & gotchas
 

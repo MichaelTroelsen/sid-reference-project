@@ -7,15 +7,15 @@
   "aliases": ["Dan_Liverani"],
   "authors": ["Daniele Liverani"],
   "released": "2014 (Genius: Into the Toy Warehouse, ported to C64)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "CONFIRMED to be the SAME Daniele Liverani known internationally as an Italian progressive-rock/metal multi-instrumentalist (Twinspirits, Cosmics, Khymera) and mastermind behind the 'Genius Rock Opera' trilogy — a genuinely striking identity confirmation, since the C64 tune titled 'Genius' is a direct self-reference to that same rock-opera project, not a coincidence. He personally coded and ported an Apple II platform game, 'Genius: Into the Toy Warehouse' (2014, itself inspired by the rock opera), to Commodore 64, Plus/4, and Atari 8-bit himself. Player-ID-fingerprinted across 4 files, all his own (Genius, Genius 2, Genius Enhanced, Genius 3 — versions/variants of the same game's music).",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Genius): load $c000 (init $ca20, play $c4fc).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $ca20.", "play": "Sample trace: $c4fc (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use — 1 filter write in a sparse 23-write/50-frame sample)" },
-  "effects": { "encoding": "TODO", "commands": {} },
+  "memory": { "load_address": "Varies per file: Genius/Genius_2/Genius_Enhanced load $c000, init $ca20/$cc20/$cc20, play $c4fc/$c4f6/$c4f6; Genius_3 loads $bf00, init $bf20, play $c4f6. In all 4 files the PSID header's own loadAddr field is 0 (real load address is the payload's own first 2 LE bytes).", "zero_page": "z07-z0a, z0d/z0e (2-byte indirect pointer used for indexed pattern-data copies, base $07).", "layout": "The driver is NOT cleanly relocatable: SIDdecompiler's -v2 memory-touch map reports a Start: address different from the PSID load address on every file, for two distinct reasons confirmed by disassembly. (1) Genius/Genius_2/Genius_Enhanced: Start is exactly 2 bytes ABOVE load ($c002 vs $c000) — the file's own first 2 bytes are a literal $00,$00 'unreferenced data' marker, the same 2-byte separator convention used repeatedly throughout the file between data blocks; the true code/data starts at load+2 and reassembles clean once relocated onto that Start address (net-zero shift). (2) Genius_3: Start is $a000, 7936 bytes BELOW load ($bf00) — a genuine fixed low-RAM workspace region the driver touches at runtime, disjoint from the loaded payload; relocating onto Start ($a000, net-zero shift) lands init/play exactly on the PSID header's own $bf20/$c4f6. Separately, the play routine hardcodes a workspace pointer as two literal immediate loads (lda #$00 / sta z0d; lda #$ca / sta z0e, i.e. a raw $ca00 constant, not a relocatable <label/>label pair) — this makes the driver non-relocatable to any other base (confirmed via a relocation-invariance control on Genius.sid, see Verification), but is irrelevant to native-address playback." },
+  "entry": { "init": "Native (post-relocation-fix) addresses, PSID-header-exact on all 4 files: Genius $ca20, Genius_2/Genius_Enhanced $cc20, Genius_3 $bf20.", "play": "Native addresses, PSID-header-exact: Genius $c4fc, Genius_2/Genius_3/Genius_Enhanced $c4f6 (called in IRQ)." },
+  "speed": "TODO — not derived from disassembly this pass; IRQ-driven per-frame play call confirmed.",
+  "data_format": { "order_list": "A per-subtune dispatch table at lc3a6 (Genius) indexed by subtune number x2 (16-bit pointers) selects each subtune's data block.", "patterns": "TODO — not decoded in detail.", "instruments": "TODO — not decoded in detail.", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (light filter use — 1 filter write in a sparse 23-write/50-frame sample)" },
+  "effects": { "encoding": "TODO — not decoded in detail; internal data format beyond the entry-point/relocation facts above remains unresearched.", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
 
@@ -61,17 +61,52 @@ the C64 tune's own name, corroborated by his day-job programming career.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Dan_Liverani`-tagged `.sid`
-+ trace.
+None published (not in the realdmx RE repo, no STIL note). Original
+disassembly produced this pass via `SIDdecompiler.exe -r` (see
+Verification) — see the `memory.layout` field above for the two distinct
+relocation-alignment defects found and fixed (a 2-byte leading marker on
+3 of 4 files, a disjoint low-RAM workspace block on the 4th). Full
+pattern/instrument/effect data-format decoding was not attempted this
+pass — flagged `TODO` in `data_format`/`effects`.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Dan_Liverani` `.sid` (Genius): load `$c000`, init
-`$ca20`, play `$c4fc`, **23 register writes / 50 frames** (1 filter
-write — sparse). Internals undocumented; memory map/format/effects are
-`TODO`.
+**Byte-exact + trace-exact on all 4 tagged files (2026-08-01) —
+`status: verified`.** All 4 real HVSC `Dan_Liverani`-tagged `.sid` files
+were disassembled with `SIDdecompiler.exe -r -z -d -c -v2`, relocated
+onto the `-v2` map's own reported `Start:` address (not the PSID header's
+load address — see `memory.layout` for why they differ per-file),
+reassembled with 64tass, and byte-diffed + trace-diffed (50 frames,
+`sidm2-sid-trace.exe`, both original and reassembly re-wrapped as proper
+`.prg` files per the project's own `psid_header` convention) against the
+untouched original:
+
+| File | Byte-diff | Trace-diff (writes) |
+|---|---|---|
+| Genius.sid | 100.0000% (2599/2599) | 23/23 exact |
+| Genius_2.sid | 100.0000% (3111/3111) | 12/12 exact |
+| Genius_3.sid | 100.0000% (2191/2191, over the true payload window) | 9/9 exact |
+| Genius_Enhanced.sid | 100.0000% (3111/3111) | 18/18 exact |
+
+Every file's INIT/PLAY addresses in the reassembly land exactly on the
+PSID header's own declared values once correctly relocated (see `entry`).
+
+**Relocation-invariance control (non-tautological check, run on
+Genius.sid only):** rebuilding the same disassembly at a different base
+(delta +$1237, non-page-aligned) produced a genuinely different binary
+(288/2599 bytes differ) but the resulting trace diverged sharply (7 vs 23
+writes matched). Root-caused, not left as a mystery: the play routine
+sets up an indirect-indexed workspace pointer via two literal immediate
+loads — `lda #$00 / sta z0d` then `lda #$ca / sta z0e` — i.e. a raw
+`$ca00` constant baked into the code rather than a relocatable
+`<label`/`>label` pair (the label `lca00` is a zeroed 32-byte workspace
+block sitting inside the file's own payload, right before `init`). This
+is a real, structural non-relocatability in the original hand-written
+driver (Liverani's own personal, non-professional single-use code, per
+`quirks`) — not a SIDdecompiler defect — and does not affect native-address
+playback, which is confirmed exact by the trace-diff table above. Not
+chased further (no live-debugger escalation needed; the cause is fully
+identified from static disassembly).
 
 ## Sources
 

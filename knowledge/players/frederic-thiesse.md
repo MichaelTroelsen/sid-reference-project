@@ -7,14 +7,14 @@
   "aliases": ["Frederic_Thiesse"],
   "authors": ["Frederic Thiesse"],
   "released": "1989-1990 (64'er / Game On / CP Verlag era)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "A composer-coder credited only for music — CSDb's own scener profile carries an explicit trivia note: 'This guy is added just for music credits. Do not add his games to CSDb, as they are not scene releases.' Confirmed both coder and musician via that same profile's own function tags, working entirely in German magazine type-in territory (64'er, Game On/CP Verlag). Player-ID-fingerprinted across 3 files, all his own.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Dingdong): load $9712 (init $9712, play $990c).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $9712.", "play": "Sample trace: $990c (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (filter-heavy — 41 filter writes in a dense 229-write/50-frame sample)" },
+  "memory": { "load_address": "Varies per file (each file assembled fresh at its own base — Dingdong $9712, Megamax $c006, Maze-Man $45af, Push_em $532e). Init==load in 3 of 4 disassembled files (Push_em's init sits at load+$32e, further into the file). No page-alignment dependency found: a non-page-aligned relocation control (delta +$1037) traced byte-for-byte register-write-identical to the native build on both Dingdong (229 writes/50 frames) and Megamax (both subtunes), so the driver is freely relocatable, not page-locked.", "zero_page": "NONE — confirmed via disassembly (`grep -c '^z' *.asm` = 0 on all 4 files). The whole player keeps its working state in ordinary RAM immediately below its own load address (see layout).", "layout": "SIDdecompiler's -v2 map reports 'Start:' below the PSID load address on 3 of 4 files (Dingdong Start=$02a7 vs load=$9712; Maze-Man Start=$02d9 vs load=$45af; Push_em Start=$02b1 vs load=$532e) — this is a small (~18-byte), plain read/write working-storage block at a FIXED low address, not part of the file's own payload (gotcha 40/lesson 60's pattern, not a dropped leading byte or a copy-loop destination — no page-copy loop found in any file). Megamax's Start equals its load address exactly (no gap). Hardcoded per-note/per-effect state tables (wave/frequency/duration lookups) sit immediately after init/play in the loaded payload itself, not in zero page." },
+  "entry": { "init": "Confirmed per-file from PSID header + trace: Dingdong $9712, Megamax $c006 (2 subtunes), Maze-Man $45af, Push_em $565c.", "play": "Confirmed per-file: Dingdong $990c, Megamax $c03c, Maze-Man $470a, Push_em $5436 (called in IRQ)." },
+  "speed": "TODO — no explicit CIA/raster-multispeed setup found in the disassembled init routines beyond the standard CIA timer writes visible in Dingdong's init ($dc04/$dc05); not investigated further.",
+  "data_format": { "order_list": "TODO — no order-list/pattern structure in the tracker sense. Confirmed (Dingdong disassembly): play routine is a small hand-written per-voice countdown/dispatch loop reading from fixed-address hardcoded tables (e.g. l9800/l9840/l98a0/l9900/l9906 in Dingdong's native addressing) rather than a generic sequencer format.", "patterns": "TODO — no pattern-stream format; appears to be a hardcoded note/duration table walked linearly per voice (see order_list note).", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (filter-heavy — 41 filter writes in the dense 229-write/50-frame Dingdong sample, now trace-confirmed exact against the reconstruction)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -35,7 +35,8 @@
     "C64-Wiki (DE) — 64'er Spielesammlung - Band 4: https://www.c64-wiki.de/wiki/64'er_Spielesammlung_-_Band_4",
     "HVSC-mirrored SID file — Megamax.sid (copyright string '1990 Game On/CP Verlag'): https://hvsc.etv.cx/?info=please&path=C64Music%2FMUSICIANS%2FT%2FThiesse_Frederic%2FMegamax.sid",
     "Local dataset: knowledge/COVERAGE.md (prior unclaimed-roster listing)",
-    "Local dataset: 3 files tagged Frederic_Thiesse, 1 composer (see knowledge/COVERAGE.md)"
+    "Local dataset: 3 files tagged Frederic_Thiesse, 1 composer (see knowledge/COVERAGE.md)",
+    "This card's own original disassembly/reassembly/trace-diff (2026-08-01): SIDdecompiler.exe + 64tass on 4 local HVSC files (Dingdong.sid, Megamax.sid, Maze-Man.sid, Push_em.sid) from C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/T/Thiesse_Frederic/ — no external published source"
   ]
 }
 ```
@@ -58,17 +59,54 @@ caught and excluded rather than repeated.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Frederic_Thiesse`-tagged
-`.sid` + trace.
+None published (not in the realdmx RE repo, no STIL note) — this card's
+own original disassembly (below) is the only source. `SIDdecompiler.exe`
+disassembled all 4 locally-available `Frederic_Thiesse`-tagged files
+cleanly with no hangs, no undocumented-opcode issues, and no relocation
+warnings. `Colora.sid` (a possible 5th file, CSDb id=28507) was not
+present in this project's local HVSC mirror and was not disassembled.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Frederic_Thiesse` `.sid` (Dingdong): load `$9712`,
-init `$9712`, play `$990c`, **229 register writes / 50 frames** (41
-filter writes — dense, filter-heavy). Internals undocumented; memory
-map/format/effects are `TODO`.
+**Byte-diff + trace-diff + relocation-invariance control, 4 files
+(2026-08-01) — `status: verified`.**
+
+Disassembled with `SIDdecompiler.exe -z -d -c -v2 -r`, relocating onto
+each file's own `-v2` "Start:" address (gotcha 40 — 3 of 4 files have a
+small fixed-low-RAM workspace block below their PSID load address; see
+`memory.layout`). Reassembled with `64tass`.
+
+- **Dingdong.sid**: 1201/1201 traced bytes byte-exact (100.0000%; the
+  final 5 bytes of the file, `$9bc3-$9bc7` — a `$99`-repeat tail never
+  touched by SIDdecompiler's own trace — fall outside its emitted
+  disassembly entirely and are not covered by this comparison, per
+  gotcha 9). Trace-diff (50 frames, native addresses): **0
+  divergences over 229 register writes**, exact including cycle
+  timestamps. **Relocation-invariance control** (rebuilt at a
+  non-page-aligned +$1037 delta, base $12de/init $a749/play $a943; 118
+  of 39196 bytes genuinely differ from the native build): **0
+  divergences over 229 writes** (cycle column stripped per lesson 70) —
+  confirms the disassembly is source-derived and not a tautological `-r`
+  pass-through (lesson 63/69).
+- **Megamax.sid** (2 subtunes): 698/698 bytes byte-exact (100.0000%,
+  full file coverage — `-v2` Start equals load address exactly here, no
+  workspace gap). Trace-diff both subtunes: **0 divergences** (10 writes
+  subtune 0, 28 writes subtune 1). Relocation-invariance control
+  (+$1037 delta; 44/698 bytes differ from native): **0 divergences**,
+  both subtunes.
+- **Maze-Man.sid**: 1263/1265 bytes byte-exact (100.0000% of the traced
+  range; same 2-byte untraced-tail pattern as Dingdong). Trace-diff (50
+  frames): **0 divergences**. No relocation control run (time budget —
+  see next step).
+- **Push_em.sid**: 891/891 bytes byte-exact (100.0000%, full coverage).
+  Trace-diff (50 frames): **0 divergences**. No relocation control run.
+
+This is a hand-written, non-tracker sequencer (no zero-page usage
+anywhere; per-voice state lives in a small fixed low-RAM block; play
+routine walks small hardcoded note/duration tables per voice — see
+`data_format`), consistent with the "coder-composer, not a shared tool"
+profile already established in the quirks. `Colora.sid` was not
+available locally and was not attempted.
 
 ## Sources
 

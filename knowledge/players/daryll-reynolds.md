@@ -7,14 +7,14 @@
   "aliases": ["Daryll_Reynolds"],
   "authors": ["Daryll Reynolds"],
   "released": "1984-1985 (Gameworx Software / SoftGold era)",
-  "status": "in-progress",
-  "platform": "Australian (Melbourne, Victoria) solo, self-taught composer-coder Daryll Reynolds's own playroutine — he ran a cottage-industry game business from home, trading as Gameworx Software and later SoftGold, with local distribution via DotSoft (department stores) and UK/European distribution through Severn Software. Confirmed both coder and musician across his catalog. Player-ID-fingerprinted across 4 files, all his own (2 of which are self-installing RSID files this project's tracer could not resolve).",
+  "status": "verified",
+  "platform": "Australian (Melbourne, Victoria) solo, self-taught composer-coder Daryll Reynolds's own playroutine — he ran a cottage-industry game business from home, trading as Gameworx Software and later SoftGold, with local distribution via DotSoft (department stores) and UK/European distribution through Severn Software. Confirmed both coder and musician across his catalog. Player-ID-fingerprinted across 4 files, all his own. Verified via 2 real PSID files (Nuclear_War_Games, Search_for_King_Solomons_Mines) — 3 other files in his HVSC folder are self-installing RSIDs (play=$0000) not traced this pass.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Nuclear War Games, 1984, Gameworx/Softgold — used since 'Alien.sid' and 'Skull_Island.sid' are both untraceable RSID files): load $c000 (init $c000, play $c149).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $c000.", "play": "Sample trace: $c149 (called in IRQ)." },
+  "memory": { "load_address": "Both real PSID files with clean (non-RSID) init/play vectors load at $c000: Nuclear_War_Games.sid (init $c000, play $c149, 2 subtunes) and Search_for_King_Solomons_Mines.sid (init $c000, play $c185, 3 subtunes). SIDdecompiler's -v2 map Start: address equals the PSID load address exactly on both (no gotcha-40 gap). The 3 remaining tagged files (Alien.sid, Ninja.sid, Skull_Island.sid) are RSIDs with play=$0000, self-installing a custom IRQ handler via $0314/$0315 (confirmed in Alien.sid's payload at ~$c0f8-$c115: SEI / LDA #<$c185 / STA $0314 / LDA #>$c185 / STA $0315 / CLI / RTS — i.e. the real per-frame play entry is $c185, same relative offset pattern as SKSM's own header play vector) — untraced this pass, see next step below.", "zero_page": "TODO (no disassembly of the RSID files; the two verified PSID files use no zero page at all).", "layout": "Compact hand-written player: init sets 3 voices' ADSR/sustain-release plus master volume from immediate constants, then JSRs a per-subtune dispatch routine; most of the ~2KB/1.5KB payload is note/duration data tables, not code (~125 instruction-mnemonic matches vs 231 .byte-data lines in Nuclear_War_Games.asm)." },
+  "entry": { "init": "$c000 in both verified files (identical to PSID load address).", "play": "$c149 (Nuclear_War_Games) / $c185 (Search_for_King_Solomons_Mines), called via IRQ." },
   "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample)" },
+  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "No filter writes observed in any traced subtune across both verified files (0/2 and 0/3 subtunes, 50 frames each) — the player appears not to use the SID filter at all." },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -55,24 +55,73 @@ See the `quirks` array — the load-bearing one is the **well-documented
 Australian cottage-industry profile**, sourced via a dedicated
 games-heritage research project (Play It Again/ACMI) rather than the
 usual Lemon64/CSDb combination — a useful, less-common source type for
-this KB. Also notable: 2 of his 4 tagged files are self-installing RSID
-files this project's tracer could not resolve.
+this KB. Also notable: 3 of his tagged files in the HVSC folder
+(`Alien.sid`, `Ninja.sid`, `Skull_Island.sid`) are self-installing RSIDs
+this project's standard tracer cannot resolve directly (header
+`play=$0000`) — see Verification for the concrete IRQ-vector-install
+address found in `Alien.sid` and the `-P` override next step.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Daryll_Reynolds`-tagged
-`.sid` + trace.
+None published (not in the realdmx RE repo, no STIL note) — this KB's own
+disassembly (below) is the only one that exists. `data_format`/`effects`
+internals remain `TODO`: the current pass verified the reconstruction
+byte-for-byte and register-write-exact but did not do a full annotated
+data-format read of the note/duration tables.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-14) — `status: in-progress`.**
-Traced a real HVSC `Daryll_Reynolds` `.sid` (Nuclear War Games): load
-`$c000`, init `$c000`, play `$c149`, **24 register writes / 50 frames**
-(0 filter writes). Internals undocumented; memory map/format/effects are
-`TODO`. Note: 2 other files in his own folder ('Alien.sid', 'Skull_
-Island.sid') are self-installing RSIDs untraceable with this project's
-standard tool.
+**`status: verified` (2026-08-01).** Disassembled and reassembled both of
+the composer's real, non-RSID PSID files
+(`MUSICIANS/R/Reynolds_Daryll/Nuclear_War_Games.sid` and
+`Search_for_King_Solomons_Mines.sid`) via `SIDdecompiler.exe -a49152 -z -d
+-c -v2 -r` (decimal `-a` for `$c000`, per gotcha 1) + `64tass`:
+
+- **Nuclear_War_Games.sid**: load/init `$c000`, play `$c149`, 2 subtunes.
+  Byte-diff **100.0000%** over the 2099 bytes SIDdecompiler's trace
+  actually covers (`$c000-$c832`); the remaining 204 trailing payload
+  bytes (`$c833-$c8fe`) were confirmed all-zero and confirmed genuinely
+  unreferenced (re-disassembled at `-t500000`, 16x the default 30000-call
+  trace budget, with an identical `End:` address) — pure padding, not a
+  gap in the reconstruction. Trace-diff via `sidm2-sid-trace.exe` (50
+  frames, both subtunes): **0 register-write divergences** (74/74 writes
+  subtune 0, 68/68 writes subtune 1, exact frame/cycle/register/value).
+- **Search_for_King_Solomons_Mines.sid**: load/init `$c000`, play `$c185`,
+  3 subtunes. Byte-diff **100.0000%** over the 1454 covered bytes; 2
+  trailing uncovered bytes (`$8000`) similarly confirmed genuinely
+  unreferenced at `-t500000`. Trace-diff (50 frames, all 3 subtunes): **0
+  register-write divergences** (62/62, 62/62, 76/76 writes).
+- **Relocation-invariance control** (lessons 69/70/72, needed since `-r`
+  made both native builds byte-identical and therefore tautological to
+  trace): rebuilt both disassemblies at `-a20505` (decimal for `$5019`, a
+  non-page-aligned delta per lesson 69(b)) and re-traced at the shifted
+  init/play addresses. Nuclear_War_Games: 144 of 2099 bytes actually
+  changed under relocation (proving the source is genuinely symbolic, not
+  a pass-through), 0 write divergences across both subtunes.
+  Search_for_King_Solomons_Mines: 176 of 1454 bytes changed, 0 write
+  divergences across all 3 subtunes. This is a real, non-tautological
+  structural pass on two independent files — the bar this project sets
+  for `verified`.
+- **Filter**: confirmed zero filter-register writes ($D415-$D417) across
+  every traced subtune of both files (5 subtunes total) — the player does
+  not use the SID filter.
+- **Not covered by this pass**: the 3 remaining tagged files (`Alien.sid`,
+  `Ninja.sid`, `Skull_Island.sid`) are RSIDs with header `play=$0000` —
+  they self-install a custom IRQ handler rather than exposing a PSID play
+  vector. `Alien.sid`'s payload was hex-dumped (not fully disassembled)
+  around `$c0f8-$c115` and shows the standard `SEI / LDA #<$c185 / STA
+  $0314 / LDA #>$c185 / STA $0315 / CLI / RTS` install pattern — i.e. its
+  real per-frame play entry is very plausibly `$c185`, matching
+  Search_for_King_Solomons_Mines.sid's own PSID-declared play address.
+  **Next step for a future pass**: feed `SIDdecompiler` the header's own
+  init address plus `-P50053` (decimal for `$c185`, per lesson 13's
+  entry-point-override technique) on `Alien.sid` and `Skull_Island.sid`
+  (both `init=$c000`) to see if the same IRQ-install pattern and play
+  address hold, then byte-diff/trace-diff them the same way — this was
+  not pursued in this pass since the two clean PSID files already gave a
+  complete, non-tautological verified result and the RSID files are a
+  separately-scoped, larger (14-15KB payload, 16-19 subtunes each)
+  undertaking.
 
 ## Sources
 

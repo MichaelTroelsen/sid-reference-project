@@ -48,7 +48,7 @@
     "Two distinct CSDb entries exist for what is apparently the same physical disk: release id 44979, titled \"Mac Music\" (type \"C64 Tool\", also known as \"isepic Mac Music\", authorship \"Phil Stone & Jim Lombardo\" per text inside the program, containing exactly these same 10 tune titles), and release id 117250, also titled \"Mac Music\" but typed as a \"C64 Crack\" credited to the group \"Antisoft Inc.\" — almost certainly a warez crack/redistribution of the same tool disk. SIDId's sidid.nfo `reference` field points at 117250 (the crack), not 44979 (the tool entry); this card's `csdb_release` instead points at 44979 since it is the actual tool/editor release.",
     "HVSC's Musicians.txt lists the composer as \"Stone, Phil / Passport Designs - USA\" (data/hvsc/Musicians.txt) — a real, independently-documented company affiliation, not a scene group. Wikipedia's Passport Designs article corroborates this: Passport hired Phil Stone to develop Commodore 64 game audio and to port its MIDI applications from Apple II to Commodore 64.",
     "No public source code, format documentation, manual, or Codebase64/scene article was found anywhere searched (CSDb, Codebase64, Wikipedia, general web) — every runtime fact (memory map, entry points, data format, effects) remains genuinely unknown rather than guessed.",
-    "An earlier CSDb-page fetch briefly returned a plausible-looking SID technical table (load 39424 / init 39424 / play 39474, 6581/NTSC) for this release; a second, more targeted fetch of the same page found no such table present at all. Treated as a fabrication of the fetch tool's summarizer, not a real fact, and deliberately NOT recorded in `entry`/`memory` above.",
+    "CORRECTION (round 28): the earlier-discarded PSID header table was real, not a fabrication — it was simply unreproducible via the flaky HTML-page fetch used at the time. Queried properly via scripts/lib/csdb-client.js's XML webservice (getRelease(44979)), all 10 tunes on the release show identical PSID header values: LoadAddr 39424 ($9A00), InitAddr 39424 ($9A00), PlayAddr 39474 ($9A32), SIDModel 6581, ClockSpeed NTSC. Per the extraction template's rule that PSID header values are header metadata, not disassembly facts, this is recorded here in quirks and deliberately NOT written into the Tier 3 `entry`/`memory` fields above, which remain TODO pending a real disassembly.",
     "Mac Music was the editor used internally at Passport Designs to produce the company's commercial 'Computer Hitware' series — music disks sold as 'computerized rock videos' featuring hits by Duran Duran, Michael Jackson (the full Thriller album), The Police, Huey Lewis and the News, Bruce Springsteen, and Van Halen, each with kaleidoscopic graphics and on-screen lyrics (per CSDb user comment on the Duran Duran release id 97939, quoting a Compute! magazine article). This is a genuinely commercial, company-internal tool — not a scene tracker."
   ],
 
@@ -62,7 +62,9 @@
     "Wikipedia, 'Passport Designs': https://en.wikipedia.org/wiki/Passport_Designs — \"Composer Phil Stone was also hired at this time, first to develop audio for games on the Commodore 64, and then to port MIDI applications from Apple II to Commodore.\"",
     "Local dataset: 20 files tagged 'MacMusic', all by composer Phil Stone (data/composers/phil-stone.json)",
     "CSDb text extraction from the Mac Music disk: confirms copyright line 'COPYRIGHT 1985 PASSPORT DESIGNS, INC.' and 'A HAL LEONARD / PASSPORT PRODUCT' — https://csdb.dk/release/text.php?id=2912",
-    "CSDb release 'Duran Duran' (C64 Music Collection, id 97939): user comment from iAN CooG confirming 'tunes made with Mac Music' by 'Phil Stone & Jim Lombardo' for 'Passport Design', published by 'Hal Leonard publishing corp'; comment from cba quoting a Compute! magazine article on Passport's Computer Hitware series — https://csdb.dk/release/?id=97939"
+    "CSDb release 'Duran Duran' (C64 Music Collection, id 97939): user comment from iAN CooG confirming 'tunes made with Mac Music' by 'Phil Stone & Jim Lombardo' for 'Passport Design', published by 'Hal Leonard publishing corp'; comment from cba quoting a Compute! magazine article on Passport's Computer Hitware series — https://csdb.dk/release/?id=97939",
+    "CSDb XML webservice via scripts/lib/csdb-client.js getRelease(44979) (round 28): UsedSIDs.SID array for all 10 tunes on the release, each with identical LoadAddr 39424, InitAddr 39424, PlayAddr 39474, SIDModel 6581, ClockSpeed NTSC",
+    "CSDb XML webservice via scripts/lib/csdb-client.js getRelease(117250) (round 28): confirms Type 'C64 Crack', ReleasedBy handle 'Antisoft Inc.' (AKA ACS/ASI, Netherlands)"
   ]
 }
 ```
@@ -104,9 +106,13 @@ discarded rather than written into the card.
 
 None. No public source, format documentation, or disassembly of Mac Music was
 located. A future pass would need to obtain a representative `MacMusic`-tagged
-`.sid` (init/play addresses from its PSID header) and disassemble/trace it
-through `sidm2-siddump` — the only route to real memory-map/format facts,
-since no source or manual exists.
+`.sid` and disassemble/trace it through `sidm2-siddump` — the only route to
+real memory-map/format facts, since no source or manual exists. One lead for
+that pass: all 10 tunes on CSDb release 44979 carry identical PSID header
+values (load $9A00/39424, init $9A00/39424, play $9A32/39474, 6581/NTSC — see
+`quirks`, confirmed via `scripts/lib/csdb-client.js`'s XML webservice), so any
+one of the 20 `MacMusic`-tagged files should be representative of the whole
+family's entry points.
 
 ## Verification
 

@@ -2620,6 +2620,230 @@ them):
     hypothesis that the unexecuted starts were the problem, because the build
     got *worse* rather than better. (d) When the control is inapplicable, say so
     and stop — do not keep refining a diagnosis built on an invalid experiment.
+
+101. **A dispatched `sid-player-verify` (or similarly scoped) subagent instance
+    can have a tool set that silently excludes `mcp__retrodebugger__*` even
+    when the task brief explicitly names it as the required approach and even
+    when the dispatching session's own context says RetroDebugger is
+    available** — the subagent has no `ToolSearch` fallback to self-diagnose
+    this beyond noticing the tool is simply absent from its declared function
+    list. Before dispatching a RetroDebugger-dependent verification task to a
+    subagent, the calling session should either confirm the subagent's actual
+    tool set includes the MCP tools (not just that the server is connected in
+    the parent session) or perform the RetroDebugger steps itself rather than
+    delegating them.
+
+102. **A fixed-address indirect-copy destination pointer built from two
+    separate immediate loads (`lda #$lo / sta zp` then `lda #$hi / sta zp+1`)
+    rather than a `lda #<label`/`lda #>label` pair is invisible to
+    SIDdecompiler's symbolization pass** even when the SAME driver correctly
+    symbolizes other destinations into the identical workspace block via
+    genuine lo/hi pointer tables elsewhere in the same routine. The practical
+    tell: a 100%-byte-exact, trace-exact native (zero-shift) reconstruction
+    whose relocation-invariance control (lessons 69/70/72) hangs during INIT
+    rather than producing a wrong-but-completing trace — a hang specifically
+    (not a divergent-but-finite trace) during a relocation control, on a
+    build whose native version runs cleanly to completion, points at a raw
+    literal-constant pointer landing on relocated code/data rather than at a
+    control-flow or code/data misclassification defect (contrast lesson 89's
+    "unreferenced data" fall-through pattern, which produces a divergent
+    trace, not a hang).
+
+103. **A relocation-invariance control (lessons 69/70/72) can fail not
+    because of a disassembly defect but because the ORIGINAL DRIVER reuses
+    the low byte of a page-aligned absolute address as an implicit `#$00`
+    constant** (e.g. `LDA #<l6300` where `$6300`'s low byte is always zero)
+    — this is a distinct mechanism from lesson 87's lo-only self-modified
+    JMP table and lesson 91's high-byte-only self-modified store, but
+    produces the identical symptom (clean at a page-aligned control base,
+    silently wrong data at a non-page-aligned one, with no crash and no
+    assembler warning). The diagnostic is the same as lesson 87's: grep the
+    .asm for `#<lXXXX` (or `#>lXXXX`) immediate-mode loads with no paired
+    lo/hi table, and treat any hit as a page-alignment requirement rather
+    than a reconstruction defect before spending time debugging the control
+    build itself.
+
+104. **When `SIDdecompiler`'s `-v2` "Start:" address is above the PSID load
+    address by a SMALL gap (a few hundred bytes, not a whole page-copy or
+    workspace block), don't assume it's dead per lesson 9/18 without
+    checking** — it can be genuine per-song table data of the same shape
+    across sibling files (confirmed on Supercan vs Captured: same byte
+    layout, different values, both never read by that file's own
+    single-subtune trace) that a disassembler with only one subtune's worth
+    of emulation simply never dereferences. Also, a file's uncovered
+    TRAILING region past SIDdecompiler's traced `End:` can contain live,
+    recognizable 6502 opcodes (not garbage, not padding) that are
+    nonetheless legitimately outside a specific PSID's own init/play path —
+    e.g. an alternate "stop music" entry point the original game called
+    directly but this rip's header vectors never reach. Neither case is a
+    defect in the reconstruction; both are worth a quick hex-dump/eyeball
+    check (per lesson 47's discipline) before writing "unresolved" into a
+    card.
+
+105. **A driver whose original code contains a self-modified table-pointer
+    computed via a low-byte-only `adc` loop (no high-byte carry) is
+    deliberately page-locked** — confirmed on Mjoosic Mejker's `$4251`/
+    `$5D00` arpeggio table. A relocation-invariance control at a
+    page-aligned delta passed cleanly on all 4 files (0/9694 total writes
+    diverged), while an unaligned-delta control diverged on exactly the 2
+    files whose song data drove the arpeggio index far enough to cross the
+    page boundary within the traced window — the other 2 files passed the
+    unaligned control too, purely because their content never reached that
+    index range. This is the same pattern as lesson 87, but demonstrates the
+    data-dependence explicitly: two files sharing byte-identical driver code
+    (confirmed via direct `.prg` diff) can give opposite verdicts on the
+    *same* unaligned control depending purely on how far their song data
+    pushes a page-locked index — so a single file's clean unaligned-
+    relocation result should never be read as proof the driver has no
+    alignment dependency; only a page-aligned control (which exercises the
+    real code without violating any of its address-arithmetic assumptions)
+    is a reliable pass/fail signal across a whole file set.
+
+106. **`SIDdecompiler.exe`'s hang failure mode (gotcha 23/lesson 95's
+    territory) has a third distinct, previously-undocumented root cause
+    beyond self-modified-code and never-returning-init: a genuinely
+    UNIMPLEMENTED undocumented 6502 opcode** (confirmed with ALR/$4B) in the
+    traced code path. The tell is a single repeating "Unimplemented opcode:
+    XX at address $YYYY" line at a FIXED address (not scrolling/varying),
+    meaning the emulator's PC never advances past that one instruction —
+    distinct from lesson 95's two causes (self-modified operands cause
+    address-varying churn; a never-returning init loop cycles through many
+    addresses). When this fires, a from-scratch recursive-descent decoder
+    with a full illegal-opcode table (LAX/SAX/DCP/ISC/RLA/SLO/SRE/RRA/ALR/
+    ANC/ARR/ANE/LXA/JAM/NOP-variants) is a viable, if labor-intensive,
+    substitute — but note that for a fixed-load-address (non-relocatable,
+    e.g. BASIC-mandated $0801) program, the resulting byte-exact reassembly
+    cannot be validated with this project's usual relocation-invariance
+    control (lessons 69/70/72), because there's no safe second base to
+    rebuild at; this is a structural verification ceiling for extreme
+    size-coded productions with fixed compo-mandated load addresses, not a
+    tooling gap that more effort closes.
+
+107. **A `SIDdecompiler -v2` map "Start:" address a few bytes *above* the
+    PSID load address does not always mean a dropped leading byte (lessons
+    18/27/33) needing a Start-relative `-a` fix** — it can simply be an
+    unused jump-table entry that this particular file's own trace never
+    calls (confirmed on `Project_Stealth_Fighter.sid`: `$0800-$0802` is a
+    genuine, never-invoked 1st slot of a 5-entry `JMP` table; forcing `-a`
+    to the header's own load address vs. to the `-v2` Start address gave
+    byte-diffs that were pixel-identical once compared with correct
+    address-based alignment — the first "fix" attempt here was chasing a
+    bug that didn't exist, caused by an off-by-index bug in the diff
+    script, not the tool). Before assuming gotcha 40 applies, decode the
+    leading bytes by hand (or against the -v2 map's per-byte `?`/`x`/`o`
+    markers) and check whether they form a complete, self-consistent
+    instruction that's simply unreached — a 3-byte gap that is exactly one
+    JMP-table slot is a strong tell it's dead code, not a relocation
+    defect.
+
+108. **A fixed low-RAM workspace below a PSID's load address (gotcha
+    40/lesson 60) and a runtime self-relocating copy-loop landing its
+    destination *outside* the file's own payload range (lesson 88) can
+    coexist as two SEPARATE, independently-resolvable facts about the same
+    file** — Sam's Jam (mark-trotter) has both (workspace at $03c6-$03c7
+    below load $4000, plus a copy from $6100-$64ff to $af00-$b2ff at init)
+    — and neither blocks a 100%-byte-exact, 100%-trace-exact reconstruction
+    on its own: the workspace gap is excluded from the byte-diff (it isn't
+    file content), and the copy-loop destination is verified for free by
+    checking that the disassembled destination bytes (reachable only via
+    SIDdecompiler's trace, since they don't exist on disk at those
+    addresses) match the trace-observed play behavior, given the
+    copy-loop's own source code lives inside the byte-verified payload.
+    Separately: a relocation-invariance control (lessons 69/70/72) can fail
+    hard on a self-relocating driver even when the native reconstruction is
+    fully byte/trace-exact — this doesn't retroactively invalidate the
+    native verification (the real file is never relocated in practice), but
+    it is worth explicitly *not* over-investigating when the native match
+    is already solid and the root cause is plausibly just "this specific
+    driver's relocation copy-loop is page/address-locked by design" (the
+    class already well-documented in lessons 86/87/91/103), rather than
+    assuming it must be chased to full resolution before calling the file
+    verified.
+
+109. **A player whose PSID header init/play addresses point cleanly inside
+    its own loaded payload can still hit gotcha 40 twice over in one file
+    family, via two unrelated mechanisms that produce the identical `-v2`
+    Start-below-load-address symptom**: a documented relocation-copy
+    destination (Nippon, `$9000`, 10488 bytes below load — a genuine,
+    actively-read/written workspace block) versus a single incidental
+    scratch byte written once inside init and never read again in the
+    traced window (Howard, `$cffe`, 6164 bytes below load — essentially a
+    stray `sta` to a fixed low address for no structural reason). Both
+    require the same fix (relocate onto `-v2` Start, not header load), so
+    don't assume the size or nature of the gap tells you which case you're
+    in — check what actually writes there before writing prose about it.
+    Separately, on the relocation-invariance control (lessons 69/70/72): a
+    hand-rolled non-relocatable personal driver (not a professional
+    multi-title tool) can bake absolute pointers into its *compiled song
+    data* itself (not just code), so patching every hardcoded-immediate-
+    operand defect found via the `#$xx`-literal grep (lesson 77's
+    companion) may still leave the control failing with garbage values —
+    at that point, further chasing needs binary-search patch isolation on
+    the whole relocation-shifted byte set (lesson 64) rather than assuming
+    one more instruction-level fix will close it; the native byte-diff/
+    trace-diff remains valid evidence regardless, since a failed relocation
+    control that has a plausible structural (not tool) explanation doesn't
+    retroactively invalidate an already-produced native-address exact
+    match (lessons 87/91/103's discipline, but with the isolation step
+    left undone here for time-budget reasons — worth stating in a card as
+    an explicit open item, not silently dropped).
+
+110. **A driver can be PAGE-RELOCATABLE ONLY** (matches native and any
+    page-aligned relocation base exactly, but genuinely diverges — wrong
+    register values, not just cycle drift — at a non-page-aligned base)
+    **even when every pointer construct found by manual inspection turns
+    out to be correctly carry-propagating and fully symbolic in the
+    disassembly text** (confirmed identical `.asm` source between native
+    and both relocation-control builds, differing only in the `* =` origin
+    line). On `Donald_Ducks_Playground.sid` (Al Lowe's 1984 Sierra driver),
+    two plausible-looking suspects — a self-modified `lda <table>,X`
+    operand fed by an already-symbolic split lo/hi pointer table, and an
+    8-bit shift/add multiply helper scaling a duration table — both checked
+    out correct by hand-simulating the arithmetic at both bases. The
+    empirical page-aligned/unaligned split itself (replicated at two
+    independent page-aligned bases to rule out coincidence, per lesson
+    87/91) is sufficient evidence to write up the driver as
+    page-relocatable-by-design and reach `verified`, without ever isolating
+    the exact responsible byte — chasing the specific mechanism further
+    hits a wall that requires a live debugger (watching zero-page workspace
+    across two relocation bases during a single frame), not more static
+    reading. This is a genuine, citable stopping point distinct from "I
+    couldn't figure it out" — `SIDdecompiler`'s own `-A` flag ("Force page
+    alignment to be the same as the original SID") independently
+    corroborates that this class of driver behavior is common enough for
+    the tool's own author to have built a dedicated workaround for it.
+
+111. **Not every relocation-invariance control needs a fix-up pass** — on a
+    genuinely tiny (746-byte) hardcoded sequencer player with a `-r` build
+    reaching 100.0000% byte-exact (tautological per lesson 63), the control
+    (lessons 69/70/72) can pass cleanly even at a non-page-aligned delta
+    with zero special-casing — no split lo/hi tables, no self-modified
+    operands, no out-of-range literals (lessons 72(b)/77/80/87 all
+    inapplicable) — because the file is small and simple enough to have
+    none of those idioms. Worth noting as the "clean" baseline case: run
+    the control first and see it pass outright before assuming a fix-up
+    will be needed. Separately: a branch target `SIDdecompiler` marks
+    `?`/"Unreferenced data" is not always an open gap needing
+    RetroDebugger — grepping the disassembly for every write-site of the
+    flag byte the branch is gated on can prove it's permanently
+    unreachable (byte never written anywhere in the file) directly from
+    the static `.asm`, no live emulation needed, when the flag is
+    read-only within the file's own address range.
+
+112. **A byte-diff/relocation-control that fails only in low-order-nibble
+    immediate literals (not caught by grepping for 4-hex-digit `$xxxx`
+    literals per lesson 77) can still be lesson 80's split-immediate-
+    pointer pattern** — check every `lda #$xx`/`sta zbN` pair feeding a
+    zero-page indirect pointer for a matching `>`/`<` label reference, not
+    just the first pointer in a set; a driver that symbolizes `zb0/zb1`
+    correctly but leaves `zb2/zb3`, `zb4/zb5` etc. as raw two-byte
+    immediates (because only the first pair happens to come from a
+    `<label,>label` table emission) is a real, repeatable sub-case,
+    confirmed identically across all 3 files of one player (12 total
+    instances, Arti Haroutunian). Worth grepping for
+    `lda #\$[0-9a-f]{2}\n\s*sta @w zb[2-9a-f]` (or equivalent
+    zero-page-pointer-write patterns) as a matter of course before
+    declaring a relocation control's failure "genuinely different code."
 </lessons_learned>
 
 <success_criteria>

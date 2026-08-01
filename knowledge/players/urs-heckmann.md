@@ -13,7 +13,7 @@
 
   "memory": {
     "load_address": "Per-file: Das_Model $c000, La_Piranha $c000, Nippon $b8f8 (relocates to $9000), Howard_the_Coder $e812 (driver body at $f1d9).",
-    "zero_page": "TODO — not investigated. No guesses.",
+    "zero_page": "Nippon: $fb-$fe (zfb/zfc = source ptr, zfd/zfe = dest ptr) — used ONLY by the init-time relocation copy loop ($b8f8->$9000); confirmed by exhaustive grep of the full disassembly, no other ZP reference anywhere. Howard_the_Coder: ZERO zero-page usage anywhere in its disassembly (confirmed same way) — its init/play routines are 100% absolute/immediate addressing. Das_Model/La_Piranha: not yet disassembled.",
     "layout": "One driver family across all four files. Shared table block sits at driver_base+$03, preceded by a JMP vector. Frequency table offsets: Das_Model/La_Piranha $c03f, Howard $f218, Nippon $cad0. Byte-identical driver spans confirm reuse: La_Piranha 177 bytes from $c000 identical to Das_Model, Howard 172 bytes, Nippon 79 bytes."
   },
   "entry": {
@@ -44,7 +44,8 @@
     "A REAL TUNING BUG, ISOLATED TO ONE TABLE INDEX: the 2-octave semitone frequency table (ratio ~2^(1/12), base $20) is byte-identical across all four files EXCEPT index 19 — Nippon has $60, the other three have $62. The ideal value is 32*2^(19/12) = 95.9, so $60 is CORRECT and $62 is ~36 cents sharp. But this is NOT a clean chronological fix: Nippon (1988) has it right while Howard (1989) still carries the 1986 value — implying two source branches rather than a linear fix. The fact is solid; the explanation is NOT — do not assert a cause.",
     "NIPPON'S INIT IS A RELOCATION STUB (fully disassembled): $c033 banks out BASIC ($01 |= %101, &= ~%10), then $c040 memcpys 7 pages + 2 bytes ($702) from $b8f8 -> $9000 because the music data sat under BASIC ROM; $c02b restores $01 |= %111; JMP $c0b7 is the real init, which clears $d400-$d418 (LDA #$00 / LDX #$18 / STA $d400,X / DEX / BPL).",
     "FILTER: NO-FILTER-ON-HOWARD IS A COMPOSITIONAL CHOICE, NOT A DRIVER DIFFERENCE — an easy wrong conclusion to draw from traces alone. Traced Nippon (600 frames): $d417=$01 (voice 1 routed, res 0), $d418 $0f->$1f (bit 4 = low-pass on), $d416 swept $00->$72 in steps of 5 (cutoff sweep). Traced Howard: ZERO $d416/$d417 writes, $d418 only ever $01-$0f (volume nibble, high nibble always 0, so no filter mode). But Howard's BINARY still contains the static $d416/$d418 stores — same driver, same code paths — the song data simply never triggers them. Das_Model is the most filter-active statically (5x STA $d417, incl. $c0bd: LDA #$f8 -> resonance 15).",
-    "PWM: Nippon writes osc1/2/3_pw_lo every frame (599 of 600) = continuous PWM on all three voices; Howard writes osc3_pw_lo 600x = PWM on voice 3 only."
+    "PWM: Nippon writes osc1/2/3_pw_lo every frame (599 of 600) = continuous PWM on all three voices; Howard writes osc3_pw_lo 600x = PWM on voice 3 only.",
+    "RECONSTRUCTION (2026-07-31): Nippon and Howard_the_Coder both now disassemble/reassemble/trace BYTE- AND REGISTER-WRITE-EXACT at their native (header) addresses — see Verification. Both files independently FAIL a relocation-invariance control (rebuilding the identical disassembly at a shifted base address, per this project's standard non-tautological check), and the failure starts at frame 0 on Howard and survives patching the one confirmed hardcoded-immediate-pointer defect found on Nippon (LDA #$90/LDY #$00 building the copy-destination pointer, not symbolized by SIDdecompiler — fixed to LDA #>l9000/LDY #<l9000, which improved but did not close the divergence). Working hypothesis, NOT confirmed: this is a hand-rolled personal driver whose compiled SONG DATA (not just its code) embeds absolute pointers/table indices tied to a fixed workspace base ($9000 for Nippon), which no static relocation can fix without decoding the song-data format itself — analogous to this project's own precedent for other page/address-locked drivers, but here the lock appears tighter (whole-address, not just page) and the exact byte(s) responsible were not isolated. Do not assert the cause; the native-address match is unaffected by this and stands as the byte/trace evidence."
   ],
   "sources": [
     "bonedo.de interview, Sebastian Berweck, 2017-02-03 (PRIMARY — Heckmann's own words on writing a C64 sequencer and composing game title melodies): https://bonedo.de/artikel/einzelansicht/software-synthesizer-und-analog-modeling-hinter-den-kulissen.html",
@@ -103,11 +104,69 @@ Unresolved: Howard's `$e812` wrapper vs. the `$f1d9` driver body — the JMP
 target (`$f1a9`) sits *before* the table block, so that file was re-assembled
 rather than purely relocated.
 
+**2026-07-31: full `SIDdecompiler` disassemblies of Nippon and Howard now
+exist** (byte/trace-exact — see Verification) and could resolve the item
+above with a direct read; not done this pass. Confirms the `-v2` memory map
+for both files never shows a `Start:` address matching the PSID header's own
+load address — Nippon's gap is the documented relocation-copy destination
+(`$9000`, below load `$b8f8`), Howard's is a single unrelated scratch byte
+(`$cffe`, 6164 bytes below load `$e812`, written once from a saved
+filter/volume snapshot inside init) — two different mechanisms producing the
+same symptom, both requiring relocation onto the `-v2` Start address rather
+than the header's load address to reassemble correctly.
+
 ## Verification
 
 `status: in-progress`. Identity is confirmed and primary-sourced. Nippon and
 Howard were **traced locally** (600 frames each) and their filter/PWM behavior
 above is measured, not inferred.
+
+**Update (2026-07-31): Nippon and Howard_the_Coder disassembled, reassembled,
+and byte/trace-diffed against their real HVSC files — both are exact.**
+
+Method: `SIDdecompiler.exe -z -d -c -v2 -r`, relocated to the `-v2` map's own
+reported `Start:` address (not the PSID header's load address — both files'
+`Start:` sits below the header load address, for two different reasons, see
+below), reassembled with `64tass`, byte-diffed against the original PSID
+payload at the header's real load-address window, then register-write
+trace-diffed via `sidm2-sid-trace.exe` at the header's real init/play
+addresses.
+
+- **Nippon** (load `$b8f8`, init `$c000`, play `$c09f`). `-v2` Start is
+  `$9000` — this is the relocation stub's COPY DESTINATION (already
+  documented on this card: init copies `$702` bytes from `$b8f8` to `$9000`
+  because the song data sits under BASIC ROM), not dead workspace. Relocating
+  onto `-a36864` (decimal for `$9000`) gave one clean contiguous 64tass
+  block, no wrap warnings. **Byte-diff: 5074/5074 bytes = 100.0000% exact**
+  at the real load address. **Trace-diff: 2202/2202 register writes exact**
+  over 600 frames (raw diff of the two `sidm2-sid-trace.exe` outputs is 0
+  lines, including cycle counts).
+- **Howard_the_Coder** (load=init `$e812`, play `$e913`). `-v2` Start is
+  `$cffe`, 6164 bytes below the load address — turned out to be a single
+  scratch byte (`lda lf343 / sta lcffe`, a saved snapshot of a
+  filter/volume-table value inside init), not a workspace block or copy
+  target. Relocating onto `-a53246` (decimal for `$cffe`) gave one clean
+  block. **Byte-diff: 5901/5901 bytes = 100.0000% exact. Trace-diff:
+  1506/1506 register writes exact** over 600 frames (raw diff 0 lines).
+
+**Non-tautological check attempted (relocation-invariance control, per this
+project's own precedent for a byte-identical `-r` build):** rebuilding the
+identical disassembly at a shifted base address and re-tracing it — this
+FAILED on both files (Nippon: 994/2202 writes match before diverging into
+garbage values at frame 3, after patching one confirmed hardcoded-immediate
+copy-destination pointer; Howard: diverges from frame 0's very first two
+writes). This is recorded as an open, honestly-flagged question in `quirks`
+("RECONSTRUCTION" entry) — not asserted as a defect in the reconstruction,
+since the native byte-diff and trace-diff are unaffected by it and a
+plausible structural cause (song-data-embedded absolute pointers in a
+personal, never-designed-for-relocation driver) fits the file's own facts,
+but the exact responsible byte(s) were not isolated within this pass's
+budget. **A live disassembler/debugger pass (RetroDebugger) was not used and
+was not needed here** — the blocker is in a symbolic-relocation control, not
+a static-disassembly mystery a byte-diff/trace-diff can't explain; isolating
+it further would mean binary-search patch-isolation (this agent's own
+`lesson 64`/`gotcha 41` technique) on the ~950 relocation-shifted bytes, which
+is a good next step but was not attempted here.
 
 **Update (2026-07-16): `Das_Model` and `La_Piranha` now trace.** They are
 `play=$0000` self-installing-IRQ files that the project's own tracer cannot drive
@@ -124,10 +183,25 @@ the `speed` field deliberately records the measurement without an explanation.
 Worth a dedicated look — it may be the most interesting unexplained thing on
 this card.
 
-**Not verified**, and specifically:
-- Zero-page map, data format and effect encodings were not investigated and are
-  left `TODO`. No guesses.
-- Nippon's play routine beyond init is undisassembled.
+**Not verified overall** (status stays `in-progress` — 2 of 4 files are now
+byte/trace-exact, but `Das_Model`/`La_Piranha`'s order-of-magnitude write-rate
+anomaly is still completely unexplained, and no reconstruction was attempted
+for either this pass), and specifically:
+- Data format and effect encodings were not investigated and are left `TODO`
+  (zero-page is now filled in for Nippon/Howard — see `memory.zero_page`).
+- `Das_Model` and `La_Piranha` (the two self-installing-IRQ files) have never
+  been disassembled or reassembled — only traced as opaque black boxes. Their
+  `play=$0000`/self-modified-IRQ-vector shape plus the possibility of a
+  `SIDdecompiler` hang on this pattern (this agent's own `lesson 81`/`gotcha
+  23`) make them a plausibly harder case than Nippon/Howard; not attempted
+  here.
+- Nippon's play routine beyond init is undisassembled (only the init/copy
+  stub was previously worked out; the reconstruction pass this update adds
+  covers the WHOLE file mechanically via `SIDdecompiler`, but no line-by-line
+  reading of the play routine's logic was done).
+- The relocation-invariance control's exact failure cause (Nippon and Howard
+  both) was not isolated — see the "RECONSTRUCTION" quirk entry above for the
+  concrete next step (binary-search patch isolation).
 - Whether *La Piranha* is a cover is **unknown** — STIL doesn't tag it, CSDb
   identifies no original, and VGMPF's "two arrangements" only *hints* that both
   1986 entries were covers. Only Das_Model is confirmed.

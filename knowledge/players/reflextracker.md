@@ -367,6 +367,94 @@ RSID play=$0000, needs a real machine per lesson 92/67, not
 pattern/order-list layout remain `TODO` — the newly-confirmed instrument
 tables narrow this but do not close it.
 
+### 2026-08-07 (later same day) — relocation-invariance control attempted: real, substantial progress, one localized residual divergence, `status` stays `in-progress`
+
+Produced the missing control (lessons 69/70/72) on `Warlock/Abba-Gabba.sid`
+using `dis6502.js --symbolic` (native ORG `$32C9`, entries `$C006,$C05B`,
+confirmed 100.000000% byte-exact at ORG unchanged — the symbolic pipeline
+itself round-trips correctly) rebuilt at a **page-aligned** delta
+(`ORG=$22C9`, i.e. `-$1000`, chosen instead of `+$1000` because `+$1000`
+pushes the payload's tail into `$D000-$DFFF` I/O space and corrupts
+everything — a real trap worth flagging, see `new_lesson_learned`).
+
+**`dis6502.js`'s blanket ABS-operand symbolic rewrite is not sufficient for
+this player.** It only rewrites the operand of a *fully decoded* absolute
+instruction; this player also sets up several self-modified operand slots
+via **bare immediate loads** (`LDA #$xx` / `STA <in-range address>`), which
+`--symbolic` cannot recognise as address-shaped at all (same defect class as
+lessons 77/80/103/109, but far larger in scope here than any prior card).
+A systematic automated cross-reference (every `STA`/`STX`/`STY` absolute
+write whose target lands on the operand byte of *any* other decoded
+instruction — extending this card's earlier "8 slots" count, which only
+looked at 3-byte-instruction operands, to also cover 2-byte immediate-mode
+operands) found **93 total self-modified write sites**, of which 24 trace
+back to a literal immediate representing a real address component (the rest
+are either full-address copies between two already-symbolic ABS operands,
+already handled automatically, or harmless `val=$00` resets). All 24 were
+confirmed and statically patched (post-assembly, directly in the relocated
+`.prg`'s bytes — not via `.asm` text edits, per lesson 26) to
+`(nativeByte + deltaHi) & 0xFF`, exploiting the fact that a page-aligned
+delta leaves every LOW byte unchanged and only HIGH bytes need adjusting.
+Two categories of previously-undocumented defect found this way:
+- **Branch-duplicated literal sources**: `$C1B2`'s self-modified `JMP`
+  target (alternating `$C05B`/`$C09C`, both sharing HIGH byte `$C0`) is set
+  via `LDA #$5b / LDX #$c0 / BCC LC389 / LDA #$9c / LDX #$c0` — TWO separate
+  `LDX #$c0` instructions (`$C381` pre-branch, `$C387` post-branch, only the
+  second found by a naive nearest-preceding-load backward scan). A mirror
+  pair exists at `$C45E`/`$C464` for a second self-modified `JMP`
+  (`$C090`/`$C0D1`, alternating `$C140`/`$C18B`).
+- **Bound-check-immediate-reused-as-data**: `CMP #$6a`/`CPX #$b2` at
+  `$C0C1`/`$C0C7` (the descending pointer walker's 16-bit bounds check) are
+  later re-read via plain absolute `LDA $C0C8 / LDX $C0C2` — the CMP/CPX
+  instruction's own operand BYTE doubles as the reset value for the pointer
+  walker's out-of-range fallback. Confirmed the same pattern exists for
+  the ascending walker's bound (`$C12E`/`$C134` reused via
+  `$C138`/`$C13B`) and for a second, structurally-identical walker copy
+  (`$C080`/`$C086` reused via `$C093`/`$C096`) — three independent
+  instances of the identical idiom. Since the LOW-byte half of each bound
+  (`CPX #$b2`/`CPY #$b1`/`CPX #$b1`) is read via absolute mode too and
+  needs no fix under a page-aligned delta, only the HIGH-byte CMP operand
+  in each pair needed patching — confirmed correct in all three instances.
+
+**Result: real, substantial, but incomplete.** Before any literal fixes, a
+naive relocated build was catastrophically broken (29 raw writes over the
+first 60 frames, vs 8015 in the original — most of the file never executes
+meaningfully). After all 24 fixes: **7965 of 8015 writes over 60 frames**
+(26510 of 26514 over 200 frames) — extremely close in volume — and the
+first **29 register-write tuples are exact, including cycle count**
+(confirming the page-aligned delta preserves timing exactly, as expected,
+since indexed-addressing page-crossing depends only on the preserved LOW
+byte). **Divergence starts at write #29** (frame 0, `$D418`
+`filter_mode_volume`: original writes `$06`, relocated writes `$05`) with a
+genuine **cycle divergence in the same instant** (`1517` vs `1237`),
+indicating a real control-flow difference, not benign jitter — and once it
+starts, it does not resync (only ~9.7% of writes coincidentally match over
+the full 200-frame/26514-write trace, i.e. this is not "one wrong byte",
+it's a real remaining defect). All three known instances of the
+bound-check-reused-as-data idiom were checked by hand and are already
+correctly handled by the current fix set, so the 25th (or later) missing
+site was not found by static reading within this pass's budget.
+
+**`status` stays `in-progress`.** This is exactly the "genuinely appears to
+require live single-stepping to localize, not more careful reading of the
+`.asm`" situation this agent's own lesson 137 describes — a real, precisely
+quantified residual, not a vague "keep investigating." **Concrete next
+step**: the divergence happens in frame 0, at write #29, immediately after
+the first call into the `$C09C`/`$C05B` walker from the `$C1A6`-`$C1FB`
+busy-poll/volume-write loop — the most likely remaining cause is a 25th
+self-modified-literal site not yet found by the operand-byte
+cross-reference (the automated scan only chases a *single* preceding
+register-setting instruction per write and does not follow `ADC #$00`/`SBC
+#$00` carry-propagation chains more than one hop, so a literal buried two or
+more hops back from some other write site could still be missed), or a
+RetroDebugger single-step comparison of the native vs. relocated build
+around `$C09C`/`$C1A6` (this project's own singleton rule permits this once
+this card is run solo, not in a parallel batch). The reusable patch/compare
+harness (site list, patch script, `.sid`-header-splice, `vsid-trace.js`
+diff) was built in `scratchpad/reflex/` this pass but not retained past the
+session — the site list and methodology above are sufficient to
+reconstruct it exactly.
+
 ## Sources
 
 See the `sources` array — the CSDb release page (credits, release year,

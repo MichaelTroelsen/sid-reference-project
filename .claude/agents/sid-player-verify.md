@@ -3404,6 +3404,21 @@ them):
     $0900/$0937) fixed it after relocating above/into $3800-$9FFF (the
     file's own $38/$68 hint) produced total silent failure at two
     different bases.
+
+146. **A page-aligned relocation-invariance control (lessons 79/87/91/103/
+    110/119/125/136) must also check that the chosen delta doesn't push the
+    payload's own address range into `$D000-$DFFF` hardware I/O space** — a
+    delta that looks "obviously safe" (round, page-aligned, same magnitude
+    used successfully on other cards) can still silently corrupt everything
+    if it lands the relocated code/data on top of I/O, producing total
+    execution failure (near-zero writes) that reads exactly like "the
+    disassembly is wrong" rather than "the relocation target was a bad
+    choice." Confirmed on `reflextracker`: `+$1000` from native load
+    `$32C9` pushes the 38KB payload's end from `$C77F` to `$D780` (into
+    I/O), while `-$1000` (same magnitude, opposite direction) works
+    cleanly. Always check `newOrg + payloadLength` against `$D000-$DFFF`
+    before choosing a relocation delta, not just whether the delta itself
+    is page-aligned.
 </lessons_learned>
 
 <success_criteria>

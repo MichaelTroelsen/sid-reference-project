@@ -44,7 +44,8 @@
 
   "quirks": [
     "Published as a magazine listing/tool: SIDId's cached comment says 'MegaSound was published in the Finnish Commodore magazine C=Lehti in issue 5/1988' (data/sidid.json, tag Yip_MegaSound) — consistent with CSDb crediting the 1988 release to 'C=lehti/Tecnopress'. No digitized listing/source text was located during this research pass; treat as closed/binary-only until one turns up.",
-    "CSDb's release page (id 72917) notes an alternate download 'that includes the packer and relocator as well', added by user Fred in 2013 — implies the original tool/output needed external packing/relocation, but no further technical detail was found.",
+    "CSDb's release page (id 72917) notes an alternate download 'that includes the packer and relocator as well', added by user Fred in 2013 — implies the original tool/output needed external packing/relocation, but no further technical detail was found. The current download filename itself is literally 'Megasound_Editor_Packer-YIP.d64', confirming the bundled packer.",
+    "A CSDb Trivia note on the same release page (added by user Flotsam, 10.03.2021, verified via csdb-client.js getRelease(72917) — not present in the card's original research pass) gives primary-source confirmation: the editor was published in C=Lehti issue 5/1988 page 45 (scan: http://amiga.unikko.org/C-lehti/pdf/5-1988.pdf), and the packer/relocator was published separately in the FOLLOWING issue, 6/1988, starting page 18 (scan: http://amiga.unikko.org/C-lehti/pdf/6-1988.pdf) — i.e. the packer/relocator was not part of the original May 1988 tool release but a magazine follow-up a month later. The same note states the editor's built-in demo tune is a rendition of 'Finlandia' by Jean Sibelius.",
     "CSDb lists an 'Also Known As' name: 'Olkkonen Editor' — the author's real name (Jori Olkkonen) used as an alternate title for the same release.",
     "Composer concentration is a genuine-adoption signal, not just personal use: of 78 files tagged Yip_MegaSound across data/composers/*.json, only 2 belong to Yip's own composer folder(s) ('yip' and a separately-catalogued 'jori-olkkonen' folder, likely the same person under two HVSC entries — 2 files each). The bulk comes from other composers: Flotsam (31), Nutcase (26), Agemixer (10), Havoc (4), Deadman (3). Spread across 7 composers with the author himself a small minority points to a genuinely used/published editor, not a one-person routine.",
     "A separate, smaller raw tag 'Yip_Digi' (6 files, per knowledge/COVERAGE.md) also exists for the same author but is NOT the same family as this card — it is used only by Yip's own composer folder(s), suggesting a distinct personal digi-playback routine. No edge is asserted here for lack of direct evidence of a code relationship between the two.",
@@ -57,7 +58,7 @@
   "sources": [
     "SIDId cached entry (data/sidid.json, tag 'Yip_MegaSound'): name 'MegaSound Music Editor', author 'Jori Olkkonen (Yip)', released 1988, reference https://csdb.dk/release/?id=72917, comment re: C=Lehti issue 5/1988",
     "DeepSID players.json curated entry 'Megasound Music Editor' (data/players.json): developer link to /MUSICIANS/Y/Yip/, start_year 1987, csdb_id 72917, platform 'Native / C64 emulator', zero_pages '3 bytes ($FB-$FD) + sometimes also $FA'",
-    "CSDb release page: https://csdb.dk/release/?id=72917 (title 'Megasound Musiceditor', AKA 'Olkkonen Editor'; credits Yip of Pure-Byte for code+music; group Pure-Byte; 1988; alternate download with packer/relocator added 2013)",
+    "CSDb release page: https://csdb.dk/release/?id=72917, queried via scripts/lib/csdb-client.js getRelease(72917) (title 'Megasound Musiceditor', Type 'C64 Tool' — confirmed NOT a crack, AKA 'Olkkonen Editor'; credits Yip of Pure-Byte for code+music; ReleasedBy handle 'Yip' (ID 2599, Scener ID 2589, Finland); 1988 'C=lehti/Tecnopress'; alternate download bundling packer/relocator added 2013; Trivia note added 2021-03-10 by Flotsam citing exact magazine pages and the built-in tune's identity)",
     "CSDb SID-file entry: https://csdb.dk/sid/?id=32107 (Megasound_Musiceditor.sid, /MUSICIANS/Y/Yip/; PSID header: load $2000, init $2000, play $202e, 1 song, 6581/PAL, 7173 bytes)",
     "Internet Archive disk image (supplementary, no technical detail beyond metadata): https://archive.org/details/d64_Megasound_Musiceditor_19xx_Jori_Olkkonen",
     "zimmers.net C64 editors archive listing (https://www.zimmers.net/anonftp/pub/cbm/c64/audio/editors/index.html) and its documentation file (https://www.zimmers.net/anonftp/pub/cbm/c64/audio/editors/Megasound.txt) — user-facing controls, BMX Kidz endpart-music note, and the Sami Saarnio attribution correction; also lists 'Megasound.lnx.gz' as a disk-image binary, NOT source code",
@@ -97,6 +98,19 @@ BMX kids on C64" — a real 1987 Firebird release (main game music by Rob
 Hubbard, high-score screen by Jori Olkkonen/Yip) — which plausibly explains
 the previously-unresolved 1987-vs-1988 release-year discrepancy between
 DeepSID's cached `start_year` and CSDb's release date.
+
+A follow-up research pass (2026-08) re-queried the CSDb release directly via
+`scripts/lib/csdb-client.js` `getRelease(72917)`, confirming `Type: "C64
+Tool"` (not a crack — the `csdb_release` id is the original tool release, no
+substitution needed) and surfacing a 2021 Trivia note not previously in this
+card: the editor was published in C=Lehti issue 5/1988 page 45, and its
+packer/relocator followed a month later in issue 6/1988 page 18 — both
+citing scanned magazine PDFs — and the editor's built-in demo tune is a
+rendition of Sibelius's "Finlandia". The 78-file / 7-composer census
+(agemixer 10, deadman 3, flotsam 31, havoc 4, jori-olkkonen 2, nutcase 26,
+yip 2) was independently re-run against every `data/composers/*.json` file
+matching the alias and reproduced exactly, with no drift since the original
+pass.
 
 ## Quirks & gotchas
 

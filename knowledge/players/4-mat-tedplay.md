@@ -8,7 +8,7 @@
   "authors": ["Matt Simmonds (4-Mat)"],
   "released": "2017 — CSDb: all 4 tagged SID entries' own 'Released' field reads '2017 Orb' (checked directly via CSDb webservice type=sid, ids 58039/58041/58042/58043), matching the CSDb release they were used in, 'fUJi' (C64 Music Collection by Orb, release id 155811, released 2017-04-28). SIDId still has no entry for this tag at all.",
   "status": "stub",
-  "platform": "Native C64 — a personal built-in play routine embedded directly in 4-Mat's own SID data (local dataset's player_type for all 4 files is 'Normal built-in', i.e. not a recognized/named driver signature). Used exclusively across 4 files that make up his music for Orb's 2017 demoscene release 'fUJi' (csdb.dk/release/?id=155811); CSDb credits 4-Mat as Code+Graphician+Musician on that release. No dedicated CSDb tool/release entry exists for '4-Mat/TEDplay' as a distributed product, and it is NOT confirmed to be the same thing as the unrelated open-source 'tedplay' PC/Plus-4-emulator project (see quirks).",
+  "platform": "Native C64 — a personal built-in play routine embedded directly in 4-Mat's own SID data (local dataset's player_type for all 4 files is 'Normal built-in', i.e. not a recognized/named driver signature). Used exclusively across 4 files that make up his music for Orb's 2017 demoscene release 'fUJi' (csdb.dk/release/?id=155811); CSDb's release-specific credit list for 'fUJi' gives 4-Mat only 'Code' (UPDATE 2026-08-07: re-checked via csdb.dk webservice type=release id=155811 — 'Graphician'/'Musician' are 4-Mat's general scener FreelanceFunctions on his CSDb handle profile, not release-specific CreditType entries for this release; the earlier 'Code+Graphician+Musician' phrasing conflated the two). No dedicated CSDb tool/release entry exists for '4-Mat/TEDplay' as a distributed product, and it is NOT confirmed to be the same thing as the unrelated open-source 'tedplay' PC/Plus-4-emulator project (see quirks).",
   "csdb_release": null,
 
   "memory": {
@@ -49,8 +49,9 @@
     "Single-composer concentration: all 4 locally-tagged files are by 4-Mat himself (per data/composers/4-mat.json) — consistent with a personal/experimental routine.",
     "4-Mat is also the author of two other separately-carded personal-routine tags in this project, '4-Mat_tiny_1'/'4-Mat_tiny_2' (knowledge/players/4-mat-tiny-1.md, 4-mat-tiny-2.md) and '4-Mat/MiniSeq' (knowledge/players/4-mat-miniseq.md) — no evidence connects any of these to this tag or to each other; each is its own distinct SIDId signature.",
     "Census of all 4 tagged files (fUJi_Intro_1..4.sid, CSDb SID ids 58039/58043/58042/58041) via CSDb webservice: identical PSID header metadata across all four — LoadAddr=$F000, InitAddr=$F000, PlayAddr=$F003, SIDModel=8580, ClockSpeed=PAL, DataSize=3859 bytes. Header metadata only, NOT a disassembly fact — do not treat as Tier 3 entry/memory data.",
-    "All 4 files were used in the same CSDb release, 'fUJi' (C64 Music Collection, csdb.dk/release/?id=155811, by group Orb, released 2017-04-28, rating 9.86). CSDb credits for that release: Ultra (Text, Code), 4-Mat (Code, Graphician, Musician), Mafiosino (Loader). No separate CSDb release exists for '4-Mat/TEDplay' as a distributed tool/driver — csdb_release is left null deliberately, not merely unresearched: id 155811 is the demo the tunes were used IN, not a release of the player itself (per this project's csdb_id-namespace landmine, documented in CLAUDE.md).",
-    "A follow-up websearch pass (2026-07-31) targeting csdb.dk, Lemon64, and Forum64 explicitly for '4-Mat' + 'TEDplay' found no page connecting the two beyond what was already ruled out (the unrelated open-source tedplay project) — no new lineage or naming evidence surfaced."
+    "All 4 files were used in the same CSDb release, 'fUJi' (C64 Music Collection, csdb.dk/release/?id=155811, by group Orb, released 2017-04-28, rating 9.86). CSDb's release-specific Credit list for that release (checked via webservice, not just the rendered page): Ultra (Text, Code), 4-Mat (Code), Mafiosino (Loader) — UPDATE 2026-08-07: earlier phrasing of 'Code, Graphician, Musician' for 4-Mat conflated his release-specific credit ('Code' only) with his general scener FreelanceFunctions tags (Coder/Graphician/Musician), which the webservice attaches to his handle profile, not to this specific release; corrected. No separate CSDb release exists for '4-Mat/TEDplay' as a distributed tool/driver — csdb_release is left null deliberately, not merely unresearched: id 155811 is the demo the tunes were used IN, not a release of the player itself (per this project's csdb_id-namespace landmine, documented in CLAUDE.md).",
+    "A follow-up websearch pass (2026-07-31) targeting csdb.dk, Lemon64, and Forum64 explicitly for '4-Mat' + 'TEDplay' found no page connecting the two beyond what was already ruled out (the unrelated open-source tedplay project) — no new lineage or naming evidence surfaced.",
+    "DRIFT-RECHECK 2026-08-07: re-queried the CSDb webservice directly for all 4 SID entries (ids 58039/58041/58042/58043, Released field still '2017 Orb' for all, no Trivia/Comments on any) and the 'fUJi' release (Trivia field empty; only Comments present, all pre-dating this card and unrelated to the player routine itself — scene chat re: a stack-leakage loader bug and a hidden part, not about '4-Mat/TEDplay'). Local file census unchanged at 4 files (data/composers/4-mat.json). sidid.nfo re-checked: still no 'TEDplay' entry; found one unrelated mention of 4-Mat as author of a separate 'AY Player' (credited in the 'MrMouse/EasyPlayer' entry as 'Fork of 4-Mat's AY Player') — a different, non-TED chip target, noted here only as color, not added as an edge (no source connects the AY Player to this TEDplay tag). No other drift found; card otherwise unchanged."
   ],
   "sources": [
     "sidid.nfo checked, no matching entry for '4-Mat/TEDplay': https://github.com/cadaver/sidid/blob/master/sidid.nfo",
@@ -74,9 +75,11 @@ built-in" (i.e. an unrecognized/unnamed driver, not a catalogued signature).
 It is explicitly NOT the same thing as the unrelated open-source PC
 "tedplay" project (a Plus/4-emulator-based media player). All 4 tagged files
 (`fUJi_Intro_1`–`4.sid`) are 4-Mat's own music for Orb's 2017 demoscene
-release "fUJi" (CSDb release id 155811, 2017-04-28), where CSDb credits him
-as Code, Graphician, and Musician alongside Ultra (Text/Code) and Mafiosino
-(Loader).
+release "fUJi" (CSDb release id 155811, 2017-04-28), where CSDb's
+release-specific credit list gives him "Code" (his "Graphician"/"Musician"
+tags are general scener FreelanceFunctions on his handle profile, not
+release-specific credits — corrected 2026-08-07), alongside Ultra
+(Text/Code) and Mafiosino (Loader).
 
 ## Quirks & gotchas
 

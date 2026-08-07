@@ -6,6 +6,13 @@
   System 6581 collaboration backstory, noted additional CSDb group members.
   No public source or disassembly found — status remains stub. Every Tier 3 field
   is honestly TODO.
+
+  DRIFT RECHECK 2026-08-07: re-verified CSDb release 122160, CSDb group 5067, and
+  local composer counts — all unchanged since 2026-07-24. New finding: identified
+  the Lemon64 thread's "Fredrik" as Fredrik Segerfalk (Moppe), not Zizyphus/
+  Hederstierna — two different System 6581 people share the first name Fredrik —
+  and found an independent Remix64 interview corroborating the same Gourley
+  dispute. Status remains stub; no Tier 3 field touched.
 -->
 
 ```json
@@ -55,6 +62,7 @@
     "Those exact names — Ben Hayes, Deek, Gerard Gourley — appear as credited Musicians of the CSDb group 'Sonic Graffiti' (https://csdb.dk/group/?id=5067, UK music group active 1989-1991), alongside coder Andy Lumley and two additional members (Chris, coder/musician; David Hayes, coder, joined 1990). This corroborates the SIDId identification: the editor was written by the group's coder for its own musicians, not released as a standalone product.",
     "TOOL CROSSOVER — surfaced 2026-07-17 by a composer-overlap connection scan. The group's four musicians did NOT use only this in-house editor: all four (Ben Hayes, Gerard Gourley, 'Graffiti Sonic', Deek) also produced files fingerprinted to [[system6581]], the Swedish Oneway-group editor by Fredrik Hederstierna (Zizyphus) — where they are collectively that tool's SECOND-largest user cohort (~29 files, after only Oneway's own Moppe and Zizyphus). So Sonic Graffiti's coder built the group an in-house tool AND its musicians adopted an unrelated foreign editor. This is a shared-USERS link between the two players, not shared code (different coders, Lumley vs Hederstierna); no `shares_routine_with` edge is asserted.",
     "The System 6581 collaboration had a deeper backstory: per a Lemon64 forum thread (https://www.lemon64.com/forum/viewtopic.php?p=1015640), Gerard Gourley had a co-operation agreement with Fredrik of System 6581 — Gourley could use the System 6581 editor (described as 'far superior to his own') in exchange for acting as their UK manager. The arrangement soured after Gourley allegedly failed to pay for the Shadow of the Beast score and sold two of Fredrik's tracks without permission. Separately, the JCH tune 'Chordian.sid' was used in the game Stack Up with Gourley's credits instead of Vibrants as promised.",
+    "UPDATE 2026-08-07 (drift recheck) — identified WHICH Fredrik posted the Lemon64 account: it is Fredrik Segerfalk, the System 6581/Oneway musician known by the handle 'Moppe' (System6581's own top composer per the [[system6581]] card), NOT Fredrik Hederstierna/Zizyphus (the tool's coder) — the two are different people who share a first name. Confirmed independently via a Remix64 interview with Segerfalk (https://remix64.com/interviews/interview-fredrik-segerfalk.html), where he states 'We used the name of our group, System 6581, which consisted of me and Fredrik Hederstierna' and separately recounts the same Gerard Gourley/Sonic Graffiti dispute (partial Shadow of the Beast payment, tracks sold to Extreme and European Soccer Challenge without payment or credit) — a second, independent corroboration of the Lemon64 account, from the composer's own site rather than a forum post. All other cited facts (release/group pages, composer counts) re-checked 2026-08-07 and found unchanged since the 2026-07-24 pass.",
     "No public source, disassembly, or format documentation was found (CSDb release page only lists a T64 download and credits, no technical write-up)."
   ],
   "sources": [
@@ -63,7 +71,8 @@
     "CSDb group: Sonic Graffiti (United Kingdom, music group, active 1989-1991; members: Andy Lumley/coder, Ben Hayes/musician, Chris/coder+musician, David Hayes/coder (joined 1990), Deek/graphician+musician, Gerard Gourley/musician (joined 1990), Sonic Graffiti/musician) — https://csdb.dk/group/?id=5067",
     "Local dataset: 29 files tagged Sonic_Graffiti (counted from data/composers/*.json)",
     "Local composer aggregation (data/composers/*.json): Ben Hayes 6 files, Deek 5, Gerard Gourley 6, Graffiti Sonic 12",
-    "Lemon64 forum thread with Gerard Gourley / System 6581 collaboration backstory (Fredrik of System 6581, JCH/Chordian of Vibrants, Deek as intermediary) — https://www.lemon64.com/forum/viewtopic.php?p=1015640"
+    "Lemon64 forum thread with Gerard Gourley / System 6581 collaboration backstory (Fredrik of System 6581, JCH/Chordian of Vibrants, Deek as intermediary) — https://www.lemon64.com/forum/viewtopic.php?p=1015640",
+    "Remix64 interview with Fredrik Segerfalk (aka Moppe, System 6581/Oneway musician) — identifies him, not Zizyphus, as the Lemon64 thread's author, and independently corroborates the Gerard Gourley/Sonic Graffiti payment dispute — https://remix64.com/interviews/interview-fredrik-segerfalk.html (checked 2026-08-07)"
   ]
 }
 ```
@@ -109,6 +118,12 @@ Graffiti/SYS6581," reflecting the collaboration period.
   searched (CSDb, Codebase64, GitHub, Lemon64, Forum64, general web). The
   CSDb release page for the editor (https://csdb.dk/release/?id=122160)
   only carries a T64 download and credit line.
+- The Lemon64 forum account of the System 6581 collaboration and its
+  breakdown was posted by Fredrik Segerfalk (handle "Moppe," System
+  6581/Oneway's own top composer), not by Zizyphus (Fredrik Hederstierna,
+  the tool's coder) — the two are different people who happen to share a
+  first name. A Remix64 interview with Segerfalk independently confirms
+  the same dispute (https://remix64.com/interviews/interview-fredrik-segerfalk.html).
 
 ## Disassembly notes
 

@@ -14,7 +14,7 @@
   "memory": {
     "load_address": "Per-file, not fixed: RSID header load address ranges $0870-$9974 across all 131 tagged HVSC files (song data placement varies per export); the player's own init code sits in a separate, narrow, near-fixed high band — see entry.init. Confirmed 2026-07-23 by reading real headers of all 131 tagged files directly (no disassembly needed for this fact).",
     "zero_page": "Approx 28 bytes in the $CF-$F1 range (documented in DeepSID's player database, data/players.json 'zero_pages' field — not from a local disassembly). PARTIAL, UNVERIFIED corroboration: a raw hex read (not a SIDdecompiler-verified disassembly — see Verification) of the init routine's first ~30 bytes shows `LDA #$81 / STA $D7` — $D7 falls inside the documented $CF-$F1 range. Flagged as a lead only, not confirmed by any disassembly tool.",
-    "layout": "TODO: order-list/pattern/table addresses not documented — blocked, see Verification"
+    "layout": "PARTIAL, disassembly-confirmed 2026-08-07 on Warlock/Abba-Gabba.sid: four 32-entry instrument tables at $BA00/$BA20 (lo/hi, one bound of a sample-pointer walker) and $BA40/$BA60 (lo/hi, the other bound / alt direction), indexed via `AND #$1F` on the low 5 bits of the ZP $D8/$D9 voice program-select byte (17/32 entries non-zero on this file, i.e. up to 17 instruments). These are per-file load-address-relative offsets from this one disassembly, not yet confirmed to be fixed across other tagged files. Order-list/pattern encoding itself remains TODO — see Verification."
   },
   "entry": {
     "init": "Header-declared init address, read directly from all 131 tagged HVSC files' real RSID headers (2026-07-23): $C006 on 124/131 files (94.7%), with 6 minority-variant files — $C050 (3 files), and one file each at $C000, $C103, $1C06, $CF40. Not TODO anymore, but NOT independently confirmed as the true code entry point by disassembly (see Verification — SIDdecompiler cannot process this player at all).",
@@ -48,7 +48,8 @@
     "Composer concentration in this dataset (HVSC MUSICIANS/ tree only, per data/composers/*.json): 131 files across 21 composers, no single composer dominant (top users: Warlock 26 files ≈20%, Data/JFK/Vegeta 13 each, Gregfeel 11). A spread this wide across composers reads as a genuinely used group tool, not a personal routine.",
     "PVCF, credited for Music/Design/Documentation on the CSDb release, is also among the composers using the 'Reflextracker' tag in this dataset (6 files, ranking roughly 8th of 21 — not a top user) — one of the tool's own creators is among its users, consistent with an in-house Reflex-group tool that also saw wider pickup rather than a single dominant author.",
     "CROSS-SCENE ADOPTION BY THE POLISH SCENE — surfaced 2026-07-17 by a composer-overlap connection scan over data/composers/*.json. Though Reflex-Tracker is German (Reflex group: kb/Quiss/Zorc), eight of its users also used the Polish editor [[hardtrack-composer]] (Longhair/Brush, Elysium): Bax, Data, JFK, Leming, Praiser, Randy, V-12, Warlock — all Polish, and including this card's own top users (Warlock ~20%, plus Data and JFK). So a large share of Reflex-Tracker's usage in this dataset comes from the Polish scene, which also ran its own native Hardtrack Composer — a shared-USERS / cross-scene relationship (same shape as the Sonic Graffiti/[[system6581]] crossover), NOT shared code (different coders; neither disassembled). No `shares_routine_with` edge asserted; navigational link only.",
-    "DISASSEMBLY BLOCKED — SIDdecompiler.exe hangs indefinitely (process alive, zero bytes of output ever flushed, confirmed via `tasklist` and a 12-15s timeout kill) on every one of 6 real Reflextracker-tagged files tested 2026-07-23, spanning 5 different composers (Warlock x3, Data, Gregfeel, PVCF) and both the dominant header init-address variant ($C006, 124/131 files) and a minority variant ($C103). The hang reproduces even with `-t0` (zero play-routine calls requested) and with the minimal flag set (no `-z`/`-d`/`-c`/`-v2`), meaning the infinite loop is inside SIDdecompiler's static emulation of INIT itself, not under-covered play-loop tracing. Ruled out as an environment/tool problem: an unrelated non-Reflextracker RSID file from the same HVSC folder (Warlock/Their_Law.sid), run with the identical invocation pattern, completed in 0.136s (with its own, unrelated error). All 131 tagged files share this RSID-format / play=$0000 header signature (see entry.play), consistent with a real hardware-interrupt- or busy-poll-driven design that SIDdecompiler's non-interrupt-injecting CPU emulation cannot get past. See Verification for the full writeup and the recommended next step (RetroDebugger, not available in this session)."
+    "DISASSEMBLY BLOCKED (SIDdecompiler specifically) — SIDdecompiler.exe hangs indefinitely (process alive, zero bytes of output ever flushed, confirmed via `tasklist` and a 12-15s timeout kill) on every one of 6 real Reflextracker-tagged files tested 2026-07-23, spanning 5 different composers (Warlock x3, Data, Gregfeel, PVCF) and both the dominant header init-address variant ($C006, 124/131 files) and a minority variant ($C103). The hang reproduces even with `-t0` (zero play-routine calls requested) and with the minimal flag set (no `-z`/`-d`/`-c`/`-v2`), meaning the infinite loop is inside SIDdecompiler's static emulation of INIT itself, not under-covered play-loop tracing. Ruled out as an environment/tool problem: an unrelated non-Reflextracker RSID file from the same HVSC folder (Warlock/Their_Law.sid), run with the identical invocation pattern, completed in 0.136s (with its own, unrelated error). All 131 tagged files share this RSID-format / play=$0000 header signature (see entry.play), consistent with a real hardware-interrupt- or busy-poll-driven design that SIDdecompiler's non-interrupt-injecting CPU emulation cannot get past. UPDATE 2026-08-07: this is now a SIDdecompiler-specific blocker only, not a hard project blocker — see the next quirk and Disassembly notes for the successful `dis6502.js` workaround.",
+    "HEAVILY SELF-MODIFYING CODE, confirmed 2026-08-07 by disassembly/reassembly: an automated audit of the ~1,900-byte code region found 8 distinct self-modified-instruction-operand slots fed by 37 call sites — self-modified `JMP` targets (two confirmed pairs, one alternating between two already-known routines, the other between a known routine and a previously-undiscovered 65-byte code region at $C05B), an EOR-#$01 toggle between two seed pages, and table-page selectors mixing literal constants with note-derived offsets. This is well beyond typical self-modification depth for a player in this KB and is the likely reason SIDdecompiler's static/hybrid emulation model hangs rather than terminating (it may be caught trying to statically resolve a target that only resolves at runtime). It is also why a 100.000000% native byte-diff on this player specifically should NOT be read as strong evidence on its own — see Verification for the concrete case where it silently hid a real 65-byte disassembly gap."
   ],
   "sources": [
     "CSDb release (Reflex-Tracker V1.1, Reflex / The Obsessed Maniacs, 1995; credits: Code kb/Quiss/Zorc, Music/Design/Docs PVCF): https://csdb.dk/release/?id=43348",
@@ -57,7 +58,8 @@
     "Local dataset: 131 files across 21 composers tagged 'Reflextracker' in data/composers/*.json (matches knowledge/COVERAGE.md rank #3 uncarded family, 131 files)",
     "Lemon64 forum thread 'Reflextracker Stuff', including a first-hand post by credited musician PVCF describing a PC-hosted quadrasid composing mode: https://www.lemon64.com/forum/viewtopic.php?t=4872",
     "knowledge/COVERAGE.md / scripts/dev/gen-coverage.js OPEN_SOURCE hint (unsourced, treated as unconfirmed — see quirks)",
-    "2026-07-23 disassembly attempt (this pass): real RSID headers of all 131 tagged HVSC files under C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/ (read directly, script not retained); SIDdecompiler.exe hang reproduced on 6 real files (Warlock/Abba-Gabba.sid, Warlock/Burp.sid, Warlock/Revolution.sid, Data/Dual_Light.sid, Gregfeel/Agata_Song.sid, PVCF/Brainbeat_3_Introrap.sid); control run on Warlock/Their_Law.sid (non-Reflextracker) — see Disassembly notes for full methodology"
+    "2026-07-23 disassembly attempt (this pass): real RSID headers of all 131 tagged HVSC files under C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/ (read directly, script not retained); SIDdecompiler.exe hang reproduced on 6 real files (Warlock/Abba-Gabba.sid, Warlock/Burp.sid, Warlock/Revolution.sid, Data/Dual_Light.sid, Gregfeel/Agata_Song.sid, PVCF/Brainbeat_3_Introrap.sid); control run on Warlock/Their_Law.sid (non-Reflextracker) — see Disassembly notes for full methodology",
+    "2026-08-07 disassemble/reassemble/byte-diff pass (this pass): scripts/dev/dis6502.js run on Warlock/Abba-Gabba.sid (real HVSC file), assembled with 64tass, byte-diffed against the original payload in Node — 100.000000% exact both before and after discovering the $C05B code region; full methodology, listings and the self-modified-slot table in knowledge/artifacts/reflextracker.txt"
   ]
 }
 ```
@@ -93,6 +95,71 @@ platform label — flagged as an unresolved discrepancy rather than papered
 over.
 
 ## Disassembly notes
+
+### 2026-08-07 — full disassemble/reassemble/byte-diff pass, 100.000000% native match, gap found and closed
+
+**RetroDebugger's MCP tools were not present in this session's tool set**
+despite the dispatch explicitly framing this as a solo/uncontested run — see
+`new_lesson_learned` in this pass's report. Worked around entirely with
+`scripts/dev/dis6502.js` (a from-scratch recursive-descent 6502 disassembler
+built in an earlier batch specifically for players SIDdecompiler hangs on —
+see its own header comment), 64tass, and `scripts/dev/vsid-trace.js`, none
+of which need RetroDebugger.
+
+On `Warlock/Abba-Gabba.sid` (RSID, load `$32C9`, payload 38,071 bytes, init
+`$C006`): recursive descent from the single header-declared entry point
+`$C006` produced a disassembly that reassembles to a **100.000000% byte-exact
+match (0/38,071 bytes differ)** against the original payload, on the first
+attempt.
+
+**That result is a weak one on its own, and a concrete demonstration of why
+this agent's own lessons (65/98) insist a native byte match doesn't validate
+a code/data split.** The single-entry disassembly classified only 1,289 of
+38,071 bytes (3.4%) as code, and still hit 100.000000% — because
+misclassified code round-trips through `.byte` data emission just as exactly
+as correctly-classified code does. An automated audit (cross-referencing
+every absolute-mode `STA`/`STX`/`STY` write's target against every decoded
+instruction's own operand-byte positions) found **8 distinct
+self-modified-instruction-operand slots fed by 37 call sites** — this player
+is unusually heavily self-modifying (matches the batch30 note below).
+Chasing one of them (a self-modified `JMP` at `$C1B2` whose target
+alternates between the known `$C09C` and a second value, `$C05B`, that
+recursive descent from `$C006` alone never reaches) recovered a genuine
+**65-byte previously-undiscovered code region**: `$C05B` is the ASCENDING
+mirror of the already-known `$C09C` descending sample-pointer walker (`ADC`
+instead of `SBC`, bounds `$71/$B1` instead of `$6A/$B2`) — i.e. the shared
+`$D0/$D1` sample pointer can walk either direction, selected via this
+self-modified jump. Re-running with both `$C006` and `$C05B` as entries
+raised code coverage to 1,354 bytes (3.6%) and reassembled **still
+100.000000% byte-exact**. Full listing and the complete self-modified-slot
+table: `knowledge/artifacts/reflextracker.txt`.
+
+**New, disassembly-confirmed memory-map fact**: four 32-entry instrument
+tables at `$BA00`/`$BA20`/`$BA40`/`$BA60` (lo/hi pairs, sample-pointer origin
+and the walker's other bound), indexed via `AND #$1F` on the low 5 bits of
+the ZP `$D8`/`$D9` voice program-select byte — 17 of 32 entries are non-zero
+(up to 17 instruments in this file). This directly confirms the batch30
+reading ("shape fits a sample/replay pointer... consistent with a
+sample-based tracker") as fact rather than a guess.
+
+**No relocation-invariance control (this project's standard non-tautological
+check, lessons 69/70/72) was completed this pass.** The native byte-diff
+above is tautological on its own — round-tripping identical bytes always
+"matches" — and was deliberately NOT cited as trace evidence. Of the 8
+self-modified slots, at least one (`$C0D1`'s `JMP` target, alternating
+`$C140`/`$C18B`) resolves entirely within already-known code (no further gap
+there); at least 3 more (`$C0CB`/`$C19E` hi-byte-only, `$C0CE`/`$C19B`
+hi-byte-only EOR-toggled, `$C198`/`$C1A2` table-page selectors mixing a
+literal baseline with a note-derived offset) remain unresolved — either not
+yet chased for further undiscovered branch targets, or not yet fixed
+symbolically for relocation. See Verification for the precise next-step
+list.
+
+**Status stays `in-progress`.** Real, substantial progress this pass (first
+disassembly/reassembly/byte-diff this card has ever had, a newly-discovered
+65-byte code region, and a new confirmed memory-map fact), but no
+register-write match was produced against a genuinely different binary, so
+the project's `verified` bar is not met.
 
 ### 2026-07-31 (batch33) — tracing confirmed open
 
@@ -253,6 +320,52 @@ project's bar for `verified` is a register-write match, and there is still
 nothing to compare. `data_format` and `effects.encoding` remain `TODO`. What
 changed is the next step, which is no longer "obtain a live debugger" but
 "disassemble `$C000-$C77F` in full, reassemble, trace-diff".
+
+**Updated 2026-08-07: disassembled, reassembled, and byte-diffed for the
+first time — 100.000000% byte-exact (0/38,071 bytes), but this is a
+tautological result, and `status` stays `in-progress`.** RetroDebugger's MCP
+tools were not present in this dispatched session despite being told this
+was a solo run — worked entirely from a from-scratch recursive-descent
+disassembler (`scripts/dev/dis6502.js`) plus 64tass, no live debugger
+required. On `Warlock/Abba-Gabba.sid`, recursive descent from the header's
+declared init (`$C006`) reassembles byte-for-byte identical to the original
+payload. That headline number is explicitly NOT sufficient for `verified`
+here: an automated self-modified-operand audit found the single-entry
+disassembly had silently misclassified a real 65-byte code region
+(`$C05B`, reached only via a self-modified `JMP` operand) as inert `.byte`
+data — while STILL reporting 100.000000% byte-exact, because misclassified
+code round-trips through data emission exactly as cleanly as correctly
+classified code does. Adding `$C05B` as a second entry point recovered that
+region (code coverage 3.4% -> 3.6%) and the file still reassembles
+100.000000% byte-exact. Full detail, the complete self-modified-slot table
+(8 distinct slots, 37 call sites), and the newly-confirmed instrument-table
+memory-map fact ($BA00/$BA20/$BA40/$BA60, `AND #$1F`-indexed via ZP
+$D8/$D9): see Disassembly notes above and
+`knowledge/artifacts/reflextracker.txt`.
+
+**No register-write trace-diff was produced, and none is claimed.** This
+project's own methodology (and this agent's lessons 65/69/70/72/98) requires
+a non-tautological relocation-invariance control before a byte-exact native
+match counts as `verified` — tracing a byte-identical reconstruction against
+its own source file proves nothing beyond the byte-diff already shown. That
+control was attempted but not completed this pass: of the 8 self-modified
+operand slots found, one (`$C0D1`'s `JMP` target) resolves entirely within
+already-known code (no further gap), but at least 3 more remain either
+unresolved for additional undiscovered branch targets (the same technique
+that found `$C05B`, not yet re-applied to `$C0CB`/`$C19E`) or un-fixed for
+relocation (`$C0CE`/`$C19B`'s EOR-#$01 toggle needs its `$C4E8` seed values
+shifted; `$C198`/`$C1A2`'s table-page selector mixes a literal `$A0`/`$C5`
+baseline with a note-derived offset and needs both literals adjusted).
+**Concrete next step**, in order: (1) re-run the `$C05B`-style
+self-modified-jump-target chase on `$C0CB`/`$C19E` to rule out (or find) a
+further undiscovered region; (2) fix the identified literal constants for a
+page-aligned relocation (delta with an even high byte, to keep the
+EOR-#$01-toggle parity correct per this pass's hand analysis); (3) trace-diff
+the relocated build against the original via `vsid-trace.js` (this player is
+RSID play=$0000, needs a real machine per lesson 92/67, not
+`sidm2-sid-trace.exe`). `data_format`, `effects.encoding`, and the true
+pattern/order-list layout remain `TODO` — the newly-confirmed instrument
+tables narrow this but do not close it.
 
 ## Sources
 

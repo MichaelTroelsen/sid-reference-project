@@ -144,3 +144,110 @@ $D6      loop/repeat counter (DEC $D6 / BNE at $C1B5)
 $D7      poll flag, seeded #$81 by setup, polled at $C016
 $D8      selects which byte-set is live (first swap block)
 $D9      selects which byte-set is live (second swap block)
+
+
+2026-08-07 — full disassemble/reassemble/byte-diff pass (dis6502.js, native)
+==============================================================================
+SIDdecompiler still hangs on this player (unchanged). RetroDebugger MCP tools
+were NOT available in this session's tool set despite being told this was a
+solo/uncontested run (see card Verification and the new_lesson_learned in
+the sid-verify report that produced this pass) — worked around entirely with
+scripts/dev/dis6502.js (a from-scratch recursive-descent 6502 walker, see its
+own header comment) plus 64tass and scripts/dev/vsid-trace.js, all plain
+Bash-invokable, no MCP dependency.
+
+File: MUSICIANS/W/Warlock/Abba-Gabba.sid. RSID header: load $32c9 (embedded,
+header field 0), init $c006, play $0000, payload 38,071 bytes, ends $c77f.
+
+Method: extract payload to abba.prg (2-byte LE load addr + payload). Run
+`dis6502.js abba.prg 32c9 c006 abba.asm` (native, non-relocated). Assemble
+with 64tass -a --cbm-prg. Byte-diff reassembled .prg's payload against the
+original: **100.000000% exact (0/38071 bytes differ)** on the FIRST attempt.
+
+IMPORTANT CAVEAT (see lesson 65/98 in the sid-player-verify agent's own
+lessons_learned): a native, non-relocated byte-exact match is a WEAK result
+on its own — round-tripping identical bytes through a misclassified code/data
+split still produces the same bytes. Confirmed this concretely on THIS file:
+the first-pass disassembly (single entry point $c006) classified only 1289 of
+38071 bytes (3.4%) as code and reported 100.000000% byte-exact anyway, while
+silently having failed to discover an entire additional code region — see
+below.
+
+Self-modified-jump-target audit found a genuine gap. An automated
+cross-reference (every ABS-mode STA/STX/STY write's target address checked
+against every decoded instruction's own operand-byte positions) found **8
+distinct self-modified-instruction-operand slots, fed by 37 call sites**:
+
+  instr@c0cb (hi byte only, native operand $71 -> $7100,X table select)
+  instr@c0ce (hi byte only, native operand $c7 -> EOR-#$01-toggled)
+  instr@c19b (hi byte only, native operand $c7 -> EOR-#$01-toggled, mirror of c0ce)
+  instr@c19e (hi byte only, native operand $71 -> mirror of c0cb)
+  instr@c0d1 (JMP, lo+hi both self-modified: native target $c140, alternate $c18b — ALREADY a known label, no gap)
+  instr@c1b2 (JMP, lo+hi both self-modified: native target $c09c, alternate $c05b — NOT previously known, see below)
+  instr@c198 (LDA abs,X, lo+hi self-modified: table-page selector, partly literal $a0/$c5, partly note-derived)
+  instr@c1a2 (similar table-page selector, mirror of c198)
+
+Chasing the $c1b2 alternate target ($c05b) as a new entry point recovered a
+genuine, previously-undiscovered 65-byte code region:
+
+  LC05B   LDA #$00
+          ADC #$e4
+          STA $c05c
+          BCC LC06E
+          LDA $c08f
+          CMP #$c7
+          EOR #$01
+          STA $c08f
+  LC06E   LDA $d0
+          ADC #$00
+          STA $d0
+          TAX
+          LDA $d1
+          BCC LC080
+          ADC #$00
+          STA $d1
+          STA $c08c
+  LC080   CMP #$71
+          BCC LC08A
+          BNE LC093
+          CPX #$b1
+          BCS LC093
+  LC08A   LDY $6a00,x
+          LDX $c600,y
+          JMP LC140
+  LC093   LDA $c087
+          LDX $c081
+          JMP LC0DA
+
+This is the ASCENDING mirror of the already-known $C09C descending
+pointer-walker (ADC instead of SBC, bounds $71/$B1 instead of $6A/$B2) —
+i.e. the same $D0/$D1 sample pointer can walk either direction, self-modified
+jump-target selecting which. Re-running dis6502.js with BOTH $c006 and $c05b
+as entries: codeBytes 1289 -> 1354 (+65, now 3.6% of the file), STILL
+100.000000% byte-exact after reassembly.
+
+Instrument tables identified (read directly from the payload, all 32-entry,
+17 non-zero = up to 17 instruments):
+  $BA00/$BA20 (lo/hi) -> sample origin pointer, one bound of the walker
+  $BA40/$BA60 (lo/hi) -> sample origin pointer, other bound / alt direction
+  indexed by `AND #$1F` on the low 5 bits of the ZP $D8/$D9 voice
+  program-select byte (LC31E/LC3F9 setup code).
+
+Remaining self-modified sites NOT yet resolved to entry points or fixed for
+relocation, each requiring its own trace:
+  - c0cb/c19e (hi-byte-only, $71 <-> some other page — not yet identified
+    what the "some other page" value is; may be another undiscovered branch,
+    same technique as c05b would apply)
+  - c0ce/c19b (hi-byte-only, EOR-#$01 toggle between $c6/$c7 seed values —
+    genuinely dynamic, not a literal to patch, but IS relocation-invariant
+    under a page-aligned (even deltaHi) shift once the LC4E8 seed values are
+    fixed, per hand analysis this pass — not yet implemented/tested)
+  - c198/c1a2 (table-page selector: LOW byte = literal $a0/$c5 baseline +
+    computed note-derived offset (0-3) from `LDA $db AND $c0 LSR LSR`; HIGH
+    byte = plain literal $c5/$c5 — needs symbolic fix of the two embedded
+    page constants for relocation)
+
+No relocation-invariance control (lessons 69/70/72) was completed this pass
+-- the native byte-diff is tautological (lesson 65/98) and was not cited as
+trace evidence. Status stays in-progress. See the card's Verification
+section for the precise next-step list.

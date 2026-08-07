@@ -7,7 +7,7 @@
   "aliases": ["C64_Speech_System"],
   "authors": ["Kristian Köhntopp", "Daniel Diezemann"],
   "released": "1986 (64'er magazine issue 10/1986, Markt & Technik; V2.7)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool: a hardware+software combo. A BASIC extension — 23 new BASIC functions per the source mirror's own README (RECORD/PLAY/SPEED/PAUSE/BLOCK/EXEC/HEAR/VOLDEF/COLDEF/MAP/HIMEM/MON/etc., source: https://github.com/LeshanDaFo/C64-Speech-Basic#readme) — paired with a simple 2-bit A/D digitizer circuit wired into the joystick port, published as a type-in 'Listing of the Month' in the German magazine 64'er. Playback of recorded samples uses the SID chip only — no extra hardware needed for playback, only for recording. Player-ID tags files that embed/replay its sample format as 'C64_Speech_System'.",
   "csdb_release": 129965,
 
@@ -17,8 +17,8 @@
     "layout": "Vector hooks installed by `setvectors`: $0304/$0305 tokenizer (OWN_CRUNCH), $0306/$0307 LIST (OWN_PLOOP), $0308/$0309 command dispatch (OWN_GONE), $030A/$030B expression eval (OWN_EVAL, adds $.../%... hex/binary literals), $028F/$0290 keyboard-scan/function-key expansion (OWN_KBDDEC), $0318/$0319 NMI (OWN_NMI), $0316/$0317 BRK (OWN_BRK); the standard IRQ vector is additionally, temporarily replaced by OWN_IRQ only while a numeric PAUSE is counting down. New BASIC tokens occupy $CC-$E3 (executable, dispatched via CMDS_TAB) plus $E4-$E6 helper/modifier tokens (FROM, SPEED, OFF) that are tokenized but never directly dispatched. A 32-entry block table (4-byte start/end address pairs plus an 8-char name in `stringtable`) is the shared addressing scheme for BLOAD/BSAVE/RECORD/PLAY/MON/EXEC. Sample data is packed 4x 2-bit values per byte (unpacked/repacked by out_4/out_1/mon_table). No absolute hex addresses are published for these labels beyond the ones stated above — this is a label-level structural description, not a full disassembly. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic."
   },
   "entry": {
-    "init": "$0820 (decimal SYS(2080), invoked by the $0801 BASIC loader line 'SYS(2080) SPEECH BASIC 2.8') jumps to OWN_INIT, which sets the BASIC-start pointer ($2B/$2C) to $1801, clears $1800, installs all vectors via `setvectors`, and prints the power-on banner. This is the BASIC-extension's own init, not a PSID init routine of a tagged .sid file. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic.",
-    "play": "No numeric address published — CMD_PLAY (symbolic label only) parses a block/address range via `set_def_val`, then loops: read one packed byte, unpack into 4x 2-bit samples, use each as an index into COLTABLE/VOLTABLE, write the volume to SID $D418 and the colour to border register $D020, repeat until the end address. Loop rate is governed by a self-modified delay byte (`delay_play`) settable via an optional SPEED parameter in `L12B0` — not a fixed IRQ/raster call rate. This describes the BASIC extension's own PLAY command; no PSID init/play entry address was found for any individual C64_Speech_System-tagged .sid in this collection. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic."
+    "init": "$0820 (decimal SYS(2080), invoked by the $0801 BASIC loader line 'SYS(2080) SPEECH BASIC 2.8') jumps to OWN_INIT, which sets the BASIC-start pointer ($2B/$2C) to $1801, clears $1800, installs all vectors via `setvectors`, and prints the power-on banner. This is the BASIC-extension's own init, not a PSID init routine of a tagged .sid file. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic. CONFIRMED BY DISASSEMBLY (2026-08-07) on a real tagged file, `Pet_Shop_Boy/Cocaine.sid`: its RSID init=$1210 is NOT the $0820 BASIC-extension entry — it is a small, separately-assembled 'compiled tune' extract that reuses the same playback mechanics. See Verification section for the full reconstructed memory map of that file.",
+    "play": "No numeric address published — CMD_PLAY (symbolic label only) parses a block/address range via `set_def_val`, then loops: read one packed byte, unpack into 4x 2-bit samples, use each as an index into COLTABLE/VOLTABLE, write the volume to SID $D418 and the colour to border register $D020, repeat until the end address. Loop rate is governed by a self-modified delay byte (`delay_play`) settable via an optional SPEED parameter in `L12B0` — not a fixed IRQ/raster call rate. This describes the BASIC extension's own PLAY command; no PSID init/play entry address was found for any individual C64_Speech_System-tagged .sid in this collection. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic. CONFIRMED BY DISASSEMBLY (2026-08-07): `Cocaine.sid` is RSID with play=$0000 (self-contained, no PSID play vector) — exactly the 'no fixed IRQ/raster call rate' polling-loop architecture STRUCTURE.md describes, and init=$1210 is literally `JSR $0A00 / JMP $1210`, an infinite loop with no RTS. The shared inner playback loop this file actually executes lives at $0820-$0890 and matches CMD_PLAY's documented mechanics byte-for-byte: `LDA ($aa),y` reads one packed sample byte, `ASL/ADC #$00` x2 extracts each 2-bit field (carry-propagating x4), `AND #$03` masks to 0-3, `TAX` indexes 4-entry tables at $0891 (COLTABLE, values `$00,$0b,$0c,$0f`) -> `STA $D020` and $0895 (VOLTABLE, values `$00,$05,$0a,$0f`) -> `STA $D418`. VOLTABLE's 4 values are an exact byte-level match for the 4 distinct $D418 values independently observed in the batch33 trace pass below."
   },
   "speed": "Not IRQ/CIA/raster-driven — CMD_PLAY, CMD_RECORD, and CMD_HEAR are tight, self-timed polling loops. Play/record/monitor rate is a self-modifiable delay byte (delay_play / delay_rec / delay_hear) optionally set via a SPEED parameter in the shared setup routine `L12B0`; no numeric cycle count or resulting Hz value for any specific delay setting is stated in the sources checked. c64-wiki's 'up to 18,000 samples/second' figure (see data_format.wavetable) is presumably the fastest such delay setting, but is not tied to a specific documented delay-byte value. Sources: STRUCTURE.md (https://github.com/LeshanDaFo/C64-Speech-Basic); https://www.c64-wiki.de/wiki/Speech_Basic.",
 
@@ -26,12 +26,12 @@
     "order_list": "TODO: not applicable in the usual tracker sense — this is a raw sample recorder/player, not a pattern-based composer",
     "patterns": "TODO",
     "instruments": "TODO",
-    "wavetable": "2-bit, mono samples, 4 samples packed per byte, recorded at up to 18,000 samples/second (c64-wiki: https://www.c64-wiki.de/wiki/Speech_Basic). Packing/unpacking mechanics confirmed by the source mirror: RECORD reads 2 bits at a time from joystick port 2 ($DC00) and shifts them into zero-page $A8 to build one packed byte; PLAY/HEAR reverse this, using each 2-bit value as an index into 4-entry COLTABLE/VOLTABLE lookup tables (VOLTABLE feeds SID volume register $D418, COLTABLE feeds border colour $D020); CMD_MON's out_4/out_1 display the four values per byte for manual editing. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic.",
+    "wavetable": "2-bit, mono samples, 4 samples packed per byte, recorded at up to 18,000 samples/second (c64-wiki: https://www.c64-wiki.de/wiki/Speech_Basic). Packing/unpacking mechanics confirmed by the source mirror: RECORD reads 2 bits at a time from joystick port 2 ($DC00) and shifts them into zero-page $A8 to build one packed byte; PLAY/HEAR reverse this, using each 2-bit value as an index into 4-entry COLTABLE/VOLTABLE lookup tables (VOLTABLE feeds SID volume register $D418, COLTABLE feeds border colour $D020); CMD_MON's out_4/out_1 display the four values per byte for manual editing. Source: STRUCTURE.md, https://github.com/LeshanDaFo/C64-Speech-Basic. CONFIRMED BY DISASSEMBLY+BYTE-DIFF+TRACE-DIFF (2026-08-07, see Verification): on `Cocaine.sid` the entire ~50KB of sample data is played back through a hardcoded sequence of 34 JSR calls to 9 'sample chunk' trigger routines, each of which sets a start/end pointer pair (into the SAME file's own payload) and falls into the shared $0820 loop above. Not a pattern/order-list tracker at all — closer to a fixed, non-interactive tape-splice script.",
     "pulsetable": "TODO: n/a (not a synth waveform tool)",
     "filtertable": "TODO: not confirmed"
   },
   "effects": {
-    "encoding": "Closest analogue is the `EXEC` sequencer: a BASIC string of single ASCII-character commands, dispatched via `excmdtable`/`execaddr` (CMD_EXEC redirects BASIC's text pointer into the string and interprets it in place, letting a BASIC program build a small playback script instead of issuing full commands repeatedly). Confirmed by both the source mirror's STRUCTURE.md and the repo README ('Additional exec commands are p, s, w, v, c, #'). Sources: STRUCTURE.md and README.md, https://github.com/LeshanDaFo/C64-Speech-Basic.",
+    "encoding": "Closest analogue is the `EXEC` sequencer: a BASIC string of single ASCII-character commands, dispatched via `excmdtable`/`execaddr` (CMD_EXEC redirects BASIC's text pointer into the string and interprets it in place, letting a BASIC program build a small playback script instead of issuing full commands repeatedly). Confirmed by both the source mirror's STRUCTURE.md and the repo README ('Additional exec commands are p, s, w, v, c, #'). Sources: STRUCTURE.md and README.md, https://github.com/LeshanDaFo/C64-Speech-Basic. PARTIALLY CONFIRMED BY DISASSEMBLY (2026-08-07) on a second real tagged file, `Alien-Crackings/Digital_Mix_One.sid` (init=load=$1500, a structurally DIFFERENT implementation from Cocaine.sid's hardcoded call-list — see Verification): its code contains a literal command-character table `.byte $50,$53,$57,$56,$43,$23,$27` = ASCII `P,S,W,V,C,#,'` immediately followed by a matching address-pointer table, and a dispatcher loop that reads one character at a time via an indirect pointer, scans it against that table, and JSRs to the matched handler — an exact byte-level match for STRUCTURE.md's documented P/S/W/V/C/# EXEC command set. This confirms the encoding is real and present in shipped files, not just documented in source, but this file's handlers were not individually disassembled or traced this pass (recursive-descent coverage stopped at 0.2% of the file — the dispatch table's targets are computed/indexed, not literal JSR operands, so a purely static walk can't discover them automatically).",
     "commands": {
       "P": "play a block (by block number/address range)",
       "S": "set speed (delay value used by RECORD/PLAY/HEAR)",
@@ -67,7 +67,8 @@
     "Source mirror's structural walkthrough of code/speechbasicV2.8.asm (memory layout, vectors, zero page, command table, EXEC sequencer, V2.7->V2.8 fixes): https://github.com/LeshanDaFo/C64-Speech-Basic/blob/main/STRUCTURE.md",
     "Author's own history post referenced by web search results (not independently re-verified in this pass): https://blog.koehntopp.info/2006/10/26/mut-64er-10-86.html",
     "Local dataset: 24 files tagged C64_Speech_System, 10 composers (see knowledge/COVERAGE.md); reconfirmed by aggregating data/composers/*.json directly in this pass",
-    "Verification pass (this session): queried deepsid_dl/DeepSID_Database/hvsc_files.sql directly (31 raw rows tagged C64_Speech_System, 24 under MUSICIANS/ across the same 10 composers, 7 more under DEMOS/ uncredited to a composer -- reconciles the card's existing 24/10 figure against the authoritative dump rather than a re-aggregation); real PSID headers read for Pet_Shop_Boy/Cocaine.sid, Alien-Crackings/Digital_Mix_One.sid, Alien-Crackings/Digital_Mix_Five.sid; SIDdecompiler.exe and sidm2-sid-trace.exe both fail structurally on all three (see Verification section) -- status remains in-progress, not verified"
+    "Verification pass (2026-07-23): queried deepsid_dl/DeepSID_Database/hvsc_files.sql directly (31 raw rows tagged C64_Speech_System, 24 under MUSICIANS/ across the same 10 composers, 7 more under DEMOS/ uncredited to a composer -- reconciles the card's existing 24/10 figure against the authoritative dump rather than a re-aggregation); real PSID headers read for Pet_Shop_Boy/Cocaine.sid, Alien-Crackings/Digital_Mix_One.sid, Alien-Crackings/Digital_Mix_Five.sid; SIDdecompiler.exe and sidm2-sid-trace.exe both fail structurally on all three (see Verification section)",
+    "Verification pass (2026-08-07): scripts/dev/dis6502.js (static recursive-descent, no live emulator) + 64tass + scripts/dev/vsid-trace.js closed the gap on Pet_Shop_Boy/Cocaine.sid -- 100.000000% native byte-diff, and a non-tautological relocation-invariance control (two independent bases, one page-aligned/$3000, one not/$3137, after patching 18 hardcoded 16-bit immediate address-pointer bytes dis6502's --symbolic pass doesn't auto-detect) reproduced 20,965/20,965 and 62,893/62,893 real register writes exactly by value-sequence, with only 1 write's frame-boundary bucketing shifted by relocation-induced cycle drift (a known, already-documented artifact class, not a content divergence). status promoted to verified for this file/sub-population. A second file, Alien-Crackings/Digital_Mix_One.sid, was found to use a structurally different EXEC-command-interpreter implementation (byte-confirmed, not fully reconstructed) -- see Verification section for exact scope."
   ]
 }
 ```
@@ -99,21 +100,160 @@ public-source documentation of real runtime facts, not a guess.
 
 ## Disassembly notes
 
-No disassembly was performed on any actual `.sid` file in this pass. However,
-the source mirror's `STRUCTURE.md` plainly documents the resident BASIC
-extension's own load address ($0801, relocating BASIC's start to $1801),
-its init entry (`SYS(2080)` = $0820 → `OWN_INIT`), its BASIC-interpreter
-vector-table hooks, its zero-page usage, its packed-sample format (4x 2-bit
-samples/byte via zero-page $A8), and its `EXEC` command-sequencer encoding —
-all recorded in the `memory`/`entry`/`speed`/`data_format`/`effects` fields
-above with that citation. This describes the full V2.8 BASIC extension as
-built from source, **not** a PSID init/play pair for any of the 24
-`C64_Speech_System`-tagged `.sid` files in this collection — a future pass
-should inspect one of those files' actual PSID header/init/play addresses
-and trace it via `sidm2-siddump` to confirm whether they match this layout
-or are a repacked/relocated extract of just the record/playback routine.
+**Updated 2026-08-07 — a real disassembly now exists.** A full static
+recursive-descent disassembly (`scripts/dev/dis6502.js`, no live emulator
+needed) of `Pet_Shop_Boy/Cocaine.sid` reconstructs the exact memory map of
+that file's playback engine and reassembles + relocation-invariance-traces
+byte/register-write-exact — see the Verification section's 2026-08-07 entry
+for the full map ($0820 shared loop, nine `$09xx` sample-trigger routines, a
+34-call hardcoded "score" at `$0A00`, and unreached menu/credits code from
+`$0A98-$1210`). This is a genuine, independent disassembly-derived
+confirmation of STRUCTURE.md's documented CMD_PLAY mechanics (packed 2-bit
+samples, COLTABLE/VOLTABLE lookup), not just a citation of the source mirror.
+
+The original note below is retained for context but is now superseded for
+Cocaine.sid specifically: the source mirror's `STRUCTURE.md` plainly
+documents the resident BASIC extension's own load address ($0801, relocating
+BASIC's start to $1801), its init entry (`SYS(2080)` = $0820 → `OWN_INIT`),
+its BASIC-interpreter vector-table hooks, its zero-page usage, its
+packed-sample format (4x 2-bit samples/byte via zero-page $A8), and its
+`EXEC` command-sequencer encoding. This describes the full V2.8 BASIC
+extension as built from source — a DIFFERENT, larger program than the small
+compiled-tune extract found in Cocaine.sid's own RSID rip (init=$1210, not
+$0820's SYS(2080) entry). A second tagged file, `Digital_Mix_One.sid`
+(init=load=$1500), was found this pass to much more closely resemble the
+full extension — it contains a real EXEC P/S/W/V/C/# command dispatcher —
+but has not yet been fully disassembled (see Verification, 2026-08-07 entry,
+"Next step").
 
 ## Verification
+
+### 2026-08-07 — verified: full disassemble/reassemble/byte-diff/trace-diff on Cocaine.sid
+
+**Closes the gap batch33 left open.** SIDdecompiler.exe and sidm2-sid-trace.exe still
+both fail structurally on this player for the reasons already documented below (a
+never-returning RSID init, no IRQ vector installed) — but neither is actually needed.
+`scripts/dev/dis6502.js` is a *purely static* recursive-descent 6502 walker (no
+emulation at all, so a never-returning init is not an obstacle to it — it just reads
+bytes), and `scripts/dev/vsid-trace.js` (lesson 92) drives a real emulated machine, so
+the timing/IRQ concerns in the 2026-07-23 entry below don't apply to it either. Both
+tools this player actually needs were already in the toolbox; the earlier passes
+correctly ruled out the wrong ones.
+
+**Step 1 — static disassembly.** `Pet_Shop_Boy/Cocaine.sid`: RSID, load=$0820
+(embedded, PSID load field is 0), init=$1210, play=$0000. Recursive descent from
+`$1210,$0a00` (the two addresses RetroDebugger's batch31 static disassembly had
+already identified: `$1210` is `JSR $0A00 / JMP $1210` — an unconditional infinite
+loop, `$0A00` is what it calls) found and fully decoded the ENTIRE reachable code
+path: 471 code bytes / 50,696 data bytes (99.1% of the 51,167-byte payload is packed
+2-bit sample data, matching the card's documented format). The reconstructed memory
+map for this file:
+
+- `$0820-$0890` — the shared playback inner loop. Matches STRUCTURE.md's documented
+  CMD_PLAY mechanics exactly: `LDA ($aa),y` reads one packed byte via a zero-page
+  indirect pointer, `ASL/ADC #$00` (x2, carry-propagating) extracts each 2-bit field
+  in turn, `AND #$03` masks to 0-3, indexes 4-entry tables at `$0891` (`.byte
+  $00,$0b,$0c,$0f`, -> `STA $D020` border colour) and `$0895` (`.byte $00,$05,$0a,$0f`,
+  -> `STA $D418` volume) — **VOLTABLE's 4 values are byte-for-byte identical to the 4
+  distinct `$D418` values the batch33 trace pass observed independently** ($00/$05/
+  $0A/$0F), an exact cross-check between the source-derived documentation, this
+  pass's disassembly, and the earlier pass's register-level trace.
+- `$0900,$0918,$0930,$0948,$0962,$097C,$0994,$09AE` — nine near-identical "sample
+  trigger" routines, each loading a hardcoded 16-bit start pointer into `$aa/$ab` and
+  a hardcoded 16-bit end pointer into the shared loop's self-modified compare operands
+  (two `CMP #imm` instructions at `$0877`/`$087D`, physically inside the `$0820` loop
+  body — genuine self-modifying code, always overwritten before use so its pristine
+  on-disk value is dead), then falling into the `$0820`/`$0833`/`$0835` loop. Each
+  routine plays one fixed address range of the file's own sample data (e.g. `$0900`
+  plays `$8A00-$9FFF`).
+- `$0A00-$0A98` — the "score": a flat, hardcoded sequence of 34 `JSR`s to the nine
+  routines above (no runtime branching, no pattern table — just a fixed call list),
+  ending with `JMP` into `$0994` (itself ending `RTS`).
+- `$0A98-$1210` — **not reached by this file's own init/play path at all** (0
+  divergence from the original across two independently-timed real traces, see
+  below). Decodes as clean, plausible 6502 when read by hand: a `PLA/PLA`-based
+  indirect string-printer (`JSR $FFD2` = CHROUT in a loop) that prints embedded ASCII
+  credits text — `"COCAINE" ... "BY 'THE MAXX'" ... "DIGITIZED BY THE PET SHOP BOY"
+  ... "HIT SPACE TO HEAR THE MIX" ... "HIT KEY M TO RETURN TO THE MENU" ... "THE
+  POWER CRACKING GROUP"` — plus what looks like a keyboard-driven menu dispatcher.
+  Left as inert data per lesson 129's discipline (decodes cleanly but its own JMP
+  targets land in filler, and it is never reached even across a 300-frame trace):
+  almost certainly leftover interactive-menu code from the original digitizer
+  program that this RSID rip's trimmed-down init/play vectors bypass entirely,
+  analogous to (but not identical to) the block-copy/BASIC-stub patterns in gotcha 40.
+
+**Step 2 — native byte-diff.** Reassembled via 64tass at the file's own load address:
+**100.000000% byte-exact** (51,167/51,167 bytes). This is the tautological case
+(lessons 63/69/70) — `dis6502.js` never executes anything, it reads pristine on-disk
+bytes and reassembles them verbatim by construction — so it confirms nothing about
+correctness on its own; only a relocation-invariance control does.
+
+**Step 3 — relocation-invariance control, and the one real defect found and fixed.**
+The first relocated build (`--symbolic`, ORG=$3000, page-aligned) FAILED
+immediately and completely — wrong `$D418` values from frame 0, cycle 0 (`$0F`
+constant instead of the real `$05/$0A/$0A/...` sequence). Root cause, found by
+inspecting the failing routines directly (matches the diagnostic in lessons
+77/80/109): the nine sample-trigger routines build their start/end pointers via
+`LDA #hi / LDX #lo` **immediate-mode** loads — literal 16-bit addresses pointing into
+the SAME file's own sample data (e.g. `$1C00`, `$8A00`, `$73A0`...). `dis6502.js
+--symbolic` only rewrites ABS/ABX/ABY/IND-mode operands on relocation, by design — it
+has no way to recognize an immediate-mode load as "this is secretly an address," so
+these 18 bytes (9 routines x 2 sixteen-bit pointers) stayed as literal, un-relocated
+constants while the rest of the 51KB payload (including the sample data these
+pointers reference) shifted by `+$27E0`. Patched all 18 by hand (mechanical,
+regex-driven: every `LDA #$hi / LDX #$lo / STA $ab / STX $aa` and `LDA #$hi / LDX
+#$lo / STA <shared-CMP-operand>` quadruple, `9 x 2 = 18` pairs) into
+`#>(ORG+$offset)` / `#<(ORG+$offset)` symbolic immediates.
+
+After the fix, **both** relocation bases passed:
+
+| control base | writes compared | tuple (frame:reg:value) exact | value-sequence exact |
+|---|--:|--:|--:|
+| $3000 (page-aligned), 100 frames | 20,965 | 20,962/20,965 (99.986%) | **20,965/20,965 (100%)** |
+| $3137 (non-page-aligned), 100 frames | 20,965 | **20,965/20,965 (100%)** | 20,965/20,965 (100%) |
+| $3137 (non-page-aligned), 300 frames | 62,893 | 62,892/62,893 (99.998%) | **62,893/62,893 (100%)** |
+
+The handful of frame-tuple mismatches are exactly the lesson-72(a) cycle-drift
+artifact, confirmed directly: at the one 300-frame mismatch, the original writes
+land at cycle 19653 of frame 199 (4 cycles before the 19656-cycle frame boundary);
+the relocated build's equivalent write lands 4 cycles later, at cycle 1 of frame
+200 — a page-crossing indexed-addressing timing shift from moving the code, not a
+content change. **The underlying register-write VALUE SEQUENCE — order and content,
+ignoring frame bucketing — is 100% identical in every one of these runs, 62,893/
+62,893 writes on the longest.** This is a real, non-tautological, structural
+verification: a mis-decoded instruction boundary or a missed self-modified operand
+would have broken this immediately (as the first, unpatched attempt did), not
+produced a clean match.
+
+`62,893` writes over 300 frames exactly matches the batch33 entry's own independently
+observed figure below — same file, same window, cross-confirmed by two unrelated
+tracer runs three passes apart.
+
+**Result: `status` promoted to `verified`**, scoped precisely: this is a
+disassemble+reassemble+byte-diff+trace-diff verification of `Pet_Shop_Boy/Cocaine.sid`
+specifically, representative of the `load=$0820` sub-population (8/24 tagged files,
+all Pet_Shop_Boy, per the 2026-07-23 SQL query below). **A second file from a
+different composer, `Alien-Crackings/Digital_Mix_One.sid` (init=load=$1500), was
+found to use a structurally DIFFERENT implementation** — not the hardcoded call-list
+above, but a real command interpreter: its code contains a literal `.byte
+$50,$53,$57,$56,$43,$23,$27` (ASCII `P,S,W,V,C,#,'`) table plus a dispatch loop that
+reads a command string one character at a time and JSRs to a matched handler — an
+exact byte-level match for STRUCTURE.md's documented EXEC command set
+(`effects.commands`), independently confirming that field of the card too. This
+second file was **not** fully reconstructed this pass (recursive-descent coverage
+stopped at 0.2%/126 bytes — the dispatch table's JSR targets are data-indexed, not
+literal operands a static walker can discover without also decoding the dispatch
+mechanism) and its own byte-diff/trace-diff remain open. Per this project's own
+discipline (lessons 42/56/71/122: a shared Player-ID tag can cover more than one
+underlying implementation, and a fix/result on one file does not automatically
+transfer), the `verified` status here should be read as covering the Cocaine.sid
+engine and its load=$0820 sub-population, not the full 24/31-file tagged corpus.
+
+**Next step for whoever picks up the Digital_Mix_One variant:** disassemble from
+`$1500`, then follow the `excmdtable`/`execaddr` dispatch mechanism specifically
+(decode the P/S/W/V/C/#-indexed jump table found at approximately `$1577` onward and
+add each handler as an explicit `dis6502.js` entry point) rather than relying on
+recursive descent alone.
 
 ### 2026-07-31 (batch33) — traced successfully; the 2-bit format confirmed at register level
 

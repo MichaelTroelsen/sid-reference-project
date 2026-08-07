@@ -70,8 +70,11 @@ pattern/wavetable pointers.
 ## Verification
 
 **Native-address reconstruction: byte-exact + trace-exact on both
-tagged files (2026-08-01). Relocation-invariance control FAILS on
-both — `status` stays `in-progress`, NOT raised to `verified`.**
+tagged files (2026-08-01). Relocation-invariance control (2026-08-07
+re-test): PASSES on Revenge_tune_2 (correcting a prior false
+"catastrophic failure" finding), still FAILS on Cool_Ripp_31 — `status`
+stays `in-progress`, NOT raised to `verified`, because both tagged
+files must close for this one driver card.**
 
 Disassembled and reassembled both real HVSC `Audial_Revolution` files
 with `SIDdecompiler -r` at their own native addresses:
@@ -94,67 +97,89 @@ with `SIDdecompiler -r` at their own native addresses:
   payload (3715 bytes): **100.0000% byte-exact**. Traced: **100/100
   register writes exact, cycle-for-cycle**.
 
-**Relocation-invariance control (this project's standard check against
-the `-r`-tautology trap, lessons 63/69/70/72) FAILS on both files** —
-rebuilding the identical disassembly at a shifted, non-page-aligned
-base (`+$137`) and re-tracing at the correspondingly shifted init/play
-addresses:
+**Relocation-invariance control, RE-TESTED 2026-08-07 (solo pass, own
+rebuild from scratch, not trusting the prior pass's numbers) — the
+prior pass's Revenge_tune_2 "catastrophic failure" finding was WRONG
+(stale/reproducibility bug in that pass, not a real defect);
+Cool_Ripp_31's failure is real and reproduced, now more precisely
+characterized:**
 
-- Cool_Ripp_31: divergence is isolated specifically to **voice 0
-  (osc1), starting frame 1** — voices 1 and 2 (osc2/osc3) remain exact.
-  Root cause investigated: the player's dispatch table
-  (`l3806,X`/`l3802,X`/`l3803,X`) builds a ZP indirect pointer
-  (`z40`/`z41`) from table entries SIDdecompiler left as raw literal
-  bytes instead of symbolic `<label`/`>label` (a lesson-72(b)-class
-  defect, confirmed present via hex inspection: the entries resolve to
-  `$3bb0`/`$3bd0`/`$3be0`). A direct patch-isolation test (writing
-  `$00/$00` over that exact table entry in the NATIVE build and
-  re-tracing) proved this specific entry is DEAD for this song (0/357
-  diff) — so it is NOT the cause of Cool_Ripp_31's voice-0 divergence.
-  The true cause was not isolated within this pass's budget.
-- Revenge_tune_2: divergence is catastrophic and immediate — the
-  relocated build produces only 1 SID write total over 50 frames (vs.
-  100 in the original), starting at/near frame 0. The SAME
-  z40/z41-unsymbolized-table defect IS confirmed LIVE in this file
-  (its entries resolve to `$3c30`/`$3c90`/`$3cc0`, all inside the
-  payload's read-accessed range per the `-v2` map). Manually
-  symbolizing all three entries (`l3802/l3803` plus the sibling
-  entries at `l3809/l380a` and `l3810/l3811`) and rebuilding did **NOT**
-  fix the relocation control (still 1/100 writes) — so there is at
-  least one MORE unsymbolized/unrelocated dependency in this player
-  beyond the one found and fixed, and it breaks execution almost
-  immediately after INIT.
+- **Revenge_tune_2: relocation control now PASSES CLEANLY.** Rebuilt
+  the disassembly independently (fresh `SIDdecompiler -r` run at a
+  second base too, to confirm the z40/41-class fix generalizes), with
+  the same `l3802/l3803`/`l3809/l380a`/`l3810/l3811` symbolization the
+  prior pass already had in its saved `.asm`. Assembled and traced at
+  **two independent non-page-aligned deltas** (`+$137` and `+$251`)
+  over **500 frames each** (10x the prior pass's window): both are
+  **byte-for-byte, cycle-for-cycle identical** to the native trace
+  (1680/1680 write-tuples matching, cycle column stripped per this
+  project's standard method). The prior pass's "1/100 writes,
+  catastrophic, near frame 0" result could not be reproduced at all
+  with the exact same delta and the exact same fix already applied —
+  it was evidently a stale build or a mistaken test artifact from that
+  session, not a real property of this file. This is a correction to
+  the KB, not just an update.
+- **Cool_Ripp_31: relocation control still FAILS — confirmed
+  reproducible** (voice 0/osc1 diverges starting at the first
+  mode-2-dispatch frame; voices 1/2 remain exact), but two specific
+  candidate mechanisms were tested THIS pass and both **ruled out**,
+  narrowing the search:
+  - The `l3081` "portamento continuation" routine (an entire
+    fallthrough-code-misclassified-as-`.byte`-data block, same defect
+    class as gotcha/lesson 89, ~40 bytes, embedded absolute operands
+    `$3759/$375a/$3746/$390f/$38e5/$3719/$3744/$3099` never
+    symbolized) was fully hand-disassembled, restored as real
+    instructions with correct symbolic operands (verified
+    byte-for-byte against the original at every branch target), and
+    reassembled — **byte-diff stayed 100.0000% exact, but the trace
+    was UNCHANGED (still the same divergence)**. This is a genuine,
+    real SIDdecompiler defect (confirmed valid 6502, confirmed
+    unsymbolized addresses) but it is CONFIRMED DEAD for this song —
+    not merely untested as the prior pass left it.
+  - The z40/z41-class unsymbolized-pointer defect (same table
+    structure as Revenge's, now confirmed present at all 3 per-voice
+    offsets: `l3802/l3803`→native `$3bb0`, `l3809/l380a`→`$3bd0`,
+    `l3810/l3811`→`$3be0`) was fixed at the source level (not just
+    binary-patched) for all three voices and reassembled — still
+    100.0000% byte-exact, and this DOES measurably change the
+    relocated trace (357→363 register writes) but does **not** resolve
+    the divergence. Root cause read from the disassembly: this
+    specific z40/z41 value gets **overwritten at runtime** (via
+    `l3457`'s `lda (z42),Y / sta z40`) before voice 0 ever reads it
+    through the affected code path — and z42/z43 come from an
+    ALREADY-symbolic, already-correctly-relocating pointer
+    (`l3800,X`/`l3801,X` = `<l393f`/`>l393f`) — so this fix, while
+    real and worth keeping, is moot for THIS specific divergence.
+  - **Still open**: the actual divergence starts with voice 0 writing
+    entirely different SID *registers* at frame 1 (`osc1_freq_lo` etc.
+    instead of `osc1_sustain_release`) — not just wrong values —
+    which points at an early branch-decision difference (most likely
+    inside the `(z46),Y` wavetable-walk in `l3403`/its branch targets
+    `l3418`/`l3422`/`l3431`, which contain at least 3 more
+    un-examined fallthrough-misclassified-as-data blocks of the same
+    kind as `l3081`) rather than a simple wrong-data-value bug. Not
+    isolated within this pass's budget either.
 
-This is exactly the scenario this project's own relocation-invariance
-discipline exists to catch: a `-r` byte-identical reconstruction's
-trace match is tautological on its own (any byte-identical file traces
-identically by construction) — real evidence requires a build that's
-genuinely different code but functionally equivalent, and that test
-fails here on both files. The native-address match is real and
-strongly evidenced (2 independent files, both byte-exact and
-cycle-exact), but `status` is not being raised to `verified` because
-the relocation control's failure was not resolved to a citable,
-localized explanation on either file (contrast this project's
-precedent cases where a failed relocation control was traced to a
-genuine, provable page-locking design choice in the original code —
-here it was instead traced partway into a genuine SIDdecompiler
-symbolization gap that resisted a full fix).
+The native-address match remains real and strongly evidenced (2
+independent files, both byte-exact and cycle-exact at native
+addresses). `status` stays `in-progress`, NOT `verified` — Revenge_tune_2
+alone would now qualify, but Cool_Ripp_31 (same driver, same card)
+still has a real, reproduced, precisely-localized-but-unresolved
+relocation-control failure.
 
-**Next lead, specific**: Revenge_tune_2's relocation control breaks
-the trace down to 1 write starting at/near frame 0/1 — too early and
-too total a failure to isolate further by static disassembly reading
-or byte-patch testing alone. This is a genuine case for a live
-6502 debugger (RetroDebugger — not attempted in this pass, since this
-card was verified as part of a batch dispatch and this agent's own
-constraints forbid using RetroDebugger from a parallel/batch run):
-load the relocated, z40/41-fixed build (rebuild via
-`SIDdecompiler <Revenge_tune_2.sid> -a12599 -z -d -c -v2 -r`, then
-apply the same `l3802/l3803`/`l3809/l380a`/`l3810/l3811` symbolization
-shown above, init/play at `$313a`/`$313d`), single-step PLAY from
-frame 0, and watch for where PC diverges from the intended code path —
-most likely an indirect jump or self-modified branch operand landing
-in garbage, i.e. the same defect class as the z40/z41 fix, just at a
-different, not-yet-found table.
+**Next lead, specific**: decode the remaining 3 fallthrough-as-data
+blocks reachable from `l3403`'s branch tree (at native addresses
+`$3418` [`.byte $a9,$03,$9d,$06,$38,$60`], `$3431`'s block just past
+`cmp #$fc`, and `$34a0`'s continuation) the same way `l3081` was
+decoded this pass (byte-by-byte, cross-checking every branch target
+lands on an instruction boundary) — one of them very likely contains
+the actual unsymbolized operand. If that doesn't resolve it, this is a
+genuine case for a live 6502 debugger (RetroDebugger, main-session-only
+per this agent's own constraints — not available in this dispatched
+subagent's toolset): load the relocated build
+(`coolripp31d_fix1.prg`/`.asm` in scratchpad, init `$310a`, play
+`$312b`), single-step PLAY for X=0 at the first mode-2 frame, and watch
+exactly where PC diverges from native.
 
 ## Sources
 

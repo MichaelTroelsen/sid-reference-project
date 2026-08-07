@@ -48,6 +48,16 @@ const END = org + mem.length;
 
 const at = (a) => mem[a - org];
 const inRange = (a) => a >= org && a < END;
+// Hardware I/O ($D000-$DFFF: VIC/color-RAM/SID/CIA1/CIA2) is never part of
+// the loaded payload even when a large, low-loaded file's own [org, org+len)
+// numerically spans it (e.g. a ~57KB payload loading at $0B30 covers up to
+// $EC1D, which swallows $D400-$D41C). Confirmed on assassin-sample-mixer's
+// Das_Boot.sid: --symbolic treated "STA $D404" as a relocatable in-range
+// payload address and shifted it on relocation, corrupting the SID-clear and
+// CIA-vector-install routines while the byte-identical native build looked
+// fine. Exclude this range from symbolic rewriting regardless of org/end.
+const isIO = (a) => a >= 0xd000 && a <= 0xdfff;
+const inRangeForReloc = (a) => inRange(a) && !isIO(a);
 
 // opcode -> [mnemonic, addressing mode]. Undocumented opcodes are marked ILL so
 // a run of them reads as a decode error rather than silently becoming "code".
@@ -223,7 +233,7 @@ while (a < END) {
       operand = inRange(t) ? lbl(t) : `$${hex4(t)}`;
     } else if (mode !== IMP) {
       const t = at(a + 1) | (at(a + 2) << 8);
-      const base = SYMBOLIC && inRange(t) && !KEEP.has(a) ? `ORG+$${hex4(t - org)}`
+      const base = SYMBOLIC && inRangeForReloc(t) && !KEEP.has(a) ? `ORG+$${hex4(t - org)}`
                  : inRange(t) && labels.has(t) ? lbl(t)
                  : `$${hex4(t)}`;
       operand = mode === ABS ? base

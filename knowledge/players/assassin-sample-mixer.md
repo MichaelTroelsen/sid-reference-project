@@ -7,31 +7,31 @@
   "aliases": ["Assassin_Sample_Mixer"],
   "authors": ["Assassin / Vermes (Poland)"],
   "released": "1993 (SIDId) / 1994 (CSDb release date, v2.17)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 tool. No public source found — closed scene tool distributed only as a D64 disk image.",
   "csdb_release": 129555,
 
   "memory": {
-    "load_address": "TODO: no disassembly/trace performed",
-    "zero_page": "DeepSID players.json documents 4 bytes of ZP usage: $A4-$A5 + $A8-$A9. Not independently verified by disassembly here.",
-    "layout": "TODO"
+    "load_address": "File-specific, embedded as the payload's own first 2 LE bytes (all checked RSID headers have loadAddress=0): $1000 on Man_Machine.sid (JFK), $0B30 on Das_Boot.sid (Puma). Confirmed by direct disassembly+reassembly of both (2026-08 verification pass).",
+    "zero_page": "CONFIRMED by disassembly (not just DeepSID): $A4-$A5 (channel-A sample pointer) + $A8-$A9 (channel-B sample pointer). Both pairs are read every NMI by the ping-pong mixer handlers and advanced by the low-nibble handler — matches DeepSID players.json's '4 bytes ($A4-$A5 + $A8-$A9)' exactly.",
+    "layout": "A small 'player core' (sentinel-value resolver + two ping-pong CIA2-Timer-B NMI handlers + CIA/NMI-vector setup) is byte-identical in logic between the two files checked, only its absolute placement differs per export: it starts at load address in Man_Machine.sid ($1000-$11C9ish) but is placed separately from load in Das_Boot.sid ($0B30-$0BEB, with load=$0B30 too but init at $13AD elsewhere). A per-subtune dispatch loop (Man_Machine: $14A1-$150E; Das_Boot: $13AD-$1400) iterates subtune index 0-0x6F (112), resolving two per-subtune 16-bit indices through the sentinel resolver ($FF=end-of-chain/exit, $FE=redirect via a second lookup table, else pass through), then looks up a 4-byte-per-entry pointer table (Man_Machine: $1BB4 = [base_lo,base_hi,end_lo,end_hi]; Das_Boot: $12F0, same format) to set the channel-A/B sample pointers, and blocks synchronously (via JSR) until the sample finishes or a key is pressed on $DC01, before advancing to the next subtune index. The vast majority of each payload (~99%; only ~560-570 of 45,568-57,581 bytes classified as code) is per-song 4-bit PCM sample data plus apparently-unreached embedded editor/menu code (KERNAL CHROUT/GETIN calls spotted near Man_Machine's $12A1-$1350) not further characterized this pass."
   },
   "entry": {
-    "init": "TODO",
-    "play": "TODO"
+    "init": "File-specific: $1000 (=load address) on Man_Machine.sid; $13AD (well past load=$0B30) on Das_Boot.sid. In both cases init blocks synchronously running through the whole subtune-dispatch loop described in memory.layout — it does not return promptly the way a conventional PSID init does.",
+    "play": "$0000 on every one of the 14 tagged RSID files checked (all real per-frame activity is driven by a self-installed CIA2 Timer-B NMI, not a callable play routine — see effects.encoding). sidm2-sid-trace.exe's own prior failure text ('INIT likely waits on its own IRQ firing as a handshake before finishing setup') was directionally right but imprecise: init doesn't just wait for one IRQ, it runs the ENTIRE per-subtune playback sequence to completion synchronously; VICE (scripts/dev/vsid-trace.js) traces it correctly regardless because it emulates a real, interrupt-capable machine rather than waiting for init to return."
   },
-  "speed": "TODO",
+  "speed": "NMI-driven at a CIA2 Timer-B rate set from a per-subtune 16-bit table (Man_Machine: $18D0/$18D1, indexed by subtune*2), independent of the VIC raster/50Hz frame rate. Measured on Man_Machine.sid subtune 0: timer value $00C0 (192 cycles), giving ~5.1kHz combined NMI rate / ~2.6kHz per-channel nibble-unpack rate.",
 
   "data_format": {
-    "order_list": "TODO",
-    "patterns": "TODO",
-    "instruments": "TODO",
-    "wavetable": "TODO",
-    "pulsetable": "TODO",
-    "filtertable": "TODO"
+    "order_list": "TODO — not a traditional pattern/order-list format; see data_format.instruments for the confirmed per-sample structure.",
+    "patterns": "N/A — this is a sample-mixing tool, not a pattern-based tracker. No pattern data format identified.",
+    "instruments": "CONFIRMED: a flat array of 4-byte entries (base_lo, base_hi, end_lo, end_hi) giving the start/end address of each 4-bit-packed PCM sample, indexed by a per-subtune 16-bit value (through the sentinel resolver) shifted left twice (*4). Table address is file-specific: $1BB4 in Man_Machine.sid, $12F0 in Das_Boot.sid.",
+    "wavetable": "N/A — no separate wavetable; see instruments (raw 4-bit-packed PCM).",
+    "pulsetable": "N/A — not applicable, this tool does not appear to drive the SID's own oscillators for playback (see effects.encoding).",
+    "filtertable": "N/A — $D418 (filter_mode_volume) is used directly as the digi output register, not as a filter/volume table."
   },
   "effects": {
-    "encoding": "TODO",
+    "encoding": "CONFIRMED sample-mixing mechanism ('Sample Mixer' name is literal, not just marketing): two ping-pong CIA2-Timer-B-driven NMI handlers alternate every interrupt (Man_Machine: $1127/$1174; Das_Boot: $0B49/$0B96 — same logic, different addresses). One handler reads the HIGH nibble of the byte at (channel-A pointer),Y AND the high nibble of the byte at (channel-B pointer),Y; the other reads the LOW nibbles of the same two bytes and also advances both pointers and checks for end-of-sample. Each handler sums the two channel nibbles and shifts right once (average) before writing the result to $D418 — the classic 'digi via volume register' PWM technique, genuinely mixing two independently-addressable 4-bit sample streams (not just playing one alongside SID synthesis). On the one subtune traced in each file, both channel pointers happened to reference the same table entry, so the 'mix' reduces to unpacking one stream at double rate — the architecture supports two genuinely independent streams via the two separate table-index lookups ($1015 vs $1016 in Man_Machine). No conventional IRQ vector ($0314/$0315) is ever installed in either file; playback is purely NMI-driven via $0318/$0319, and no indirect JMP appears anywhere in either 45-58KB payload.",
     "commands": {}
   },
 
@@ -44,7 +44,7 @@
 
   "quirks": [
     "'Assassin' is a Polish scener (CSDb scener id 6833, country Poland), ex-member of the Polish group Vermes — CSDb release 129555 ('Sample Mixer V2.17', 1994) credits him as sole coder and releaser. This is NOT the same person as composer Magnar Harestad, whose HVSC Musicians.txt entry lists a struck-through former handle 'Assassin' (also 'Lizard') — that's a Norwegian composer with no connection to Vermes or this tool; a pure name collision, not evidence of any relationship.",
-    "Unlike most name-only 'digi/sample/mixer' tags in this batch, this one has real corroborating evidence: DeepSID's players.json records this player's 'digi' field as 'Yes; 4-bit', i.e. DeepSID's own curated database (not just the filename) confirms it does digitized-sample playback at 4-bit resolution. What is NOT confirmed is the 'Mixer' half of the name literally — whether it blends/mixes multiple simultaneous sample streams versus just playing back one digi channel alongside SID voices is unconfirmed (TODO).",
+    "Unlike most name-only 'digi/sample/mixer' tags in this batch, this one has real corroborating evidence: DeepSID's players.json records this player's 'digi' field as 'Yes; 4-bit', i.e. DeepSID's own curated database (not just the filename) confirms it does digitized-sample playback at 4-bit resolution. The 'Mixer' half of the name is now also CONFIRMED literal, not just marketing (2026-08 verification pass, see effects.encoding): it genuinely mixes (sums+averages) two independently-addressable 4-bit sample streams via a ping-pong CIA2-Timer-B NMI pair.",
     "Highly concentrated, small-scene tool: exactly 14 files across 3 composers in the local dataset (JFK 6, Puma 7, Mamba 1 — data/composers/jfk.json, puma.json, mamba.json), and all three composers are themselves tagged country=Poland (data/composers/*.json). Consistent with a Polish-scene tool that stayed local rather than spreading internationally — no evidence it was ever adopted outside this circle.",
     "SIDId (data/sidid.json byTag) gives released='1993', while the CSDb release page for the same reference id (129555) gives a 1994 release date for 'Sample Mixer V2.17' — a year discrepancy between the two sources, left unresolved here.",
     "No source code, distribution notes, or documentation found anywhere (DeepSID players.json's source_code/distribution/docs fields are all blank for this entry); the only known distribution is a CSDb-hosted D64 disk image on release 129555 — i.e. a closed scene tool, never released as source. (An earlier draft cited a specific D64 filename and a 2014 CSDb comment; neither could be confirmed from the release page and both were dropped.)"
@@ -94,6 +94,93 @@ start from that D64 image directly — no manual or write-up exists to work
 from first.
 
 ## Verification
+
+### 2026-08 (solo run) — VERIFIED: register-write-exact relocation control on 2 files, 2 composers
+
+**Closes the thread batch33 left open. `status` promoted to `verified`.**
+
+Picked up from batch31's static RetroDebugger disassembly (`$1000 -> JMP $14A1`
+init, sentinel resolver at `$1017`, self-modified operands at `$1015`/`$1016`/
+`$1349`/`$134B`). No RetroDebugger MCP tools were available in this session
+(confirmed absent from the declared tool set despite the task explicitly
+expecting them — see `new_lesson_learned`), so this pass worked entirely from
+`scripts/dev/dis6502.js` (the static recursive-descent disassembler already
+used successfully on `defmon`/`4753-softcopy`) plus `scripts/dev/vsid-trace.js`
+for tracing — no live emulator needed in the end.
+
+**Files**: `MUSICIANS/J/JFK/Man_Machine.sid` (load=$1000, init=$1000, play=$0000,
+payload 45,568 bytes) and `MUSICIANS/P/Puma/Das_Boot.sid` (load=$0B30, init=$13AD,
+play=$0000, payload 57,581 bytes) — different composers, confirmed byte-identical
+player-core *logic* at different absolute addresses (see `memory` fields above).
+
+**Missing entry point found**: batch31's static disassembly stalled at ~0.8-1.2%
+code because the real per-frame handlers are reached only via a CIA2-Timer-B NMI
+vector install (`STA $0318`/`STY $0319`), which a recursive-descent walker can't
+discover on its own (no `JMP`/`JSR` references them in the visited instruction
+stream). Found by scanning the raw payload for `STA $0318`/`STY $0319` opcode
+bytes and reading the immediately-preceding `LDA #imm`/`LDY #imm` pair as the
+vector target — this is exactly gotcha 81's "self-installing IRQ vector" trick,
+here applied to NMI instead of IRQ, with a ping-pong pair of two such handlers
+(`$1127`/`$1174` in Man_Machine.sid, `$0B49`/`$0B96` in Das_Boot.sid) that
+re-arm each other every interrupt. Feeding both back to `dis6502.js` as extra
+entries raised code coverage and fully resolved the sample-mixing mechanism
+now documented in `effects.encoding`.
+
+**Byte-diff (native, non-relocated)**: both files **100.000000%** byte-exact —
+tautological on its own (batch29/lesson-63's caveat applies: a byte-identical
+reassembly's own trace proves nothing), so a genuine relocation-invariance
+control (lessons 69/70/72) was required.
+
+**Relocation control — 2 deltas per file**, patching (a) the 3 hardcoded
+NMI-vector-install immediate-operand pairs to `#<(ORG+off)`/`#>(ORG+off)`
+(`dis6502.js --symbolic` only rewrites absolute-mode operands, not immediates —
+this class of fix is lesson 80/103's split-immediate-pointer pattern) and (b)
+the one sample-pointer-table entry (4 bytes) actually exercised by subtune 0,
+decoded from the original file's own bytes and re-encoded relative to the new
+base:
+
+| file | delta | bytes differing (native vs relocated) | frames traced | raw writes | divergences |
+|---|---|--:|--:|--:|--:|
+| Man_Machine.sid | `+$1000` (page-aligned) | 81 / 45,568 (0.18%) | 200 | 20,549 | **0**, incl. cycle timing |
+| Man_Machine.sid | `+$1137` (non-aligned) | — | 60 | 6,251 | **0** reg/value; max 3-cycle drift (page-crossing jitter, lesson 70a) |
+| Das_Boot.sid | `+$1100` (page-aligned) | 68 / 57,581 (0.12%) | 200 | 20,549 | **0**, incl. cycle timing |
+| Das_Boot.sid | `+$1163` (non-aligned) | — | 60 | 6,251 | **0** reg/value; max 3-cycle drift |
+
+Every comparison used the raw per-write `(cycle, register, value)` stream from
+`vsid-trace.js --keep-dump`, not the summary JSON. This is a real structural
+test, not a tautology: 81/68 bytes genuinely differ between the native and
+relocated builds (the ORG-relative operands + the two manually-patched
+immediate pairs + the one patched table entry), yet every one of 20,549 raw
+register writes over ~4 seconds of real playback matches exactly at the
+page-aligned delta, and matches on register+value (with only the expected
+small page-crossing cycle jitter) at a deliberately non-page-aligned delta.
+
+**A real, reusable tool bug was found and fixed along the way**: the first
+Das_Boot.sid relocation attempt produced almost no SID writes at all (crashed
+near-instantly). Cause: `dis6502.js --symbolic`'s in-range check for whether an
+absolute operand is "part of the payload" only compared against
+`[org, org+len)` — and Das_Boot's payload is large enough (57,581 bytes from a
+low load address, `$0B30-$EC1D`) that this span numerically swallows the
+hardware I/O page (`$D000-$DFFF`), so literal SID/CIA register stores like
+`STA $D404` and `STA $DD07` got misidentified as relocatable in-payload
+addresses and corrupted on relocation. Fixed by excluding `$D000-$DFFF` from
+the symbolic-relocation eligibility check (`scripts/dev/dis6502.js`, `isIO`/
+`inRangeForReloc`) — re-verified this doesn't change Man_Machine.sid's output
+(that file's smaller payload never reached the I/O page) before relying on it
+for Das_Boot.sid. See `new_lesson_learned`.
+
+**Honest scope**: only ~1.0-1.2% of each payload (559/45,568 and 569/57,581
+bytes) was ever classified as code — the rest is per-song 4-bit PCM sample
+data plus apparently-unreached embedded editor/menu code, neither
+disassembled nor traced this pass (see `memory.layout`). Only subtune 0
+(`startSong`) was exercised in the traced windows on both files; no subtune
+transition occurred in either trace (both samples were still playing at the
+last traced frame), so the subtune-advance path in the dispatch loop was not
+exercised by this evidence. The relocation control's own byte-diff is small
+(0.12-0.18% of the file) because so little of the file is code — this is the
+same shape as this project's own `4753-softcopy` precedent (also ~0.2-0.3%
+code, also verified on the strength of a passing relocation control) and is
+not, on its own, a weaker result than a higher-code-fraction file.
 
 ### 2026-07-31 (batch33) — tracing confirmed open
 

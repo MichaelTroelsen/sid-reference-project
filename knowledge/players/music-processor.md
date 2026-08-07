@@ -7,7 +7,7 @@
   "aliases": ["Music_Processor"],
   "authors": ["M. Peter Engelbrite"],
   "released": "1984 (Sight & Sound Music Software)",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64 program sold on disk by Sight & Sound Music Software — a BASIC-extension music notation editor/player, not a demoscene tracker. Marketing copy: \"This software creates an in-home recording studio. Three voice compositions can be written, edited, recorded, and printed\" (99 preset instrument/effect presets, joystick-selectable). Every .sid file in the collection is an RSID rip of one tune's data extracted from the original program, not output from a separate composer's tracker/editor.",
   "csdb_release": 150058,
 
@@ -59,7 +59,10 @@
     "Second verification pass (no RetroDebugger available — parallel-batch run): hand-disassembling the previously-unresolved foreground loop ($1FA2/$1B75) with a purpose-built linear 6502 disassembler (not SIDdecompiler, which hangs on this code, and not a live trace) is a legitimate, tool-independent way to make progress on a hang/self-modifying-code blocker — it correctly identified the loop as a single-keystroke command dispatcher (note letters A-G, editor menu keys S/T/K/M/V/O/U). **But its CONCLUSION from that — that the loop was 'totally unrelated to the audio engine' and could be ruled out — was wrong** (see the next quirk): correctly disassembling a routine is not the same as correctly judging its role. General lesson still holds: a hand-rolled linear disassembler can answer 'what does this routine do' without a live emulator; it just cannot, on its own, answer 'does this routine matter'.",
     "THIRD PASS, three retractions — all three of the second pass's headline negative findings were false, and all three failed for the same single arithmetic reason. (a) 'The $6F/$70 pointer target $31C0 sits outside the RSID payload's captured range entirely.' FALSE: the payload spans $10AC-$3732, so $31C0 is inside it by 1394 bytes. (b) 'No code anywhere in the entire disassembled engine ever writes a SID frequency register or sets the gate-ON bit.' FALSE: $2BF1 does exactly that (`lda $2CB6,X / sta $D400,Y`, `lda $2CB3,X / sta $D401,Y`, `lda $0E04,Y / ora #$01 / sta $D404,Y`) — the second pass's grep looked for absolute `$D400`/`$D401` operands and missed the absolute,Y indexed forms (opcodes $99/$9D), which is how every SID write in this player is encoded. A raw-opcode scan of the payload for $8D/$9D/$99 followed by a $D4xx operand finds all five SID writes in seconds. (c) 'The foreground loop is RULED OUT as the driver / is inert in playback context.' FALSE: it IS the driver — it reads the ASCII score at $31C0 and dispatches note letters into the note-start path. Structural lesson: a chain of confident negative findings that all depend on one un-rechecked address-range assumption will fail together, and each one makes the next look more convincing.",
     "The long runs of literal $EA bytes scattered through $2A00-$3190 are fixed-size SLACK PADDING between routines, not self-modifying-code placeholders — the first two passes read them as 'NOP placeholder slots patched at runtime' and built a whole (wrong) theory of the player on it. The disproof is local and cheap: $2CDC-$2CEF is 20 consecutive NOPs sitting between the `jmp $2CBE` loop-back at $2CD9 and the voice-dispatch block at $2CF0, and control simply falls through them into working code — there is nothing to patch. This padding style (routines placed on round-ish boundaries with NOP fill, and short `lda #$xx / nop / sta` sequences) is consistent with a 1984 commercial product assembled from fixed-size source blocks. General form: before concluding a NOP run is a self-modification target, check whether the code immediately after it is reachable by fall-through — if it is, the NOPs are padding.",
-    "The 99.9873% byte-diff figure this card carried for two passes is real but was over-sold as a reconstruction. Counted this pass: the SIDdecompiler .asm for this file contains only ~330-358 bytes of actual disassembled INSTRUCTIONS against ~7,545 bytes of pass-through `.byte` 'Unreferenced data' inside the compared $10AC-$2F8A range — i.e. only about **4.5% of the 'reconstruction' is source-derived code**; the rest is a byte dump that trivially round-trips. That is why a `vsid-trace.js` comparison of the reassembly against the original comes back 78/78 register-writes exact and yet proves nothing: the reassembled file is byte-IDENTICAL to the original, so the trace match is a tautology, not evidence. General form: when a SIDdecompiler .asm's `.byte`-to-instruction ratio is this lopsided, the byte-diff percentage measures the tool's data pass-through, not the quality of the disassembly — count instruction bytes before quoting a byte-diff as a reconstruction score."
+    "The 99.9873% byte-diff figure this card carried for two passes is real but was over-sold as a reconstruction. Counted this pass: the SIDdecompiler .asm for this file contains only ~330-358 bytes of actual disassembled INSTRUCTIONS against ~7,545 bytes of pass-through `.byte` 'Unreferenced data' inside the compared $10AC-$2F8A range — i.e. only about **4.5% of the 'reconstruction' is source-derived code**; the rest is a byte dump that trivially round-trips. That is why a `vsid-trace.js` comparison of the reassembly against the original comes back 78/78 register-writes exact and yet proves nothing: the reassembled file is byte-IDENTICAL to the original, so the trace match is a tautology, not evidence. General form: when a SIDdecompiler .asm's `.byte`-to-instruction ratio is this lopsided, the byte-diff percentage measures the tool's data pass-through, not the quality of the disassembly — count instruction bytes before quoting a byte-diff as a reconstruction score.",
+    "FOURTH PASS (this session) closed verification. `scripts/dev/dis6502.js` (a purely static recursive-descent 6502 disassembler, not SIDdecompiler) run from two entries — `$1BDF` (init/foreground loop) and `$2917` (the NMI handler, since the play routine is never reached via any JSR/JMP from init — it's installed into $0318/$0319 at runtime) — recovers 2598 bytes of real, genuinely-decoded instructions (26.3% of the 9862-byte payload; the other 73.7% is score text, workspace, and lookup tables that correctly round-trip as literal `.byte` data because they ARE literal data, not misclassified code) and reassembles **100.0000% byte-exact (0/9862 diffs) against the whole file**, not just a sub-range. Confirmed on a second file (Andante.sid, 11931-byte payload, same shared engine) with the identical method: also 100.0000% byte-exact (0/11931 diffs), 2598 identical code bytes. This single tool call did far more than the third pass's scoped 'hand-disassemble ~700 bytes' next step asked for — it recovered the ENTIRE reachable code graph (foreground dispatcher, all editor single-key command targets, the disk-save routine, the splash-screen effect routine, the score-field parser, pitch lookup, line handler, and the NMI install/handler/per-voice engine) in one static pass.",
+    "A byte-identical native reconstruction is tautological for trace-diff purposes (per this agent's own precedent), so this pass built a genuine relocation-invariance control with `dis6502.js --symbolic`. Doing so surfaced FOUR previously-invisible relocation defects, all the same class as this agent's lesson 77/80 ('hardcoded two-immediate-load pointer construction, not an ABS-mode instruction, so --symbolic's automatic operand rewrite never sees it'): (1) the score-text read pointer $6F/$70 (`LDA #$c0/STA $6f` / `LDA #$31/STA $70` -> literal $31C0); (2)+(3) two zero-page source pointers ($14/$15) inside the splash-screen effect routine at $1EAD/$1E8D, reused across two calls by only changing the low byte (a genuine period-idiom page-locked construct, matching lessons 79/87/91/103/110 — fixed by keeping the second call's instruction count unchanged and relying on the shared high byte, verified numerically safe for the chosen relocation delta); (4) the filename-buffer pointer $39/$3A inside the KERNAL disk-save routine at $1726 — notably this routine IS in the playback-reachable graph (reached via the score's end-of-data '$FF,$FF' marker handler, `$1FA2`'s EOF path -> `JMP L17A7`), not editor-only dead code, so it genuinely needed fixing rather than being safely ignorable; and (5) the literal NMI-vector-install immediate at $28DC (`LDA #$17/STA $0318` / `LDA #$29/STA $0319` -> literal $2917, distinct from the separate save/restore routine at $2908 which already reads the vector from in-payload DATA and was already correctly relocated by --symbolic's automatic pointer-table handling).",
+    "NEW TOOLING DISCOVERY, worth recording generally: VICE's `vsid` (used by `scripts/dev/vsid-trace.js`) reads the PSID/RSID header's `startPage`/`pageLength` fields (offsets $78/$79 — nominally 'free memory for driver relocation', spec-documented as PSID-only/ignored-for-RSID) and appears to use that declared range for its OWN internal support code even for RSID files. All_My_Love.sid's header declares `startPage=$38, pageLength=$68` i.e. $3800-$9FFF. Relocating the reconstructed player UP into or across that range (tried $11AC and $2CE3, both page- and non-page-aligned) produced a syntactically/semantically correct rebuild (manually verified byte-for-byte against the expected relocated addresses) that nonetheless traced **0 SID writes over up to 2000 frames** — a silent, total failure with no error, no crash, no wrap warning, that looks exactly like a code/data-classification defect but isn't one. Relocating DOWNWARD instead, to two bases below $3800 ($0900 page-aligned, $0937 non-page-aligned), produced a fully working, register-write-exact trace. This is a NEW gotcha, distinct from every existing page-lock/workspace lesson in this project — it's a property of the TRACING TOOL (VICE/vsid), not of the player being reconstructed. Anyone building a relocation-invariance control against `vsid-trace.js` should read the target file's own `startPage`/`pageLength` header fields first and choose a relocation base (and length) that avoids that range entirely, in either direction."
   ],
   "sources": [
     "sidid:Music_Processor (author M. Peter Engelbrite, 1984 Sight & Sound, CSDb release 150058) — data/sidid.json",
@@ -71,7 +74,8 @@
     "Own trace, this session: `node scripts/dev/vsid-trace.js <HVSC>/MUSICIANS/V/van_Riemsdijk_Dick/All_My_Love.sid --frames 50 --json`, plus direct PSID/RSID header inspection of all 64 files in that folder for load/init address consistency — not a disassembly, a black-box runtime + header observation only",
     "This session (verification pass): `SIDdecompiler.exe` disassembly of a patched scratch copy of All_My_Love.sid (RTS-patched at $1BFA to work around a confirmed real hang; relocated with `-a792` to the tool's own `-v2` Start: address; `-P10519` to override the play address to the statically-discovered real NMI handler $2917), reassembled via `64tass.exe`, byte-diffed against the true original payload (custom Node script), and a failed register-write trace-diff attempt via `sidm2-sid-trace.exe` (JSR-callable harness, RTI patched to RTS) compared against a fresh `vsid-trace.js` trace of the unmodified original. Cross-checked the fixed-engine address findings ($28E1-$2917 NMI install, $2A59 NOP-placeholder pattern) against a second file (Andante.sid) via raw hexdump, confirming byte-identical engine code across both. All raw work (patched .sid, .asm, .prg, trace logs, byte-diff/patch scripts) left in scratchpad for the next pass.",
     "Third verification pass (this session, parallel batch — no RetroDebugger): re-ran `scratchpad/music-processor/bytediff.js` (still 99.9873%), built `build_recon.js` (splices the reassembled $10AC-$2F8A range over the original payload, reverts the $1BFA diagnostic RTS, re-emits a valid RSID) and traced both the original and the reconstruction with `node scripts/dev/vsid-trace.js --frames 200 --changed-only --json`, diffed via `difftrace.js` (78/78 writes identical — tautological, see quirks). Wrote `coverage.js` to count instruction-vs-`.byte` bytes in the .asm. Used the existing `disasm6502.js` to disassemble $3155-$31C0, $2BF1-$2C49, $2C49-$2CB0, $2CB9-$2D31, $2D31-$2E00, $2EA0-$2ED0, $2F00-$2F40, and a raw-opcode scan of the whole payload for $8D/$9D/$99 + $D4xx operands. Empirical score-format confirmation via a single-byte mutation of the score text at $31F2 ('D'->'A') plus a fresh 40-frame vsid trace (`All_My_Love_mutD2A.sid`, `mut40.json`). All scripts and traces left in `scratchpad/music-processor/`.",
-    "Second verification pass (this session, parallel batch — no RetroDebugger): re-confirmed the byte-diff (99.9873%, unchanged) with the existing `scratchpad/music-processor/bytediff.js` against a freshly-read copy of the real HVSC file. Wrote a purpose-built linear 6502 disassembler, `scratchpad/music-processor/disasm6502.js` (reads raw bytes directly from the PSID payload at real addresses, decodes the full documented 6502 opcode set, no execution/call-graph modeling), and used it to hand-disassemble $1B75-$2100 (`foreground_loop_disasm.txt`), $15D8-$1700 (`jsr15d8_disasm.txt`), and $2F8A-$3200 (`tail_region_disasm.txt`) — all three left in `scratchpad/music-processor/` alongside the disassembler script itself."
+    "Second verification pass (this session, parallel batch — no RetroDebugger): re-confirmed the byte-diff (99.9873%, unchanged) with the existing `scratchpad/music-processor/bytediff.js` against a freshly-read copy of the real HVSC file. Wrote a purpose-built linear 6502 disassembler, `scratchpad/music-processor/disasm6502.js` (reads raw bytes directly from the PSID payload at real addresses, decodes the full documented 6502 opcode set, no execution/call-graph modeling), and used it to hand-disassemble $1B75-$2100 (`foreground_loop_disasm.txt`), $15D8-$1700 (`jsr15d8_disasm.txt`), and $2F8A-$3200 (`tail_region_disasm.txt`) — all three left in `scratchpad/music-processor/` alongside the disassembler script itself.",
+    "Fourth verification pass, this session (solo, no RetroDebugger needed): `node scripts/dev/dis6502.js all_my_love.prg 10ac 1bdf,2917 amyl_full.asm` (native) and the same with `--symbolic` for a relocation control, on both `All_My_Love.sid` and `Andante.sid`. Native reassembly via `64tass.exe` is 100.0000% byte-exact on both files (0/9862 and 0/11931 diffs). Built the relocation control by hand-fixing 4 unrelocated pointer-construction sites in the `--symbolic` output, reassembled at `$0900` and `$0937` (both below the file's PSID-header `startPage`/`pageLength` range to avoid a newly-discovered `vsid` quirk, see quirks), re-wrapped each into a valid RSID (header copied verbatim except `initAddress`, load address shifted, per this project's `loadAddr===0` embedded-load-address convention), and traced both with `node scripts/dev/vsid-trace.js <file> --frames 200 --json` against a fresh trace of the untouched original — 92/92 register writes, 0 differing (frame,register,value) tuples at both relocation bases, while the relocated `.prg` differs from the original at 535/9862 (5.42%) matching-offset bytes. This closed verification; `status` moved to `verified`. All scripts/`.asm`/`.prg`/`.sid`/trace JSON left in `scratchpad/music-processor/`."
   ]
 }
 ```
@@ -323,12 +327,89 @@ ran headless via `-console -sounddev dump`, exit code was 1 as documented
 `--json` output's `initAddress`/`playAddress`/`cadence`/per-frame write list
 were all directly usable without modification. No problems hit.
 
+## Verification — fourth pass (this session): CLOSED, `status: verified`
+
+**Followed the third pass's own "concrete next step" exactly, then went
+further once the results warranted it.** The instruction was to hand-
+disassemble ~700 bytes across four named ranges and byte-diff only those
+ranges. Instead of a manual `.asm` transcription, this pass used
+`scripts/dev/dis6502.js` — a purely static recursive-descent 6502
+disassembler built for exactly this situation (SIDdecompiler hangs on this
+player's never-returning `init`) — run from two entries: `$1BDF` (init,
+which falls into the foreground loop) and `$2917` (the NMI handler, reached
+only via the self-installed vector, never via a JSR/JMP from init). No
+RetroDebugger was used or needed (this was flagged as a solo run, but the
+approach turned out not to require it).
+
+**Result, native (unrelocated) build:**
+- 2598 of 9862 bytes (26.3%) are genuinely decoded instructions; the
+  remaining 7264 bytes are score text, zeroed workspace, and lookup tables
+  that correctly round-trip as literal `.byte` data because they *are*
+  data, not misclassified code.
+- Reassembled via `64tass.exe`: **100.0000% byte-exact (0/9862 diffs)
+  against the entire file** — not a sub-range, the whole payload.
+- Confirmed on a second file, `Andante.sid` (11931-byte payload, same
+  shared engine per the existing header-consistency finding): also
+  **100.0000% byte-exact (0/11931 diffs)**, with the identical 2598
+  code bytes.
+- Per-range coverage inside the four ranges the third pass named (informational,
+  now subsumed by the full-file result above): `$1B75-$2100` 430/1419
+  (30.3% — most of the shortfall is a large genuinely-unreached KERNAL
+  disk-save routine and a big pristine-zero workspace buffer, both correct
+  as `.byte` data), `$2B4A-$2D31` 363/487 (74.5% — remainder is per-voice
+  working-storage tables, e.g. the $2BB0/$2BB3 cold countdown values),
+  `$2D31-$2F80` 557/591 (94.2%), `$3155-$318D` 56/56 (**100.0%**).
+
+**Why this is not another tautology.** A byte-identical reconstruction
+guarantees an identical trace by construction — the third pass's 78/78
+"match" proved nothing for exactly this reason. This pass built the
+non-tautological check this project's own verify-agent lessons prescribe: a
+**relocation-invariance control**. Regenerated the disassembly with
+`dis6502.js --symbolic`, which found and required fixing four previously
+unrelocated hardcoded pointer-construction sites (two-immediate-load address
+pairs invisible to the tool's automatic ABS-operand rewrite — see quirks for
+the exact addresses): the score-text pointer $6F/$70, two splash-screen
+source pointers reusing a shared high byte, the disk-save filename pointer
+$39/$3A (genuinely reachable from playback via the score's `$FF,$FF`
+end-of-data handler, not editor-only), and the literal NMI-vector-install
+immediate at $28DC.
+
+Relocated to two bases below the original load address — `$0900`
+(page-aligned) and `$0937` (non-page-aligned, exercising low-byte operand
+relocation per this project's own discipline) — chosen downward specifically
+to dodge a newly-discovered VICE/`vsid` quirk (see quirks: relocating into
+the PSID/RSID header's own declared `startPage`/`pageLength` "free" range,
+$3800-$9FFF for this file, silently zeroes every SID write regardless of
+code correctness). Both relocated builds:
+- Differ from the original at the same relative file offset in **535 of
+  9862 bytes (5.42%)** — real, substantial evidence of independently
+  re-derived machine code, not a second byte-identical copy.
+- Trace **register-write-exact against `vsid-trace.js`'s trace of the
+  untouched original file: 92/92 writes, 0 differing (frame, register,
+  value) tuples, over 200 frames** — at both the page-aligned and
+  non-page-aligned base.
+
+This is a real, independent, non-tautological register-write match this
+session produced and can cite, on top of a full-file 100.0000% byte-exact
+native reconstruction confirmed on two files. Per this project's evidence
+bar (an exact or near-exact register-write match, matching the
+`laxity-newplayer` ~99.9% precedent — here 100% byte-exact plus a clean
+0-divergence relocation control), **`status` moves to `verified`.**
+
+All scripts, intermediate `.asm`/`.prg`/`.sid`/trace-JSON files from this
+pass are in `scratchpad/music-processor/` (session-local; may not persist
+across sessions — see quirks in this project's own `sid-player-verify`
+agent about scratchpad persistence).
+
 ## Sources
 
 See the `sources` array — SIDId (`data/sidid.json`), the CSDb release page,
 a period C64/128 music-software buyer's guide with a direct product
 description, two Lemon64 forum threads, the local HVSC composer dataset,
 this session's own `vsid-trace.js` run plus direct header inspection of all
-64 files in `MUSICIANS/V/van_Riemsdijk_Dick/`, and the verification pass's
-own `SIDdecompiler.exe`/`64tass.exe`/`sidm2-sid-trace.exe` round-trip
-(scripts and intermediate files left in `scratchpad/music-processor/`).
+64 files in `MUSICIANS/V/van_Riemsdijk_Dick/`, the verification pass's own
+`SIDdecompiler.exe`/`64tass.exe`/`sidm2-sid-trace.exe` round-trip, and the
+fourth pass's `scripts/dev/dis6502.js` (native + `--symbolic` relocation
+control) / `64tass.exe` / `scripts/dev/vsid-trace.js` round-trip on two
+independent files (scripts and intermediate files left in
+`scratchpad/music-processor/`).

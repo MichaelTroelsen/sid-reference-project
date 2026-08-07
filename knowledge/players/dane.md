@@ -68,11 +68,15 @@
     "knowledge/COVERAGE.md (before this card existed) — family 'Dane', 8 files, rank 24, uncarded",
     "knowledge/players/dane-newplayer.md — sibling card for the 2011 JCH-based fork, used here only for date/tag contrast, not as an edge",
     "Lemon64 forum, thread 'SIDplayer routines': https://www.lemon64.com/forum/viewtopic.php?t=26021 — post by user 'Dane' (post id 310865, memberlist u=1059), 2008-02-14T15:01:56Z: 'Why do you ask? The best player is always custom made for your needs. Cycle music player: voice1: vibrato, slide, 4x pulse / voice2: filter, vibrato, slide, 4x wave+freq / voice3: vibrato, slide, 4x wave+freq / size: min $1000 bytes / <$18 rasterlines' — author's own description of the routine, resolving `platform`",
+    "Same Lemon64 thread, second post by user 'Dane' (post id 313213), 2008-03-02T16:58:00Z: 'I fiddled around a bit with vibrato routines. The solution that works best for me is to have a frequency modulation table that adds $XX XX to the played note in Y frames before it jumps to position Z in the same table' — found on the 2026-08-07 drift-recheck pass, adds vibrato/slide implementation detail to the same author's platform testimony",
+    "CSDb scener profile re-check (2026-08-07): https://csdb.dk/scener/?id=435 and https://csdb.dk/release/?id=100406 — confirms 2011 release credits (Code/Music/Idea/Docs, all Dane) unchanged; notes one additional Music-role (not Code) credit for Dane on 'DS/DJ-2000 mk1 Alpha' (2021, primary credit to deetsay), which does not alter the 'only one Code/tool credit' finding",
     "CSDb webservice type=release id=11959 'Cycle' (2004, Booze Design) — Code credits: HCL and Dane: https://csdb.dk/webservice/?type=release&id=11959 (HTML: https://csdb.dk/release/?id=11959)",
     "CSDb webservice type=release id=17913 'Tsunami' (2005, Booze Design, carries Gaijin.sid) — Code credits: HCL and Dane: https://csdb.dk/webservice/?type=release&id=17913",
     "CSDb webservice type=release id=72646 'Disgrace' (C64 Music release, 25 Oct 2008) — Music credit only (Dane), no Code credit: https://csdb.dk/webservice/?type=release&id=72646",
     "CSDb webservice type=release id=69185 'PseudoCode' (St LCP 2008 demo) — Code credit: Shadow (not Dane): https://csdb.dk/webservice/?type=release&id=69185",
-    "Forum64 (forum64.de) searched for 'Dane'/'Stellan Andersson'/'Booze Design' player routine (2026-07-31): found one relevant thread, 'Edge of Disgrace - Booze Design' (forum64.de/wbb3/board106-szene/board216-demos-intros-gfx/26025-edge-of-disgrace-booze-design/, covers Edge_of_Disgrace.sid, one of this card's 8 files) — could not be read (HTTP 403 via WebFetch, no claude-in-chrome tools available this session), so no content from it is asserted here; a future pass with browser access should check it for player/routine detail. No other Forum64 thread naming a Dane player routine was found."
+    "Forum64 (forum64.de) searched for 'Dane'/'Stellan Andersson'/'Booze Design' player routine (2026-07-31): found one relevant thread, 'Edge of Disgrace - Booze Design' (forum64.de/wbb3/board106-szene/board216-demos-intros-gfx/26025-edge-of-disgrace-booze-design/, covers Edge_of_Disgrace.sid, one of this card's 8 files) — could not be read (HTTP 403 via WebFetch, no claude-in-chrome tools available this session), so no content from it is asserted here; a future pass with browser access should check it for player/routine detail. No other Forum64 thread naming a Dane player routine was found.",
+    "UPDATE 2026-08-07 (drift recheck, no material change to any existing card field, one added technical citation from an already-cited source): re-read the same Lemon64 thread ('SIDplayer routines', https://www.lemon64.com/forum/viewtopic.php?t=26021) in full and found a SECOND relevant post by user 'Dane', post id 313213, dated Sun Mar 02 2008 16:58 UTC, not previously quoted on this card: 'I fiddled around a bit with vibrato routines. The solution that works best for me is to have a frequency modulation table that adds $XX XX to the played note in Y frames before it jumps to position Z in the same table' -- recycling the same table/code for both vibrato and slide (at the cost of table size for multiple vibrato widths), for 'precise control of frequency' at low rastertime cost. Adds mechanism-level detail to the vibrato/slide features already in the Feb 2008 'Cycle music player' spec quoted elsewhere on this card -- still author testimony about technique, not a disassembly-confirmed data format, so no Tier 3 field was touched. No replies to Dane in this thread postdate March 2008.",
+    "UPDATE 2026-08-07 (drift recheck): re-checked CSDb scener profile id 435 and the 2011 release page (csdb.dk/release/?id=100406) directly -- no new tool/code release has been added for Dane since the 2026-07-31 pass, and the 2011 release's own credit list (Code, Music, Idea, Docs, all Dane) is unchanged. One additional CSDb credit exists that was not previously enumerated on this card, 'DS/DJ-2000 mk1 Alpha' (2021), but it is a Music-role credit to Dane on a tool primarily credited to 'deetsay', not a Code credit -- it does not change the card's central claim that Dane's only ever CODE/tool credit is the 2011 JCH-Editor fork. csdb_release stays null on this card (no tool release documents the pre-2011 routine); csdb_id/csdb_release namespaces re-verified unchanged. Local dataset (data/composers/dane.json, re-grepped with explicit glob \"*.json\") still shows exactly 8 entries with player value exactly \"Dane\", distinct from the many JCH_NewPlayer/JCH/Dane_NewPlayer entries logged against the same composer's other songs. No count drift; SIDId's data/sidid.json `Dane` entry is unchanged (author line only, no name/released/reference/comment)."
   ]
 }
 ```
@@ -148,8 +152,18 @@ See the `sources` array — SIDId's `Dane` and `(Dane_NewPlayer)` entries
 CSDb `type=sid` webservice lookups (one per file) for release dates and load
 addresses, Dane's CSDb scener profile for his tool/code credit history, four
 CSDb `type=release` webservice lookups for Code-credit corroboration
-(Cycle/Tsunami/Disgrace/PseudoCode), and — new this pass — Dane's own 2008
-Lemon64 forum post describing his "Cycle music player" as custom-made
-hand-coding, which resolves `platform`. A Forum64 thread covering
-Edge_of_Disgrace was found but could not be read this pass (403, no browser
-tool available) and is not used as a source.
+(Cycle/Tsunami/Disgrace/PseudoCode), and Dane's own 2008 Lemon64 forum posts
+describing his "Cycle music player" as custom-made hand-coding (Feb 2008,
+resolving `platform`) plus vibrato-routine implementation detail (Mar 2008,
+found on the 2026-08-07 drift recheck of the same thread). A Forum64 thread
+covering Edge_of_Disgrace remains unreadable (403, no browser tool available
+this session either) and is not used as a source.
+
+**DRIFT RECHECK 2026-08-07:** re-verified all previously-cited CSDb pages
+(scener profile 435, release 100406) and the Lemon64 thread; no fact on this
+card changed. One new technical detail surfaced (Dane's own March 2008 post
+on vibrato-table implementation, same thread) and one non-material CSDb
+credit was newly enumerated (a 2021 Music-role credit, not Code) — both
+recorded above without altering `status`, `csdb_release`, or any Tier 3
+field. Local file count (8/8 tagged `Dane`) and SIDId's sparse `Dane` entry
+are unchanged.

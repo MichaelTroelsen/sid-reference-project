@@ -8,7 +8,7 @@
   "authors": ["P. Eradus (coder — CSDb Handle id 11229, Netherlands; sole 'Coder'-function member of CSDb group 'Digital Systems', id 3117)", "Harlequin / Arjen Bokhoven (musician/composer on all 3 tagged tunes)"],
   "released": "TODO: no formal tool/editor release date exists on CSDb — but full census (all 3 tagged files) of the SID webservice's Released field gives '1991 Silicon Limited' for every one (ids 45750, 38983, 13881: https://csdb.dk/webservice/?type=sid&id=45750, &id=38983, &id=13881). CSDb's Credits data independently confirms coder P. Eradus (group 'Digital Systems', https://csdb.dk/webservice/?type=group&id=3117&depth=3) has exactly 3 'Code'-type credits total, on release ids 21412/64455/64454 — the SAME 3 releases used by the 3 tagged SIDs. Earliest (and only) attested year: 1991. No distinct tool release beyond these tune credits was found.",
   "status": "stub",
-  "platform": "Native C64 in-house code routine, not a released standalone editor. CSDb has no 'release'-type entry for a 'Digital Systems' program/tool — only a 'group' entry (id 3117, Netherlands, https://csdb.dk/webservice/?type=group&id=3117) representing coder P. Eradus's one-man credit line; the group record carries no Grouptype classification, no found-date, and no website, consistent with an unpublished in-house coding credit rather than a distributed tool. Attempted Lemon64 (lemon64.com/forum) and Forum64 (forum64.de) searches for 'Digital Systems'/'P. Eradus' via curl; both returned no usable/parseable result content in this session (likely JS-rendered search UI, and the claude-in-chrome browser tool was unavailable) — recorded as inconclusive, not a confirmed negative.",
+  "platform": "Native C64 in-house code routine, not a released standalone editor. CSDb has no 'release'-type entry for a 'Digital Systems' program/tool — only a 'group' entry (id 3117, Netherlands, https://csdb.dk/webservice/?type=group&id=3117) representing coder P. Eradus's one-man credit line; the group record carries no Grouptype classification, no found-date, and no website, consistent with an unpublished in-house coding credit rather than a distributed tool. Attempted Lemon64 (lemon64.com/forum) and Forum64 (forum64.de) searches for 'Digital Systems'/'P. Eradus' via curl; both returned no usable/parseable result content in this session (likely JS-rendered search UI, and the claude-in-chrome browser tool was unavailable) — recorded as inconclusive, not a confirmed negative. UPDATE 2026-08-07 (drift recheck, no status/tier-3 change): CSDb release id 21412's own Trivia field (dated by CSDb as 09.10.2005, so pre-existing, not new drift) independently names it 'the player P. Eradus of Digital Systems made' and calls the tune a 'work/testtune' for it — direct textual confirmation, not just credit-correlation inference, that this is a real named in-house routine by P. Eradus. https://csdb.dk/webservice/?type=release&id=21412&depth=2",
   "csdb_release": null,
 
   "memory": {
@@ -49,7 +49,8 @@
     "PSID header fields read during this census (metadata only, NOT disassembly — do not promote to entry/memory): 45750 load=$0FFF init=$0FFF play=$1003; 38983 load=$1000 init=$1000 play=$1003; 13881 load=$C000 init=$CCE0 play=$C003. The load/init addresses differ noticeably between files (two share $0FFF/$1000-ish load, one is at $C000 with a distant init at $CCE0) — worth flagging for whoever eventually disassembles this: it is not obviously one fixed relocatable routine across all 3 files without checking.",
     "3 files, 1 composer: Harlequin himself. A small in-house/two-person (composer + coder) routine by usage pattern, not a widely published tool.",
     "Harlequin is Dutch, current groups Focus and Silicon Limited (since 1989), formerly Audial Arts/The Federation Against Megadeath/Sonical Dreams; CSDb's FreelanceFunctions list for him (fetched via webservice this pass) is BBS Graphician, Co-Organizer, Cover Designer, Diskmag Editor, Fullscreen Graphician, Graphician, Logo Graphician, Musician, Organizer, Phreaker, Swapper — no Coder function, consistent with P. Eradus (not Harlequin) being the actual routine author.",
-    "Lemon64 (lemon64.com/forum) and Forum64 (forum64.de) were searched by name per this batch's instructions, via curl against their search endpoints; both returned pages with no parseable search-result markup in this session (likely JS-rendered search UI) and the claude-in-chrome browser tool was not available to load them live. Recorded as an inconclusive attempt, not a confirmed absence of discussion."
+    "Lemon64 (lemon64.com/forum) and Forum64 (forum64.de) were searched by name per this batch's instructions, via curl against their search endpoints; both returned pages with no parseable search-result markup in this session (likely JS-rendered search UI) and the claude-in-chrome browser tool was not available to load them live. Recorded as an inconclusive attempt, not a confirmed absence of discussion.",
+    "DRIFT-RECHECK 2026-08-07: re-fetched all previously-cited CSDb webservice URLs (group 3117, scener 11229, scener 3934, sid 45750/38983/13881, release 21412/64455/64454) raw via curl. No field has changed since the 2026-07-31 pass — same group/credit/release data, byte-identical facts. One pre-existing but previously-uncited detail surfaced on closer read of release 21412's own record (not new to CSDb — the Trivia entry is dated 09.10.2005 in CSDb's own data, just missed by the prior pass despite citing this exact URL): release 21412 ('Are you paranoia too?') carries a release-level Trivia note reading verbatim: \"I found this tune as a TASM source. Compiled & crunched it for your pleasure. This is a work/testtune for the player P. Eradus of Digital Systems made.\" This is a contemporary (2005) scene submitter directly calling P. Eradus's routine \"the player\" and naming it 'Digital Systems' — independent textual corroboration (beyond the credit-correlation inference) that the tag names a real, named routine authored by P. Eradus, and that this specific tune was literally a test file for it. Verified via raw XML (curl, <Trivia> element under <Release><Comments>), not just the webservice summary. Checked releases 64455 and 64454 for the same field — neither has a release-level Trivia entry (only the Silicon Limited group's own Trivia, about a 1991-93 group-coop, which is unrelated to Digital Systems and was previously mis-surfaced as release trivia by an AI summary tool in this session — confirmed via raw XML that it belongs to the <ReleasedBy><Group> element, not the release itself)."
   ],
   "sources": [
     "data/sidid.json byTag — confirmed no entry for \"Digital_Systems\"",
@@ -60,7 +61,8 @@
     "CSDb SID entries (full census, all 3 tagged files): https://csdb.dk/webservice/?type=sid&id=45750, &id=38983, &id=13881",
     "CSDb release credits confirming Music=Harlequin / Code=P. Eradus: https://csdb.dk/webservice/?type=release&id=21412&depth=2 (id 21412, 'Are you paranoia too?')",
     "Local dataset: 3 files tagged Digital_Systems, 1 composer (Harlequin) — data/composers/harlequin.json",
-    "data/composers/harlequin.json (profile country Netherlands, csdb id 3934)"
+    "data/composers/harlequin.json (profile country Netherlands, csdb id 3934)",
+    "DRIFT-RECHECK 2026-08-07: raw curl re-fetch of release 21412's Trivia field confirming 'the player P. Eradus of Digital Systems made': https://csdb.dk/webservice/?type=release&id=21412&depth=2 (Trivia dated 09.10.2005 in CSDb's own data — pre-existing fact, newly captured in this card, not new to CSDb)"
   ]
 }
 ```
@@ -77,7 +79,12 @@ files carry the CSDb tune-level `Released` field "1991 Silicon Limited" —
 a full census, not a sample. No CSDb release/tool entry, format spec, or
 manual for "Digital Systems" as a distributed editor exists; it reads as a
 small in-house pairing (Harlequin composing, P. Eradus coding) for three
-Silicon Limited productions in 1991, not a published tool.
+Silicon Limited productions in 1991, not a published tool. A 2026-08-07
+drift recheck re-verified every previously-cited CSDb URL byte-for-byte
+identical, and additionally surfaced a pre-existing (2005) CSDb Trivia
+note on release 21412 that independently calls it "the player P. Eradus
+of Digital Systems made" — direct textual corroboration of the credit-
+based inference, not new drift.
 
 ## Quirks & gotchas
 

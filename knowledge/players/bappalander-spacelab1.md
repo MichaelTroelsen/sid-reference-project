@@ -48,7 +48,8 @@
     "Single-composer concentration: all 5 locally-tagged files are by Bappalander himself (Ove Oldberg, Sweden, b. 1970-08-31, CSDb scener 2098) — consistent with a personal/experimental routine rather than a released, titled tool.",
     "Full census (all 5 tagged files, via csdb.dk webservice type=sid): A Bit Odd (id 4474, LoadAddr 0x9000), Brutality 5 (id 4476, LoadAddr 0x9000), FX (id 4475, LoadAddr 0x1000), Run to You (id 4473, LoadAddr 0xE000) all carry CSDb's own `Released: 1991 Light`; Last Traktor III (intro) (id 4477, LoadAddr 0x9000) carries `Released: 1992 Horizon`. These are per-tune composition/first-use dates from CSDb, not a player/tool release date — no such date exists for this tag.",
     "PSID Load/Init addresses vary across the 5 files (0x9000 x3, 0x1000 x1, 0xE000 x1) with Play always Init+24 ($18) — header metadata only (CSDb webservice), not a disassembly finding, but consistent with per-tune inline assembly rather than a fixed reusable driver.",
-    "No dedicated CSDb tool/release page, Codebase64 article, or Lemon64/Forum64 thread found for 'Bappalander/Spacelab1' or 'Spacelab' during this research pass (2026-07-31) — checked CSDb webservice, docsnyderspage.com's Bappalander scener page, and web search targeted at lemon64.com/forum64.de specifically."
+    "No dedicated CSDb tool/release page, Codebase64 article, or Lemon64/Forum64 thread found for 'Bappalander/Spacelab1' or 'Spacelab' during this research pass (2026-07-31) — checked CSDb webservice, docsnyderspage.com's Bappalander scener page, and web search targeted at lemon64.com/forum64.de specifically.",
+    "UPDATE 2026-08-07 (drift recheck, no card fields changed): CSDb does list one group literally named 'Spacelab' (Sweden, group id 10344, founded/only member 'Skizz', sole credited release 'Cosmodreams' 1990) — but it has no listed connection to Bappalander/Ove Oldberg (not a member, not credited on its one release), predates his scene activity (1990 vs. his 1991-1994 span), and its handle roster doesn't include him. Re-checked the CSDb group search specifically for this recheck; the 'Spacelab1' name-element mystery remains unresolved. All 5 tagged files' CSDb webservice records (Released dates, Load/Init/Play addresses) re-fetched and match the existing card exactly; sidid.nfo re-checked, still no 'Bappalander'/'Spacelab' entry."
   ],
   "sources": [
     "sidid.nfo checked, no matching entry for 'Bappalander/Spacelab1': https://github.com/cadaver/sidid/blob/master/sidid.nfo",
@@ -56,6 +57,7 @@
     "CSDb webservice, type=sid, ids 4473-4477 (per-tune Released/LoadAddr/InitAddr/PlayAddr, full census of all 5 tagged files): https://csdb.dk/webservice/?type=sid&id=4473 (and 4474-4477)",
     "docsnyderspage.com Bappalander scener page, checked for 'Spacelab'/tool credits, none found: https://www.docsnyderspage.com/sceners/b/602e1450047c013dd1e60050562ead2a/bappalander",
     "Local dataset: 5 files tagged 'Bappalander/Spacelab1', all by Bappalander — data/composers/bappalander.json",
+    "CSDb group 'Spacelab' (Sweden, id 10344, founder/only member Skizz, sole release Cosmodreams 1990) — checked 2026-08-07, no connection to Bappalander found: https://csdb.dk/group/?id=10344",
     "data/composers/bappalander.json (HVSC profile: full name Ove Kjell Gustav Oldberg, Sweden, b. 1970-08-31, CSDb scener 2098)"
   ]
 }

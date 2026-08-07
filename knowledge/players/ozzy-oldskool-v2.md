@@ -11,8 +11,8 @@
   "platform": "The SECOND, structurally distinct version of already-carded [[ozzy-oldskool]]'s (Ossi Aarnio, Upstars founder) own playroutine — load $1000, versus V1's $A000, spanning 2004-2012 releases. Unlike V1, V2 shows genuine cross-composer reuse: one of its 4 files was scored by a DIFFERENT musician, Mikko Tanni ('Mordicus'), while Aarnio himself retains a 'Code' credit on that release — direct evidence he built the tool a second person then used. Player-ID-fingerprinted across 4 files: 3 by Aarnio, 1 by Tanni.",
   "csdb_release": 51523,
 
-  "memory": { "load_address": "Sample HVSC file traced (Bulliting, 2004, Upstars): load $1000 (init $1000, play $1003).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $1000.", "play": "Sample trace: $1003 (called in IRQ)." },
+  "memory": { "load_address": "CONFIRMED via disassembly on all 3 available V2 HVSC files (Bulliting/2004, No_Direction/2007, Starglide/2012), not just the earlier single-file sample: load $1000, init $1000, play $1003, identical across all 3 — homogeneous engine, no per-file load-address drift (contrast lesson 71's V1 warning).", "zero_page": "zp $fb/$fc (zfb/zfc, a `(zp),Y` order/pattern pointer) and $fd/$fe/$ff (zfd=subtune*2 index, zfe/zff a second `(zp),Y` pointer used for per-voice parameter fetch).", "layout": "INIT unconditionally zeroes a 105-byte ($69) working-storage block at native $1685-$16ed via `ldx #$69 / lda #$00 / sta $d400,X / sta l1685,X / dex / bpl`, which ALSO zeroes SID registers $d400-$d469 (i.e. clears all 3 voices via the 32-byte hardware mirror) in the same loop — the same block SIDdecompiler's `-r` bakes in a stale non-zero 'pristine' snapshot for (e.g. l1686/l1687 showing $a0/$21), which is DEAD (lesson 10's pattern) since it's zeroed before first use in every build. Native load $1000-$28de (Bulliting)/$1000-$2bba (No_Direction)/$1000-$2d5d (Starglide)." },
+  "entry": { "init": "Confirmed all 3 files: $1000.", "play": "Confirmed all 3 files: $1003 (called in IRQ)." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (very filter-heavy — 39 filter writes in a dense 399-write/50-frame sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -57,10 +57,17 @@ project's dump resolve to unrelated releases, now flagged and corrected.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of an `Ozzy_Oldschool_V2`-tagged
-`.sid` + trace — which could also confirm whether V2 shares code with V1
-or is a genuine rewrite.
+None published (not in the realdmx RE repo, no STIL note). An original
+disassembly was produced this batch (see Verification) — native
+byte-diff is 100.0000% exact on all 3 available V2 files, but the native
+trace is tautological (SIDdecompiler's `-r` flag guarantees a byte-exact
+build, per gotcha 63/69) so it is not by itself sufficient evidence for
+`verified`. The relocation-invariance control that would supply
+non-tautological evidence currently fails (two real unsymbolized-pointer
+defects found and fixed, a third still unresolved — see Verification for
+the exact addresses and the RetroDebugger escalation this needs). Not yet
+compared against V1's own disassembly to settle whether V2 shares code
+or is a genuine rewrite — that comparison is still open.
 
 ## Verification
 
@@ -69,6 +76,76 @@ Traced a real HVSC `Ozzy_Oldschool_V2` `.sid` (Bulliting): load `$1000`,
 init `$1000`, play `$1003`, **399 register writes / 50 frames** (39
 filter writes — very dense, filter-heavy). Internals undocumented; memory
 map/format/effects are `TODO`.
+
+**Disassembly + byte-diff + relocation-control attempted (2026-08-07) —
+`status` unchanged (`in-progress`), real progress made but not closed.**
+
+Disassembled `Bulliting.sid` with `SIDdecompiler.exe -a4096 -z -d -c -v2 -r`
+(load $1000; `-r` per gotcha 63 to get pristine bytes). Reassembled with
+64tass, no warnings. **Byte-diff: 100.0000% exact** on the 6367 covered
+bytes (`-v2` map reports `Start: $1000 End: $28de`, confirmed stable even
+at `-t 200000` — the 3 trailing file bytes at $28df-$28e1 are genuinely
+unreferenced by this file's own playback, not a defect: 6367/6370 =
+99.95% full-file coverage, 100% match on the covered region). Confirmed
+the same native byte-exactness on the other two available V2 HVSC files
+too: `No_Direction.sid` (100.0000%, full 7099/7099 bytes covered) and
+`Starglide.sid` (100.0000%, full 7518/7518 bytes covered) — all three use
+identical load/init/play addresses, homogeneous engine.
+
+Because `-r` makes the native reassembly byte-identical to the original,
+any trace-diff at the native address is tautological by construction
+(gotcha 63/69/70) and was **not** treated as verification evidence on its
+own. Ran the prescribed relocation-invariance control instead (lessons
+69/70/72): rebuilt the same Bulliting disassembly at a page-aligned base
+(`$6000`) and a non-page-aligned base (`$5011`), confirming both differ
+from the native build at 435 and 874 byte offsets respectively (a real
+structural test, not a no-op). **Both controls failed identically**: only
+3 of the original's 399 register writes reproduced (all wrong values,
+`sustain_release` FF->$00 instead of FF->$A7 for all 3 voices), then
+total silence for the remaining 49 frames. Failing identically at both a
+page-aligned and non-page-aligned base rules out the common
+page-relocation-lock explanation (lessons 79/87/91/103/110) — this is a
+genuine unrelocated-pointer defect, not a driver design constraint.
+
+Found and fixed **two concrete instances** of the unsymbolized-literal
+class (lessons 72(b)/77/80): (1) native `$2000`/`$2001` — a per-subtune
+base-pointer literal (`.byte $80` / `.byte $23` = raw $2380) read once by
+INIT via `adc l2000,Y` / `adc l2001,Y` to compute the `l16de`/`l16df`
+per-voice pointer table; fixed to `<(init+$1380)` / `>(init+$1380)`. (2)
+native `$1686`/`$1687` (plus its X=7/X=14 table entries at
+`$168d`/`$168e` and `$1694`/`$1695`) — a per-voice pointer scratch read by
+the `l10f4` subroutine (called every play-frame) that SIDdecompiler left
+as raw literals `$a0`/`$21` (=$21a0=l21a0) and `$c0`/`$22` (=$22c0=l22c0);
+fixed to `<l21a0`/`>l21a0` and `<l22c0`/`>l22c0`. Both fixes reassemble
+correctly (native byte-diff stays 100.0000%, confirming they're
+genuinely dead-weight at the native address per lesson 10), but **the
+relocation control still fails identically after both fixes** — same 3
+wrong writes, same silence. Manual tracing further into the play routine
+(the `l16ee`/`l169f`/`l15a1` lookup chain that produces the actual SR
+write) showed this specific area is itself inside the INIT-zeroed
+$1685-$16ed workspace, making by-hand simulation unreliable past that
+point (confirmed at least one hand-derived intermediate value was wrong
+during this pass) — this is exactly the kind of static-disassembly
+mystery a byte-diff/trace-diff cannot resolve on its own.
+
+**This blocker specifically calls for RetroDebugger, not further static
+reading.** RetroDebugger was unavailable in this session (MCP server
+disconnected) — not attempted, per this agent's constraints. A live pass
+would need to: load the page-aligned control build (`bull_pagealigned.prg`
+in this run's scratchpad, base $6000, init $6000/play $6003), set a
+breakpoint on the write to `$d414` (osc3 SR) in frame 0, and compare
+zero-page ($fb-$ff) and the `$1685`-$16ed-equivalent workspace contents
+step-by-step against the same breakpoint on the untouched original —
+looking for the first byte where the two diverge upstream of that write.
+The `l16f2`/`l16f4`/`l1700`/`l169f`/`l15a1` lookup chain (all pure numeric
+tables, not addresses, per this pass's analysis) is the most likely
+remaining unrelocated-literal candidate but was not conclusively
+isolated statically.
+
+Scratchpad artifacts for a future pass:
+`C:\Users\mit\AppData\Local\Temp\claude\C--Users-mit-claude-sid-reference-project\9858d9d8-b167-4c7a-8e7c-af8fa3c90c44\scratchpad\ozzy2\`
+(bulliting.asm/prg with both fixes applied, bull_pagealigned.asm/prg,
+bull_unaligned.asm/prg, trace logs).
 
 ## Sources
 

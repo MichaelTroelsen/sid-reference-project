@@ -11,10 +11,10 @@
   "platform": "German coder-composer Thomas H. Kolbe's own playroutine — a confirmed dual-role coder/musician who consistently co-developed his titles with Zuheir Urwani, both working on Markt & Technik/64'er-magazine-adjacent releases. Now a research assistant at the University of Bonn's Institute for Cartography and Geoinformation. Player-ID-fingerprinted across 3 files, all his own.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Das Schwarze Schloss): load $7a66 (init $a34c, play $a3fc).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $a34c.", "play": "Sample trace: $a3fc (called in IRQ)." },
-  "speed": "TODO.",
-  "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample)" },
+  "memory": { "load_address": "All 3 files carry PSID load-address field 0 (real load address embedded as the payload's own first 2 LE bytes). Hyperrace.sid: load $095d. Das_Schwarze_Schloss.sid: load $7a66. Omidar.sid: load $2916 — three different absolute bases, per-title, not a fixed convention.", "zero_page": "Disassembled from Hyperrace.sid: $2b/$2c is the base of 3 consecutive zero-page-indexed indirect pointers ($2b/$2c, $2d/$2e, $2f/$30), one per voice, dereferenced via (zp,X) with X = voice_index*2. Each points at a per-voice pattern/command byte stream.", "layout": "Hyperrace.sid: a ~7-byte working-storage block at $0335-$033b sits immediately below the load address ($095d) — SIDdecompiler's `-v2` map reports its own traced Start at $033c (gotcha-40 territory: fixed low-RAM workspace below load, not code, not a copy-loop destination — confirmed via the absence of any page-copy loop and the absence of `x`/execute markers in that region)." },
+  "entry": { "init": "Per-file, read from each file's own PSID header directly (do not assume convention): Hyperrace $095d, Das_Schwarze_Schloss $a34c, Omidar $2920.", "play": "Hyperrace $0960 (called in IRQ). Das_Schwarze_Schloss $a3fc. Omidar $2943." },
+  "speed": "TODO — not derived from this pass's disassembly.",
+  "data_format": { "order_list": "TODO", "patterns": "Hyperrace.sid: per-voice pattern stream read via indirect pointer, command byte values $fb/$fc/$fe/$ff reserved for special ops (branch targets confirmed in disassembly, exact semantics not fully mapped this pass).", "instruments": "Hyperrace.sid: a 16-byte-per-instrument table at load+$0c (native $0969), indexed as instrument_id<<4; fields copied into per-voice workspace at note-trigger time (waveform/pulse-width-related bytes duplicated into two workspace slots, then 6 further bytes copied into ADSR/pulse-width/filter-adjacent workspace cells) — full field-by-field semantics TODO.", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample from a prior pass; not re-checked this pass)" },
   "effects": { "encoding": "TODO", "commands": {} },
 
   "edges": { "derives_from": [], "successor_of": [], "shares_routine_with": [], "same_effect_encoding_as": [] },
@@ -61,17 +61,82 @@ than picking one arbitrarily.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Thomas_Kolbe`-tagged
-`.sid` + trace.
+None published (not in the realdmx RE repo, no STIL note). This pass
+produced an original `SIDdecompiler`/64tass disassembly+reassembly of
+`Hyperrace.sid` (see Verification) — the first real disassembly-derived
+evidence on this card. Das Schwarze Schloß and Omidar were not
+disassembled this pass (see next lead below); note Das Schwarze Schloß
+in particular is a ~10KB game-engine rip whose PSID init/play vectors
+sit deep inside a much larger payload than Hyperrace's compact ~2.5KB
+dedicated tune (structurally a different shape — worth checking before
+assuming it's the same routine, per this KB's own precedent for
+same-tag-different-engine cases).
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-15) — `status: in-progress`.**
-Traced a real HVSC `Thomas_Kolbe` `.sid` (Das Schwarze Schloss): load
-`$7a66`, init `$a34c`, play `$a3fc`, **180 register writes / 50 frames**
-(0 filter writes). Internals undocumented; memory map/format/effects are
-`TODO`.
+**Byte-diff + trace-diff attempted this pass (2026-08-07) —
+`status: in-progress` (unchanged; native match likely tautological, and
+the non-tautological relocation control found real, unresolved
+divergence — see below).**
+
+Disassembled `Hyperrace.sid` (PSID load `$095d`, init `$095d`, play
+`$0960`, 4 subtunes) with `SIDdecompiler -a828 -z -d -c -v2 -r`
+(`-a828` = decimal for the tool's own `-v2` Start address `$033c`, 7
+bytes below the load address — a small fixed workspace gap, not code;
+see `memory.layout`).
+
+- **Byte-diff (native addresses):** 100.0000% exact (0/2395 bytes) on
+  the region SIDdecompiler's trace actually covered ($095d-$12b7, 2395
+  of the file's 2521 payload bytes = 95.0% coverage). The uncovered
+  126-byte tail ($12b8-$1335) is not padding — it hex-dumps as
+  structured, non-zero, pattern-command-shaped data — and raising `-t`
+  to 200000 (20x default) did not extend coverage, so it's very
+  plausibly genuine song data none of the 4 subtunes' play routines
+  reach within any traced window, not a tool shortfall (per this
+  agent's lesson on genuinely-unreached-by-anyone tails).
+- **Trace-diff (native addresses, `sidm2-sid-trace.exe`, all 4
+  subtunes, 100 frames each):** exact match including cycle timestamps,
+  0 diff lines, on all 4 subtunes — **2207 total register writes**
+  (768 + 350 + 796 + 293 across subtunes 0-3).
+- **Caveat on the native result:** because the byte-diff is 100% exact
+  on the covered region (a `-r` build), the native trace-diff is largely
+  tautological (this agent's own documented `-r` trap) — it is not, on
+  its own, sufficient evidence for `verified`.
+- **Relocation-invariance control (page-aligned +$2000 and
+  non-page-aligned +$2037, both from the same disassembly):** found and
+  fixed two genuine, confirmed relocation defects: (a) 7 code-operand
+  absolute literals (`$0335`-`$0339,X`) pointing 3-7 bytes below the
+  `-v2` Start address — invisible natively (equal to their correct
+  workspace value at native addresses) but unrelocated in the control;
+  rewritten against a `RB = $033c` base equate. (b) An unsymbolized
+  3-entry split lo/hi pointer table at load+$06 (native `$0963-$0968`)
+  feeding the per-voice zero-page indirect pattern pointers described in
+  `memory.zero_page` — rewritten as `<label`/`>label` pairs against the
+  two now-labelled targets. Both fixes were confirmed to actually change
+  the assembled relocated binary (12 and 3 bytes respectively) before
+  re-testing. **Neither fix, individually or combined, closed the
+  control:** both the page-aligned and non-page-aligned rebuilds still
+  diverge from the original by an identical 600/329/622/270 lines
+  (cycle-stripped register-write comparison) across the 4 subtunes,
+  starting from frame 0 of PLAY (INIT's own SID-register writes match
+  exactly in both builds — the divergence is in workspace/control-flow
+  state, not SID output, until frame 0). Aligned and unaligned controls
+  fail identically, which rules out a page-lock explanation (this KB's
+  own precedent for that pattern requires the two to disagree).
+- **Not RetroDebugger-attempted this pass** (unavailable this session,
+  and this agent does not use it solo per its own constraints even when
+  connected) — **the concrete next step is a live single-step
+  comparison of the two relocation-control builds' zero-page/workspace
+  state right after INIT and through the first PLAY call**, to find
+  what unsymbolized runtime-computed reference (if any) survived the two
+  fixes above; a further static grep for out-of-range literals and
+  self-modified-operand `WARNING` comments in the generated `.asm` found
+  nothing else to fix by hand.
+
+Prior pass's playback-only figures for Das Schwarze Schloss (load
+`$7a66`, init `$a34c`, play `$a3fc`, 180 writes/50 frames, 0 filter
+writes) are unchanged/unverified — no disassembly was attempted on that
+file this pass.
 
 ## Sources
 

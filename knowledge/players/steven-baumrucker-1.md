@@ -74,6 +74,108 @@ init `$a050`, play `$a0c0`, **21 register writes / 50 frames** (3 filter
 writes — sparse). Internals undocumented; memory map/format/effects are
 `TODO`.
 
+**Disassembly/reassembly attempted (2026-08-07) — `status` unchanged
+(`in-progress`, NOT raised to `verified`).** `SIDdecompiler.exe` (`-a37376
+-z -d -c -v2 -r`, native load address `$9200`) on `Pogo_Joe.sid` reported
+`-v2` `Start: $1594` (far below the `$9200` load address) and `End:
+$a0e6`. Ground truth confirmed from the raw PSID header directly:
+`PSID` v2, load `$9200` (embedded, header field = 0), init `$a050`, play
+`$a0c0`, 6 subtunes.
+
+- The gap ($1594-$91ff) is NOT dead workspace — the `-v2` map's own
+  legend marks large stretches of it `#`/`_` (execute+write /
+  operand+write, i.e. genuine self-modifying CODE), not `w`/`?`. INIT
+  contains an explicit page-copy loop (`ldx #$07 / lda (z80),Y / sta
+  (z82),Y / iny / bne ... / inc z81 / inc z83 / dex / bne`) copying 7
+  pages from the file's own in-payload data at `l9200` down to `l1594`,
+  then `play` does `jsr l15a2` (an address inside the just-copied
+  block) every frame — the lesson-88/lesson-93 self-relocating-block-
+  copy pattern (copy destination below the load address).
+- Relocating with `-a` set to the header's own load address (matching
+  gotcha 1/2, and appropriate here since Start < load address is the
+  copy-destination case, not the dropped-leading-byte case) gave a
+  clean, non-wrapping reassembly once `-a` was corrected to the `-v2`
+  Start address ($1594, decimal 5524) per gotcha 40/lesson 54 — a
+  35667-byte single contiguous block, no `-Wwrap-*` warnings.
+- **Byte-diff of the file's own real payload (`$9200`-`$a0e6`) against
+  the reassembly: 100.0000% exact (0/3815 bytes differ).** Native
+  trace (60 frames, subtune 0) reproduces the same register-write
+  pattern the 2026-07-15 pass found (a sparse ~21-write profile with a
+  cluster of 14 writes at frame 6 and smaller clusters at frames 1, 2
+  and 48).
+- Found and fixed one confirmed relocation defect during this pass:
+  `SIDdecompiler` emitted the copy loop's DESTINATION pointer as two
+  raw immediate bytes (`lda #$15` / `ldx #$94`, i.e. a hardcoded
+  `$1594`) instead of `#>l1594`/`#<l1594` — the lesson-80/109 split-
+  immediate-pointer defect. Patched in both the native and a
+  relocation-control `.asm` (both keep the label `l1594`, per lesson
+  61's "native label names survive relocation" finding).
+- **However, this native byte-diff/trace-diff is tautological by
+  construction (`-r` reproduces pristine file bytes byte-for-byte, per
+  lesson 63/65/69)** — a real, non-tautological verification needs the
+  relocation-invariance control (lessons 69/70/72). That control was
+  attempted at a page-aligned `+$1000` delta (ruling out a lessons
+  79/87/91/103/110-style page-lock, since a page-aligned control would
+  be expected to pass under that explanation) and **failed completely:
+  0 SID register writes over 60 frames after the split-pointer fix**,
+  vs. 21 writes on the native/tautological build. No further
+  unsymbolized `#<label`/`#>label` or 4-hex-digit literal candidates
+  were found by exhaustive grep of the `.asm` (the only other
+  `#$xx`-immediate-pair candidate found in the whole file was an
+  unrelated loop counter, `ldx #$07`/`ldy #$00`).
+- **Root cause of the relocation-control failure, diagnosed but not
+  fixable by this project's static method**: the copied block's own
+  internal machine code (whatever lives inside `l15a2` — the routine
+  `play` calls every frame) was NEVER actually disassembled as code by
+  `SIDdecompiler`. Its source representation (`l9200`-`l98ff` in the
+  file) is pure `.byte` data (never executed AT that source address in
+  this file's own trace — only after being copied), and its
+  destination representation (`l1594` onward) is a run of `.byte $00`
+  ("brk") placeholder bytes, because `-r`'s pristine-reload blanks any
+  address outside the file's own `[load, load+len)` range (lesson 78) —
+  which this copy destination is. The native build "works" purely
+  because relocating to `-a<Start>` reproduces the SAME native
+  addresses ($9200→$1594) the real file already uses, so the raw byte
+  copy is correct by construction without SIDdecompiler ever having to
+  understand what's inside it. On relocation, that raw copied machine
+  code's own internal absolute-address references (whatever jumps,
+  branches or self-modified operands exist inside the real `l15a2`
+  routine) are never translated, because they were never classified as
+  code with symbolic operands anywhere in the tool's output. This is a
+  variant of lesson 78 one level deeper than the case that lesson
+  documents (there the destination was merely under-disassembled;
+  here the TRUE code content is never disassembled at either the
+  source or the destination address).
+- **Confirmed as a structural, driver-family-wide trait, not a
+  Pogo-Joe-specific fluke**: a raw hex-dump of the sibling tagged file
+  `Playful_Professor-Math_Tutor.sid`'s own init routine (`$7f28`, real
+  PSID header load `$77df`) shows the identical idiom — `bd $8000,X /
+  9d $6200,X` (indexed-absolute, not zero-page-indirect, but the same
+  "copy code to lower RAM before running it" trick) copying 5 pages
+  from `$8000-$83ff` down to `$6200-$63ff`, then installing a custom
+  IRQ vector (`$0314/$0315 = $7f75`) whose handler is `jsr $6212 / jmp
+  $ea31` — `$6212` sits inside that same copied block (this file's own
+  PSID header declares `play: $0`, i.e. self-installing-IRQ, so its
+  real play entry — `$6212` — had to be recovered by hand per lesson 81
+  rather than taken from the header).
+- **Net result: a well-characterized, honestly-quantified partial
+  verification.** The native reconstruction is 100.0000% byte-exact
+  against the real file's payload and reproduces the file's own
+  register-write profile, but that match is tautological by this
+  project's own precedent and cannot be upgraded to `verified` without
+  a non-tautological trace, which the relocation control cannot
+  currently provide for this driver. **This is exactly the kind of
+  blocker that needs RetroDebugger** (a live 6502 emulator) rather than
+  more static analysis: single-stepping through `l15a2` at its native
+  address ($15a2) after `Pogo_Joe.sid`'s own `init` runs would reveal
+  the real instruction stream inside the copied block, which could
+  then be hand-annotated back into the `.asm` as proper code with
+  symbolic operands — at which point a real relocation-invariance
+  trace-diff becomes possible. RetroDebugger was unavailable in this
+  session (MCP server disconnected) — this is a concrete, named next
+  step for whenever it's reconnected, not a general "keep
+  investigating."
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, The Giant List, Wikipedia,

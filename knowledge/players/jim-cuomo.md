@@ -7,14 +7,14 @@
   "aliases": ["Jim_Cuomo"],
   "authors": ["UNKNOWN — Cuomo is the COMPOSER, a jazz saxophonist. No evidence he wrote 6502. See quirks."],
   "released": "1985-1988",
-  "status": "in-progress",
+  "status": "verified",
   "platform": "Native C64. NOT a single driver — the tag is a composer-named bucket spanning at least two unrelated house drivers.",
   "csdb_release": null,
 
   "memory": {
-    "load_address": "Raging_Beast 5409 B; Cage_Match 3344 B; Slam_Dunk 2988 B.",
-    "zero_page": "TODO — no disassembly performed. Not guessed.",
-    "layout": "TODO — no disassembly performed."
+    "load_address": "Raging_Beast $ac00 (5283 B payload); Cage_Match $4f00 (3218 B payload); Slam_Dunk $8000 (2862 B payload). All three PSID headers carry loadAddr=0 with the real address embedded as the payload's own first 2 LE bytes.",
+    "zero_page": "Cage_Match/Slam_Dunk (Sculptured driver): identical ZP block $a5,$a7,$a8,$f7-$fa — confirmed byte-identical between the two disassemblies, independent corroboration of the card's existing 'same driver, $F7 code delta' claim. Raging_Beast (different driver): only $ae/$af used, as a 16-bit table pointer.",
+    "layout": "Cage_Match: code+data $4f00-$5b8f, clean (SIDdecompiler -v2 Start == PSID load address, no relocation trap). Slam_Dunk: code+data $8000-$8b2d, equally clean. Raging_Beast is structurally different: in addition to its own $ac00-load code, INIT block-copies two runtime workspace blocks from FIXED LOW RAM outside the loaded payload — `lda $ac00,X / sta $0c80,X` and `lda $ac80,X / sta $0d00,X` (256 bytes each, populating $0c80-$0dff) plus a `lda #$00 / sta $3f00,X`-style zero-fill of $3f00-$3fff. SIDdecompiler's own -v2 map reports Start:$0c80 (below the $ac00 load address) for exactly this reason — the gotcha-40/lesson-60 pattern (fixed low-RAM workspace, not a dropped byte or an engine self-copy) — confirmed by the region carrying only w/+ (write/read-write) markers and zero x/o (execute) markers in the -v2 map."
   },
   "entry": {
     "init": "Raging_Beast $ad80; Cage_Match $4fb0; Slam_Dunk $8b00.",
@@ -38,6 +38,8 @@
     "HIS THREE HVSC FILES ARE HIS COMPLETE C64 OUTPUT. Lemon64's Cuomo list is exactly these (4 entries; Advanced Basketball Simulator is the 1989 EU re-release of Slam-Dunk). Checked and EXCLUDED: GAMES/S-Z/Sinbad_and_the_Throne_of_the_Falcon.sid is Tom Jeffries (Singing Electrons), 1988 Cinemaware — STIL credits the Amiga original to Bill Williams, NOT Cuomo, despite fr.wikipedia listing Sinbad as a Cuomo credit. No C64 Defender of the Crown rip exists in HVSC.",
     "HIS BEST-KNOWN WORK ISN'T HERE. HVSC/STIL independently credits ARTIST: Jim Cuomo on 18 lines as the ORIGINAL composer of Defender of the Crown — covered by 8+ C64 scene musicians (A-Man, Dr Rox, Factor6, Richard Joseph, Adam Morton, NecroPolo, Divertigo, Kyle Johnson). The C64 scene knows him as a source to cover, not as a C64 composer.",
     "OBSERVATION NEEDING CONFIRMATION, not an assertion: the Sculptured driver uses waveforms $21 (saw+gate), $41 (pulse+gate), $81 (noise+gate), and NO $D418, filter, or pulse-width writes were observed in the traced windows — which would imply the caller sets volume. Traced windows only; not proven absent.",
+    "VERIFIED THIS PASS (disassemble+reassemble+trace-diff, not just byte-window scanning): all three files reconstruct 100.0000% byte-exact (in the SIDdecompiler-covered range — see the two small uncovered trailing gaps below) and 100% register-write+cycle-exact against a direct trace of the true original .sid, across every subtune (Cage_Match 4, Raging_Beast 3, Slam_Dunk 1 — 740 total register writes, 0 divergences). Method: `SIDdecompiler -a<decimal load addr> -z -d -c -v2 -r`, `64tass`, byte-diff, then `sidm2-sid-trace.exe` on both the reassembled .prg and a directly-repackaged original-payload .prg (2-byte load header + payload, no disassembly involved) at the PSID's own init/play addresses. Uncovered trailing bytes never touched by SIDdecompiler's own trace and therefore not diffable: Cage_Match $5b90-$5b91 (2 bytes, file's literal last 2 bytes `$fa $ff`); Raging_Beast $bffa-$c092 (153 bytes, past the -v2 map's own End:$bff9). Both are lesson-9-class 'genuinely never touched by this file's own playback' gaps, not disassembly failures — left as an explicit TODO, not patched or guessed.",
+    "RELOCATION-INVARIANCE CONTROL (non-tautological check, since -r makes the native byte-diff trivially 100%): rebuilding each disassembly at a different SIDdecompiler -a base and re-tracing at the shifted init/play addresses reproduces the original register-write stream exactly for Cage_Match (all 4 subtunes) and Slam_Dunk. Raging_Beast is PAGE-RELOCATABLE ONLY: a non-page-aligned control delta ($1137) diverges by 4 of 102 writes on subtune 2 only (osc2 frequency, frames 122/148), while a page-aligned control delta ($1100) at the same base is 0/102 exact — confirmed cause is an `asl / bcc.. / lsr / tay` odd/even-split note-frequency table (labels l0d21/l0d80) that lives inside the block-copied low-RAM workspace above, i.e. a genuine property of the original driver's address arithmetic (the same class as this project's lessons 87/91/103/110), not a defect in the reconstruction — the native (zero-shift, true-address) build that was actually byte/trace-verified against the original file never exercises this constraint.",
     "Biography: American (HVSC Musicians.txt:387 'Cuomo, Jim - USA'; DeepSID country USA), born 7 March 1945, resident in PARIS. North Texas State (BA 1966), Univ. of Illinois (MMus 1970). C64 era 1985-1988 (DeepSID active: 1988)."
   ],
   "sources": [
@@ -47,7 +49,8 @@
     "Wikipedia — Los Angeles SWAT (confirms Sculptured Software; the control-test third hit): https://en.wikipedia.org/wiki/Los_Angeles_SWAT",
     "CSDb SID entry 5817 (Raging Beast): https://csdb.dk/sid/?id=5817",
     "Local: HVSC 85 Musicians.txt:387, STIL.txt:30895, data/composers/jim-cuomo.json. CONFIRMED ABSENT: no SIDId entry in data/sidid.json.",
-    "NOT treated as primary (all returned HTTP 403 to fetch; search snippets only): MobyGames, uvlist, GDRI, Discogs."
+    "NOT treated as primary (all returned HTTP 403 to fetch; search snippets only): MobyGames, uvlist, GDRI, Discogs.",
+    "Verification pass (this run): SIDdecompiler.exe + 64tass.exe + sidm2-sid-trace.exe disassembly/reassembly/byte-diff/trace-diff of Cage_Match.sid, Raging_Beast.sid and Slam_Dunk.sid directly from C:/Users/mit/Downloads/HVSC_85-all-of-them/C64Music/MUSICIANS/C/Cuomo_Jim/ — see the two 'VERIFIED THIS PASS'/'RELOCATION-INVARIANCE CONTROL' quirks entries for exact numbers."
   ]
 }
 ```
@@ -80,28 +83,60 @@ See the `quirks` array. The load-bearing ones:
 
 ## Disassembly notes
 
-None. The findings above are **opcode/byte-window comparison plus traces**, not
-disassembly:
+A real disassembly now exists for all three files (`SIDdecompiler -r`, see
+Verification below), confirming the earlier opcode/byte-window scan's
+conclusions rather than superseding them:
 
 - Cage Match ↔ Slam Dunk: 8 code runs at a constant `$F7` relocation delta,
-  confirmed by identical trace cycle deltas.
+  confirmed by identical trace cycle deltas — and now independently
+  reconfirmed by byte-identical zero-page allocation ($a5, $a7, $a8,
+  $f7-$fa) between the two disassemblies.
 - The Sculptured fingerprint is a **relocation-invariant 33-byte run** scanned
   across all 61,157 HVSC files → exactly 3 hits.
+- Raging Beast's driver keeps a small ($ae/$af) ZP pointer, no other ZP use,
+  and copies two workspace blocks ($0c80-$0dff, $3f00-$3fff) from fixed low
+  RAM at INIT time — see `memory.layout`.
 
-Trace volumes: Raging Beast 121 writes/300 frames; Cage Match 91/200; Slam Dunk
-79/200.
+Trace volumes (this run, full register-write count against the real file, not
+an earlier estimate): Raging Beast 78+94+102 = 274 writes/3 subtunes; Cage
+Match 91+88+111+97 = 387 writes/4 subtunes; Slam Dunk 79 writes/1 subtune.
 
 ## Verification
 
-`status: in-progress`. Identity is high-confidence (converging independent
-sources, with the self-identifying chiptune-plus-saxophone performances as the
-strongest single argument). The two-driver split and the Sculptured attribution
-are **measured against controls**.
+`status: verified`. All three tagged files were disassembled
+(`SIDdecompiler.exe -a<decimal load> -z -d -c -v2 -r`), reassembled
+(`64tass`), byte-diffed against the true PSID payload, and trace-diffed
+(`sidm2-sid-trace.exe`) against a direct trace of the **original** .sid file
+(not the reassembly against itself) at the file's own PSID init/play
+addresses, across every subtune:
 
-**Not verified**: memory map, ZP, data format and effect encoding are all unknown
-— no disassembly was done and nothing was guessed.
+- **Byte-diff**: 100.0000% exact in the SIDdecompiler-covered range for all
+  three files (Cage_Match 3216/3218 compared bytes, 2 uncovered trailing
+  bytes; Slam_Dunk 2862/2862, full file, no gap; Raging_Beast 5114/5283
+  code-region bytes compared — its remaining payload bytes are the
+  low-RAM-workspace copy *source*, correctly excluded from the diff per this
+  project's own convention, plus 153 uncovered trailing bytes). See the
+  `quirks` array for the exact uncovered address ranges.
+- **Trace-diff**: 0 divergences over 740 total register writes across all 8
+  subtunes (4 + 3 + 1), comparing `(frame, cycle, register, old, new)`
+  between the reassembly and a direct trace of the real HVSC file.
+- **Relocation-invariance control** (needed because `-r` makes the native
+  byte-diff tautologically exact — see this project's own tooling lessons):
+  passes cleanly for Cage_Match and Slam_Dunk at a non-page-aligned base.
+  Raging_Beast is page-relocatable-only (explained, localized, not a defect
+  in the verified native-address reconstruction — see `quirks`).
 
-Also undetermined: who coded either driver (the Sculptured routine has no name;
+This upgrades the two-driver split and the Sculptured attribution from
+"measured against controls" to **directly reconstructed and register-exact**.
+Identity (Jim Cuomo the jazz musician) remains high-confidence via independent
+sources, unaffected by this disassembly pass.
+
+**Still open, correctly left as TODO, not guessed**: `data_format` (order
+list/pattern/instrument/wavetable/pulsetable/filtertable encodings) and
+`effects.encoding` were not reverse-engineered this pass — the verification
+above establishes that the byte layout and runtime behavior are now fully
+accounted for, not that the composed-data format has been mapped. Also still
+undetermined: who coded either driver (the Sculptured routine has no name;
 François Lionet is only *inferred* for Raging Beast as its game's coder);
 whether *Los Angeles SWAT* is an uncredited Cuomo tune.
 

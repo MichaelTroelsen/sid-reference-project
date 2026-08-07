@@ -11,8 +11,8 @@
   "platform": "English composer Robert Westgate's EARLIER playroutine — the first of two structurally distinct driver versions (a second, uncarded-until-this-batch [[robert-westgate-v2]] covers his 1987-1990 output). Consistently worked alongside the SAME coder, Jason Benham, across nearly his entire discography. Player-ID-fingerprinted across 3 files, all his own.",
   "csdb_release": null,
 
-  "memory": { "load_address": "Sample HVSC file traced (Bigtop Barney, 1984, Interceptor Software): load $7100 (init $7100, play $7180).", "zero_page": "TODO (no disassembly)", "layout": "Not documented." },
-  "entry": { "init": "Sample trace: $7100.", "play": "Sample trace: $7180 (called in IRQ)." },
+  "memory": { "load_address": "Per-file, not fixed: Bigtop_Barney.sid load $7100 (loadAddr=0, embedded); Guzzler.sid load $1000; Legend_of_Sinbad.sid load $9300, but init/play sit far above at $cbac/$ca94 (unexplored). Bigtop_Barney's own load address is NOT where SIDdecompiler's -v2 map's traced Start: address sits (Start: $2b00, ~17.9KB below load) — confirmed via disassembly this is a fixed low-RAM workspace ($2b00-$2dff, 3x256-byte per-voice block) plus a runtime copy-loop destination ($4000-$4200, $6900) that INIT populates by copying data OUT OF the loaded payload ($7200/$7300/$7400/$7500/$7600/$7700) into those fixed low addresses — gotcha-40/lesson-60/108 pattern, not a dropped byte.", "zero_page": "TODO (no disassembly of Guzzler/Legend_of_Sinbad completed; Bigtop_Barney uses none observed in the covered code region).", "layout": "Bigtop_Barney: fixed low-RAM workspace+copy-destinations at $2b00-$2dff/$4000-$4200/$6900 (see load_address); actual driver code at native $7100-$71bf (init+play); data tables (frequency/duration, read-only) at $9440-$9c00ish; per-song note/pattern data through $9f36. Guzzler/Legend_of_Sinbad: not documented." },
+  "entry": { "init": "Bigtop_Barney: $7100 (IS the load address — code starts immediately, no jump-table stub). Guzzler: $1000 (also = load address). Legend_of_Sinbad: $cbac, far above its own load address $9300 — mechanism unexplored (possibly another self-relocating copy, per Bigtop_Barney's pattern, or a JMP-chain per lesson 47/55).", "play": "Bigtop_Barney: $7180 (load+$80). Guzzler: $1003 (load+3, classic JMP-table convention — disassembly hit a distinct, unresolved SIDdecompiler labeling defect, see Verification). Legend_of_Sinbad: $ca94, unexplored." },
   "speed": "TODO.",
   "data_format": { "order_list": "TODO", "patterns": "TODO", "instruments": "TODO", "wavetable": "TODO", "pulsetable": "TODO", "filtertable": "TODO (no filter writes observed in the 50-frame sample)" },
   "effects": { "encoding": "TODO", "commands": {} },
@@ -59,17 +59,112 @@ four different publishers.
 
 ## Disassembly notes
 
-None published (not in the realdmx RE repo, no STIL note). A future
-`verified` needs an original disassembly of a `Robert_Westgate_v1`-tagged
-`.sid` + trace.
+None published (not in the realdmx RE repo, no STIL note). An original
+disassembly (`SIDdecompiler.exe -r`) was attempted 2026-08-07 — see
+Verification below for the real results (a strong partial on
+Bigtop_Barney, a newly-diagnosed SIDdecompiler labeling defect blocking
+Guzzler, Legend_of_Sinbad untouched). A future `verified` needs: (1) a
+non-tautological confirmation for Bigtop_Barney (either resolve why its
+relocation-invariance control fails — plausibly just the fixed-workspace
+copy-loop being outside the relocatable model, not a real defect — or get
+a live-debugger cross-check per lesson 110's precedent), and (2) fixing
+the Guzzler label-anchor defect (or finding a workaround) before it can
+be byte-diffed meaningfully at all.
 
 ## Verification
 
-**Playback + entry points confirmed (2026-07-15) — `status: in-progress`.**
-Traced a real HVSC `Robert_Westgate_v1` `.sid` (Bigtop Barney): load
-`$7100`, init `$7100`, play `$7180`, **27 register writes / 50 frames**
-(0 filter writes). Internals undocumented; memory map/format/effects are
-`TODO`.
+**Disassembly/byte-diff/trace-diff attempted (2026-08-07) — `status: in-progress` (unchanged, not verified).**
+
+Disassembled all 3 tagged files with `SIDdecompiler.exe -r` (pristine-image
+reload, per this project's own gotcha 63). Results differ sharply by file:
+
+**Bigtop_Barney.sid (load $7100, init $7100, play $7180, 8 subtunes) — strong
+partial result.** `SIDdecompiler`'s `-v2` map reported `Start: $2b00`, ~17.9KB
+below the load address — NOT a dropped-byte case (gotcha 40's usual small
+gap): a full read of the disassembly shows INIT contains an explicit
+page-copy loop (`lda l7200,X / sta l4001,X`, `lda l7300,X / sta l4100+1,X`,
+`lda l7400,X / sta l6900,X`, `lda l7500,X / sta l2b00,X`, `lda l7600,X / sta
+l2c00,X`, `lda l7700,X / sta l2d00,X`) moving compiled note-tables and
+per-voice workspace OUT of the loaded payload into fixed low-RAM addresses
+outside the file's own address range. Relocating onto `-a` = decimal
+`$2b00` (11008, zero net shift matching gotcha-40/lesson-33's mechanism)
+and reassembling: **the covered portion of the true payload
+($7100-$9f36, 11831 of 12032 bytes = 98.33% of the file) is
+100.000000% byte-exact**; the remaining 201 bytes ($9f37-$9fff) sit past
+SIDdecompiler's own traced `End:` address and were never dereferenced by
+any of the 8 subtunes' emulation (plausible unreached per-song data,
+per lesson 9 — not independently confirmed further). All 8 subtunes
+traced identically to the original across 100 frames each via
+`sidm2-sid-trace.exe` — but this is **tautological** (lesson 63/69: a
+byte-exact `-r` build cannot help but reproduce the original's writes).
+Ran the mandatory non-tautological relocation-invariance control
+(lessons 69/70/72) at both a page-aligned (+$1000) and non-page-aligned
+(+$1037) delta: **both failed** (66-146 diverging trace lines per
+subtune depending on delta). This is NOT evidence the disassembly is
+wrong — `diff <(tail -n+11 bigtop2.asm) <(tail -n+11 bigtop_aligned.asm)`
+is **byte-for-byte identical text** (only the `* =` origin line differs),
+so the control failure is 100% attributable to SIDdecompiler's blanket
+symbolic relocation incorrectly shifting the driver's *fixed* low-RAM
+copy-destination addresses (which the original 1984 game intentionally
+keeps fixed regardless of where the SID rip's own code/data landed) —
+exactly the pattern this project's own `sid-player-verify` lessons
+already document (fixed-low-RAM-workspace-plus-copy-loop, matching
+"lesson 108"'s precedent almost exactly). Given the tautological trace
+and the untraced 201-byte tail, this stops short of `verified` by this
+project's own bar, but it is a strong, precisely-quantified result.
+
+**Guzzler.sid (load $1000, init $1000, play $1003, 11 subtunes) — blocked
+by a newly-identified SIDdecompiler defect.** `-v2` Start: matches load
+address exactly (no workspace-gap issue). Native (`-a4096`, zero shift)
+byte-diff came back only **29.71% (7193/10233 diffs)** despite 99.99%
+`-v2` coverage — a genuinely bad, non-noise-floor result. Root-caused via
+`64tass --labels`: of 78 self-modified-operand anchor labels sampled, 67
+(86%) resolve to an address that differs from their own printed hex name
+(deltas of +1 x57, +2 x9, +3 x1) — e.g. `l125a` (used BARE in `jmp l125a`)
+actually assembles to `$1259`, one byte early; `l13e7` (used bare in `lda
+l13e7`) assembles to `$13e6`. Most of these deltas are legitimate and
+correct — SIDdecompiler's own anchor-labeling convention (gotcha 19/lesson
+120: a label like `l1204` is defined 2 bytes early because it's only ever
+referenced as `l1204+2`, an operand byte of a DIFFERENT self-modified
+instruction) — but at least 2 confirmed instances (`l125a`, `l13e7`) are
+used BARE elsewhere (not with a `+N` suffix) while still resolving off
+their own printed name, which is a genuine defect in SIDdecompiler's own
+default `-r` output (no hand-editing was involved — this is what the tool
+itself emits): the same symbol text is apparently being reused both as a
+"+1"-style anchor AND as a plain jump target, and 64tass naturally
+resolves it only to the anchor's own (offset) address. This is a **new**
+finding, distinct from and more severe than gotcha 19 (which describes
+a bug introduced by manually renaming a syntactically-illegal
+`<label>+1`): here it recurs in SIDdecompiler's own fresh, unedited
+output, at a scale (67/78 sampled labels affected, though most are
+legitimate `+N` anchors) that makes a full per-symbol audit
+labor-intensive. **TODO, not resolved this pass**: distinguish the
+genuinely-buggy bare-use symbols from the correctly-offset anchor-only
+symbols across the whole file (not just the 2 confirmed), fix each via
+lesson 39/62's algorithmic value-recovery technique, then re-diff.
+
+**Legend_of_Sinbad.sid — not attempted this pass** (time budget). Its
+init ($cbac) sits far from its own load address ($9300), a bigger gap
+than Bigtop_Barney's workspace pattern — worth checking for the same
+self-relocating-copy mechanism, or a different one (lesson 47/55's
+JMP-chain/loader-stub pattern), before disassembling.
+
+**No RetroDebugger pass was possible or attempted** — the MCP server was
+disconnected for this whole session. If/when reconnected, the concrete
+thing worth checking on Bigtop_Barney is whether the relocation-control
+divergence really is fully explained by the fixed-copy-destination theory
+(watch the $2b00-$2dff/$4000-$4200/$6900 region across two live relocation
+runs during a single frame) rather than static inference alone — this
+project's own lesson 110 treats a matching static signature as sufficient
+to reach `verified` without a live debugger, but that call is for the
+orchestrating session to make, not this pass.
+
+Net: `status` stays `in-progress`. Bigtop_Barney is close (100% byte-exact
+on 98.33% coverage, structurally-explained non-tautological control
+failure) but not `verified` by this project's own no-rounding-up rule;
+Guzzler surfaced a genuine, reusable, previously-undocumented finding
+about SIDdecompiler's own label-anchor defect rather than reaching any
+match at all.
 
 ## Sources
 

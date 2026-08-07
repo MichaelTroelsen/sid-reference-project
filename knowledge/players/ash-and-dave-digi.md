@@ -49,7 +49,8 @@
     "Only 4 files / 3 composers locally: Ash_and_Dave themselves (2: 'Daffy Duck (intro)', 'Digital Acid'), Martin Walker (1: 'Dragon Breed' — a Thalamus/Ocean-era composer who otherwise built his OWN player for Armalyte per a Commodore Format Archive interview, so this one credit looks like borrowed/reused code rather than his usual routine), and Waz (1: 'Digital Acid (Zaw Remix)' — a remix of Ash & Dave's own 'Digital Acid', consistent with reusing their sample data/routine rather than an independent tool adoption). Concentrated usage, consistent with a personal/small-circle routine rather than a published tool.",
     "CSDb id-namespace note: Ash & Dave's GROUP id (871) coincidentally collides numerically with an unrelated RELEASE id (871 = 'Digi-Organizer V.1' by Padua) — different CSDb namespaces, verified not to be the same page; do not conflate.",
     "Full census (2026-07-31) of all 4 tagged files' CSDb sid entries (type=sid webservice, ids 235/31373/52191/30174) confirms the 3-composer/4-file count already recorded and gives each tune's own `Released` field: Digital Acid 1988 Ash & Dave, Dragon Breed 1990 Activision, Daffy Duck (intro) 1992 Hi-Tec, Digital Acid (Zaw Remix) 1995 Zaw Productions. No 5th file or hidden cluster found. Every tagged file's own `Author` field also reads 'Ash Routledge & David Saunders' for the two Ash&Dave-composed tracks — real names present in local data even though CSDb's group page itself only shows the handles.",
-    "gamesthatwerent.com's 2015 asset-recovery article (disks loaned by Ashley Routledge) independently mentions an in-house 'SFX editor' among the recovered files, 'not sure yet if this was released onto Compunet, or if this was just done for Ash n Dave's own work' — supports (but does not prove identical to) the in-house/unreleased-tool read of this digi routine."
+    "gamesthatwerent.com's 2015 asset-recovery article (disks loaned by Ashley Routledge) independently mentions an in-house 'SFX editor' among the recovered files, 'not sure yet if this was released onto Compunet, or if this was just done for Ash n Dave's own work' — supports (but does not prove identical to) the in-house/unreleased-tool read of this digi routine.",
+    "UPDATE 2026-08-07 (drift recheck, no other changes found): a Lemon64 forum post by Warren Pilkington (Waz — himself one of the 3 local composers, credited for 'Digital Acid (Zaw Remix)') states the locally-tagged 'Daffy_Duck_intro.sid' was 'also used in the tape loading intro to Slicks by Codemasters as well' — independent scene-insider corroboration that this specific digi track/routine was reused across another Ash & Dave title, consistent with gamesthatwerent.com's 'may well have been used on a number of titles' claim. Slicks is not itself a locally-tagged file, so this does not change the 4-file/3-composer census."
   ],
   "sources": [
     "data/sidid.json byTag — confirmed no entry for \"Ash&Dave_Digi\"",
@@ -60,7 +61,8 @@
     "data/composers/ash-and-dave.json, martin-walker.json, waz.json (profile country/csdb id)",
     "CSDb webservice type=sid, ids 235, 31373, 52191, 30174 (full census of tagged files' own Released/Author fields): https://csdb.dk/webservice/?type=sid&id=235 etc.",
     "gamesthatwerent.com — 'Ash and Dave assets' (2015 disk-preservation article, mentions an in-house SFX editor): https://www.gamesthatwerent.com/2015/12/ash-and-dave-assets/",
-    "MobyGames — Ashley Routledge (real name corroboration): https://www.mobygames.com/person/174184/ashley-routledge/"
+    "MobyGames — Ashley Routledge (real name corroboration): https://www.mobygames.com/person/174184/ashley-routledge/",
+    "Lemon64 forum — 'List of C64 games which use sampling/\"4th channel\"' (post by Warren Pilkington/Waz, 2016-03-25, notes Daffy_Duck_intro.sid reused in Slicks' tape loading intro): https://www.lemon64.com/forum/viewtopic.php?t=60061"
   ]
 }
 ```
@@ -84,7 +86,11 @@ on "Digital Acid!" (1988) states the music is "a sample-mix of 'Humanoid'
 by Stakker," and a 2015 disk-preservation article (gamesthatwerent.com)
 separately mentions an in-house Ash & Dave "SFX editor" of uncertain
 release status. No tool-release date is known; the earliest attested use
-of the tag is 1988 ("Digital Acid").
+of the tag is 1988 ("Digital Acid"). Drift recheck (2026-08-07): a Lemon64
+post by composer Waz independently confirms the "Daffy Duck (intro)"
+sample was reused in Codemasters' *Slicks* loading intro — further
+corroboration of cross-title reuse, though *Slicks* is not itself a
+locally-tagged file, so the 4-file/3-composer census is unchanged.
 
 ## Quirks & gotchas
 

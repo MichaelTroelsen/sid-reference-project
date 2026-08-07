@@ -57,7 +57,9 @@
     "Demozoo — Flash Inc. group profile (Zodiac co-founder, Moon primary composer, formed June 1989): https://demozoo.org/groups/5028/",
     "Local dataset aggregation: knowledge/COVERAGE.md (ranks #19 at 27 files for V4.0, #91 at 8 files for V3.0, #160 at 4 files for V2.0) and data/composers/*.json per-file 'player' tags",
     "No public source code, disassembly, or format documentation found (web search: CSDb, Codebase64, general web) — every Tier 3 field below is left TODO rather than guessed.",
-    "Re-checked 2026-07-24: CSDb release id 10755 lists an alternate title 'Music Editor' for the same V3.0 release, and confirms 'Code: Moon of Flash Inc.' and 'Code: Zodiac of Flash Inc.' credits (both listed as coders, not just Zodiac) — a fresh WebSearch/Codebase64 pass again found no source archive, disassembly, or format write-up anywhere: https://csdb.dk/release/?id=10755"
+    "Re-checked 2026-07-24: CSDb release id 10755 lists an alternate title 'Music Editor' for the same V3.0 release, and confirms 'Code: Moon of Flash Inc.' and 'Code: Zodiac of Flash Inc.' credits (both listed as coders, not just Zodiac) — a fresh WebSearch/Codebase64 pass again found no source archive, disassembly, or format write-up anywhere: https://csdb.dk/release/?id=10755",
+    "Re-checked 2026-08-07: full census of data/composers/*.json re-run directly (glob *.json against every composer cache, not COVERAGE.md which no longer lists carded families) reconfirms 27/8/4=39 files exactly as recorded, all under 'moon' and 'shade' only. CSDb webservice (scripts/lib/csdb-client.js) re-queried live for both release 10755 and 176616: both responses match this card's existing quotes verbatim (Credits, AKA, ReleasedBy, UsedSIDs). Name-collision check: an unrelated 1982 Commodore-published cartridge also called 'Music Composer' surfaced in a Lemon64 thread search (lemon64.com/forum/viewtopic.php?t=82190) — confirmed unrelated (different decade, different publisher, not in this project's tagged data) and explicitly not conflated with this card's Flash Inc. tool.",
+    "Checked sibling collision risk 2026-08-07: the five other '-music'/'-composer'-named cards flagged as lookalikes (music-shop, power-music, pretzel-c64composer, quantum-soundtracker, soft-tune-composer) each carry a distinct, non-overlapping alias ('MusicShop', 'Power_Music', 'Pretzel/C64Composer', 'Quantum Soundtracker', 'Soft_Tune_Composer') — no alias collision with this card's four MusicComposer_V*/Flash_Inc tags."
   ]
 }
 ```
@@ -110,6 +112,17 @@ current, and no source code, disassembly, or format documentation has
 surfaced anywhere since the original pass. Still `stub` — nothing found
 that clears the bar for `in-progress` (a public source documenting a
 runtime fact outright).
+
+Re-checked 2026-08-07: independently re-ran the file census directly against
+`data/composers/*.json` with an explicit `*.json` glob (27/8/4=39, moon+shade
+only — matches exactly) and re-queried the CSDb webservice live for both
+release ids (10755, 176616), confirming every quoted field still matches.
+Verified the five other similarly-named cards in this batch (music-shop,
+power-music, pretzel-c64composer, quantum-soundtracker, soft-tune-composer)
+carry disjoint aliases, so no cross-card misattribution risk. A same-named
+but unrelated 1982 Commodore cartridge ("Music Composer") surfaced in a
+Lemon64 search and was confirmed unrelated, not conflated. No source code,
+disassembly, or format documentation found. Still `stub`.
 
 ## Sources
 

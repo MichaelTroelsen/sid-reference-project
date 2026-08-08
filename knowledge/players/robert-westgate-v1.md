@@ -166,6 +166,67 @@ Guzzler surfaced a genuine, reusable, previously-undocumented finding
 about SIDdecompiler's own label-anchor defect rather than reaching any
 match at all.
 
+**Bigtop_Barney scope-expansion pass (2026-08-08) — structural theory
+strengthened, `status` unchanged, RetroDebugger available but not used
+this pass.** Re-disassembled from scratch (`SIDdecompiler.exe -a11008
+-z -d -c -v2 -r` for native/zero-shift, `-a15104` for the +$1000
+page-aligned relocation control — the prior pass's own "+$1000" note was
+re-derived correctly this time: 11008+4096=15104/$3b00, not the
+$2f00/+$400 an early arithmetic slip in this pass first produced and
+caught before it went anywhere). Confirmed the prior pass's own
+byte-for-byte `diff` finding still holds. Tried `SIDdecompiler`'s `-A`
+flag (its own dedicated "force page alignment" workaround, the same one
+lesson 110 cites) at both the native and relocated `-a` values — **no
+effect**, output identical to without `-A` (only a trailing-newline
+diff) — this flag does not fix this file's case.
+
+Went looking for the exact set of *external* references into the
+fixed-destination workspace, since the prior pass's write-up named only
+the 6 copy-loop `STA` destinations. Found the scope is measurably
+bigger: (1) `jsr l4001` (play routine, calling into the just-copied
+$4001 block) and `jsr l40ac` (init routine, calling a different entry
+point inside the same copied block) are both external calls whose
+target label would shift with any chosen relocation origin even though
+the copy loop deposits the actual code at a fixed address — a second,
+independent defect class from the 6 known `STA`s, not previously
+recorded on this card; (2) a 25-entry self-modifying-operand table
+encoding `$6900` through `$6918` sequentially (`bd <l6900 / >l6900 / 8d
+...` repeated) — consistent with a per-instrument LDA-operand patch
+loop reading from the fixed $6900 workspace, i.e. more external
+references into the same destination range than the single `STA
+l6900,X` the prior pass counted; (3) 6 further `>l2b00` byte
+occurrences embedded in what reads as an instrument/note-parameter data
+table (mixed with plain small integers like `$0b`/`$2d`/`$0a`) —
+plausibly either more real address-patch references into the fixed
+$2b00 workspace, or SIDdecompiler false-positively matching the literal
+byte value `$2b` against a valid address's high byte (this project has
+hit that false-positive class before); either reading converts to the
+same literal-byte fix, so it doesn't change the conclusion either way,
+just wasn't chased to a definitive answer.
+
+**This means a full static fix needs pinning every external touch-point
+into $2b00-$2eff/$4001-$4171/$6900-$6918 to a fixed native address (not
+just the 6 `STA`s), most cleanly via per-block `* = <fixed addr>` origin
+pins around each workspace region rather than patching each usage site
+individually** — attempted analysis only, no `.asm` edit was actually
+applied and reassembled this pass (time budget within a 9-card batch).
+RetroDebugger was confirmed available and idle this session but was not
+invoked for Bigtop_Barney — the static scope-mapping above consumed the
+available time and surfaced more structure than a live single-frame
+memory watch would have shown on its own. **Status stays `in-progress`.**
+Guzzler's SIDdecompiler label-anchor defect and Legend_of_Sinbad were not
+revisited this pass.
+
+Next step, concretely scoped: either (a) apply the multi-block `* =` pin
+fix above, reassemble, and re-run the relocation-invariance control
+(`scripts/dev/rewrap_reloc.js` + `scripts/dev/vsid-trace.js`, the
+non-RetroDebugger path this session used successfully on
+[[ozzy-oldskool-v2]]) to see if it closes fully, or (b) use RetroDebugger
+to watch the $2b00-$2dff/$4001-$4171/$6900-$6918 regions across two live
+relocation runs during one frame, per the prior pass's original
+suggestion — (a) is now the better-informed option given how much more
+of the reference set is mapped.
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, Lemon64 (3 pages), CSDb (2

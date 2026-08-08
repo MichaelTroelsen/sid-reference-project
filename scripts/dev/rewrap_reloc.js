@@ -1,11 +1,12 @@
 // Wrap a RELOCATED raw binary into the original PSID/RSID header, shifting the
 // embedded load address and the header's init/play addresses by the same delta.
 //
-// rewrap.js (batch29) deliberately preserves the original load address, which is
-// correct for a same-address rebuild and wrong for a relocation control: leave
-// init/play pointing at the old addresses and the player jumps into whatever now
-// occupies them, which would fail for a reason that has nothing to do with the
-// disassembly being right or wrong.
+// This is deliberately different from a same-address rebuild's own header-
+// wrapping step, which preserves the original load address unchanged --
+// correct there, but wrong for a relocation control: leave init/play pointing
+// at the old addresses and the player jumps into whatever now occupies them,
+// which would fail for a reason that has nothing to do with the disassembly
+// being right or wrong.
 //
 //   node rewrap_reloc.js <orig.sid> <reloc.bin> <delta-hex> <out.sid>
 const fs = require('fs');

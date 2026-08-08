@@ -15,6 +15,15 @@
 #      every docs/*.md is mentioned in README, and every docs/... path README
 #      mentions exists.
 #
+# A3. SID-HISTORY EDGE/CLUSTER COUNT (no fetched data needed) —
+#      knowledge/build-graph.js --check
+#      docs/SID-HISTORY.md quotes an "N such edges across M connected
+#      clusters" figure derived from the card graph. It rotted TWICE with the
+#      same shape (55/19 in prose vs 53/18 real, then 53/18 in prose vs 56/19
+#      real -- a 2026-08-08 doc audit) because build-graph.js only ever
+#      printed the live number for a human to copy by hand. Read-only: never
+#      rewrites the hand-written prose, only validates the two numbers in it.
+#
 # B. GENERATED FILES IN STEP WITH THEIR DATA — both marked "do not hand-edit",
 #    both of which have rotted in practice:
 #      knowledge/COVERAGE.md              <- scripts/dev/gen-coverage.js
@@ -50,7 +59,7 @@ touches() {
 }
 
 # Nothing any check derives from -- skip everything, pay nothing.
-if ! touches '^(README\.md|docs/[^/]*\.md|knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|scripts/dev/(check-cards|check-docs-index|gen-coverage|gen-sidm2-worklist)\.js)$'; then
+if ! touches '^(README\.md|docs/[^/]*\.md|knowledge/players/.*\.md|knowledge/COVERAGE\.md|knowledge/sidm2-ports\.json|knowledge/build-graph\.js|scripts/dev/(check-cards|check-docs-index|gen-coverage|gen-sidm2-worklist)\.js)$'; then
   exit 0
 fi
 
@@ -81,6 +90,19 @@ if touches '^(README\.md|docs/[^/]*\.md|scripts/dev/check-docs-index\.js)$'; the
     echo "pre-commit: README.md's docs/ index is out of step (see above)." >&2
     echo "            A doc that README never mentions is undiscoverable to anyone" >&2
     echo "            reading the repo rather than CLAUDE.md." >&2
+    echo "" >&2
+    failed=1
+  fi
+fi
+
+# (A3) SID-HISTORY edge/cluster count. Also needs no fetched data (the graph
+# is derived from knowledge/players/*.md alone), so it runs here too.
+if touches '^(knowledge/players/.*\.md|docs/SID-HISTORY\.md|knowledge/build-graph\.js)$'; then
+  if ! node knowledge/build-graph.js --check; then
+    echo "" >&2
+    echo "pre-commit: docs/SID-HISTORY.md's edge/cluster count is stale (see above)." >&2
+    echo "            Update the sentence to the numbers the check printed --" >&2
+    echo "            this check never rewrites the prose for you." >&2
     echo "" >&2
     failed=1
   fi

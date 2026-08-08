@@ -14,17 +14,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      # Card integrity needs only knowledge/players/ (tracked), so unlike the
-      # gen-coverage / gen-sidm2-worklist checks in .githooks/pre-commit it CAN
-      # run here. Building the graph first means check-cards.js also gets its
-      # count reconciliation, not just JSON validity and prose links. CI cannot
-      # be bypassed with --no-verify, so this is the real backstop.
+      # Card integrity and the SID-HISTORY edge/cluster check both need only
+      # knowledge/players/ (tracked), so unlike the gen-coverage /
+      # gen-sidm2-worklist checks in .githooks/pre-commit they CAN run here.
+      # Building the graph first means check-cards.js also gets its count
+      # reconciliation, not just JSON validity and prose links. CI cannot be
+      # bypassed with --no-verify, so this is the real backstop.
       - name: Build knowledge graph
         run: node knowledge/build-graph.js
       - name: "Check card integrity (json validity, count reconciliation, prose links)"
         run: node scripts/dev/check-cards.js
       - name: Check README's docs/ index is complete and has no dead references
         run: node scripts/dev/check-docs-index.js
+      - name: Check docs/SID-HISTORY.md's edge/cluster count against the live graph
+        run: node knowledge/build-graph.js --check
       - name: Build HTML from cached/seed data (no network fetch)
         run: node scripts/build-html.js
       - name: Verify output was produced

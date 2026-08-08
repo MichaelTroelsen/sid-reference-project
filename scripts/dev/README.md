@@ -358,10 +358,11 @@ write into their own operand bytes.
 
 `rewrap_reloc.js <orig.sid> <reloc.bin> <delta-hex> <out.sid>` wraps the result
 back into the original header, shifting the embedded load address and the
-header's init/play by the same delta. (`rewrap.js` deliberately preserves the
-original load address, which is right for a same-address rebuild and wrong here
-— leaving init pointing at the old address makes the player jump into whatever
-now occupies it, failing for a reason unrelated to the disassembly.)
+header's init/play by the same delta. This is deliberately different from a
+same-address rebuild's own header-wrapping step, which preserves the original
+load address unchanged — correct there, but wrong for a relocation control:
+leaving init pointing at the old address makes the player jump into whatever
+now occupies it, failing for a reason unrelated to the disassembly.
 
 **Why bother**: a byte-identical rebuild's trace match is tautological
 (lesson 92) and a 100% byte-diff proves nothing about the split (lesson 98). A

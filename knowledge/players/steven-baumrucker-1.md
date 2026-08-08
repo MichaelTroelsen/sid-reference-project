@@ -176,6 +176,37 @@ $a0e6`. Ground truth confirmed from the raw PSID header directly:
   step for whenever it's reconnected, not a general "keep
   investigating."
 
+**Copied-block instruction recovery, static method, no RetroDebugger needed
+(2026-08-08) — real breakthrough, `status` unchanged.** The copied block's
+bytes are genuinely present on disk at $9200+ (only SIDdecompiler's own
+trace never executes there natively, so it never classified them as
+code) — extracted the raw PSID payload directly (`load=$9200`, confirmed
+from the header) and ran this project's own `scripts/dev/dis6502.js`
+(recursive descent, no tracer/emulation involved) on it directly, no
+RetroDebugger required. First attempt used entry $920e (mapping
+destination $15a2, the address `play`'s own `jsr` targets, back to its
+source-space equivalent via the copy loop's $9200→$1594 offset) — decoded
+a genuine but tiny 6-byte routine (`dec $7e / bne / lda #$05 / sta $7e`
+.../ rts). Immediately following it, entry $9214 (dest $15a8) decodes as
+174 bytes of clearly real, coherent code: **an effect-command dispatcher**
+— `cmp #$00..#$09` chain, each case `jsr`-ing a distinct handler
+($17b1/$17c2/$17ee/$181a/$1846/...) then a shared `jsr $167e` epilogue —
+exactly the shape expected of the per-frame effect processor responsible
+for the card's own previously-recorded sparse ~21-write/frame-6-cluster
+SID profile. **This is the first time any of this block's actual
+instruction content has been recovered** — previously it was 100% opaque
+`.byte $00` placeholder on both the source and destination side.
+
+**Not closed this pass**: the dispatcher's own `jsr` targets
+($17b1/$17c2/$17ee/$181a/$1846/$1872/$189e/$18bb/...) are themselves
+still-undisassembled addresses outside this 1792-byte copied range —
+recovering them (likely more of the same file, further into the payload)
+is a bigger undertaking than this pass's time budget, and is the concrete
+next step before a full symbolic reconstruction + relocation-invariance
+retest becomes possible. `status` stays `in-progress`. Scratchpad:
+`...\0b611572-cda2-4396-8c26-4c2995a51a87\scratchpad\pogo.prg` /
+`pogo_combined.asm` (both entries, 174 code bytes, 17 labels).
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, The Giant List, Wikipedia,

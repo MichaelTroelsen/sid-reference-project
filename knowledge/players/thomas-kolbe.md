@@ -138,6 +138,31 @@ Prior pass's playback-only figures for Das Schwarze Schloss (load
 writes) are unchanged/unverified — no disassembly was attempted on that
 file this pass.
 
+**Fast re-derivation attempted (2026-08-08), inconclusive — `status`
+unchanged.** No scratchpad artifacts from the prior pass survived, so this
+pass re-disassembled Hyperrace from scratch (`SIDdecompiler.exe -a2397`
+native, `-a10589` for +$2000). Fix (a) (the 7 `$0335-$0339,X` workspace
+literals) was reapplied against the existing `l033c` label
+(`l033c-7,X`...`l033c-3,X`); fix (b) turned out to already be present
+naturally in a fresh `-v2` disassembly (the $0963-$0968 table is already
+fully symbolic, no raw literal grep hits in `$09xx`). Reassembly was
+structurally clean (no wrap warnings). However the relocation-invariance
+retest (via `rewrap_reloc.js` + `vsid-trace.js`, truncating the
+reassembled 3964-byte trace footprint down to the file's real 2521-byte
+payload for the wrap) produced **near-total silence** (1 write, vs. the
+previously-documented ~600/329/622/270-line partial divergence) — a
+*worse*, less-informative failure than the established baseline, most
+likely an artifact of this fast reconstruction (the truncation, or a
+subtlety in footprint/page alignment) rather than a new fact about the
+driver. **Not treated as authoritative** — the card's existing diagnosis
+stands unchanged; this result is recorded only so a future pass doesn't
+waste time reproducing the same dead end via the same truncation
+approach. RetroDebugger single-stepping (this card's original documented
+next step) remains the concrete path forward, and is now more clearly
+necessary given how fragile a fast static re-derivation proved to be for
+this file. `mcp__retrodebugger__*` was confirmed idle and available this
+session but not used for this card (time budget within a 9-card batch).
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, C64-Wiki (DE, 3 pages),

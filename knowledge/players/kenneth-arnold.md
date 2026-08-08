@@ -172,6 +172,36 @@ address-dependent divergence, not merely dead/cosmetic bytes, so this
 does not meet the bar for a clean register-write match across the tested
 material.
 
+**RetroDebugger single-step, subtune 10 (2026-08-08) — mechanism
+confirmed live, root cause not isolated, `status` unchanged.** Run
+directly in the main session (platform confirmed idle first). Loaded
+`Ultima_III-Exodus.sid` natively (`sid2prg.js`, init `$99e8`/play
+`$99f4`), called init with subtune index 9 (0-indexed for "subtune 10"),
+and breakpointed the write to `$d412` (osc3_control, the card's own named
+combined-write signature). First hit landed at `$9dca`
+(`sta $d412`), preceded by the exact mechanism this card's static reading
+implied: `lsr $9dd5 / adc #$20 / sta $d404` (osc1), `lsr $9dd5 / adc #$20
+/ sta $d40b` (osc2), `lsr $9dd5 / adc #$20 / sta $d412` (osc3) — a single
+shared byte at `$9dd5` (one address off this card's cited `l9dd4`, very
+plausibly the same field or its adjacent byte) shifted once per voice,
+each shift's carry conditionally setting the gate bit via `adc #$20`
+before the store. **This is the first live confirmation of the actual
+3-voice gate-application mechanism**, not previously observed at
+runtime.
+
+**Did not isolate what reloads/computes `$9dd5`'s periodic value**: a
+second attempt (write-breakpoint directly on `$9dd5`, to catch its own
+reload) led to a crash (`PC` wandered to `$0002`) rather than a clean
+hit — most likely stack corruption from this session's fast `jsr
+play`-loop trampoline calling `play` far faster than real hardware would
+(no frame-pacing/vblank wait), the same class of limitation recorded on
+[[defmon]]'s card this session. **New methodological note, same lesson
+as defmon's**: any card whose blocker is tied to periodic/duration
+timing (not just "does the write happen," but "how often") needs a
+properly frame-paced driver, not a bare fast call loop — confirmed twice
+now across two different players. Not attempted further this pass (time
+budget within a 9-card batch). `status` stays `in-progress`.
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, local dataset cache, VGMPF,

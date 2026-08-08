@@ -455,6 +455,45 @@ diff) was built in `scratchpad/reflex/` this pass but not retained past the
 session — the site list and methodology above are sufficient to
 reconstruct it exactly.
 
+**RetroDebugger single-step, native build (2026-08-08) — full computation
+chain traced live, candidate sites narrowed, `status` unchanged.** Run
+directly in the main session (platform confirmed idle first; the RSID
+self-installing-IRQ format meant no manual play-loop was needed — `jsr
+$c006` once, then a self-loop, lets the C64's own hardware IRQ timing
+drive playback naturally, avoiding this session's "fast unpaced call-loop"
+limitation hit on [[defmon]] and [[kenneth-arnold]]). Loaded
+`Warlock/Abba-Gabba.sid` natively and breakpointed the write #29 target,
+`$d418`. First hit: `A=$06` (the correct/expected value, confirming the
+native build's own correctness as a baseline) at `$c1ab` (`sta $d418`),
+immediately preceded by the CIA2 Timer-B busy-poll (`ldx $dd0d / beq
+$c1a6`) matching this card's own prior NMI-timer finding.
+
+**Traced the full computation chain feeding this write for the first
+time** — previously only "immediately after the first call into the
+`$C09C`/`$C05B` walker" was documented; now the exact instruction sequence
+is known: `lda $c5d0,X / ldx $a000,Y / ldy $c600,X / clc / adc $c5d0,Y /
+lsr` (halve) immediately before the busy-poll and the `sta $d418`. This is
+a genuine two-level indirect lookup across **three separate tables**
+(`$c5d0`, a `$a000`-range RAM work area — not ROM, confirmed reachable as
+data — and `$c600`), combined via `ADC`/`LSR`. Also observed, past the
+busy-poll, a conditional (`dec $d5`/`dec $d6`-gated) self-modifying-operand
+write pair — `lda $c05c / sta $c09d` and `lda $c08c / sta $c0cd` — that
+patches the `$C09C` walker's own operand byte, confirming this project's
+existing "self-modifying 16-bit pointer walker" reading but not yet tied
+to write #29 specifically (this reload is periodic, gated by a counter,
+and may not have fired yet within the first 29 writes).
+
+**Status stays `in-progress`.** This concretely narrows the 25th-site
+search: rather than "somewhere in the C09C/C1A6 area," the specific
+candidates are now the `$c5d0`, `$a000`-range, and `$c600` tables' own
+relocation-fix status (any one of the 24 already-fixed sites, or a still-
+missing 25th, could live in one of these three specific tables) — a future
+pass should cross-reference the existing 24-site fix list against these
+three table ranges specifically, rather than re-scanning the whole file.
+Not completed this pass (time budget within a 9-card batch, and the
+comparison needs a relocated build re-derived from scratch since the
+harness wasn't retained).
+
 ## Sources
 
 See the `sources` array — the CSDb release page (credits, release year,

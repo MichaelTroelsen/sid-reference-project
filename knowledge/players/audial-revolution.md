@@ -181,6 +181,57 @@ subagent's toolset): load the relocated build
 `$312b`), single-step PLAY for X=0 at the first mode-2 frame, and watch
 exactly where PC diverges from native.
 
+**All 3 named fallthrough-as-data blocks decoded (2026-08-08) — real fix,
+relocation retest inconclusive, `status` unchanged.** Re-disassembled
+Cool_Ripp_31.sid fresh (`SIDdecompiler.exe -a832`, the established
+zero-shift base) and decoded all 3 blocks byte-for-byte:
+- `$3418`'s 6-byte block: `lda #$03 / sta l3806,X / rts` (confirmed via
+  a fresh `--labels` dump that `l3806` already exists and its first byte
+  is `$03` — self-consistent).
+- `$3431`'s 34-byte block (the main lead): `lda (z42),Y / sta $d418 /
+  sta l3770 / iny / lda (z46),Y / sta $d417 / lda (z42),Y / sta $d416 /
+  sta l376d / sta l376f / inc l371c,X (x2) / jmp l3403` — decodes
+  perfectly with zero leftover/misaligned bytes, and **writes the filter
+  registers ($D416-$D418)**, exactly the class of "different SID
+  register than expected" divergence this card's own prior pass flagged
+  as the likely signature.
+- `$34a0`'s continuation (3 bytes): `jmp l3493+$1b` (a plain literal
+  `jmp $34ae` with no pre-existing label at that exact address; resolved
+  via a `--labels` dump of `l3493`'s own address rather than guessed).
+
+All three fixes reassemble with **zero new wrap/relocation warnings**
+(the file's pre-existing `-Wwrap-mem` at $fd4f, from the same disjoint
+fixed-workspace-destination class as [[ozzy-oldskool-v2]]/
+[[robert-westgate-v1]], is unchanged from the unfixed baseline — not
+introduced by this pass) and **preserve 100.0000% native byte-exactness**
+(0/3109 bytes differ against the real HVSC file's payload, re-verified
+directly this pass).
+
+**The relocation-invariance retest itself was inconclusive**, not because
+the fixes are wrong but because this pass's reconstruction pipeline
+couldn't reproduce a working relocated build at all: extracting just the
+real-payload slice from the full trace footprint (the same truncate-and-
+rewrap approach that worked cleanly on `ozzy-oldskool-v2` earlier this
+session) produced **total silence (0 writes)** — and, critically, **an
+unfixed baseline run through the identical pipeline also produced 0
+writes**, confirming the silence is a pipeline/extraction artifact, not
+evidence against the 3 fixes. This card's driver has THREE disjoint fixed
+low-RAM copy destinations spanning nearly the full address space
+($0340-$0347, $07e0-$07e7, $fd30-$fd4f), and a payload-slice extraction
+likely drops content INIT depends on to run at all — unlike
+`ozzy-oldskool-v2`'s single, smaller destination range, this file's
+reconstruction needs the full footprint preserved (or the destinations
+explicitly pinned), not simply truncated to the real payload bytes.
+
+**Status stays `in-progress`.** Net result: 3 real, byte-verified code
+recoveries (one of which, the filter-register block, is a strong
+candidate for the actual divergence root cause) with the relocation
+control itself still not run to completion. Next step: either build the
+relocation-invariance test by preserving the full footprint (not
+truncating to the real-payload slice) when constructing the wrapped
+`.sid`, or fall back to the RetroDebugger single-step plan already on
+this card.
+
 ## Sources
 
 See the `sources` array — HVSC Musicians.txt, CSDb (4 entries), SIDId's

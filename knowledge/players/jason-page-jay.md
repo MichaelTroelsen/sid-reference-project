@@ -235,6 +235,44 @@ pattern-record and instrument-record byte formats) would fill in
 `data_format`'s remaining TODOs but would not by itself change the
 coverage percentage or move the status.
 
+**Live warp-speed read-breakpoint pass on Automatic.sid (2026-08-08) —
+strengthens the case, does not close it, `status` unchanged.** Run
+directly in the main session (RetroDebugger confirmed idle first: two
+`retro_machine_state` reads 3s apart drifted only within the standard
+idle-KERNAL-loop range, zero breakpoints). Converted `Automatic.sid` to
+a loadable `.prg` (`scripts/dev/sid2prg.js`), built an 11-byte call
+trampoline at `$0340` (outside the player's own `$c000-$cfff` range:
+`lda #$00 / jsr $c9ab` once, then `jsr $c612` looped), and set 20 memory
+**read** breakpoints sampled every 16 bytes across the uncovered tail
+(`$cec8-$cfff`, this project's own MCP tool has no range-breakpoint
+primitive, so exhaustive per-byte coverage — 312 breakpoints — wasn't
+attempted). Ran at warp speed for ~55 real seconds, reaching **18,954
+simulated frames** (vs. the prior pass's 200,000-call/~66-minute static
+budget — same order of magnitude of coverage, not fully matching it).
+
+One breakpoint fired, at $cec8 (the very first sampled address) after
+~5,225 frames: `LDA $ce95,Y` with `Y=51`, i.e. reading exactly
+`$ce95+51=$cec8` — this is the tail end of the **already-documented**
+last pattern record at `$ce95` (the static pass's own finding: "ends
+right at the End boundary") reading its own final/terminator byte, not
+new territory. Removed that boundary breakpoint (it's explained) and
+continued: **the remaining 19 breakpoints, sampled deeper into the tail,
+never fired again over the next 13,729 frames.** This is a real,
+non-tautological live data point — the first live-runtime evidence this
+card has ever had — and it's consistent with, not contradictory to, the
+existing static case.
+
+**Not sufficient to flip to `verified`**, per this project's no-rounding-up
+discipline: only 1 of the 3 tagged files was live-tested (Jays_Editor_2/3
+untested live), the tail breakpoints were a 16-byte-stride sample rather
+than exhaustive per-byte coverage, and ~19k frames is meaningfully less
+than the static pass's ~200k-call budget. `status` stays `in-progress`.
+A future pass could either exhaustively breakpoint the (much smaller,
+~127-312 byte) tails on all 3 files, or accept the combined weight of
+static + this live sample as sufficient — that's a judgment call for
+whoever next reviews this card with fresh eyes, not made unilaterally
+here.
+
 ## Sources
 
 See the `sources` array — CSDb (2 entries), SIDId's sidid.nfo, Remix64,

@@ -210,6 +210,34 @@ All three fail at the identical point despite touching disjoint byte sets. A fro
 
 **Next step, concretely scoped:** with RetroDebugger, load Antispeed.sid natively, single-step frames 0-5, and watch what reads a stale/wrong value at the point osc1_pw_lo (register 2) first diverges under either relocation axis -- since the divergence is IDENTICAL regardless of which axis was touched, the actual trigger is very likely a specific memory location neither this project's own reimplementation nor defMONRelocator's own patch table currently accounts for. This is a narrower, better-scoped question than anything previous passes had (a single named write, a single named frame), not a repeat of "get the relocation control to pass."
 
+**RetroDebugger attempt (2026-08-08) — confirmed the write mechanism live,
+did not reach the specific frame-5 divergence, `status` unchanged.** Run
+directly in the main session (platform confirmed idle first). Loaded
+`Antispeed.sid` natively (`sid2prg.js`, load/init `$1000`, play `$1003`),
+built a call trampoline outside the payload range, set a write breakpoint
+on `$D402` (osc1_pw_lo), and hit it on the very first `play` call: PC
+`$1022` (`ldx #$00 / lda #$05`, both self-modified immediates, exactly as
+this card's static reading predicted) → `stx $d402 / sta $d403` (pulse
+width lo/hi) → `ldx #$17 / lda #$1a / stx $d400 / sta $d401` (freq
+lo/hi). This is a genuine, first-ever *live* confirmation of the
+self-modified per-note SID-write template's exact mechanism.
+
+**Did not reach write #148/frame 5 specifically**: the call trampoline
+used here (a raw `jsr play` loop, the same pattern successful on other
+cards this session) has no frame-timing/IRQ pacing, so it hammers `play`
+far faster than real hardware would and never advances whatever internal
+note-sequence state a properly-paced run would — every iteration hit the
+identical self-modified values (X=0/A=5 unchanged), consistent with this
+being note-index-0's template on every call, not progressing to later
+notes. **New methodological lesson for this player specifically**: closing
+this blocker needs either a proper raster-IRQ-paced driver (matching how
+`vsid`/real hardware actually calls `play`, once per frame) or many more
+loop iterations with real frame synchronization — a bare fast call-loop
+trampoline is insufficient for a card whose blocker is tied to a specific
+frame/write index, unlike the other cards this session where the loop
+trampoline's timing didn't matter. Not attempted further this pass (time
+budget within a 9-card batch).
+
 ### 2026-07-31 (batch37) — RESOLVED: the relocation control is inapplicable to defMON
 
 **The relocation control never could have passed, and the reason was documented

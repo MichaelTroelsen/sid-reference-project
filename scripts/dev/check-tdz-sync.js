@@ -48,6 +48,26 @@
  * file (destroying the per-card id tags) and its add semantics risk a second
  * live copy per card. `update_document` supersedes the old version in place,
  * which is the only safe operation here.
+ *
+ * RE-INGESTING: `update_document`'s `filepath` REJECTS REPO PATHS OUTRIGHT.
+ * It only accepts paths under a fixed server-side allowlist -- as of the
+ * 2026-08-08 345-card re-ingest, that was `~/.tdz-c64-knowledge/{scraped_docs,
+ * downloads,temp,uploads}` or `~/Downloads/tdz-c64-knowledge-input` -- so
+ * `knowledge/players/<id>.md` must be copied into one of those directories
+ * first, then `update_document` pointed at the copy, not the repo file.
+ *
+ * IF RE-INGESTING IN PARALLEL (e.g. one agent per batch of cards), GIVE EACH
+ * BATCH ITS OWN STAGING SUBDIRECTORY, not a shared one. That same 345-card
+ * pass ran 14 agents in parallel that all independently staged into the same
+ * two directories above with no coordination, and at least two of them did a
+ * bulk cleanup delete of "their" staged files afterward -- which, given the
+ * shared directory, may have deleted a DIFFERENT batch's still-in-flight
+ * copies. Nothing was lost that time only because every `update_document`
+ * call completes and is confirmed (matching Card ID, fresh doc ID) before any
+ * cleanup runs, so a later batch deleting shared scratch files can't undo an
+ * earlier batch's already-committed ingest -- but that's luck of ordering,
+ * not a property to rely on. Use `<staging-root>/<batch-id>/` per agent, and
+ * either skip cleanup entirely or only delete files this batch itself staged.
  */
 
 const fs = require('fs');

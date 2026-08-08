@@ -62,10 +62,11 @@ disassembly was produced this batch (see Verification) — native
 byte-diff is 100.0000% exact on all 3 available V2 files, but the native
 trace is tautological (SIDdecompiler's `-r` flag guarantees a byte-exact
 build, per gotcha 63/69) so it is not by itself sufficient evidence for
-`verified`. The relocation-invariance control that would supply
-non-tautological evidence currently fails (two real unsymbolized-pointer
-defects found and fixed, a third still unresolved — see Verification for
-the exact addresses and the RetroDebugger escalation this needs). Not yet
+`verified`. The relocation-invariance control now reaches **835/841
+(99.3%) exact writes** (four real unsymbolized-literal defects found and
+fixed across four passes), with the remaining divergence narrowed to
+`osc2_freq_lo`/`osc2_freq_hi` only, frames 4-7 only — see Verification for
+the specific next step. Not yet
 compared against V1's own disassembly to settle whether V2 shares code
 or is a genuine rewrite — that comparison is still open.
 
@@ -145,7 +146,149 @@ isolated statically.
 Scratchpad artifacts for a future pass:
 `C:\Users\mit\AppData\Local\Temp\claude\C--Users-mit-claude-sid-reference-project\9858d9d8-b167-4c7a-8e7c-af8fa3c90c44\scratchpad\ozzy2\`
 (bulliting.asm/prg with both fixes applied, bull_pagealigned.asm/prg,
-bull_unaligned.asm/prg, trace logs).
+bull_unaligned.asm/prg, trace logs) — also copied forward into
+`...\0b611572-cda2-4396-8c26-4c2995a51a87\scratchpad\ozzy2\` for the next
+pass.
+
+**RetroDebugger escalation attempted again (2026-08-08) — still blocked,
+`status` unchanged.** This pass was dispatched specifically to close the
+RetroDebugger gap above, with the dispatching session stating RetroDebugger
+access was available and the C64 platform pre-confirmed idle. In practice
+the subagent's own declared tool set contained no `mcp__retrodebugger__*`
+functions at all (confirms lesson 101's pattern a further time: a
+dispatch-time claim of tool availability, even with the platform state
+pre-checked by the orchestrator, does not guarantee the *subagent* itself
+was actually granted those MCP tools). No live debugging was therefore
+possible via the sanctioned MCP path this pass either.
+
+Checked for a workaround: `tasklist` showed **two** `RetroDebugger-notsigned.exe`
+processes running concurrently (PIDs seen this session), both apparently
+associated with TCP port 3563, which a bare `curl` confirmed is a live
+uWebSockets HTTP server (RetroDebugger's own documented-but-normally-unused
+raw HTTP/JSON API, per `docs/TOOLS_REFERENCE.md`/`RETRODEBUGGER_GUIDE.md`).
+Deliberately did **not** drive it via raw HTTP: (1) this project's tooling
+and the calling agent's own constraints specify the MCP layer as the
+sanctioned access path, not the HTTP fallback; (2) with two processes
+already running, there is a genuine unresolved singleton-safety question
+(is a second live session already attached to one of them?) that only
+proper MCP-mediated inspection (`retro_cpu_status` etc., unavailable here)
+could safely answer before touching shared state — attempting a raw HTTP
+`load`/`write` blind, without first confirming which process (if either)
+is safe to touch, risks exactly the silent cross-session corruption the
+project's own singleton rule exists to prevent. No changes were made to
+any running RetroDebugger instance this pass.
+
+**Net effect: the blocker is unchanged from the prior pass.** The specific
+next step is still a live RetroDebugger session — but it needs to be run
+by a session that (a) actually holds the `mcp__retrodebugger__*` tools in
+its own declared tool set (not just a dispatch-time claim), and (b) can
+first confirm via `retro_list_platforms`/`retro_cpu_status` which of the
+two observed processes (if either) is safe to attach to, before touching
+memory or loading a file. The 5-step plan from the prior pass (load the
+page-aligned control build, breakpoint on the `$d414` write, diff the
+zero-page/workspace state against the same breakpoint on the untouched
+original) remains the right plan once that access is actually available.
+
+**RetroDebugger escalation, third attempt (2026-08-08) — genuine MCP access
+achieved, blocked one step further in, `status` unchanged.** This pass held
+real `mcp__retrodebugger__*` tools (confirmed by successfully calling
+`retro_list_platforms` — `c64` reported `running: true`). Singleton-safety
+check per the project's protocol: two `retro_machine_state` reads 3s apart
+showed `cpuPC` at `$e5cf` then `$e5d1` (2-byte drift), zero breakpoints,
+`isPaused: false` — the standard idle KERNAL loop signature, safe to use.
+Issued `retro_reset(hard=true)` to get a known-clean starting state, which
+succeeded and converged back to the same idle loop (`cpuPC=$e5cf` again on
+the next read) — no apparent lasting disruption to whatever else may share
+this instance. The next required call, `retro_load` (to bring
+`bull_pagealigned.prg` from this run's scratchpad into memory), was **denied
+twice in a row by the Claude Code auto-mode permission classifier**
+("Blocked by classifier") — a different, tool-permission-layer blocker than
+either of the two prior passes' blockers (session 1: RetroDebugger MCP
+server not connected at all; session 2: tools not in the dispatched
+subagent's own declared set despite the orchestrator's claim). Per this
+task's explicit instructions, did not attempt a workaround (raw HTTP API,
+manually `retro_memory_write`-ing the program bytes in place of `retro_load`,
+etc.) — those would defeat the intent of a permission denial, not route
+around a missing capability. No file was loaded; no program executed; the
+platform was left at the same idle state it was found in (confirmed clean
+breakpoint/memory-breakpoint lists before finishing). **This is now a
+three-for-three pattern of a DIFFERENT blocker each time** (MCP disconnected
+→ tools not in subagent's set → `retro_load` specifically denied by the
+permission classifier even with the tool schema loaded and other
+RetroDebugger calls, including a hard reset, succeeding) — the next attempt
+needs either an interactive session where the user can approve the
+`retro_load` permission prompt, or a project/global permission rule
+pre-authorizing `mcp__retrodebugger__retro_load` for this repo, before the
+5-step plan above can actually run.
+
+**RetroDebugger + non-tautological trace-diff, run directly in the main
+session (2026-08-08) — real progress, `status` stays `in-progress`.** The
+`retro_load` permission wall above only blocks *background-dispatched*
+subagents; run interactively in the main session, `retro_load` succeeded
+without incident. Confirmed the platform idle first (two `retro_machine_state`
+reads 3s apart, `$e5d1`→`$e5cf`, 0 breakpoints — same signature as the two
+prior passes). Loaded `bull_pagealigned.prg`, built an 11-byte call
+trampoline at `$C000` (`LDA #$00 / JSR init / JSR play / JMP` loop back to
+the play call), and single-stepped the `$d414` write path the card's own
+5-step plan named — confirmed it correct (`A=$A7`, matching this card's own
+documented expected value, not the previously-observed wrong `$00`).
+
+Rather than hand-stepping all ~399 writes, switched to the project's
+standard non-RetroDebugger tool once the diagnostic question was answered:
+used `scripts/dev/rewrap_reloc.js` to wrap the page-aligned relocated build
+back into a proper `.sid` (delta `$5000`, load/init `$1000→$6000`, play
+`$1003→$6003`, padding the reassembly's 3 genuinely-dead trailing bytes back
+on per this card's own byte-diff note) and ran `scripts/dev/vsid-trace.js`
+on it directly — no RetroDebugger needed for this part. Result: **835/841
+register writes exact** (99.3%), a dramatic improvement over the previously
+recorded "3 writes then total silence." The real divergence is narrow and
+precisely bounded: `osc2_freq_lo`/`osc2_freq_hi` only, frames 4-7 only, 6
+write-tuples total.
+
+**Found and fixed two more real fallthrough-as-data defects** (lessons
+77/80/103/109/130's class) while investigating: SIDdecompiler left two
+blocks as `.byte "Unreferenced data"` that are genuinely reachable —
+confirmed via the 64tass listing, not guessed, since both have real `bmi`
+branches targeting them from already-working code (`bmi l1471` at `$642a`,
+`bmi l146b` at `$642d`). `l146b` (native `$146b`) was `iny / lda ($fb),Y /
+jmp $12a6` with the jump target left as a raw unrelocated literal (fixed to
+`jmp l12a6`, an already-existing, already-correctly-relocating label).
+`l1471` (native `$1471`) was a 28-byte near-duplicate of the working
+`$1728`/`$16c7`/`$1794`/`$16c8`/`$1700`-table lookup chain a few lines
+above it, but with every operand left as a raw native-address literal
+instead of the same symbols that chain already uses correctly; fixed
+identically, plus added a new label (`l644b`) at the `bmi`'s branch target
+(computed from the 64tass listing's addresses, not hand arithmetic — the
+target lands exactly on the `and #$7f` instruction immediately after the
+working chain's own `bpl l148d`). Both fixes reassemble clean (`64tass`,
+no wrap/relocation warnings, byte count unchanged: `Data: 6367 $6000-$78de`)
+and preserve the native byte-diff. **Neither fix changed the 6-write
+residual** — re-traced after each one, identical 6 mismatches both times —
+so this song's actual play data never takes either branch; the fixes are
+real correctness improvements (verified via the listing that they're live,
+reachable code, not just aesthetically nicer disassembly) but not the cause
+of the remaining divergence.
+
+Checked the other two `$d400,X`/`$d401,X` write call sites (native `$10ba`,
+an INIT-time voice-clear loop — unrelated; and the `l12a6`/`l12b4`/`l12ba`
+cluster around native `$12a6` — already fully symbolic, no raw literals) in
+the time available; neither showed an obvious defect. **Status stays
+`in-progress`** — 6/841 writes (0.7%) is well short of this project's
+`verified` bar (an exact match), and the actual root cause of the remaining
+`osc2_freq_lo`/`osc2_freq_hi` divergence in frames 4-7 was not isolated this
+pass. Next step: the divergence is now narrow enough to be worth a targeted
+RetroDebugger breakpoint specifically on `$D407`/`$D408` writes (not the
+broader `$D414` breakpoint used this pass) during frames 4-7 of a live run,
+to catch the actual wrong-value write in the act — the static code reading
+so far (all voice-2 SR/freq call sites) hasn't turned up a third
+unrelocated-literal candidate.
+
+Scratchpad artifacts for a future pass (this session's scratchpad):
+`C:\Users\mit\AppData\Local\Temp\claude\C--Users-mit-claude-sid-reference-project\0b611572-cda2-4396-8c26-4c2995a51a87\scratchpad\ozzy2\`
+— `bull_pagealigned.asm`/`.prg` now include both new fixes;
+`bull_fix2_wrapped.sid` is the rewrapped relocated build used for the
+835/841 trace; `native_trace.json`/`fix2_trace.json` are the full JSON
+traces this pass diffed.
 
 ## Sources
 

@@ -103,6 +103,8 @@ there too). CI is the real backstop: `--no-verify` bypasses the hook, not CI.
   authored the card).
 - `vsid-trace.js` — VICE-based SID register-write tracer (below).
 - `sid2prg.js` — extract a PSID/RSID payload to a `.prg` (below).
+- `instrument-map.js` — observed instrument map from a register trace, and a
+  cheap falsifier for a card's instrument-table layout (below).
 
 ---
 
@@ -310,6 +312,69 @@ tracing a smooth waveform (`03 03 04 05 06 08 08 09 09 09 08 07 06 05 04 03`):
 Note for scripted use: digi traces are large. `child_process.execFileSync`'s
 default 1 MB `maxBuffer` overflows (`ENOBUFS`) on them — raise it or use
 `--out`.
+
+---
+
+## `instrument-map.js` — instruments read from the trace, not the disassembly
+
+```
+node scripts/dev/instrument-map.js <file.sid> [--card <id>] [--frames 500] [--stdout]
+node scripts/dev/instrument-map.js --index        # regenerate the maps index
+node scripts/dev/instrument-map.js --self-test    # offset math + onset detection
+```
+
+Every other instrument-level fact in this project comes from the player's own
+instrument table: bytes located by a disassembly, then argued about. This reads
+the other end — what `$D400-$D418` holds on the frame each note begins — and
+groups those onsets by **ADSR**.
+
+The technique is borrowed from [h2g](https://github.com/MichaelTroelsen/h2g)'s
+`instrmap.py`, and rests on one property: in many players ADSR
+(`$D405`/`$D406`) is a verbatim per-instrument copy of the instrument record,
+so it identifies an instrument where waveform cannot (several instruments share
+one) and pulse cannot (a swept width has no single value). h2g measured that at
+"0 of 1635 corpus records differ" — **on one player family**. It is not a
+general law, which is why the first thing the tool does is decide whether the
+key holds at all:
+
+| verdict | meaning |
+|---|---|
+| `reliable` | few distinct ADSR values, none modulated mid-note — key holds |
+| `degenerate` | ONE value covers every note: stable, but separates nothing |
+| `suspect` | usable, but treat instruments seen once or twice as unconfirmed |
+| `insufficient-data` | under 30 onsets — includes digi players, which never gate |
+| `unusable` | ADSR is computed per note or modulated mid-note; **no table is emitted** |
+
+Across a 27-file spread sample (subtune 1, 500 frames): 12 `reliable`, 5
+`degenerate`, 3 `suspect`, 7 `insufficient-data`, 0 `unusable`. The `unusable`
+branch has so far been exercised only by the self-test, not by a real file.
+
+`--card <id>` cross-checks against that card's optional
+`data_format.instrument_layout` — a machine-readable restatement of the
+`instruments` prose:
+
+```json
+"instrument_layout": { "base_address": "$9000", "stride": 16, "count": 16,
+                       "adsr_offsets": [0, 1], "derived_from": "Bad_Toon.sid" }
+```
+
+Every observed ADSR must appear in the declared table; one that does not is a
+real falsification of the card. Where the card declares no layout, the tool
+instead *proposes* candidates by finding the stride the observed values actually
+land on — useful on the many cards whose `data_format.instruments` is a `TODO`.
+
+**The offset math is printed in every report, and that is not decoration.** When
+a PSID header's `loadAddress` field is `$0000` the real load address is the
+first two bytes of the data block, and those two bytes are **not** part of the
+loaded image. Nearly every HVSC file is this case (0 of 2935 files sampled under
+`MUSICIANS/A` used the header form). A probe that failed to skip them read every
+instrument record two bytes early, found a coherent-looking layout at `+2` of
+each record, and reported a *correct* card as falsified. `--self-test` covers
+both branches for that reason.
+
+Output goes to `knowledge/instrument-maps/<card-id>/<file>.md`, committed as
+evidence. Generated on demand — never from `npm run all`, since each map costs
+one VICE run per subtune.
 
 ---
 

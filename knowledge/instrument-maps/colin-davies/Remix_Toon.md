@@ -67,7 +67,7 @@ No voice is routed through the filter — the filter is not used.
 
 Against `knowledge/players/colin-davies.md`.
 
-**`confirmed`** — all 2 observed ADSR values appear in the declared table
+**`confirmed-weakly`** — all 2 observed ADSR value(s) appear in the declared table, but 2 value(s) against 9 distinct declared record(s) is a match cheap enough to happen by chance — this neither confirms nor falsifies the layout
 
 | ADSR | notes observed | record(s) in declared table |
 |---|---|---|
@@ -96,4 +96,20 @@ or evidence the declared `count` is too high.
 | 12 | $90C0 | `$0000` | `00 00 00 00 00 00 00 00` |
 | 13 | $90D0 | `$0000` | `00 00 00 00 00 00 00 00` |
 | 14 | $90E0 | `$0000` | `00 00 00 00 00 00 00 00` |
+
+## Candidate layouts
+
+Where the observed ADSR values actually land in the payload, by constant stride.
+**Read this with the offset math at the top of this file.** A search like this, run
+against a base two bytes out, finds a coherent layout at the wrong offset in every
+record and reads as a confident falsification of a card that is right.
+
+| stride | covers | first record at | file offset |
+|---|---|---|---|
+| 4 | 2/2 | $9000 | 6014 |
+| 6 | 2/2 | $9000 | 6014 |
+| 8 | 2/2 | $9000 | 6014 |
+| 12 | 2/2 | $9000 | 6014 |
+| 16 | 2/2 | $9000 | 6014 |
+| 20 | 2/2 | $9000 | 6014 |
 

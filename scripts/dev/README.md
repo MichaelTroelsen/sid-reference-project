@@ -380,9 +380,42 @@ since a hard restart yields exactly the small tidy value set those tests reward.
 ```
 
 Every observed ADSR must appear in the declared table; one that does not is a
-real falsification of the card. Where the card declares no layout — or declares
-one that fails — the tool instead *proposes* candidates, in both table shapes
-this repo's cards actually document:
+real falsification of the card. The verdicts:
+
+| verdict | meaning |
+|---|---|
+| `confirmed` | every observed value found, against a declared table not much bigger than the observed set |
+| `confirmed-weakly` | every observed value found, but off too few values or against a table large enough that the match is close to free |
+| `layout-wrong` | an observed value appears nowhere in the declared table |
+| `out-of-range` | the declared address is outside this file's image — usual for a relocatable player, not a card error |
+| `unverifiable` | the card declares no layout |
+
+`confirmed-weakly` exists because one observed value landing somewhere in a
+32-record table says nothing at all, and SoundMonitor's `Cool.sid` "confirmed" a
+layout that way before the downgrade existed.
+
+Seven cards carry a layout so far:
+
+| card | file(s) | result |
+|---|---|---|
+| `colin-davies` | 4 files, 3 load addresses | `confirmed` ×3, `confirmed-weakly` ×1 |
+| `dmc` | `Great_Tune.sid` | `confirmed` |
+| `marco-scheepers` | `Beat_Box_II_tune_1.sid` | `confirmed` (AD/SR reversed, as the prose says) |
+| `john-player` | 3 V1.4 files | **`layout-wrong` ×3** — see below |
+| `soundmonitor` | `Cool.sid` | `confirmed-weakly` (1 value, 21 onsets) |
+| `rockmonitor` | `Pull.sid` | `out-of-range` — `$14AA` is one build's relocated address |
+| `laxity-newplayer` | `Be_What_You_Is.sid` | `out-of-range` — relocatable; declared base is from a file not in HVSC |
+
+**The `john-player` result is a real falsification.** The card puts `SoundTab` at
+`$1420` with `[0]=AD, [1]=SR`. Across three independently traced V1.4 files every
+observed ADSR value is absent there and present at `+1/+2` of the same stride-11
+grid, and the candidate search independently lands on `$1421`. Either the table
+starts one byte later or `[0]` is not AD. The card's prose is left as written and
+the finding recorded in its `instrument_layout.note` — adjudicating it is
+`sid-card-falsify`'s job, not this tool's.
+
+Where the card declares no layout — or declares one that fails — the tool instead
+*proposes* candidates, in both table shapes this repo's cards actually document:
 
 - **row-major**, adjacent `AD`/`SR` bytes at a constant stride (`colin-davies`,
   `dmc`, `john-player`, `marco-scheepers`, …);

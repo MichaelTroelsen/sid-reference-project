@@ -416,12 +416,30 @@ function checkLayout(psid, buf, layout, observed) {
   const rows = observed.map((o) => ({ adsr: o.adsr, notes: o.notes, records: declared.get(o.adsr) || [] }));
   const missing = rows.filter((r) => !r.records.length);
   const ambiguous = rows.filter((r) => r.records.length > 1);
+
+  // A match is only evidence in proportion to how hard it was to get. One
+  // observed value landing somewhere in a 32-record table is close to free —
+  // SoundMonitor's `Cool.sid` "confirmed" a 32-record layout off a single ADSR
+  // value, which says nothing about the layout at all. Two things make a confirm
+  // cheap: too few observed values, and a declared table far larger than the
+  // observed set. Both are reported as numbers rather than hidden behind a word.
+  if (missing.length) {
+    return {
+      verdict: 'layout-wrong', base, records, rows, missing, ambiguous,
+      why: missing.length + ' of ' + rows.length + ' observed ADSR values appear nowhere in the declared table',
+    };
+  }
+  const declaredDistinct = declared.size;
+  const weak = rows.length < 3 || declaredDistinct > 4 * rows.length;
   return {
-    verdict: missing.length ? 'layout-wrong' : 'confirmed',
-    base, records, rows, missing, ambiguous,
-    why: missing.length
-      ? missing.length + ' of ' + rows.length + ' observed ADSR values appear nowhere in the declared table'
-      : 'all ' + rows.length + ' observed ADSR values appear in the declared table',
+    verdict: weak ? 'confirmed-weakly' : 'confirmed',
+    base, records, rows, missing, ambiguous, declaredDistinct,
+    why: weak
+      ? 'all ' + rows.length + ' observed ADSR value(s) appear in the declared table, but ' + rows.length +
+        ' value(s) against ' + declaredDistinct + ' distinct declared record(s) is a match cheap enough to ' +
+        'happen by chance — this neither confirms nor falsifies the layout'
+      : 'all ' + rows.length + ' observed ADSR values appear in the declared table, against ' +
+        declaredDistinct + ' distinct declared records',
   };
 }
 
@@ -581,7 +599,7 @@ function analyse(file, opts) {
   }
   // The searches also run with no card at all: proposing a layout is the useful
   // half on the many cards whose `data_format.instruments` is still a TODO.
-  if ((!layout || layout.verdict !== 'confirmed') && rel.verdict !== 'unusable' && observed.length) {
+  if ((!layout || !/^confirmed$/.test(layout.verdict)) && rel.verdict !== 'unusable' && observed.length) {
     search = searchLayout(psid, buf, observed, layout && layout.declared && layout.declared.stride);
     split = searchSplitLayout(psid, buf, observed);
   }
@@ -804,12 +822,19 @@ function selfTest() {
   // A record layout declared at an absolute address resolves through the same
   // math, so a two-byte error here would surface as a layout-wrong verdict.
   const buf = psidHeader(0, Buffer.concat([Buffer.from([0x00, 0x10]),
-    Buffer.from([0x0f, 0xf8, 0x41, 0x80, 0x0f, 0xea, 0x41, 0x40])]));
+    Buffer.from([0x0f, 0xf8, 0x41, 0x80, 0x0f, 0xea, 0x41, 0x40, 0x0f, 0xf9, 0x21, 0x20])]));
   const psid = readPsid(buf);
-  const got = checkLayout(psid, buf, { base_address: '$1000', stride: 4, count: 2, adsr_offsets: [0, 1] },
-    [{ adsr: 0x0ff8, notes: 5 }, { adsr: 0x0fea, notes: 3 }]);
+  const three = [{ adsr: 0x0ff8, notes: 5 }, { adsr: 0x0fea, notes: 3 }, { adsr: 0x0ff9, notes: 4 }];
+  const got = checkLayout(psid, buf, { base_address: '$1000', stride: 4, count: 3, adsr_offsets: [0, 1] }, three);
   check('layout resolves at the declared address', [got.verdict, got.records.map((r) => r.adsr)],
-    ['confirmed', [0x0ff8, 0x0fea]]);
+    ['confirmed', [0x0ff8, 0x0fea, 0x0ff9]]);
+
+  // One value landing in a big table is nearly free and must not read as a
+  // confirmation — SoundMonitor's Cool.sid "confirmed" 32 records off a single
+  // observed value before this downgrade existed.
+  const thin = checkLayout(psid, buf, { base_address: '$1000', stride: 4, count: 3, adsr_offsets: [0, 1] },
+    [{ adsr: 0x0ff8, notes: 5 }]);
+  check('a thin match is downgraded, not confirmed', thin.verdict, 'confirmed-weakly');
   const shifted = checkLayout(psid, buf, { base_address: '$0FFE', stride: 4, count: 2, adsr_offsets: [0, 1] },
     [{ adsr: 0x0ff8, notes: 5 }]);
   check('a two-byte-early base does NOT silently confirm', shifted.verdict, 'out-of-range');
@@ -844,7 +869,7 @@ function selfTest() {
     process.stderr.write('self-test FAILED:\n' + fails.map((f) => '  - ' + f).join('\n') + '\n');
     process.exit(1);
   }
-  process.stdout.write('self-test ok (11 checks)\n');
+  process.stdout.write('self-test ok (12 checks)\n');
 }
 
 /*

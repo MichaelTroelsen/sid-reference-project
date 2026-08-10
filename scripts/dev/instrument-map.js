@@ -159,14 +159,44 @@ function foldTimelines(report, frames) {
   return t;
 }
 
-/* Onsets: the gate bit of a voice's control register going 0 -> 1. */
+/*
+ * Onsets: the gate bit of a voice's control register going 0 -> 1.
+ *
+ * WHICH FRAME TO SAMPLE. h2g samples onset+1, because the onset frame itself can
+ * still hold the player's transition. That is tuned to one player. Laxity/JCH
+ * NewPlayer runs a multi-frame HARD RESTART — frequency driven to $FFFF, waveform
+ * cleared, a restart envelope written — and on Stinsen's `Last_Night.sid` a fixed
+ * onset+1 sampled the restart on 96 of 96 notes: four tidy "instruments" whose
+ * ADSR values appear NOWHERE in the payload, because the player synthesised them.
+ * The gate called that `reliable`, which it was; it was also meaningless.
+ *
+ * So the sample frame is the first SETTLED frame instead: gate still on, a real
+ * waveform selected, and a frequency that is not one of the restart sentinels.
+ * On a player with no hard restart this is onset+1 and nothing changes; the delay
+ * is recorded either way, because "this player restarts for 3 frames" is itself a
+ * fact worth having.
+ */
+const SETTLE_MAX = 4;
+const FREQ_SENTINEL = new Set([0x0000, 0xffff]);
+
 function findOnsets(t, frames) {
   const out = [];
   for (let v = 0; v < 3; v++) {
     const V = VOICE[v];
     for (let f = 1; f < frames; f++) {
       if ((t[V.ctrl][f - 1] & 1) !== 0 || (t[V.ctrl][f] & 1) !== 1) continue;
-      const at = Math.min(f + 1, frames - 1);
+      let at = Math.min(f + 1, frames - 1);
+      let settled = false;
+      for (let k = 1; k <= SETTLE_MAX; k++) {
+        const fr = f + k;
+        if (fr >= frames) break;
+        const ctrl = t[V.ctrl][fr];
+        const freq = (t[V.fHi][fr] << 8) | t[V.fLo][fr];
+        if ((ctrl & 1) === 0) break;                 // gate released: note is over
+        if ((ctrl & 0xf0) === 0) continue;           // no waveform yet
+        if (FREQ_SENTINEL.has(freq)) continue;       // still in the restart
+        at = fr; settled = true; break;
+      }
       const sample = (fr) => ({
         wave: t[V.ctrl][fr] & 0xf0,
         adsr: (t[V.ad][fr] << 8) | t[V.sr][fr],
@@ -180,6 +210,8 @@ function findOnsets(t, frames) {
         pulseBucket: Math.floor(s1.pulse / PULSE_BUCKET),
         onsetFrameAdsr: s0.adsr,
         onsetFrameWave: s0.wave,
+        settleDelay: at - f,
+        settled,
         filterRouted: (t[23][at] & (1 << v)) !== 0,
       });
     }
@@ -210,9 +242,21 @@ function reliability(onsets, t, frames, minOnsets) {
   }
   const ratio = n ? distinct.size / n : 0;
   const modRatio = n ? modulated / n : 0;
+  const unsettled = onsets.filter((o) => !o.settled).length;
+  const unsettledRatio = n ? unsettled / n : 0;
   const pct = (x) => (x * 100).toFixed(0) + '%';
   let verdict, why;
-  if (n < minOnsets) {
+  if (n >= minOnsets && unsettledRatio > 0.5) {
+    // Checked BEFORE the distinct-value tests, because a hard restart produces a
+    // small, tidy, perfectly stable set of values that sails through them. This
+    // is what Stinsen's Last_Night.sid did: 4 values over 96 onsets, 0 modulated,
+    // graded `reliable` — and not one of the four exists anywhere in the payload,
+    // because the player synthesised them during the restart.
+    verdict = 'unusable';
+    why = unsettled + ' of ' + n + ' notes (' + pct(unsettledRatio) + ') never reach a settled frame ' +
+          'within ' + SETTLE_MAX + ' frames of the onset — the sample is stuck in the player\'s hard ' +
+          'restart, so these are the restart\'s registers, not any instrument\'s.';
+  } else if (n < minOnsets) {
     verdict = 'insufficient-data';
     why = n + ' onsets is below the ' + minOnsets + '-onset floor — too few to tell a ' +
           'per-instrument constant from a coincidence.';
@@ -243,7 +287,7 @@ function reliability(onsets, t, frames, minOnsets) {
     why = distinct.size + ' distinct ADSR values over ' + n + ' onsets (' + pct(ratio) + '), ' +
           modulated + ' modulated mid-note — stable enough to key on.';
   }
-  return { verdict, why, onsets: n, distinct: distinct.size, modulated, ratio, modRatio };
+  return { verdict, why, onsets: n, distinct: distinct.size, modulated, unsettled, ratio, modRatio };
 }
 
 /* Modal register behaviour over the first PROFILE_FRAMES of each note. */
@@ -254,7 +298,7 @@ function profile(onsets, t, frames) {
       by.set(o.adsr, {
         adsr: o.adsr, notes: 0, voices: new Set(), waves: new Map(), pulses: new Set(),
         freqs: [], seqs: new Map(), gateOff: [], filterRouted: 0, onsetDisagree: 0,
-        travelSum: 0, firstFrame: o.frame,
+        travelSum: 0, firstFrame: o.frame, settle: [], unsettled: 0,
       });
     }
     const p = by.get(o.adsr);
@@ -265,6 +309,8 @@ function profile(onsets, t, frames) {
     p.freqs.push(o.freq);
     if (o.filterRouted) p.filterRouted++;
     if (o.onsetFrameAdsr !== o.adsr || o.onsetFrameWave !== o.wave) p.onsetDisagree++;
+    p.settle.push(o.settleDelay);
+    if (!o.settled) p.unsettled++;
     p.firstFrame = Math.min(p.firstFrame, o.frame);
 
     const V = VOICE[o.voice];
@@ -304,6 +350,8 @@ function mergeProfiles(list) {
       cur.gateOff = cur.gateOff.concat(e.gateOff);
       cur.filterRouted += e.filterRouted;
       cur.onsetDisagree += e.onsetDisagree;
+      cur.settle = cur.settle.concat(e.settle);
+      cur.unsettled += e.unsettled;
       cur.travelSum += e.travelSum;
       cur.firstFrame = Math.min(cur.firstFrame, e.firstFrame);
     }
@@ -421,6 +469,70 @@ function searchLayout(psid, buf, observed, declaredStride) {
   return candidates.slice(0, 6);
 }
 
+/*
+ * The other table shape: COLUMN-MAJOR, where AD and SR live in separate
+ * parallel arrays instead of adjacent bytes of one record. Three cards in this
+ * repo already document exactly this (stinsen-newplayer's $1808/$181C,
+ * sid-factory-ii-driver-11's 6 columns of 32, cadaver-musicdriver's 6 parallel
+ * arrays), and searchLayout above is blind to all of them: it only ever looks
+ * for a hi byte with its lo byte immediately after it.
+ *
+ * Found empirically — the row-major search returned nothing at all for Stinsen's
+ * `Last_Night.sid` while a split search located a coherent column pair on the
+ * first try.
+ *
+ * A constant delta between the two columns is the signature. The catch is that
+ * $00 and $0F are extremely common bytes, so a delta that "covers" every value
+ * can easily be coincidence; the AD positions are therefore required to sit
+ * close together, as a real column's entries do, and the span is reported so a
+ * loose cluster can be disbelieved.
+ */
+function searchSplitLayout(psid, buf, observed, maxSpan) {
+  const wanted = observed.map((o) => o.adsr);
+  if (wanted.length < 2) return [];
+  const span = maxSpan || 64;
+  const positionsOf = (b) => {
+    const a = [];
+    for (let i = psid.dataStart; i < buf.length; i++) if (buf[i] === b) a.push(i);
+    return a;
+  };
+  // A byte that occurs thousands of times carries no location information and
+  // would make the delta cross-product quadratic on a large payload, so both
+  // sides are capped. $00 in a 55KB file is the case this guards against.
+  const CAP = 512;
+  const byDelta = new Map();
+  for (const v of wanted) {
+    const ad = positionsOf((v >> 8) & 0xff);
+    const sr = positionsOf(v & 0xff);
+    if (!ad.length || !sr.length || ad.length > CAP || sr.length > CAP) continue;
+    const seen = new Set();
+    for (const a of ad) {
+      for (const s of sr) {
+        const delta = s - a;
+        if (delta === 0 || seen.has(delta)) continue;
+        seen.add(delta);
+        if (!byDelta.has(delta)) byDelta.set(delta, new Map());
+        byDelta.get(delta).set(v, a);
+      }
+    }
+  }
+
+  const out = [];
+  for (const [delta, hits] of byDelta) {
+    if (hits.size < wanted.length) continue;
+    const offs = [...hits.values()].sort((a, b) => a - b);
+    const width = offs[offs.length - 1] - offs[0];
+    if (width > span) continue;
+    out.push({
+      delta, covered: hits.size, of: wanted.length, width,
+      firstOffset: offs[0], firstAddr: psid.load + (offs[0] - psid.dataStart),
+      srAddr: psid.load + (offs[0] + delta - psid.dataStart),
+    });
+  }
+  out.sort((a, b) => a.width - b.width || Math.abs(a.delta) - Math.abs(b.delta));
+  return out.slice(0, 4);
+}
+
 /* --------------------------------------------------------------------------- */
 
 function analyse(file, opts) {
@@ -456,7 +568,7 @@ function analyse(file, opts) {
 
   const observed = mergeProfiles(per.map((p) => p.prof));
 
-  let card = null, layout = null, search = null;
+  let card = null, layout = null, search = null, split = null;
   if (opts.card) {
     card = readCard(opts.card);
     const decl = card.json.data_format && card.json.data_format.instrument_layout;
@@ -466,12 +578,15 @@ function analyse(file, opts) {
       layout = checkLayout(psid, buf, decl, observed);
       layout.declared = decl;
     }
-    if (layout.verdict !== 'confirmed' && rel.verdict !== 'unusable' && observed.length) {
-      search = searchLayout(psid, buf, observed, layout.declared && layout.declared.stride);
-    }
+  }
+  // The searches also run with no card at all: proposing a layout is the useful
+  // half on the many cards whose `data_format.instruments` is still a TODO.
+  if ((!layout || layout.verdict !== 'confirmed') && rel.verdict !== 'unusable' && observed.length) {
+    search = searchLayout(psid, buf, observed, layout && layout.declared && layout.declared.stride);
+    split = searchSplitLayout(psid, buf, observed);
   }
 
-  return { file, psid, songs, rel, observed, filterStates: [...filterStates], card, layout, search, opts };
+  return { file, psid, songs, rel, observed, filterStates: [...filterStates], card, layout, search, split, opts };
 }
 
 /* --------------------------------------------------------------------------- */
@@ -540,19 +655,21 @@ function render(a) {
   L.push('Modal behaviour over the first ' + PROFILE_FRAMES + ' frames of each note. The waveform',
          'sequence is what separates instruments a single onset sample cannot: a two-stage',
          "attack, or a drum's noise tick, shows up here and nowhere else.", '');
-  L.push(...table(['ADSR', 'waveform sequence', 'pulse travel', 'gate off @', 'freq range', 'onset±1 disagreed'],
+  L.push(...table(['ADSR', 'waveform sequence', 'pulse travel', 'gate off @', 'freq range', 'sampled at'],
     observed.map((o) => [
       '`' + hex4(o.adsr) + '`',
       modal(o.seqs),
       o.travelSum ? Math.round(o.travelSum / o.notes) + '/note' : 'fixed',
       median(o.gateOff) >= PROFILE_FRAMES ? '>' + (PROFILE_FRAMES - 1) : String(median(o.gateOff)),
       hex4(Math.min(...o.freqs)) + '-' + hex4(Math.max(...o.freqs)),
-      o.onsetDisagree ? o.onsetDisagree + '/' + o.notes : '—',
+      '+' + median(o.settle) + (o.unsettled ? ' (' + o.unsettled + ' unsettled)' : ''),
     ])));
-  L.push('`onset±1 disagreed` counts notes where the onset frame and the frame after it differ.',
-         "That gap is the player's hard-restart showing, not a second instrument — the sample",
-         'is taken at onset+1 for exactly this reason, and the count is reported rather than',
-         'discarded because it is evidence about the player.', '');
+  L.push('`sampled at` is how many frames after the onset the registers first settled — gate',
+         'still on, a real waveform selected, frequency off the restart sentinels. A player with',
+         'no hard restart settles at +1; a larger number is that player\'s restart length, which',
+         'is a fact worth having rather than noise to hide. `unsettled` notes never settled',
+         'within ' + SETTLE_MAX + ' frames and fall back to +1, and enough of them make the whole',
+         'file `unusable` — see the verdict above.', '');
 
   L.push('## Filter', '');
   L.push('`$D415-$D418` is global rather than per voice, so it is reported once for the file;',
@@ -600,6 +717,18 @@ function render(a) {
            'record and reads as a confident falsification of a card that is right.', '');
     L.push(...table(['stride', 'covers', 'first record at', 'file offset'],
       a.search.map((c) => [c.stride, c.covered + '/' + c.of, hex4(c.firstAddr), c.firstOffset])));
+  }
+
+  if (a.split && a.split.length) {
+    L.push('### Column-major candidates', '');
+    L.push('The other table shape: AD and SR in separate parallel arrays rather than adjacent',
+           'bytes of one record. `width` is how far apart the matched AD bytes sit — a real',
+           'column is tight, and a wide one is coincidence dressed up as a layout, because `$00`',
+           'and `$0F` are common enough to line up by luck.', '');
+    L.push(...table(['AD column at', 'SR column at', 'delta', 'covers', 'width'],
+      a.split.map((c) => [hex4(c.firstAddr), hex4(c.srAddr),
+                          c.delta + ' ($' + Math.abs(c.delta).toString(16) + ')',
+                          c.covered + '/' + c.of, c.width])));
   }
 
   return L.join('\n') + '\n';
@@ -688,15 +817,34 @@ function selfTest() {
   // Onset detection: gate 0 -> 1 on voice 1, sampled at onset+1.
   const frames = 6;
   const t = Array.from({ length: 25 }, () => new Array(frames).fill(0));
-  for (let f = 2; f < frames; f++) { t[4][f] = 0x41; t[5][f] = 0x0f; t[6][f] = 0xf8; }
+  // A real frequency matters here: $0000 is a restart sentinel, so a fixture that
+  // left it at zero would never settle — which is the rule working, not a bug.
+  for (let f = 2; f < frames; f++) { t[4][f] = 0x41; t[5][f] = 0x0f; t[6][f] = 0xf8; t[0][f] = 0x8f; t[1][f] = 0x0c; }
   const on = findOnsets(t, frames);
   check('one onset, at the gate edge', on.map((o) => [o.frame, o.adsr, o.wave]), [[2, 0x0ff8, 0x40]]);
+  check('no hard restart settles at +1', on.map((o) => [o.settleDelay, o.settled]), [[1, true]]);
+
+  // Hard restart: gate on at frame 2, but frequency held at the $FFFF sentinel
+  // with no waveform for two frames before the instrument's real registers land.
+  const hr = Array.from({ length: 25 }, () => new Array(8).fill(0));
+  for (let f = 2; f < 8; f++) { hr[4][f] = 0x01; hr[5][f] = 0x0f; hr[6][f] = 0x00; hr[0][f] = 0xff; hr[1][f] = 0xff; }
+  for (let f = 4; f < 8; f++) { hr[4][f] = 0x41; hr[5][f] = 0x00; hr[6][f] = 0x72; hr[0][f] = 0x8f; hr[1][f] = 0x0c; }
+  const hrOn = findOnsets(hr, 8);
+  check('a restart is skipped, not sampled', hrOn.map((o) => [o.settleDelay, o.adsr, o.settled]),
+    [[2, 0x0072, true]]);
+
+  // And when it never settles, the gate must call the whole file unusable rather
+  // than grading the restart's own registers as a tidy instrument set.
+  const stuck = Array.from({ length: 25 }, () => new Array(8).fill(0));
+  for (let f = 2; f < 8; f++) { stuck[4][f] = 0x01; stuck[5][f] = 0x0f; stuck[0][f] = 0xff; stuck[1][f] = 0xff; }
+  const stuckOn = findOnsets(stuck, 8);
+  check('stuck in the restart is unusable', reliability(stuckOn, stuck, 8, 1).verdict, 'unusable');
 
   if (fails.length) {
     process.stderr.write('self-test FAILED:\n' + fails.map((f) => '  - ' + f).join('\n') + '\n');
     process.exit(1);
   }
-  process.stdout.write('self-test ok (7 checks)\n');
+  process.stdout.write('self-test ok (11 checks)\n');
 }
 
 /*
@@ -773,4 +921,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { readPsid, foldTimelines, findOnsets, reliability, profile, checkLayout, searchLayout };
+module.exports = { readPsid, foldTimelines, findOnsets, reliability, profile, checkLayout, searchLayout, searchSplitLayout };

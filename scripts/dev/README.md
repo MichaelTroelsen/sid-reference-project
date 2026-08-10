@@ -343,11 +343,32 @@ key holds at all:
 | `degenerate` | ONE value covers every note: stable, but separates nothing |
 | `suspect` | usable, but treat instruments seen once or twice as unconfirmed |
 | `insufficient-data` | under 30 onsets — includes digi players, which never gate |
-| `unusable` | ADSR is computed per note or modulated mid-note; **no table is emitted** |
+| `unusable` | the sample never leaves the hard restart, or ADSR is computed per note / modulated mid-note; **no table is emitted** |
 
 Across a 27-file spread sample (subtune 1, 500 frames): 12 `reliable`, 5
-`degenerate`, 3 `suspect`, 7 `insufficient-data`, 0 `unusable`. The `unusable`
-branch has so far been exercised only by the self-test, not by a real file.
+`degenerate`, 3 `suspect`, 7 `insufficient-data`, 0 `unusable`. `unusable` is
+rare but real — Stinsen's `Last_Night.sid` (Laxity/JCH NewPlayer) trips it, just
+not from that sample.
+
+### Which frame gets sampled
+
+h2g samples onset+1, on the reasoning that the onset frame itself can still hold
+the player's transition. That is tuned to one player, and taking it literally
+produces confident garbage elsewhere. Laxity/JCH NewPlayer runs a **multi-frame
+hard restart** — frequency driven to `$FFFF`, waveform cleared, a restart
+envelope written — and on Stinsen's `Last_Night.sid` a fixed onset+1 sampled the
+restart on **96 of 96 notes**. The result was four tidy, perfectly stable
+"instruments", graded `reliable`, whose ADSR values appear **nowhere in the
+payload** — because the player synthesised them.
+
+So the sample frame is the first *settled* frame within 4 of the onset: gate
+still on, a real waveform selected, frequency off the `$0000`/`$FFFF` sentinels.
+A player with no hard restart settles at +1 and nothing changes (all four
+`colin-davies` files still settle at +1, same values, still `confirmed`). A
+larger number is that player's restart length, reported in the `sampled at`
+column because it is a fact worth having. When more than half the notes never
+settle, the file is `unusable` — checked *before* the distinct-value tests,
+since a hard restart yields exactly the small tidy value set those tests reward.
 
 `--card <id>` cross-checks against that card's optional
 `data_format.instrument_layout` — a machine-readable restatement of the
@@ -359,9 +380,21 @@ branch has so far been exercised only by the self-test, not by a real file.
 ```
 
 Every observed ADSR must appear in the declared table; one that does not is a
-real falsification of the card. Where the card declares no layout, the tool
-instead *proposes* candidates by finding the stride the observed values actually
-land on — useful on the many cards whose `data_format.instruments` is a `TODO`.
+real falsification of the card. Where the card declares no layout — or declares
+one that fails — the tool instead *proposes* candidates, in both table shapes
+this repo's cards actually document:
+
+- **row-major**, adjacent `AD`/`SR` bytes at a constant stride (`colin-davies`,
+  `dmc`, `john-player`, `marco-scheepers`, …);
+- **column-major**, `AD` and `SR` in separate parallel arrays a constant delta
+  apart (`stinsen-newplayer`'s `$1808`/`$181C`, `sid-factory-ii-driver-11`'s 6
+  columns of 32, `cadaver-musicdriver`'s 6 parallel arrays).
+
+The column-major search exists because the row-major one is blind to all three
+of those, and returned nothing at all on the first file that needed it. Its
+`width` column — how far apart the matched `AD` bytes sit — is the thing to
+judge it by: a real column is tight, and `$00`/`$0F` are common enough to line
+up by luck across a whole payload.
 
 **The offset math is printed in every report, and that is not decoration.** When
 a PSID header's `loadAddress` field is `$0000` the real load address is the

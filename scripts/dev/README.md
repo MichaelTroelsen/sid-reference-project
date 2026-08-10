@@ -406,13 +406,33 @@ Seven cards carry a layout so far:
 | `rockmonitor` | `Pull.sid` | `out-of-range` — `$14AA` is one build's relocated address |
 | `laxity-newplayer` | `Be_What_You_Is.sid` | `out-of-range` — relocatable; declared base is from a file not in HVSC |
 
-**The `john-player` result is a real falsification.** The card puts `SoundTab` at
-`$1420` with `[0]=AD, [1]=SR`. Across three independently traced V1.4 files every
-observed ADSR value is absent there and present at `+1/+2` of the same stride-11
-grid, and the candidate search independently lands on `$1421`. Either the table
-starts one byte later or `[0]` is not AD. The card's prose is left as written and
-the finding recorded in its `instrument_layout.note` — adjudicating it is
-`sid-card-falsify`'s job, not this tool's.
+**The `john-player` result is a real falsification, and the code settles which
+half of the card is wrong.** The card puts `SoundTab` at `$1420` with `[0]=AD,
+[1]=SR`. Across three independently traced V1.4 files every observed ADSR value
+is absent there and present at `+1/+2` of the same stride-11 grid, and the
+candidate search independently lands on `$1421`.
+
+Disassembling `Music_Test_2` says which half to blame. `$100F` is
+`b9 20 14 8d 05 d4` — `LDA $1420,Y / STA $D405` — and `$1015` is
+`b9 21 14 8d 06 d4` — `LDA $1421,Y / STA $D406`, so **`[0]=AD, [1]=SR` is
+confirmed by the code** and is not the error. The player reads nine parallel
+field bases `$1420-$1428` under one `Y`, and `Y` is not computed: `$1003` is
+`LDY $42 / BEQ`, and `$126E` reads `$42` straight out of the pattern stream
+(`INY / LDA ($48),Y / BEQ / STA $42`). The pattern byte *is* the `Y` offset, with
+`$00` reserved as "no instrument this row" — which forces the stored index to be
+`(instr*11)+1`, since `instr*11` would encode instrument 0 as `$00` and make it
+unreachable. Record `n`'s AD byte therefore sits at `$1421+11n`, and the search
+agrees: `$1421` in the two files that sound record 0, `$142C` in the one that
+starts at record 1.
+
+So `$1420` is right as the *assembler label the code indexes from* and wrong as
+*the address of record 0*. The prose is misleading rather than false.
+
+Worth dwelling on as a method note: the trace found the discrepancy, but only the
+disassembly could say which of two possible errors it was, and only the pattern
+decode explained *why* the offset exists. **A register trace localises; it does
+not adjudicate.** The card's prose is left as written and the finding recorded in
+its `instrument_layout.note` — `sid-card-falsify`'s call, not this tool's.
 
 Where the card declares no layout — or declares one that fails — the tool instead
 *proposes* candidates, in both table shapes this repo's cards actually document:

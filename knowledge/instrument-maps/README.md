@@ -20,3 +20,4 @@ every player.
 | colin-davies | [`Bad_Toon`](colin-davies/Bad_Toon.md) | `reliable` | 99 | 4 | `confirmed` |
 | colin-davies | [`Remix_Toon`](colin-davies/Remix_Toon.md) | `reliable` | 97 | 2 | `confirmed` |
 | colin-davies | [`Very_Naff`](colin-davies/Very_Naff.md) | `reliable` | 66 | 3 | `confirmed` |
+| uncarded | [`Last_Night`](uncarded/Last_Night.md) | `unusable` | 96 | — | `—` |

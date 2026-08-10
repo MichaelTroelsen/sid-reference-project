@@ -44,17 +44,19 @@ Modal behaviour over the first 8 frames of each note. The waveform
 sequence is what separates instruments a single onset sample cannot: a two-stage
 attack, or a drum's noise tick, shows up here and nowhere else.
 
-| ADSR | waveform sequence | pulse travel | gate off @ | freq range | onset±1 disagreed |
+| ADSR | waveform sequence | pulse travel | gate off @ | freq range | sampled at |
 |---|---|---|---|---|---|
-| `$0FEA` | pulse | 127/note | 3 | $0430-$0647 | — |
-| `$0FF8` | pulse -> noise | fixed | 3 | $0C8F-$0E18 | — |
-| `$0FF9` | noise -> pulse | fixed | 3 | $0C8F-$0E18 | — |
-| `$0FFA` | noise | fixed | 3 | $0A8F-$0E18 | — |
+| `$0FEA` | pulse | 127/note | 3 | $0430-$0647 | +1 |
+| `$0FF8` | pulse -> noise | fixed | 3 | $0C8F-$0E18 | +1 |
+| `$0FF9` | noise -> pulse | fixed | 3 | $0C8F-$0E18 | +1 |
+| `$0FFA` | noise | fixed | 3 | $0A8F-$0E18 | +1 |
 
-`onset±1 disagreed` counts notes where the onset frame and the frame after it differ.
-That gap is the player's hard-restart showing, not a second instrument — the sample
-is taken at onset+1 for exactly this reason, and the count is reported rather than
-discarded because it is evidence about the player.
+`sampled at` is how many frames after the onset the registers first settled — gate
+still on, a real waveform selected, frequency off the restart sentinels. A player with
+no hard restart settles at +1; a larger number is that player's restart length, which
+is a fact worth having rather than noise to hide. `unsettled` notes never settled
+within 4 frames and fall back to +1, and enough of them make the whole
+file `unusable` — see the verdict above.
 
 ## Filter
 

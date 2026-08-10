@@ -71,7 +71,7 @@ No voice is routed through the filter — the filter is not used.
 
 Against `knowledge/players/colin-davies.md`.
 
-**`confirmed`** — all 4 observed ADSR values appear in the declared table
+**`confirmed`** — all 4 observed ADSR values appear in the declared table, against 13 distinct declared records
 
 | ADSR | notes observed | record(s) in declared table |
 |---|---|---|

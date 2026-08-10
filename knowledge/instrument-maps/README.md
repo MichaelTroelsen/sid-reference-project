@@ -18,6 +18,14 @@ every player.
 |---|---|---|---|---|---|
 | colin-davies | [`Aquarius_V1`](colin-davies/Aquarius_V1.md) | `reliable` | 83 | 5 | `confirmed` |
 | colin-davies | [`Bad_Toon`](colin-davies/Bad_Toon.md) | `reliable` | 99 | 4 | `confirmed` |
-| colin-davies | [`Remix_Toon`](colin-davies/Remix_Toon.md) | `reliable` | 97 | 2 | `confirmed` |
+| colin-davies | [`Remix_Toon`](colin-davies/Remix_Toon.md) | `reliable` | 97 | 2 | `confirmed-weakly` |
 | colin-davies | [`Very_Naff`](colin-davies/Very_Naff.md) | `reliable` | 66 | 3 | `confirmed` |
+| dmc | [`Great_Tune`](dmc/Great_Tune.md) | `reliable` | 115 | 3 | `confirmed` |
+| john-player | [`John_Player_note`](john-player/John_Player_note.md) | `reliable` | 138 | 8 | `layout-wrong` |
+| john-player | [`Music_Test_2`](john-player/Music_Test_2.md) | `reliable` | 111 | 7 | `layout-wrong` |
+| john-player | [`Music_Test_3`](john-player/Music_Test_3.md) | `reliable` | 127 | 8 | `layout-wrong` |
+| laxity-newplayer | [`Be_What_You_Is`](laxity-newplayer/Be_What_You_Is.md) | `reliable` | 106 | 3 | `out-of-range` |
+| marco-scheepers | [`Beat_Box_II_tune_1`](marco-scheepers/Beat_Box_II_tune_1.md) | `reliable` | 42 | 4 | `confirmed` |
+| rockmonitor | [`Pull`](rockmonitor/Pull.md) | `degenerate` | 34 | 1 | `out-of-range` |
+| soundmonitor | [`Cool`](soundmonitor/Cool.md) | `insufficient-data` | 21 | 1 | `confirmed-weakly` |
 | uncarded | [`Last_Night`](uncarded/Last_Night.md) | `unusable` | 96 | — | `—` |
